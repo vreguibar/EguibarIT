@@ -13,8 +13,8 @@
     PrivateData          = @{
         PSData = @{
             Tags                       = @('Windows', 'ActiveDirectory', 'AD', 'Infrastructure', 'Testing', 'Checks', 'Audits', 'Checklist', 'Validation')
-            ProjectUri                 = 'https://github.com/EguibarIT/EguibarIT'
-            IconUri                    = 'https://EguibarIT.com//wp-content/uploads/2017/09/LOGO_FondoBlanco.png'
+            ProjectUri                 = 'https://github.com/vrguibarIT/EguibarIT'
+            IconUri                    = 'https://EguibarIT.com/wp-content/uploads/2017/09/LOGO_FondoBlanco.png'
             ExternalModuleDependencies = @('ActiveDirectory', 'GroupPolicy', 'ServerManager')
         }
     }
