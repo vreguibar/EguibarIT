@@ -1,0 +1,1169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+ <N>
+    <RegisteredOrg>Eurofins NSC IT-Infrastructure Germany GmbH</RegisteredOrg>
+    <RegisteredOwner>Eurofins NSC IT-Infrastructure Germany GmbH</RegisteredOwner>
+    <PCs>
+        <DC1>
+            <Name>DC1</Name>
+            <IPv4>192.168.1.200</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::200</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+            <DNS1IPv4>192.168.1.1</DNS1IPv4>
+            <DNS1IPv6>fd36:46d4:a1a7:9d18::1</DNS1IPv6>
+            <NetBIOSDomainName>EguibarIT</NetBIOSDomainName>
+            <DnsDomainName>EguibarIT.local</DnsDomainName>
+        </DC1>
+        <DC2>
+            <Name>DC2</Name>
+            <IPv4>192.168.1.100</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::100</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+            <DNS1IPv4>192.168.1.1</DNS1IPv4>
+            <DNS1IPv6>fd36:46d4:a1a7:9d18::1</DNS1IPv6>
+            <NetBIOSDomainName>EguibarIT</NetBIOSDomainName>
+            <DnsDomainName>EguibarIT.local</DnsDomainName>
+        </DC2>
+        <DC3>
+            <Name>DC3</Name>
+            <IPv4>192.168.1.150</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::150</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+            <NetBIOSDomainName>Admin</NetBIOSDomainName>
+            <DnsDomainName>Admin.local</DnsDomainName>
+        </DC3>
+        <DC4>
+            <Name>DC4</Name>
+            <IPv4>192.168.1.50</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::50</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+            <NetBIOSDomainName>Admin</NetBIOSDomainName>
+            <DnsDomainName>Admin.local</DnsDomainName>
+        </DC4>
+        <PAW0>
+            <Name>PAW0</Name>
+            <IPv4>192.168.1.240</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::240</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </PAW0>
+        <PAW1>
+            <Name>PAW1</Name>
+            <IPv4>192.168.1.70</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::70</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </PAW1>
+        <PAW2>
+            <Name>PAW2</Name>
+            <IPv4>192.168.1.140</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::140</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </PAW2>
+        <PC1>
+            <Name>PC1</Name>
+            <IPv4>192.168.1.40</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::40</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </PC1>
+        <PC2>
+            <Name>PC2</Name>
+            <IPv4>192.168.1.72</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::72</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </PC2>
+        <PC3>
+            <Name>PC3</Name>
+            <IPv4>192.168.1.142</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::142</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </PC3>
+        <Srv1>
+            <Name>Srv1</Name>
+            <IPv4>192.168.1.230</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::230</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </Srv1>
+        <Srv2>
+            <Name>Srv2</Name>
+            <IPv4>192.168.1.30</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::30</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </Srv2>
+        <Srv3>
+            <Name>Srv3</Name>
+            <IPv4>192.168.1.90</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::90</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </Srv3>
+        <Srv4>
+            <Name>Srv4</Name>
+            <IPv4>192.168.1.170</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::170</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </Srv4>
+        <Srv5>
+            <Name>Srv5</Name>
+            <IPv4>192.168.1.232</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::232</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </Srv5>
+        <wsus1>
+            <Name>wsus1</Name>
+            <IPv4>192.168.1.20</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::20</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </wsus1>
+        <ca1>
+            <Name>CA1</Name>
+            <IPv4>192.168.1.24</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::24</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </ca1>
+        <scom1>
+            <Name>scom1</Name>
+            <IPv4>192.168.1.94</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::94</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </scom1>
+        <sccm1>
+            <Name>sccm1</Name>
+            <IPv4>192.168.1.174</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::174</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </sccm1>
+        <mdt1>
+            <Name>mdt1</Name>
+            <IPv4>192.168.1.234</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::234</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </mdt1>
+        <wac1>
+            <Name>wac1</Name>
+            <IPv4>192.168.1.26</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::26</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </wac1>
+        <DscSrv1>
+            <Name>DscSrv1</Name>
+            <IPv4>192.168.1.96</IPv4>
+            <PrefixLengthIPv4>23</PrefixLengthIPv4>
+            <IPv6>fd36:46d4:a1a7:9d18::96</IPv6>
+            <PrefixLengthIPv6>64</PrefixLengthIPv6>
+        </DscSrv1>
+    </PCs>
+    <IP>
+        <GatewayIPv4>192.168.1.1</GatewayIPv4>
+        <GatewayIPv6>fd36:46d4:a1a7:9d18:ceed:dcff:fe02:f87d</GatewayIPv6>
+        <DNSserver1>192.168.1.1</DNSserver1>
+        <DNSserver1IPv6>fd36:46d4:a1a7:9d18:ceed:dcff:fe02:f87d</DNSserver1IPv6>
+        <IPv4ReverseZone>137.168.192.in-addr.arpa</IPv4ReverseZone>
+        <IPv6ReverseZone>8.1.d.9.7.a.1.a.4.d.6.4.6.3.d.f.ip6.arpa</IPv6ReverseZone>
+        <GoogleDns1Ipv4>8.8.8.8</GoogleDns1Ipv4>
+        <GoogleDns2Ipv4>8.8.4.4</GoogleDns2Ipv4>
+        <GoogleDns1Ipv6>2001:4860:4860::8888</GoogleDns1Ipv6>
+        <GoogleDns2Ipv6>2001:4860:4860::8844</GoogleDns2Ipv6>
+
+    </IP>
+    <IPsec>
+        <Global>
+            <IPsecStrongCrlCheck>0</IPsecStrongCrlCheck>
+            <IPsecExemptions>ICMP</IPsecExemptions>
+            <IPsecEncapsulation>AH,ESP</IPsecEncapsulation>
+            <IPsecKeyExchange>dh20</IPsecKeyExchange>
+            <IPsecQMHash>aesgmac256</IPsecQMHash>
+            <IPsecMMHash>sha384</IPsecMMHash>
+            <IPsecQMEncryption>aesgcm256</IPsecQMEncryption>
+            <IPsecMMEncryption>aes256</IPsecMMEncryption>
+            <IPsecKeyModule>Default</IPsecKeyModule>
+        </Global>
+        <Rules>
+            <Rule Name="RF-ANY-ANY-Isolation" 
+                Inbound="Require" 
+                Outbound="Require" 
+                LocalAddress="ANY" 
+                RemoteAddress="ANY" 
+                LocalPort="" 
+                RemotePort="" 
+                Protocol="ANY" 
+                GPO="C-Baseline" 
+                Location="RF.EguibarIT.local"
+                Description=""
+            />
+            <Rule Name="RF-WSUS-WU" 
+                Inbound="Require" 
+                Outbound="Request" 
+                LocalAddress="192.168.1.20" 
+                RemoteAddress="192.168.1.1" 
+                LocalPort="ANY" 
+                RemotePort="8080" 
+                Protocol="TCP" 
+                GPO="C-WSUS-Baseline" 
+                Location="WSUS Servers"
+                Description=""
+            />
+            <Rule Name="RF-UDP-DCs-NTP" 
+                Inbound="Require" 
+                Outbound="Request" 
+                LocalAddress="ANY" 
+                RemoteAddress="192.168.1.1" 
+                LocalPort="ANY" 
+                RemotePort="123" 
+                Protocol="UDP" 
+                GPO="C-DomainControllers-Baseline" 
+                Location="Domain Controllers"
+                Description=""
+            />
+            <Rule Name="RF-Workstations-DC-DomainJoinException" 
+                Inbound="Request" 
+                Outbound="Request" 
+                LocalAddress="192.168.1.240" 
+                RemoteAddress="192.168.1.150,192.168.1.50" 
+                LocalPort="" 
+                RemotePort="" 
+                Protocol="ANY" 
+                GPO="C-Baseline" 
+                Location="RF.EguibarIT.local"
+                Description=""
+            />
+            <Rule Name="RF-Workstations-CA-DomainJoinException" 
+                Inbound="Request" 
+                Outbound="Request" 
+                LocalAddress="192.168.1.240" 
+                RemoteAddress="192.168.1.24" 
+                LocalPort="" 
+                RemotePort="" 
+                Protocol="ANY" 
+                GPO="C-Baseline" 
+                Location="RF.EguibarIT.local"
+                Description=""
+            />
+            <Rule Name="RF-Workstations-MDT-DomainJoinException" 
+                Inbound="Request" 
+                Outbound="Request" 
+                LocalAddress="192.168.1.240" 
+                RemoteAddress="192.168.1.234" 
+                LocalPort="" 
+                RemotePort="" 
+                Protocol="ANY" 
+                GPO="C-Baseline" 
+                Location="RF.EguibarIT.local"
+                Description=""
+            />
+            <Rule Name="RF-SCOM-SMTP" 
+                Inbound="Require" 
+                Outbound="Request" 
+                LocalAddress="192.168.1.94" 
+                RemoteAddress="192.168.1.1" 
+                ocalPort="ANY" 
+                RemotePort="25" 
+                Protocol="TCP" 
+                GPO="C-SCOM-Baseline" 
+                Location="SCOM Servers"
+                Description=""
+            />
+            <Rule Name="RF-SCOM-DOMAIN1-SCOMGW" 
+                Inbound="Require" 
+                Outbound="Require" 
+                LocalAddress="192.168.1.94" 
+                RemoteAddress="192.168.1.50" 
+                LocalPort="ANY" 
+                RemotePort="5723" 
+                Protocol="TCP" 
+                GPO="C-SCOM-Baseline" 
+                Location="SCOM Servers"
+                Description=""
+            />
+        </Rules>
+    </IPsec>
+    <CA>
+        <CAType>EnterpriseRootCA</CAType>
+        <CAValidity>16</CAValidity>
+        <CAKeyLength>4096</CAKeyLength>
+        <CACryptoProvider>RSA#Microsoft Software Key Storage Provider</CACryptoProvider>
+        <CAHashAlgorithm>sha384</CAHashAlgorithm>
+        <CACertValidity>2</CACertValidity>
+        <CACRLPeriodUnits>26</CACRLPeriodUnits>
+        <CACRLPeriod>Weeks</CACRLPeriod>
+        <CACRLDeltaPeriodUnits>0</CACRLDeltaPeriodUnits>
+        <CACRLDeltaPeriod>Days</CACRLDeltaPeriod>
+        <CACDP>C:\CAConfig\&lt;CaName&gt;&lt;CRLNameSuffix&gt;.crl
+
+ldap:///CN=&lt;CATruncatedName&gt;&lt;CRLNameSuffix&gt;,CN=&lt;ServerShortName&gt;,CN=CDP,CN=Public Key Services,CN=Services,&lt;ConfigurationContainer&gt;&lt;CDPObjectClass&gt;</CACDP>
+        <CAAIA>C:\CAConfig\&lt;CaName&gt;&lt;CertificateName&gt;.crt
+
+ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt;ConfigurationContainer&gt;&lt;CAObjectClass&gt;</CAAIA>
+        <CAPath>DC=Local,DC=EguibarIT,DC=FR,CN=RF Enterprise Root CA</CAPath>
+    </CA>
+    <NTP>0.europe.pool.ntp.org,0x9 1.europe.pool.ntp.org,0xA 2.europe.pool.ntp.org,0xA 3.europe.pool.ntp.org,0xA</NTP>
+    <userCSVfile>StarWars-Users.csv</userCSVfile>
+    <groupCSVfile>group.csv</groupCSVfile>
+    <shareCSVfile>share.csv</shareCSVfile>
+    <svcaccCSVfile>mngdsvcacc.csv</svcaccCSVfile>
+    <Domains>
+        <Prod>
+            <NETBiosName>Test-Area1</NETBiosName>
+            <DnsDomainName>area1.eurofins.test</DnsDomainName>
+            <CreateExContainers>True</CreateExContainers>
+            <CreateDFS>True</CreateDFS>
+            <CreateCA>False</CreateCA>
+            <CreateDHCP>True</CreateDHCP>
+            <CreateAGPM>True</CreateAGPM>
+            <CreateLAPS>True</CreateLAPS>
+        </Prod>
+        <Admin>
+            <NETBiosName>Admin</NETBiosName>
+            <DnsDomainName>Admin.local</DnsDomainName>
+            <CreateExContainers>False</CreateExContainers>
+            <CreateDFS>True</CreateDFS>
+            <CreateCA>True</CreateCA>
+            <CreateDHCP>False</CreateDHCP>
+            <CreateAGPM>True</CreateAGPM>
+            <CreateLAPS>True</CreateLAPS>
+        </Admin>
+    </Domains>
+    <DcPromo>
+        <Unattended>GcInstall.ini</Unattended>
+        <DomainLevel>7</DomainLevel>
+        <ForestLevel>7</ForestLevel>
+        <!--
+            The functional level of the forest and root domain. This defaults to 7.
+
+            Windows Server 2003    : 2 
+            Windows Server 2008    : 3 
+            Windows Server 2008 R2 : 4 
+            Windows Server 2012    : 5 
+            Windows Server 2012 R2 : 6 
+            Windows Server 2016    : 7
+        -->
+        <SysvolPath>C:\SYSVOL</SysvolPath>
+        <NtdsPath>C:\NTDS</NtdsPath>
+        <NtdsLogsPath>C:\NTDS</NtdsLogsPath>
+    </DcPromo>
+    <Shares>
+        <ShareLocation>C:\Shares</ShareLocation>
+        <RootShare>Shares</RootShare>
+        <AreasName>Areas</AreasName>
+        <HomeFoldersName>HomeFolder</HomeFoldersName>
+    </Shares>
+     <!-- Administration Area/Red Area/Tier0 objects -->
+     <Admin>
+         <OUs>
+             <ItAdminOU>
+                <Name>Administration</Name>
+                <description>OU for IT Administration purposes, containing objects necessary for this tasks</description>
+             </ItAdminOU>
+             <ItAdminAccountsOU>
+                <Name>Users</Name>
+                <description>Contains privileged user accounts like Domain Admins, Security Officers, Infrastructure Administrators.Semi-privileged Administration Accounts.</description>
+             </ItAdminAccountsOU>
+             <ItAdminGroupsOU>
+                <Name>Groups</Name>
+                <description>Global Groups used to assign administrators to a role in the delegation model.</description>
+            </ItAdminGroupsOU>
+             <ItPrivGroupsOU>
+                <Name>Privileged_Groups</Name>
+                <description>This OU contains well known privileged groups like Domain Admins and Enterpise Admins. It also contains the most privileged groups from the delegation model like Infrastructure Administrators and Security Officers.</description>
+            </ItPrivGroupsOU>
+             <ItExchangeOU>
+                <Name>Exchange</Name>
+                <description></description>
+            </ItExchangeOU>
+             <ItRightsOU>
+                <Name>Administration_Tasks_Groups</Name>
+                <description>Local groups used to apply permissions relative to administrative tasks.</description>
+            </ItRightsOU>
+            <ItLocalAdminOU>
+                <Name>Computer_Administration_Groups</Name>
+                <description>Contains global groups hosting the people responsible for administering each server. These groups (GG_Tier0_SERVER1_Admins for examples) are added to the local group 'Administrators' of SERVER1 by a GPO.</description>
+            </ItLocalAdminOU>
+             <ItHousekeepingOU>
+                <Name>Housekeeping</Name>
+                <description>This organizational unit is used to host all unused objects.</description>
+            </ItHousekeepingOU>
+            <ItPamOU>
+                <Name>PAM</Name>
+                <description>This organizational unit is used to host Privileged and Semi-Privileged accounts managed by PAM</description>
+            </ItPamOU>
+            <ItPamPAOU>
+                <Name>Privileged Accounts</Name>
+                <description>PAM Privileged and Semi-Privileged accounts</description>
+            </ItPamPAOU>
+            <ItPamTier0OU>
+                <Name>Tier0</Name>
+                <description></description>
+            </ItPamTier0OU>
+            <ItPamTier0Adm0OU>
+                <Name>ADM0</Name>
+                <description></description>
+            </ItPamTier0Adm0OU>
+            <ItPamTier0SadmOU>
+                <Name>AADM</Name>
+                <description></description>
+            </ItPamTier0SadmOU>
+             <ItPawOU>
+                <Name>PAWs</Name>
+                <description>COmputer Accounts for PAWs</description>
+             </ItPawOU>
+             <ItPawT0OU>
+                <Name>Tier0</Name>
+                <description>Tier 0 PAWs</description>
+             </ItPawT0OU>
+             <ItPawT1OU>
+                <Name>Tier1</Name>
+                <description>Tier 1 PAWs</description>
+             </ItPawT1OU>
+             <ItPawT2OU>
+                <Name>Tier2</Name>
+                <description>Tier 2 PAWs</description>
+             </ItPawT2OU>
+             <ItPawStagingOU>
+             <Name>PawStaging</Name>
+             <description>PAW staging and maintenance</description>
+             </ItPawStagingOU>
+             <ItServiceAccountsOU>
+                <Name>Technical_Accounts</Name>
+                <description>User accounts, MSA/gMSA accounts used as Service accounts, Scheduled task accounts and other type of technical accounts like IIS App pool accounts.</description>
+             </ItServiceAccountsOU>
+             <ItSAT0OU>
+                <Name>Tier0</Name>
+                <description>Tier 0 Service Accounts</description>
+             </ItSAT0OU>
+             <ItSAT0PamOU>
+                <Name>PAM</Name>
+                <description>Tier 0 Service Accounts</description>
+             </ItSAT0PamOU>
+             <ItSAT0PamAdm0OU>
+                <Name>ADM0</Name>
+                <description></description>
+             </ItSAT0PamAdm0OU>
+             <ItSAT0PamSadmOU>
+                <Name>SADM</Name>
+                <description></description>
+             </ItSAT0PamSadmOU>
+             <ItSAT1OU>
+                <Name>Tier1</Name>
+                <description>Tier 1 Service Accounts</description>
+             </ItSAT1OU>
+             <ItSAT2OU>
+                <Name>Tier2</Name>
+                <description>Tier 2 Service Accounts</description>
+             </ItSAT2OU>
+             <ItInfraOU>
+                <Name>Tier0_Servers</Name>
+                <description>Contains the computer accounts for Tier 0 Servers except Domain Controllers</description>
+             </ItInfraOU>
+             <ItInfraT0Ou>
+                <Name>InfraT0</Name>
+                <description>Tier 0 Infrastructure Services</description>
+            </ItInfraT0Ou>
+             <ItInfraT1Ou>
+                <Name>InfraT1</Name>
+                <description>Tier 1 Infrastructure Services</description>
+             </ItInfraT1Ou>
+             <ItInfraT2Ou>
+                <Name>InfraT2</Name>
+                <description>Tier 2 Infrastructure Services</description>
+             </ItInfraT2Ou>
+             <ItInfraStagingOU>
+                <Name>InfraStaging</Name>
+                <description>Infrastructure Services staging and maintenance</description>
+             </ItInfraStagingOU>
+             <ItNewComputersOU>
+                <Name>Orphaned Computers</Name>
+                <description>Computer objects without owner and-or region (quarantine), New Default Container for COMPUTERS</description>
+             </ItNewComputersOU>
+             <ItNewUsersOU>
+                <Name>Orphaned Users</Name>
+                <description>User objects without owner and-or region (quarantine), New Default Container for USERS</description>
+             </ItNewUsersOU>
+         </OUs>
+         <Users>
+             <Admin>
+                <Name>EU_Administrator</Name>
+                <description>Built-in account for administering the computer/domain</description>
+                <department>IT Central Active Directory</department>
+             </Admin>
+             <NEWAdmin>
+                <Name>EU_Admin</Name>
+                <description>New Administrator account used to replace the Built-In Administrator account, which is disabled and not used</description>
+                <department>IT Central Active Directory</department>
+             </NEWAdmin>
+             <Guest>
+                <Name>Guest</Name>
+                <description>Built-in account for access to the computer/domain</description>
+                <department></department>
+             </Guest>
+         </Users>
+         <gMSA>
+            <AGPM>
+                <Name>EU_SVC_AGPMsmtp</Name>
+                <SamAccountName>EU_SVC_AGPMsmtp</SamAccountName>
+                <Description>Managed Service account used for Advanced Group Policy Management service and SMTP authentication.</Description>
+                <DisplayName>EU_SVC_AGPMsmtp</DisplayName>
+            </AGPM>
+            <AdTaskScheduler>
+                <Name>gMSA_AdTskSchd</Name>
+                <SamAccountName>gMSA_AdTskSchd</SamAccountName>
+                <Description>Group Managed Service Account used by Domain Controllers to securely run scheduled tasks.</Description>
+                <DisplayName>AD Task Scheduler Group Managed Service Account</DisplayName>
+            </AdTaskScheduler>
+         </gMSA>
+         <GPOs>
+             <DefaultDomain>
+                <Name>Default Domain Policy</Name>
+                <Scope></Scope>
+                <gpoLink></gpoLink>
+                <backupID>B1706BA2-E2C2-4322-98C3-C1C0646DF67E</backupID>
+             </DefaultDomain>
+             <DefaultDomainControllers>
+                <Name>Default Domain Controllers Policy</Name>
+                <Scope></Scope>
+                <gpoLink></gpoLink>
+                <backupID>15494358-2DEA-496F-B06F-4E7397FF1176</backupID>
+             </DefaultDomainControllers>
+             <DCbaseline>
+                <Name>DomainControllers</Name>
+                <Scope>C</Scope>
+                <gpoLink>OU=Domain Controllers</gpoLink>
+                <backupID>3747B917-8187-4FD8-A512-C97CDF64A419</backupID>
+             </DCbaseline>
+             <PCbaseline>
+                <Name></Name>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>1D872D71-D961-4FCE-87E0-1CD368B5616F</backupID>
+             </PCbaseline>
+             <Userbaseline>
+                <Name></Name>
+                <Scope>U</Scope>
+                <gpoLink></gpoLink>
+                <backupID>4AA7D079-2522-4E43-8ED7-90917D4B0EB2</backupID>
+             </Userbaseline>
+             <AdminUserbaseline>
+                <Name>Admin Accounts</Name>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>A3346A47-E051-4CFC-97B4-001AC6AB3857</backupID>
+             </AdminUserbaseline>
+             <PAWbaseline>
+                <Name>PAW</Name>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>87BCC822-2475-4C45-960E-55537FDE5D10</backupID>
+             </PAWbaseline>
+         </GPOs>
+         <PSOs>
+             <ItAdminsPSO>
+                <Name>ItAminsPSO</Name>
+                <Precedence>500</Precedence>
+                <ComplexityEnabled>$true</ComplexityEnabled>
+                <Description>IT Administrators Accounts Password Policy</Description>
+                <DisplayName>IT Amins PSO</DisplayName>
+                <LockoutDuration>1.00:00:00</LockoutDuration>
+                <LockoutObservationWindow>0.12:00:00</LockoutObservationWindow>
+                <LockoutThreshold>5</LockoutThreshold>
+                <MaxPasswordAge>42.00:00:00</MaxPasswordAge>
+                <MinPasswordAge>1.00:00:00</MinPasswordAge>
+                <MinPasswordLength>14</MinPasswordLength>
+                <PasswordHistoryCount>48</PasswordHistoryCount>
+                <ReversibleEncryptionEnabled>$true</ReversibleEncryptionEnabled>
+             </ItAdminsPSO>
+             <ServiceAccountsPSO>
+                <Name>ServiceAccountsPSO</Name>
+                <Precedence>400</Precedence>
+                <ComplexityEnabled>$true</ComplexityEnabled>
+                <Description>Service Accounts Password Policy</Description>
+                <DisplayName>Service Account PSO</DisplayName>
+                <LockoutDuration>4.00:00:00</LockoutDuration>
+                <LockoutObservationWindow>2.00:00:00</LockoutObservationWindow>
+                <LockoutThreshold>3</LockoutThreshold>
+                <MaxPasswordAge>42.00:00:00</MaxPasswordAge>
+                <MinPasswordAge>1.00:00:00</MinPasswordAge>
+                <MinPasswordLength>32</MinPasswordLength>
+                <PasswordHistoryCount>90</PasswordHistoryCount>
+                <ReversibleEncryptionEnabled>$true</ReversibleEncryptionEnabled>
+             </ServiceAccountsPSO>
+         </PSOs>
+         <GG>
+             <InfraAdmins>
+                <Name>Infrastructure</Name>
+                <DisplayName>Infrastructure Admins</DisplayName>
+                <Description>All Tier0 servers segregated from Tier1/Servers</Description>
+            </InfraAdmins>
+             <AdAdmins>
+                <Name>AD Admins</Name>
+                <DisplayName>Active Directory Admins</DisplayName>
+                <Description>Partial rights on all Active Directory infrastructure</Description>
+            </AdAdmins>
+             <Tier0ServiceAccount>
+                <Name>Tier0_TechnicalAccount Admins</Name>
+                <DisplayName>Tier 0 Service Account</DisplayName>
+                <Description>Members of this group are Tier 0 Service Account</Description>
+            </Tier0ServiceAccount>
+             <Tier1ServiceAccount>
+                <Name>Tier1_TechnicalAccount Admins</Name>
+                <DisplayName>Tier 1 Service Account</DisplayName>
+                <Description>Members of this group are Tier 1 Service Account</Description>
+            </Tier1ServiceAccount>
+             <Tier2ServiceAccount>
+                <Name>Tier2_TechnicalAccount Admins</Name>
+                <DisplayName>Tier 2 Service Account</DisplayName>
+                <Description>Members of this group are Tier 2 Service Account</Description>
+            </Tier2ServiceAccount>
+             <GpoAdmins>
+                <Name>Gpo Admins</Name>
+                <DisplayName>GPO Admins</DisplayName>
+                <Description>Members of this group are GPO Administrators</Description>
+            </GpoAdmins>
+             <Tier0Admins>
+                <Name>Tier0_Admins</Name>
+                <DisplayName>Tier 0 Administrators</DisplayName>
+                <Description>Members of this group are Tier 0 Administrators</Description>
+            </Tier0Admins>
+             <Tier1Admins>
+                <Name>Tier1_Admins</Name>
+                <DisplayName>Tier 1 Administrators</DisplayName>
+                <Description>Members of this group are Tier 1 Administrators</Description>
+            </Tier1Admins>
+             <Tier2Admins>
+                <Name>Tier2_Admins</Name>
+                <DisplayName>Tier 2 Administrators</DisplayName>
+                <Description>Members of this group are Tier 2 Administrators</Description>
+            </Tier2Admins>
+             <AllSiteAdmins>
+                <Name>AllSiteAdmins</Name>
+                <DisplayName>All Sites Admins</DisplayName>
+                <Description>Members of this group are Site Administrators of all sites</Description>
+            </AllSiteAdmins>
+             <AllGALAdmins>
+                <Name>AllGALAdmins</Name>
+                <DisplayName>All GAL Admins</DisplayName>
+                <Description>Members of this group are Global Address List (GAL) Administrators</Description>
+            </AllGALAdmins>         
+             <ServiceDesk>
+                <Name>ServiceDesk</Name>
+                <DisplayName>Service Desk</DisplayName>
+                <Description>Members of this group are Service Desk Agents</Description>
+            </ServiceDesk>
+             <GlobalUserAdmins>
+                <Name>GlobalUserAdmins</Name>
+                <DisplayName>Global Account Managers</DisplayName>
+                <Description>Members of this group are Global User Administrators</Description>
+            </GlobalUserAdmins>
+             <GlobalPcAdmins>
+                <Name>GlobalPcAdmins</Name>
+                <DisplayName>Global PC Admins</DisplayName>
+                <Description>Members of this group are Global PC Administrators</Description>
+            </GlobalPcAdmins>
+             <GlobalGroupAdmins>
+                <Name>GlobalGroupAdmins</Name>
+                <DisplayName>Global Group Adminstrators</DisplayName>
+                <Description>Members of this group are Global Group Administrators</Description>
+            </GlobalGroupAdmins>
+         </GG>
+         <LG>
+             <InfraRight>
+                <Name>InfraMngt</Name>
+                <DisplayName>Infrastructure Right</DisplayName>
+                <Description>Delegated Rights to make Infrastructure Changes</Description>
+            </InfraRight>
+             <AdRight>
+                <Name>AdRight</Name>
+                <DisplayName>Active Directory Right</DisplayName>
+                <Description>Delegated Rights to make Active Directory Changes</Description>
+            </AdRight>
+             <PUM>
+                <Name>UserHighPrivilegeMngt</Name>
+                <DisplayName>Privileged User Management Right</DisplayName>
+                <Description>Delegated Rights for Privileged User Management</Description>
+            </PUM>
+             <PGM>
+                <Name>GroupHighPrivilegeMngt</Name>
+                <DisplayName>Privileged Group Management Right</DisplayName>
+                <Description>Delegated Rights for Privileged Group Management</Description>
+            </PGM>
+             <UM>
+                <Name>UserPrivilegeMngt</Name>
+                <DisplayName>Semi-Privileged User Management Right</DisplayName>
+                <Description>Delegated Rights for Semi-Privileged User Management</Description>
+            </UM>
+             <GM>
+                <Name>GroupPrivilegeMngt</Name>
+                <DisplayName>Semi-Privileged Group Management Right</DisplayName>
+                <Description>Delegated Rights for Semi-Privileged Group Management</Description>
+            </GM>
+             <PISM>
+                <Name>PISM</Name>
+                <DisplayName>Privileged Infrastructure Services Management Right</DisplayName>
+                <Description>Delegated Rights for Privileged Infrastructure Services Management</Description>
+            </PISM>
+             <PAWM>
+                <Name>PAWsMngt</Name>
+                <DisplayName>Privileged Access Workstation Management Right</DisplayName>
+                <Description>Delegated Rights for Privileged Access Workstation Management</Description>
+            </PAWM>
+             <PSAM>
+                <Name>TechnicalAccountsMngt</Name>
+                <DisplayName>Privileged Service Account Management</DisplayName>
+                <Description>Delegated Rights to manage Service Accounts, Managed Service Accounts and Group Managed Service Accounts</Description>
+            </PSAM>
+             <PAWs>
+                <Name>Tier0_All PAW Devices</Name>
+                <DisplayName>Tier0_All PAW Devices</DisplayName>
+                <Description>Group containing All PAWs</Description>
+            </PAWs>
+             <InfraServers>
+                <Name>Tier0_Servers</Name>
+                <DisplayName>Infrastructure Servers</DisplayName>
+                <Description>Group containing All Infrastructure Servers</Description>
+            </InfraServers>
+             <GpoAdminRight>
+                <Name>GpoMngt</Name>
+                <DisplayName>GPO Administrator Right</DisplayName>
+                <Description>Delegated Rights to Administer GPO</Description>
+            </GpoAdminRight>
+            <DnsAdminRight>
+                <Name>DnsMngt</Name>
+                <DisplayName>DNS Administrator Right</DisplayName>
+                <Description>Delegated Rights to Administer DNS</Description>
+            </DnsAdminRight>
+             <DirReplRight>
+                <Name>ReplicationMngt</Name>
+                <DisplayName>Directory Replication Right</DisplayName>
+                <Description>Delegated Rights to Replicate Directory</Description>
+            </DirReplRight>
+             <GlobalGroupRight>
+                <Name>GlobalGroupRight</Name>
+                <DisplayName>Global Group Management Right</DisplayName>
+                <Description>Delegated Rights to Manage Global Groups</Description>
+            </GlobalGroupRight>
+             <GlobalAppAccUserRight>
+                <Name>GlobalAppAccUserRight</Name>
+                <DisplayName>Global Application Access User Management Right</DisplayName>
+                <Description>Delegated Rights to Manage users for Application Access</Description>
+            </GlobalAppAccUserRight>
+         </LG>
+     </Admin>
+     <AdminXtra>
+        <OUs>
+            <ItExchangeOU>
+                <Name>Exchange</Name>
+                <description>OU for IT Administration purposes, Exchange</description>
+            </ItExchangeOU>
+            <ItExDistGroups>
+                <Name>Distribution Groups</Name>
+                <description>OU for IT Administration purposes, containing Exchange Distribution Groups</description>
+            </ItExDistGroups>
+            <ItExExternalContact>
+                <Name>External Contacts</Name>
+                <description>OU for IT Administration purposes, containing Exchange External Contacts</description>
+             </ItExExternalContact>
+            <ItExResource>
+                <Name>Resource Mailboxes</Name>
+                <description>OU for IT Administration purposes, containing Exchange Resource Mailboxes</description>
+             </ItExResource>
+            <ItExShared>
+                <Name>Shared Mailboxes</Name>
+                <description>OU for IT Administration purposes, containing Exchange Shared Mailboxes</description>
+             </ItExShared>
+            <ItExEquip>
+                <Name>Equipment Mailboxes</Name>
+                <description>OU for IT Administration purposes, containing Exchange Equipment Mailboxes</description>
+             </ItExEquip>
+        </OUs>
+        <GPOs>
+            <ExCas>
+                <Name>CAS</Name>
+                <Scope></Scope>
+                <gpoLink></gpoLink>
+                <backupID>a1f3d411-282d-4d59-9026-8980e53c3f99</backupID>
+             </ExCas>
+            <ExHub>
+                <Name>Hub</Name>
+                <Scope></Scope>
+                <gpoLink></gpoLink>
+                <backupID>329d52a4-4c55-46b1-9b20-159ba1665cd3</backupID>
+             </ExHub>
+            <ExMailbox>
+                <Name>Mailbox</Name>
+                <Scope></Scope>
+                <gpoLink></gpoLink>
+                <backupID>20511458-fca3-43fa-b35c-e0dcaa18cef7</backupID>
+             </ExMailbox>
+            <ExEdge>
+                <Name>Edge</Name>
+                <Scope></Scope>
+                <gpoLink></gpoLink>
+                <backupID>482df34d-5af0-4bf3-8a03-40be657f8cff</backupID>
+            </ExEdge>
+        </GPOs>
+        <GG>
+            <DfsAdmins>
+                <Name>Dfs Admins</Name>
+                <DisplayName>DFS Admins</DisplayName>
+                <Description>Members of this group are full DFS Administrators</Description>
+            </DfsAdmins>
+            <ExAdmins>
+                <Name>ExAdmins</Name>
+                <DisplayName>Exchange Admins</DisplayName>
+                <Description>Members of this group are Exchange Administrators</Description>
+            </ExAdmins>
+            <PkiAdmins>
+                <Name>Pki Admins</Name>
+                <DisplayName>Certificate Authority Administrator Group</DisplayName>
+                <Description>Members of this group can Administer Certificate Authority</Description>
+            </PkiAdmins>
+            <PkiTemplateAdmins>
+                <Name>Pki TemplateAdmins</Name>
+                <DisplayName>Certificate Authority Template Admin Group</DisplayName>
+                <Description>Members of this group can Manage Certificate Authority Templates</Description>
+            </PkiTemplateAdmins>
+            <DHCPAdmins>
+                <Name>DHCPAdmins</Name>
+                <DisplayName>DHCP Administrators</DisplayName>
+                <Description>Members of this group are DHCP Administrators</Description>
+            </DHCPAdmins>
+        </GG>
+        <LG>
+            <GpoApproverRight>
+                <Name>AGPM_GpoApprover</Name>
+                <DisplayName>GPO Approver Group</DisplayName>
+                <Description>Delegated Advanced Group Policy Management (AGPM) APPROVER Rights</Description>
+            </GpoApproverRight>
+            <GpoEditorRight>
+                <Name>AGPM_GpoEditor</Name>
+                <DisplayName>GPO Editor Group</DisplayName>
+                <Description>Delegated Advanced Group Policy Management (AGPM) EDITOR Rights</Description>
+            </GpoEditorRight>
+            <GpoReviewerRight>
+                <Name>AGPM_GpoReviewer</Name>
+                <DisplayName>GPO Reviewer Rights</DisplayName>
+                <Description>Delegated Advanced Group Policy Management (AGPM) REVIEWER Rights</Description>
+            </GpoReviewerRight>
+            <DfsRight>
+                <Name>DfsRight</Name>
+                <DisplayName>DFS Right</DisplayName>
+                <Description>Delegated Rights for DFS Administration</Description>
+            </DfsRight>
+            <ExRight>
+                <Name>ExRight</Name>
+                <DisplayName>Exchange Right</DisplayName>
+                <Description>Delegated Rights for Exchange Management</Description>
+            </ExRight>
+            <PkiRight>
+                <Name>PkiRight</Name>
+                <DisplayName>Certificate Authority Rights Group</DisplayName>
+                <Description>Delegated Rights to Administer Certificate Authority</Description>
+            </PkiRight>
+            <PkiTemplateRight>
+                <Name>PkiTemplateRight</Name>
+                <DisplayName>Certificate Authority Template Rights</DisplayName>
+                <Description>Delegated Rights to Administer Certificate Authority Templates</Description>
+            </PkiTemplateRight>
+            <DHCPRight>
+                <Name>DHCPMgmt</Name>
+                <DisplayName>DHCP Rights</DisplayName>
+                <Description>Delegated Rights to DHCP management</Description>
+            </DHCPRight>
+        </LG>
+     </AdminXtra>
+     <!-- Servers Area/Green Area/Tier1 objects -->
+     <Servers>
+         <OUs>
+             <ServersOU>
+                <Name>Servers</Name>
+                <description>Root OU for Global Servers, containing computer server objects.</description>
+             </ServersOU>
+             <ApplicationOU>
+                <Name>Apps</Name>
+                <description>Global Application Servers</description>
+             </ApplicationOU>
+             <FileOU>
+                 <Name>File</Name>
+                <description>Global File Servers</description>
+             </FileOU>
+             <HypervOU>
+                 <Name>Hyper-V</Name>
+                <description>Global Hyper-V Servers</description>
+             </HypervOU>
+             <RemoteDesktopOU>
+                 <Name>Remote Desktop</Name>
+                <description>Global Remote Desktop Servers</description>
+             </RemoteDesktopOU>
+             <SqlOU>
+                 <Name>SQL</Name>
+                <description>Global SQL Servers</description>
+             </SqlOU>
+             <WebOU>
+                <Name>Web</Name>
+                <description>Global Web Servers</description>
+             </WebOU>
+             <ExchangeOU>
+                 <Name>Exchange</Name>
+                <description>OU for Global Exchange Servers</description>
+             </ExchangeOU>
+             <ExCasOU>
+                 <Name>CAS</Name>
+                <description>OU for Global Exchange Client-Access Servers</description>
+             </ExCasOU>
+             <ExHubOU>
+                 <Name>HUB</Name>
+                <description>OU for Global Exchange Hub Servers</description>
+             </ExHubOU>
+             <ExEdgeOU>
+                <Name>UM Role</Name>
+                <description>OU for Global Exchange Edge Servers</description>
+             </ExEdgeOU>
+             <ExMailboxOU>
+                 <Name>Mailbox</Name>
+                <description>OU for Global Exchange Mailbox Servers</description>
+             </ExMailboxOU>
+             <ExMixedRolOU>
+                <Name>Mixed Roles</Name>
+                <description>OU for Global Exchange Mixed Servers</description>
+             </ExMixedRolOU>
+         </OUs>
+         <GPOs>
+             <Servers>
+                <Name>Servers</Name>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>2F52D3EE-98A7-4494-92E8-7C839B58A2BF</backupID>
+             </Servers>
+             <FileSrv>
+                <Name>FileServer</Name>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>ee4a3043-f547-4708-9391-5048cb8f1991</backupID>
+             </FileSrv>
+             <HyperV>
+                <Name>HyperV</Name>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>efda5444-6e3d-4da2-9379-b81b9797e045</backupID>
+             </HyperV>
+             <RemoteDesktop>
+                <Name>RemoteDesktop</Name>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>1b6ec286-36e2-4cbe-8fca-562c94f5acf8</backupID>
+             </RemoteDesktop>
+             <WebSrv>
+                <Name>WebServer</Name>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>e92aaff7-32dc-4fce-b326-730e17c28c97</backupID>
+             </WebSrv>
+         </GPOs>
+         <GG>
+             <Operations>
+                <Name>Global Server Opertors</Name>
+                <DisplayName>Server Operations</DisplayName>
+                <Description>Members of this group are Server Operators</Description>
+            </Operations>
+             <ServerAdmins>
+                <Name>Global Server Admins</Name>
+                <DisplayName>Server Admins</DisplayName>
+                <Description>Members of this group are full Server Administrators</Description>
+            </ServerAdmins>
+             <HyperVAdmins>
+                <Name>HyperVAdmins</Name>
+                <DisplayName>Hyper-V Admins</DisplayName>
+                <Description>Members of this group are full Hyper-V Administrators</Description>
+            </HyperVAdmins>
+         </GG>
+         <LG>
+             <SvrAdmRight>
+                <Name>SvrAdmRight</Name>
+                <DisplayName>Server Admin Right</DisplayName>
+                <Description>Delegated Rights for Server Administration</Description>
+            </SvrAdmRight>
+             <SvrOpsRight>
+                <Name>SvrOpsRight</Name>
+                <DisplayName>Server Ops Management Right</DisplayName>
+                <Description>Delegated Rights for Server Operations</Description>
+            </SvrOpsRight>
+         </LG>
+     </Servers>
+     <!-- Sites Area/Blue Area/Tier2 objects -->
+     <Sites>
+        <OUs>
+             <SitesOU>
+                <Name>Regions</Name>
+                <description>Root OU for Regions and Sites, containing objects necessary for each defined site within a region.</description>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>2F52D3EE-98A7-4494-92E8-7C839B58A2BF</backupID>
+             </SitesOU>
+             <OuSiteUser>
+                <Name>Users</Name>
+                <description>Site for Physical users</description>
+                <Scope>U</Scope>
+                <gpoLink></gpoLink>
+                <backupID>b58e7c9c-9d13-4afc-96c9-47e6f70fa749</backupID>
+             </OuSiteUser>
+             <OuSiteComputer>
+                <Name>Workstations</Name>
+                <description>Site for Desktop computers</description>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>b3585ac8-adad-469f-8b5d-94a740892a72</backupID>
+             </OuSiteComputer>
+             <OuSiteLaptop>
+                <Name>Laptops</Name>
+                <description>Site for Laptop computers</description>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>b3585ac8-adad-469f-8b5d-94a740892a72</backupID>
+             </OuSiteLaptop>
+             <OuSiteGroup>
+                <Name>Groups</Name>
+                <description>Site for Security Groups</description>
+             </OuSiteGroup>
+             <OuSitePrintQueue>
+                <Name>Print Queues</Name>
+                <description>Site for Print Queues published in AD</description>
+             </OuSitePrintQueue>
+             <OuSiteShares>
+                <Name>Shares</Name>
+                <description>Site for Shared Folders published in AD</description>
+             </OuSiteShares>
+             <OuSiteMailbox>
+                <Name>Mailboxes</Name>
+                <description>Site for mailboxes (Equipment, Resource and Shared)</description>
+             </OuSiteMailbox>
+             <OuSiteDistGroup>
+                <Name>Distribution Lists</Name>
+                <description>Site for Distribution Groups</description>
+             </OuSiteDistGroup>
+             <OuSiteContact>
+                <Name>External Contacts</Name>
+                <description>Site for External Contacts</description>
+             </OuSiteContact>
+             <OuSiteGlobal>
+                <Name>_Global</Name>
+                <description>GLOBAL OU, containing global objects for all sites.</description>
+             </OuSiteGlobal>
+             <OuSiteGlobalGroups>
+                <Name>Groups</Name>
+                <description>GLOBAL Groups OU, containing global group objects for all sites.</description>
+             </OuSiteGlobalGroups>
+             <OuSiteGlobalAppAccessUsers>
+                <Name>Application Access Users</Name>
+                <description>GLOBAL Application Access Users OU, containing global User objects for all sites.</description>
+             </OuSiteGlobalAppAccessUsers>
+         </OUs>
+         <GG>
+             <PwdAdmins>
+                <Name>PwdAdmins</Name>
+                <DisplayName>Password Admins</DisplayName>
+                <Description>Site. Members of this group are Password admins of Site OU</Description>
+             </PwdAdmins>
+             <ComputerAdmins>
+                <Name>ComputerAdmins</Name>
+                <DisplayName>Computers Admins</DisplayName>
+                <Description>Site. Members of this group are Computer admins of Site OU</Description>
+             </ComputerAdmins>
+             <GroupAdmins>
+                <Name>GroupAdmins</Name>
+                <DisplayName>Group Admins</DisplayName>
+                <Description>Site. Members of this group are Group admins of Site OU</Description>
+             </GroupAdmins>
+             <UserAdmins>
+                <Name>UserAdmins</Name>
+                <DisplayName>User Admins</DisplayName>
+                <Description>Site. Members of this group are User admins of Site OU</Description>
+             </UserAdmins>
+             <GALAdmins>
+                <Name>GALAdmins</Name>
+                <DisplayName>GAL Admins</DisplayName>
+                <Description>Site. Members of this group are Global Address List (GAL) admins of Site OU</Description>
+             </GALAdmins>
+             <SiteAdmins>
+                <Name>SiteAdmins</Name>
+                <DisplayName>Site Admins</DisplayName>
+                <Description>Site. Members of this group are Administrators of Site OU</Description>
+             </SiteAdmins>
+         </GG>
+         <LG>
+             <PwdRight>
+                <Name>PwdRight</Name>
+                <DisplayName>Password Management Right</DisplayName>
+                <Description>Site. Delegated Password Management Right of Site OU</Description>
+             </PwdRight>
+             <PcRight>
+                <Name>PcRight</Name>
+                <DisplayName>Computer Management / Domain-Join Right</DisplayName>
+                <Description>Site. Delegated Right to Manage and Domain-Join computers within Site OU</Description>
+             </PcRight>
+             <GroupRight>
+                <Name>GroupRight</Name>
+                <DisplayName>Group Right</DisplayName>
+                <Description>Site. Delegated Right to administer Groups within Site OU</Description>
+             </GroupRight>
+             <CreateUserRight>
+                <Name>CreateUserRight</Name>
+                <DisplayName>Create Users Right</DisplayName>
+                <Description>Site. Delegated Right of Site for creating/deleting users</Description>
+             </CreateUserRight>
+             <GALRight>
+                <Name>GALRight</Name>
+                <DisplayName>GAL Right</DisplayName>
+                <Description>Site. Delegated Global Address List (GAL) Right of Site OU</Description>
+             </GALRight>
+             <SiteRight>
+                <Name>SiteRight</Name>
+                <DisplayName>Site Right</DisplayName>
+                <Description>Site. Delegated Right of Site OU</Description>
+             </SiteRight>
+         </LG>
+     </Sites>
+     <DefaultPassword>P@ssword 123456</DefaultPassword>
+     <!-- Naming Conventions -->
+     <NC>
+       <Delimiter>_</Delimiter>
+       <LocalDomainGroupPreffix>DL</LocalDomainGroupPreffix>
+       <GlobalGroupPreffix>GG</GlobalGroupPreffix>
+       <UniversalGroupPreffix>GU</UniversalGroupPreffix>
+       <AdminAccSufix0>ADM0</AdminAccSufix0>
+       <AdminAccSufix1>ADM1</AdminAccSufix1>
+       <AdminAccSufix2>ADM2</AdminAccSufix2>
+       <!-- 
+        #Open the configuration XML file
+        $configXML = [xml](Get-Content (Join-Path -Path $DMscripts -ChildPath Config.xml -Resolve))
+
+
+# Naming conventions hashtable
+$NC = @{"sl"    = $confXML.n.NC.LocalDomainGroupPreffix;
+        "sg"    = $confXML.n.NC.GlobalGroupPreffix;
+        "su"    = $confXML.n.NC.UniversalGroupPreffix;
+        "Delim" = $confXML.n.NC.Delimiter;
+        "T0"    = $confXML.n.NC.AdminAccSufix0;
+        "T1"    = $confXML.n.NC.AdminAccSufix1;
+        "T2"    = $confXML.n.NC.AdminAccSufix2
+}
+# The following code
+#('{0}{1}{2}{1}{3}' -f $NC["sg"], $NC["Delim"], $configXML.Config.Administration.lg.PAWM, $NC["T0"])
+# will produce SG_PAWM_T0
+       -->
+     </NC>
+ </N>
