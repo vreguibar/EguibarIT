@@ -11,10 +11,6 @@
   <a href="https://www.powershellgallery.com/packages/EguibarIT"><img src="https://img.shields.io/powershellgallery/dt/EguibarIT.svg"></a>
 </p>
 
-<p align="center">
-  <a href="https://www.linkedin.com/in/vicenterodriguezeguibar/"><img src="https://img.shields.io/badge/vreguibar.svg?logo=LinkedIn"></a>
-</p>
-
 # EguibarIT
 Root module for creating Tier Model / Delegation Model on Active Directory
 
