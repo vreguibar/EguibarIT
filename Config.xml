@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
  <N>
-    <RegisteredOrg>Eurofins NSC IT-Infrastructure Germany GmbH</RegisteredOrg>
-    <RegisteredOwner>Eurofins NSC IT-Infrastructure Germany GmbH</RegisteredOwner>
+    <RegisteredOrg>Eguibar Information Technology S.L.</RegisteredOrg>
+    <RegisteredOwner>Vicente Rodriguez Eguibar</RegisteredOwner>
     <PCs>
         <DC1>
             <Name>DC1</Name>
@@ -181,7 +181,6 @@
         <GoogleDns2Ipv4>8.8.4.4</GoogleDns2Ipv4>
         <GoogleDns1Ipv6>2001:4860:4860::8888</GoogleDns1Ipv6>
         <GoogleDns2Ipv6>2001:4860:4860::8844</GoogleDns2Ipv6>
-
     </IP>
     <IPsec>
         <Global>
@@ -320,11 +319,11 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
     <svcaccCSVfile>mngdsvcacc.csv</svcaccCSVfile>
     <Domains>
         <Prod>
-            <NETBiosName>Test-Area1</NETBiosName>
-            <DnsDomainName>area1.eurofins.test</DnsDomainName>
-            <CreateExContainers>True</CreateExContainers>
+            <NETBiosName>EguibarIT</NETBiosName>
+            <DnsDomainName>EguibarIT.local</DnsDomainName>
+            <CreateExContainers>False</CreateExContainers>
             <CreateDFS>True</CreateDFS>
-            <CreateCA>False</CreateCA>
+            <CreateCA>True</CreateCA>
             <CreateDHCP>True</CreateDHCP>
             <CreateAGPM>True</CreateAGPM>
             <CreateLAPS>True</CreateLAPS>
@@ -368,71 +367,47 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
      <Admin>
          <OUs>
              <ItAdminOU>
-                <Name>Administration</Name>
+                <Name>Admin</Name>
                 <description>OU for IT Administration purposes, containing objects necessary for this tasks</description>
              </ItAdminOU>
              <ItAdminAccountsOU>
-                <Name>Users</Name>
-                <description>Contains privileged user accounts like Domain Admins, Security Officers, Infrastructure Administrators.Semi-privileged Administration Accounts.</description>
+                <Name>Admin Accounts</Name>
+                <description>IT Administration purposes, containing Privileged and SemiPrivileged users</description>
              </ItAdminAccountsOU>
              <ItAdminGroupsOU>
                 <Name>Groups</Name>
-                <description>Global Groups used to assign administrators to a role in the delegation model.</description>
+                <description>IT Administration purposes, containing SemiPrivileged groups</description>
             </ItAdminGroupsOU>
              <ItPrivGroupsOU>
-                <Name>Privileged_Groups</Name>
-                <description>This OU contains well known privileged groups like Domain Admins and Enterpise Admins. It also contains the most privileged groups from the delegation model like Infrastructure Administrators and Security Officers.</description>
+                <Name>PG</Name>
+                <description>IT Administration purposes, containing Privileged groups</description>
             </ItPrivGroupsOU>
              <ItExchangeOU>
                 <Name>Exchange</Name>
                 <description></description>
             </ItExchangeOU>
              <ItRightsOU>
-                <Name>Administration_Tasks_Groups</Name>
-                <description>Local groups used to apply permissions relative to administrative tasks.</description>
+                <Name>Rights</Name>
+                <description>IT Administration purposes, containing Domain Local groups referenced on ACLs</description>
             </ItRightsOU>
-            <ItLocalAdminOU>
-                <Name>Computer_Administration_Groups</Name>
-                <description>Contains global groups hosting the people responsible for administering each server. These groups (GG_Tier0_SERVER1_Admins for examples) are added to the local group 'Administrators' of SERVER1 by a GPO.</description>
-            </ItLocalAdminOU>
              <ItHousekeepingOU>
                 <Name>Housekeeping</Name>
-                <description>This organizational unit is used to host all unused objects.</description>
+                <description>IT Administration purposes, containing staled objects (users, computers, etc.) in quarentine</description>
             </ItHousekeepingOU>
-            <ItPamOU>
-                <Name>PAM</Name>
-                <description>This organizational unit is used to host Privileged and Semi-Privileged accounts managed by PAM</description>
-            </ItPamOU>
-            <ItPamPAOU>
-                <Name>Privileged Accounts</Name>
-                <description>PAM Privileged and Semi-Privileged accounts</description>
-            </ItPamPAOU>
-            <ItPamTier0OU>
-                <Name>Tier0</Name>
-                <description></description>
-            </ItPamTier0OU>
-            <ItPamTier0Adm0OU>
-                <Name>ADM0</Name>
-                <description></description>
-            </ItPamTier0Adm0OU>
-            <ItPamTier0SadmOU>
-                <Name>AADM</Name>
-                <description></description>
-            </ItPamTier0SadmOU>
              <ItPawOU>
-                <Name>PAWs</Name>
-                <description>COmputer Accounts for PAWs</description>
+                <Name>PAW</Name>
+                <description></description>
              </ItPawOU>
              <ItPawT0OU>
-                <Name>Tier0</Name>
+                <Name>PawT0</Name>
                 <description>Tier 0 PAWs</description>
              </ItPawT0OU>
              <ItPawT1OU>
-                <Name>Tier1</Name>
+                <Name>PawT1</Name>
                 <description>Tier 1 PAWs</description>
              </ItPawT1OU>
              <ItPawT2OU>
-                <Name>Tier2</Name>
+                <Name>PawT2</Name>
                 <description>Tier 2 PAWs</description>
              </ItPawT2OU>
              <ItPawStagingOU>
@@ -440,85 +415,73 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
              <description>PAW staging and maintenance</description>
              </ItPawStagingOU>
              <ItServiceAccountsOU>
-                <Name>Technical_Accounts</Name>
-                <description>User accounts, MSA/gMSA accounts used as Service accounts, Scheduled task accounts and other type of technical accounts like IIS App pool accounts.</description>
+                <Name>Service Accounts</Name>
+                <description>IT Administration purposes, containing Service Accounts, Managed Service Accounts and Group Managed Service Accounts</description>
              </ItServiceAccountsOU>
              <ItSAT0OU>
-                <Name>Tier0</Name>
+                <Name>T0SA</Name>
                 <description>Tier 0 Service Accounts</description>
              </ItSAT0OU>
-             <ItSAT0PamOU>
-                <Name>PAM</Name>
-                <description>Tier 0 Service Accounts</description>
-             </ItSAT0PamOU>
-             <ItSAT0PamAdm0OU>
-                <Name>ADM0</Name>
-                <description></description>
-             </ItSAT0PamAdm0OU>
-             <ItSAT0PamSadmOU>
-                <Name>SADM</Name>
-                <description></description>
-             </ItSAT0PamSadmOU>
              <ItSAT1OU>
-                <Name>Tier1</Name>
+                <Name>T1SA</Name>
                 <description>Tier 1 Service Accounts</description>
              </ItSAT1OU>
              <ItSAT2OU>
-                <Name>Tier2</Name>
+                <Name>T2SA</Name>
                 <description>Tier 2 Service Accounts</description>
              </ItSAT2OU>
              <ItInfraOU>
-                <Name>Tier0_Servers</Name>
-                <description>Contains the computer accounts for Tier 0 Servers except Domain Controllers</description>
+                <Name>Infra</Name>
+                <description>IT Administration purposes, containing IT Infrastructure Services</description>
              </ItInfraOU>
-             <ItInfraT0Ou>
+             <ItInfraT0>
                 <Name>InfraT0</Name>
                 <description>Tier 0 Infrastructure Services</description>
-            </ItInfraT0Ou>
-             <ItInfraT1Ou>
+            </ItInfraT0>
+             <ItInfraT1>
                 <Name>InfraT1</Name>
                 <description>Tier 1 Infrastructure Services</description>
-             </ItInfraT1Ou>
-             <ItInfraT2Ou>
+             </ItInfraT1>
+             <ItInfraT2>
                 <Name>InfraT2</Name>
                 <description>Tier 2 Infrastructure Services</description>
-             </ItInfraT2Ou>
+             </ItInfraT2>
              <ItInfraStagingOU>
                 <Name>InfraStaging</Name>
                 <description>Infrastructure Services staging and maintenance</description>
              </ItInfraStagingOU>
              <ItNewComputersOU>
-                <Name>Orphaned Computers</Name>
-                <description>Computer objects without owner and-or region (quarantine), New Default Container for COMPUTERS</description>
+                <Name>Quarantine-PC</Name>
+                <description>IT Administration (quarantine), New Default Container for COMPUTERS</description>
              </ItNewComputersOU>
              <ItNewUsersOU>
-                <Name>Orphaned Users</Name>
-                <description>User objects without owner and-or region (quarantine), New Default Container for USERS</description>
+                <Name>Quarantine-Users</Name>
+                <description>IT Administration (quarantine), New Default Container for USERS</description>
              </ItNewUsersOU>
          </OUs>
          <Users>
              <Admin>
-                <Name>EU_Administrator</Name>
-                <description>Built-in account for administering the computer/domain</description>
-                <department>IT Central Active Directory</department>
+                <Name>TheGood</Name>
+                <description></description>
+                <department></department>
              </Admin>
              <NEWAdmin>
-                <Name>EU_Admin</Name>
+                <Name>TheUgly</Name>
                 <description>New Administrator account used to replace the Built-In Administrator account, which is disabled and not used</description>
-                <department>IT Central Active Directory</department>
+                <department>IT Operations and Architecture</department>
              </NEWAdmin>
              <Guest>
-                <Name>Guest</Name>
-                <description>Built-in account for access to the computer/domain</description>
+                <Name>TheBad</Name>
+                <description></description>
                 <department></department>
              </Guest>
          </Users>
          <gMSA>
             <AGPM>
-                <Name>EU_SVC_AGPMsmtp</Name>
-                <SamAccountName>EU_SVC_AGPMsmtp</SamAccountName>
-                <Description>Managed Service account used for Advanced Group Policy Management service and SMTP authentication.</Description>
-                <DisplayName>EU_SVC_AGPMsmtp</DisplayName>
+                <Name>msa_AGPM</Name>
+                <SamAccountName>msa_AGPM</SamAccountName>
+                <Description>Managed Service account used for Advanced Group Policy Management service</Description>
+                <DisplayName></DisplayName>
             </AGPM>
             <AdTaskScheduler>
                 <Name>gMSA_AdTskSchd</Name>
@@ -605,47 +568,47 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
          </PSOs>
          <GG>
              <InfraAdmins>
-                <Name>Infrastructure</Name>
+                <Name>InfraAdmins</Name>
                 <DisplayName>Infrastructure Admins</DisplayName>
-                <Description>All Tier0 servers segregated from Tier1/Servers</Description>
+                <Description>Members of this group are Infrastructure Administrators</Description>
             </InfraAdmins>
              <AdAdmins>
-                <Name>AD Admins</Name>
+                <Name>AdAdmins</Name>
                 <DisplayName>Active Directory Admins</DisplayName>
-                <Description>Partial rights on all Active Directory infrastructure</Description>
+                <Description>Members of this group are Active Directory Administrators</Description>
             </AdAdmins>
              <Tier0ServiceAccount>
-                <Name>Tier0_TechnicalAccount Admins</Name>
+                <Name>T0SA</Name>
                 <DisplayName>Tier 0 Service Account</DisplayName>
                 <Description>Members of this group are Tier 0 Service Account</Description>
             </Tier0ServiceAccount>
              <Tier1ServiceAccount>
-                <Name>Tier1_TechnicalAccount Admins</Name>
+                <Name>T1SA</Name>
                 <DisplayName>Tier 1 Service Account</DisplayName>
                 <Description>Members of this group are Tier 1 Service Account</Description>
             </Tier1ServiceAccount>
              <Tier2ServiceAccount>
-                <Name>Tier2_TechnicalAccount Admins</Name>
+                <Name>T2SA</Name>
                 <DisplayName>Tier 2 Service Account</DisplayName>
                 <Description>Members of this group are Tier 2 Service Account</Description>
             </Tier2ServiceAccount>
              <GpoAdmins>
-                <Name>Gpo Admins</Name>
-                <DisplayName>GPO Admins</DisplayName>
+                <Name>GpoAdmins</Name>
+                <DisplayName>GPO Admin</DisplayName>
                 <Description>Members of this group are GPO Administrators</Description>
             </GpoAdmins>
              <Tier0Admins>
-                <Name>Tier0_Admins</Name>
+                <Name>Tier0Admins</Name>
                 <DisplayName>Tier 0 Administrators</DisplayName>
                 <Description>Members of this group are Tier 0 Administrators</Description>
             </Tier0Admins>
              <Tier1Admins>
-                <Name>Tier1_Admins</Name>
+                <Name>Tier1Admins</Name>
                 <DisplayName>Tier 1 Administrators</DisplayName>
                 <Description>Members of this group are Tier 1 Administrators</Description>
             </Tier1Admins>
              <Tier2Admins>
-                <Name>Tier2_Admins</Name>
+                <Name>Tier2Admins</Name>
                 <DisplayName>Tier 2 Administrators</DisplayName>
                 <Description>Members of this group are Tier 2 Administrators</Description>
             </Tier2Admins>
@@ -666,7 +629,7 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
             </ServiceDesk>
              <GlobalUserAdmins>
                 <Name>GlobalUserAdmins</Name>
-                <DisplayName>Global Account Managers</DisplayName>
+                <DisplayName>Global User Admins</DisplayName>
                 <Description>Members of this group are Global User Administrators</Description>
             </GlobalUserAdmins>
              <GlobalPcAdmins>
@@ -676,13 +639,13 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
             </GlobalPcAdmins>
              <GlobalGroupAdmins>
                 <Name>GlobalGroupAdmins</Name>
-                <DisplayName>Global Group Adminstrators</DisplayName>
+                <DisplayName>Global Group Admins</DisplayName>
                 <Description>Members of this group are Global Group Administrators</Description>
             </GlobalGroupAdmins>
          </GG>
          <LG>
              <InfraRight>
-                <Name>InfraMngt</Name>
+                <Name>InfraRight</Name>
                 <DisplayName>Infrastructure Right</DisplayName>
                 <Description>Delegated Rights to make Infrastructure Changes</Description>
             </InfraRight>
@@ -692,22 +655,22 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <Description>Delegated Rights to make Active Directory Changes</Description>
             </AdRight>
              <PUM>
-                <Name>UserHighPrivilegeMngt</Name>
+                <Name>PUM</Name>
                 <DisplayName>Privileged User Management Right</DisplayName>
                 <Description>Delegated Rights for Privileged User Management</Description>
             </PUM>
              <PGM>
-                <Name>GroupHighPrivilegeMngt</Name>
+                <Name>PGM</Name>
                 <DisplayName>Privileged Group Management Right</DisplayName>
                 <Description>Delegated Rights for Privileged Group Management</Description>
             </PGM>
              <UM>
-                <Name>UserPrivilegeMngt</Name>
+                <Name>UM</Name>
                 <DisplayName>Semi-Privileged User Management Right</DisplayName>
                 <Description>Delegated Rights for Semi-Privileged User Management</Description>
             </UM>
              <GM>
-                <Name>GroupPrivilegeMngt</Name>
+                <Name>GM</Name>
                 <DisplayName>Semi-Privileged Group Management Right</DisplayName>
                 <Description>Delegated Rights for Semi-Privileged Group Management</Description>
             </GM>
@@ -717,37 +680,32 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <Description>Delegated Rights for Privileged Infrastructure Services Management</Description>
             </PISM>
              <PAWM>
-                <Name>PAWsMngt</Name>
+                <Name>PAWM</Name>
                 <DisplayName>Privileged Access Workstation Management Right</DisplayName>
                 <Description>Delegated Rights for Privileged Access Workstation Management</Description>
             </PAWM>
              <PSAM>
-                <Name>TechnicalAccountsMngt</Name>
+                <Name>PSAM</Name>
                 <DisplayName>Privileged Service Account Management</DisplayName>
                 <Description>Delegated Rights to manage Service Accounts, Managed Service Accounts and Group Managed Service Accounts</Description>
             </PSAM>
              <PAWs>
-                <Name>Tier0_All PAW Devices</Name>
-                <DisplayName>Tier0_All PAW Devices</DisplayName>
+                <Name>PAWs</Name>
+                <DisplayName>PAWs</DisplayName>
                 <Description>Group containing All PAWs</Description>
             </PAWs>
              <InfraServers>
-                <Name>Tier0_Servers</Name>
+                <Name>InfrastructureServers</Name>
                 <DisplayName>Infrastructure Servers</DisplayName>
                 <Description>Group containing All Infrastructure Servers</Description>
             </InfraServers>
              <GpoAdminRight>
-                <Name>GpoMngt</Name>
+                <Name>GpoAdminRight</Name>
                 <DisplayName>GPO Administrator Right</DisplayName>
                 <Description>Delegated Rights to Administer GPO</Description>
             </GpoAdminRight>
-            <DnsAdminRight>
-                <Name>DnsMngt</Name>
-                <DisplayName>DNS Administrator Right</DisplayName>
-                <Description>Delegated Rights to Administer DNS</Description>
-            </DnsAdminRight>
              <DirReplRight>
-                <Name>ReplicationMngt</Name>
+                <Name>DirReplRight</Name>
                 <DisplayName>Directory Replication Right</DisplayName>
                 <Description>Delegated Rights to Replicate Directory</Description>
             </DirReplRight>
@@ -818,7 +776,7 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
         </GPOs>
         <GG>
             <DfsAdmins>
-                <Name>Dfs Admins</Name>
+                <Name>DfsAdmins</Name>
                 <DisplayName>DFS Admins</DisplayName>
                 <Description>Members of this group are full DFS Administrators</Description>
             </DfsAdmins>
@@ -828,12 +786,12 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <Description>Members of this group are Exchange Administrators</Description>
             </ExAdmins>
             <PkiAdmins>
-                <Name>Pki Admins</Name>
+                <Name>PkiAdmins</Name>
                 <DisplayName>Certificate Authority Administrator Group</DisplayName>
                 <Description>Members of this group can Administer Certificate Authority</Description>
             </PkiAdmins>
             <PkiTemplateAdmins>
-                <Name>Pki TemplateAdmins</Name>
+                <Name>PkiTemplateAdmins</Name>
                 <DisplayName>Certificate Authority Template Admin Group</DisplayName>
                 <Description>Members of this group can Manage Certificate Authority Templates</Description>
             </PkiTemplateAdmins>
@@ -845,17 +803,17 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
         </GG>
         <LG>
             <GpoApproverRight>
-                <Name>AGPM_GpoApprover</Name>
-                <DisplayName>GPO Approver Group</DisplayName>
+                <Name>GpoApproverRight</Name>
+                <DisplayName>GPO Approver Rights</DisplayName>
                 <Description>Delegated Advanced Group Policy Management (AGPM) APPROVER Rights</Description>
             </GpoApproverRight>
             <GpoEditorRight>
-                <Name>AGPM_GpoEditor</Name>
-                <DisplayName>GPO Editor Group</DisplayName>
+                <Name>GpoEditorRight</Name>
+                <DisplayName>GPO Editor Rights</DisplayName>
                 <Description>Delegated Advanced Group Policy Management (AGPM) EDITOR Rights</Description>
             </GpoEditorRight>
             <GpoReviewerRight>
-                <Name>AGPM_GpoReviewer</Name>
+                <Name>GpoReviewerRight</Name>
                 <DisplayName>GPO Reviewer Rights</DisplayName>
                 <Description>Delegated Advanced Group Policy Management (AGPM) REVIEWER Rights</Description>
             </GpoReviewerRight>
@@ -880,7 +838,7 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <Description>Delegated Rights to Administer Certificate Authority Templates</Description>
             </PkiTemplateRight>
             <DHCPRight>
-                <Name>DHCPMgmt</Name>
+                <Name>DHCPRight</Name>
                 <DisplayName>DHCP Rights</DisplayName>
                 <Description>Delegated Rights to DHCP management</Description>
             </DHCPRight>
@@ -976,12 +934,12 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
          </GPOs>
          <GG>
              <Operations>
-                <Name>Global Server Opertors</Name>
+                <Name>Operations</Name>
                 <DisplayName>Server Operations</DisplayName>
                 <Description>Members of this group are Server Operators</Description>
             </Operations>
              <ServerAdmins>
-                <Name>Global Server Admins</Name>
+                <Name>ServerAdmins</Name>
                 <DisplayName>Server Admins</DisplayName>
                 <Description>Members of this group are full Server Administrators</Description>
             </ServerAdmins>
@@ -1008,8 +966,8 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
      <Sites>
         <OUs>
              <SitesOU>
-                <Name>Regions</Name>
-                <description>Root OU for Regions and Sites, containing objects necessary for each defined site within a region.</description>
+                <Name>Sites</Name>
+                <description>Root OU for Sites, containing objects necessary for each defined site.</description>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
                 <backupID>2F52D3EE-98A7-4494-92E8-7C839B58A2BF</backupID>
@@ -1022,7 +980,7 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <backupID>b58e7c9c-9d13-4afc-96c9-47e6f70fa749</backupID>
              </OuSiteUser>
              <OuSiteComputer>
-                <Name>Workstations</Name>
+                <Name>Desktops</Name>
                 <description>Site for Desktop computers</description>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
@@ -1052,7 +1010,7 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <description>Site for mailboxes (Equipment, Resource and Shared)</description>
              </OuSiteMailbox>
              <OuSiteDistGroup>
-                <Name>Distribution Lists</Name>
+                <Name>Distribution Groups</Name>
                 <description>Site for Distribution Groups</description>
              </OuSiteDistGroup>
              <OuSiteContact>
@@ -1141,12 +1099,12 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
      <!-- Naming Conventions -->
      <NC>
        <Delimiter>_</Delimiter>
-       <LocalDomainGroupPreffix>DL</LocalDomainGroupPreffix>
-       <GlobalGroupPreffix>GG</GlobalGroupPreffix>
-       <UniversalGroupPreffix>GU</UniversalGroupPreffix>
-       <AdminAccSufix0>ADM0</AdminAccSufix0>
-       <AdminAccSufix1>ADM1</AdminAccSufix1>
-       <AdminAccSufix2>ADM2</AdminAccSufix2>
+       <LocalDomainGroupPreffix>SL</LocalDomainGroupPreffix>
+       <GlobalGroupPreffix>SG</GlobalGroupPreffix>
+       <UniversalGroupPreffix>SU</UniversalGroupPreffix>
+       <AdminAccSufix0>T0</AdminAccSufix0>
+       <AdminAccSufix1>T1</AdminAccSufix1>
+       <AdminAccSufix2>T2</AdminAccSufix2>
        <!-- 
         #Open the configuration XML file
         $configXML = [xml](Get-Content (Join-Path -Path $DMscripts -ChildPath Config.xml -Resolve))
@@ -1167,3 +1125,4 @@ $NC = @{"sl"    = $confXML.n.NC.LocalDomainGroupPreffix;
        -->
      </NC>
  </N>
+
