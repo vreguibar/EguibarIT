@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://www.linkedin.com/in/vicenterodriguezeguibar/"><img src="https://img.shields.io/badge/LinkedIn-pklys-0077B5.svg?logo=LinkedIn"></a>
+  <a href="https://www.linkedin.com/in/vicenterodriguezeguibar/"><img src="https://img.shields.io/badge/vreguibar.svg?logo=LinkedIn"></a>
 </p>
 
 # EguibarIT
