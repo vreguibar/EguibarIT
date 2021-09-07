@@ -412,8 +412,8 @@ function New-CentralItOu
             CleanACL =$True
         }
         New-DelegateAdOU -ouName $ItAdminAccountsOu   -ouDescription $confXML.n.Admin.OUs.ItAdminAccountsOU.description   @Splat
-        New-DelegateAdOU -ouName $ItGroupsOu          -ouDescription $confXML.n.Admin.OUs.ItAdminGroupsOU.description     @Splat
-        New-DelegateAdOU -ouName $ItPGOu              -ouDescription $confXML.n.Admin.OUs.ItPrivGroupsOU.description      @Splat
+        New-DelegateAdOU -ouName $ItAdminGroupsOU     -ouDescription $confXML.n.Admin.OUs.ItAdminGroupsOU.description     @Splat
+        New-DelegateAdOU -ouName $ItPrivGroupsOU      -ouDescription $confXML.n.Admin.OUs.ItPrivGroupsOU.description      @Splat
         New-DelegateAdOU -ouName $ItPawOu             -ouDescription $confXML.n.Admin.OUs.ItPawOU.description             @Splat
         New-DelegateAdOU -ouName $ItRightsOu          -ouDescription $confXML.n.Admin.OUs.ItRightsOU.description          @Splat
         New-DelegateAdOU -ouName $ItServiceAccountsOu -ouDescription $confXML.n.Admin.OUs.ItServiceAccountsOU.description @Splat
@@ -426,8 +426,8 @@ function New-CentralItOu
             RemovePermissions = $True
         }
         Set-AdInheritance -LDAPPath $ItAdminAccountsOuDn   @Splat
-        Set-AdInheritance -LDAPPath $ItGroupsOuDn          @Splat
-        Set-AdInheritance -LDAPPath $ItPGOuDn              @Splat
+        Set-AdInheritance -LDAPPath $ItAdminGroupsOUDn     @Splat
+        Set-AdInheritance -LDAPPath $ItPrivGroupsOUDn      @Splat
         Set-AdInheritance -LDAPPath $ItPawOuDn             @Splat
         Set-AdInheritance -LDAPPath $ItRightsOuDn          @Splat
         Set-AdInheritance -LDAPPath $ItServiceAccountsOuDn @Splat
