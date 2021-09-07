@@ -503,18 +503,18 @@ function New-CentralItOu
         Get-ADUser -Identity $confXML.n.Admin.users.Guest.Name |          Move-ADObject -TargetPath $ItAdminAccountsOuDn
         Get-ADUser -Identity krbtgt |                                     Move-ADObject -TargetPath $ItAdminAccountsOuDn
 
-        Get-ADGroup -Identity 'Domain Admins' |                           Move-ADObject -TargetPath $ItPGOuDn
-        Get-ADGroup -Identity 'Enterprise Admins' |                       Move-ADObject -TargetPath $ItPGOuDn
-        Get-ADGroup -Identity 'Schema Admins' |                           Move-ADObject -TargetPath $ItPGOuDn
-        Get-ADGroup -Identity 'Domain Controllers' |                      Move-ADObject -TargetPath $ItPGOuDn
-        Get-ADGroup -Identity 'Group Policy Creator Owners' |             Move-ADObject -TargetPath $ItPGOuDn
-        Get-ADGroup -Identity 'Read-only Domain Controllers' |            Move-ADObject -TargetPath $ItPGOuDn
-        Get-ADGroup -Identity 'Enterprise Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPGOuDn
+        Get-ADGroup -Identity 'Domain Admins' |                           Move-ADObject -TargetPath $ItPrivGroupsOUDn
+        Get-ADGroup -Identity 'Enterprise Admins' |                       Move-ADObject -TargetPath $ItPrivGroupsOUDn
+        Get-ADGroup -Identity 'Schema Admins' |                           Move-ADObject -TargetPath $ItPrivGroupsOUDn
+        Get-ADGroup -Identity 'Domain Controllers' |                      Move-ADObject -TargetPath $ItPrivGroupsOUDn
+        Get-ADGroup -Identity 'Group Policy Creator Owners' |             Move-ADObject -TargetPath $ItPrivGroupsOUDn
+        Get-ADGroup -Identity 'Read-only Domain Controllers' |            Move-ADObject -TargetPath $ItPrivGroupsOUDn
+        Get-ADGroup -Identity 'Enterprise Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
 
-        Get-ADGroup -Identity 'DnsUpdateProxy' |                          Move-ADObject -TargetPath $ItGroupsOuDn
-        Get-ADGroup -Identity 'Domain Users' |                            Move-ADObject -TargetPath $ItGroupsOuDn
-        Get-ADGroup -Identity 'Domain Computers' |                        Move-ADObject -TargetPath $ItGroupsOuDn
-        Get-ADGroup -Identity 'Domain Guests' |                           Move-ADObject -TargetPath $ItGroupsOuDn
+        Get-ADGroup -Identity 'DnsUpdateProxy' |                          Move-ADObject -TargetPath $ItAdminGroupsOuDn
+        Get-ADGroup -Identity 'Domain Users' |                            Move-ADObject -TargetPath $ItAdminGroupsOuDn
+        Get-ADGroup -Identity 'Domain Computers' |                        Move-ADObject -TargetPath $ItAdminGroupsOuDn
+        Get-ADGroup -Identity 'Domain Guests' |                           Move-ADObject -TargetPath $ItAdminGroupsOuDn
 
         Get-ADGroup -Identity 'Allowed RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn
         Get-ADGroup -Identity 'RAS and IAS Servers' |                     Move-ADObject -TargetPath $ItRightsOuDn
