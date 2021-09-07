@@ -8,7 +8,7 @@
     Description          = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory'
     FunctionsToExport    = @('*')
     GUID                 = '73548059-dfed-487e-9e47-f1a95ff90118'
-    ModuleVersion        = '1.0.2'
+    ModuleVersion        = '1.0.21'
     PowerShellVersion    = '5.1'
     PrivateData          = @{
         PSData = @{
