@@ -273,10 +273,10 @@ function New-CentralItOu
         $ItAdminAccountsOuDn = 'OU={0},{1}' -f $ItAdminAccountsOu, $ItAdminOuDn
 
         # It Admin Groups OU Distinguished Name
-        $ItGroupsOuDn = 'OU={0},{1}' -f $ItAdminGroupsOu, $ItAdminOuDn
+        $ItAdminGroupsOuDn = 'OU={0},{1}' -f $ItAdminGroupsOu, $ItAdminOuDn
 
         # It Privileged Groups OU Distinguished Name
-        $ItPGOuDn = 'OU={0},{1}' -f $ItPrivGroupsOU, $ItAdminOuDn
+        $ItPrivGroupsOUDn = 'OU={0},{1}' -f $ItPrivGroupsOU, $ItAdminOuDn
 
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
