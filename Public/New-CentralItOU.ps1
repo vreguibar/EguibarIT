@@ -459,9 +459,9 @@ function New-CentralItOu
             ouPath = $ItServiceAccountsOuDn
             CleanACL =$True
         }
-        New-DelegateAdOU -ouName $ItT0SAOu -ouDescription $confXML.n.Admin.OUs.ItSAT0OU.description @Splat
-        New-DelegateAdOU -ouName $ItT1SAOu -ouDescription $confXML.n.Admin.OUs.ItSAT1OU.description @Splat
-        New-DelegateAdOU -ouName $ItT2SAOu -ouDescription $confXML.n.Admin.OUs.ItSAT2OU.description @Splat
+        New-DelegateAdOU -ouName $ItSAT0OU -ouDescription $confXML.n.Admin.OUs.ItSAT0OU.description @Splat
+        New-DelegateAdOU -ouName $ItSAT1OU -ouDescription $confXML.n.Admin.OUs.ItSAT1OU.description @Splat
+        New-DelegateAdOU -ouName $ItSAT2OU -ouDescription $confXML.n.Admin.OUs.ItSAT2OU.description @Splat
 
         # Ensure inheritance is enabled for child Admin OUs
         $Splat = @{
