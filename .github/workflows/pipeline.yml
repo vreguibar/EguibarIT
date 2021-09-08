@@ -38,4 +38,11 @@ jobs:
 
           $DirContent = Get-ChildItem
            Write-Host $DirContent
+
+           $DirContent1 = Get-ChildItem D:\a\EguibarIT\EguibarIT
+           Write-Host $DirContent1
+
+           $DirContent2 = Get-ChildItem D:\a\EguibarIT\EguibarIT\src
+           Write-Host $DirContent2
+
           .\publish.ps1 -version $gvOutput.MajorMinorPatch -preReleaseTag $preReleaseTag -apiKey $env:API_KEY
