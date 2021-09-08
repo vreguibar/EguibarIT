@@ -24,7 +24,6 @@ if (-Not(Test-Path "$scriptPath\src")) {
 $ScriptFunctions = @( Get-ChildItem -Path $scriptPath\*.ps1 -ErrorAction SilentlyContinue -Recurse )
 $ModulePSM = @( Get-ChildItem -Path $scriptPath\*.psm1 -ErrorAction SilentlyContinue -Recurse )
 
-
 foreach ($FilePath in $ScriptFunctions) {
     $Results = [System.Management.Automation.Language.Parser]::ParseFile($FilePath, [ref]$null, [ref]$null)
     $Functions = $Results.EndBlock.Extent.Text
@@ -47,11 +46,13 @@ $FileContent = Import-PowerShellDataFile -Path "$scriptPath\EguibarIT.psd1" -Ver
 [version]$NewVersion = '{0}.{1}.{2}' -f $Version.Major, $Version.Minor, ($Version.Build + 1) 
 Write-Host "New Version is: $NewVersion"
 $Splat = @{
-    Path          = "$srcPath\EguibarIT.psd1"
+    Path          = "$scriptPath\EguibarIT.psd1"
     ModuleVersion = $NewVersion
     Prerelease    = $preReleaseTag
     Verbose       = $true
 }
 Update-ModuleManifest @Splat
+
+Copy-Item -Path $scriptPath\*.psd1 -Destination $srcPath
 
 Publish-Module -Path $srcPath -NuGetApiKey $apiKey -Force -Verbose
