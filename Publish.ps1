@@ -12,7 +12,7 @@ Write-Host "Script Path $scriptPath"
 Write-Host "----------------------------------------------------"
 Write-Host "Source Path $srcPath"
 
-$outFile = "srcPath\EguibarIT.psm1"
+$outFile = "$srcPath\EguibarIT.psm1"
 if (Test-Path $outFile) {
     Remove-Item $outFile
 }
