@@ -30,4 +30,4 @@ jobs:
           API_KEY: ${{ secrets.PS_GALLERY_KEY }}
         run: |
           
-          .\publish.ps1 -version $gvOutput.MajorMinorPatch -preReleaseTag $preReleaseTag -apiKey $env:API_KEY
+          .\publish.ps1 -preReleaseTag $preReleaseTag -apiKey $env:API_KEY
