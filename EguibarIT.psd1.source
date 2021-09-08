@@ -12,7 +12,7 @@
     PowerShellVersion    = '5.1'
     PrivateData          = @{
         PSData = @{
-            Tags                       = @('Windows', 'ActiveDirectory', 'AD', 'Infrastructure', 'Testing', 'Checks', 'Audits', 'Checklist', 'Validation')
+            Tags                       = @('Windows', 'ActiveDirectory', 'AD', 'DelegationModel', 'TierModel', 'RBACmodel', 'Infrastructure', 'Testing', 'Checks', 'Audits', 'Checklist', 'Validation')
             ProjectUri                 = 'https://github.com/vrguibarIT/EguibarIT'
             IconUri                    = 'https://EguibarIT.com/wp-content/uploads/2017/09/LOGO_FondoBlanco.png'
             ExternalModuleDependencies = @('ActiveDirectory', 'GroupPolicy', 'ServerManager')
