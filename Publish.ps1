@@ -40,3 +40,4 @@ $fileContent = $fileContent -replace '{{preReleaseTag}}', $preReleaseTag
 Set-Content "$scriptPath\EguibarIT\EguibarIT.psd1" -Value $fileContent  -Force
 
 Publish-Module -Path $scriptPath\BuildUtils -NuGetApiKey $apiKey -Verbose -Force
+ 
