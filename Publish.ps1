@@ -9,10 +9,14 @@ $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 $srcPath = "$scriptPath\src";
 Write-Host "----------------------------------------------------"
 Write-Host "Script Path $scriptPath"
+# Should be "Script Path D:\a\EguibarIT\EguibarIT"
 Write-Host "----------------------------------------------------"
 Write-Host "Source Path $srcPath"
+# Should be "Script Path D:\a\EguibarIT\EguibarIT\src"
 
 $outFile = "$srcPath\EguibarIT.psm1"
+# Should be "D:\a\EguibarIT\EguibarIT\src\EguibarIT.psm1"
+
 if (Test-Path $outFile) {
     Remove-Item $outFile
 }
@@ -38,21 +42,21 @@ foreach ($FilePath in $ModulePSM) {
 "Export-ModuleMember -Function * -Cmdlet *" | Add-Content -Path $outFile
 
 # Now replace version in psd1
-
+#Read manifest
 $FileContent = Import-PowerShellDataFile -Path "$scriptPath\EguibarIT.psd1" -Verbose
-
+#Get current version
 [version]$Version = $FileContent.ModuleVersion
-
+#Increase Build version
 [version]$NewVersion = '{0}.{1}.{2}' -f $Version.Major, $Version.Minor, ($Version.Build + 1) 
-Write-Host "New Version is: $NewVersion"
+
+# Modify Manifest D:\a\EguibarIT\EguibarIT\EguibarIT.psd1
 $Splat = @{
     Path          = "$scriptPath\EguibarIT.psd1"
     ModuleVersion = $NewVersion
     Prerelease    = $preReleaseTag
-    Verbose       = $true
 }
 Update-ModuleManifest @Splat
 
-Copy-Item -Path $scriptPath\*.psd1 -Destination $srcPath
+Copy-Item -Path $scriptPath\EguibarIT.psd1 -Destination $srcPath -Verbose -force
 
 Publish-Module -Path $srcPath -NuGetApiKey $apiKey -Force -Verbose
