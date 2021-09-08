@@ -5,18 +5,18 @@ param (
 )
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-$srcPath = "$scriptPath\src";
+$srcPath = "$scriptPath";
 Write-Host "Proceeding to publish all code found in $srcPath"
 
-$outFile = "$scriptPath\BuildUtils\BuildUtils.psm1"
+$outFile = "$scriptPath\EguibarIT.psm1"
 if (Test-Path $outFile) 
 {
     Remove-Item $outFile
 }
 
-if (!(Test-Path "$scriptPath\BuildUtils")) 
+if (!(Test-Path "$scriptPath\EguibarIT")) 
 {
-    New-Item "$scriptPath\BuildUtils" -ItemType Directory
+    New-Item "$scriptPath\EguibarIT" -ItemType Directory
 }
 
 $ScriptFunctions = @( Get-ChildItem -Path $srcPath\*.ps1 -ErrorAction SilentlyContinue -Recurse )
@@ -34,9 +34,9 @@ foreach ($FilePath in $ModulePSM) {
 
 # Now replace version in psd1
 
-$fileContent = Get-Content "$scriptPath\src\BuildUtils.psd1.source"
+$fileContent = Get-Content "$scriptPath\EguibarIT.psd1.source"
 $fileContent = $fileContent -replace '{{version}}', $version
 $fileContent = $fileContent -replace '{{preReleaseTag}}', $preReleaseTag 
-Set-Content "$scriptPath\BuildUtils\BuildUtils.psd1" -Value $fileContent  -Force
+Set-Content "$scriptPath\EguibarIT.psd1" -Value $fileContent  -Force
 
-Publish-Module -Path $scriptPath\BuildUtils -NuGetApiKey $apiKey -Verbose -Force
+Publish-Module -Path $scriptPath -NuGetApiKey $apiKey -Verbose -Force
