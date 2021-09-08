@@ -37,7 +37,7 @@ foreach ($FilePath in $ModulePSM) {
 $fileContent = Get-Content "$scriptPath\EguibarIT.psd1.source"
 $fileContent = $fileContent -replace '{{version}}', $version
 $fileContent = $fileContent -replace '{{preReleaseTag}}', $preReleaseTag 
-Set-Content "$scriptPath\EguibarIT.psd1" -Value $fileContent  -Force
+Set-Content "$scriptPath\EguibarIT\EguibarIT.psd1" -Value $fileContent  -Force
 
 Publish-Module -Path $scriptPath\EguibarIT -NuGetApiKey $apiKey -Verbose -Force
  
