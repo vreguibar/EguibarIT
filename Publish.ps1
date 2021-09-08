@@ -49,6 +49,9 @@ $FileContent = Import-PowerShellDataFile -Path "$scriptPath\EguibarIT.psd1" -Ver
 #Increase Build version
 [version]$NewVersion = '{0}.{1}.{2}' -f $Version.Major, $Version.Minor, ($Version.Build + 1) 
 
+$Dir1 = Get-ChildItem D:\a\EguibarIT\EguibarIT\src
+Write-Host $Dir1
+
 # Modify Manifest D:\a\EguibarIT\EguibarIT\EguibarIT.psd1
 $Splat = @{
     Path          = "$scriptPath\EguibarIT.psd1"
