@@ -35,14 +35,11 @@ jobs:
 
           $preReleaseTag = "-" + $preLabel
           Write-Host "Publishing -version " + $gvOutput.MajorMinorPatch + "-preReleaseTag " + $preReleaseTag + " -apiKey xxx"
-
+          Write-Host "----------------------------------------------------"
           $DirContent = Get-ChildItem D:\a\EguibarIT\
            Write-Host $DirContent
-
+          Write-Host "----------------------------------------------------"
            $DirContent1 = Get-ChildItem D:\a\EguibarIT\EguibarIT
            Write-Host $DirContent1
-
-           $DirContent2 = Get-ChildItem D:\a\EguibarIT\src
-           Write-Host $DirContent2
 
           .\publish.ps1 -version $gvOutput.MajorMinorPatch -preReleaseTag $preReleaseTag -apiKey $env:API_KEY
