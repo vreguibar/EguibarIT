@@ -7,6 +7,8 @@ param (
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 $srcPath = "$scriptPath\src";
 Write-Host "Proceeding to publish all code found in $srcPath"
+Get-ChildItems
+
 
 $outFile = "$scriptPath\EguibarIT\EguibarIT.psm1"
 if (Test-Path $outFile) 
