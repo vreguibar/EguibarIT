@@ -9,13 +9,11 @@ $srcPath = "$scriptPath\src";
 Write-Host "Proceeding to publish all code found in $srcPath"
 
 $outFile = "$scriptPath\EguibarIT\EguibarIT.psm1"
-if (Test-Path $outFile) 
-{
+if (Test-Path $outFile) {
     Remove-Item $outFile
 }
 
-if (!(Test-Path "$scriptPath\EguibarIT")) 
-{
+if (-Not(Test-Path "$scriptPath\EguibarIT")) {
     New-Item "$scriptPath\EguibarIT" -ItemType Directory
 }
 
@@ -34,10 +32,17 @@ foreach ($FilePath in $ModulePSM) {
 
 # Now replace version in psd1
 
-$fileContent = Get-Content "$scriptPath\EguibarIT.psd1.source"
-$fileContent = $fileContent -replace '{{version}}', $version
-$fileContent = $fileContent -replace '{{preReleaseTag}}', $preReleaseTag 
-Set-Content "$scriptPath\EguibarIT\EguibarIT.psd1" -Value $fileContent -Force -Verbose
+#$FileContent = Import-PowerShellDataFile -Path "$scriptPath\EguibarIT.psd1" -Verbose
+
+[version]$NewVersion = $version
+
+$Splat = @{
+    Path          = "$scriptPath\EguibarIT\EguibarIT.psd1"
+    ModuleVersion = $NewVersion
+    Prerelease    = $preReleaseTag
+    Verbose       = $true
+}
+Update-ModuleManifest @Splat
 
 Publish-Module -Path $scriptPath\EguibarIT -NuGetApiKey $apiKey -Force -Verbose
  
