@@ -36,9 +36,9 @@ $FileContent = Import-PowerShellDataFile -Path "$scriptPath\EguibarIT.psd1" -Ver
 [version]$Version = $FileContent.ModuleVersion
 
 [version]$NewVersion = '{0}.{1}.{2}' -f $Version.Major, $Version.Minor, ($Version.Build + 1) 
-
+Write-Host "New Version is: $NewVersion"
 $Splat = @{
-    Path          = "$scriptPath\EguibarIT.psd1"
+    Path          = "$scriptPath\EguibarIT\EguibarIT.psd1"
     ModuleVersion = $NewVersion
     Prerelease    = $preReleaseTag
     Verbose       = $true
