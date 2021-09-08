@@ -1,5 +1,4 @@
 param (
-    [string] $version,
     [string] $preReleaseTag,
     [string] $apiKey
 )
@@ -32,9 +31,11 @@ foreach ($FilePath in $ModulePSM) {
 
 # Now replace version in psd1
 
-#$FileContent = Import-PowerShellDataFile -Path "$scriptPath\EguibarIT.psd1" -Verbose
+$FileContent = Import-PowerShellDataFile -Path "$scriptPath\EguibarIT.psd1" -Verbose
 
-[version]$NewVersion = $version
+[version]$Version = $FileContent.ModuleVersion
+
+[version]$NewVersion = '{0}.{1}.{2}' -f $Version.Major, $Version.Minor, ($Version.Build + 1) 
 
 $Splat = @{
     Path          = "$scriptPath\EguibarIT\EguibarIT.psd1"
