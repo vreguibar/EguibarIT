@@ -5,7 +5,7 @@ param (
 )
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
-$srcPath = "$scriptPath\scr";
+$srcPath = "$scriptPath\src";
 Write-Host "Proceeding to publish all code found in $srcPath"
 
 $outFile = "$scriptPath\EguibarIT\EguibarIT.psm1"
@@ -34,9 +34,9 @@ foreach ($FilePath in $ModulePSM) {
 
 # Now replace version in psd1
 
-$fileContent = Get-Content "$scriptPath\scr\EguibarIT.psd1.source"
+$fileContent = Get-Content "$scriptPath\src\EguibarIT.psd1.source"
 $fileContent = $fileContent -replace '{{version}}', $version
 $fileContent = $fileContent -replace '{{preReleaseTag}}', $preReleaseTag 
 Set-Content "$scriptPath\EguibarIT\EguibarIT.psd1" -Value $fileContent  -Force
 
-Publish-Module -Path $scriptPath\EguibarIT -NuGetApiKey $apiKey -Verbose -Force
+Publish-Module -Path $scriptPath\BuildUtils -NuGetApiKey $apiKey -Verbose -Force
