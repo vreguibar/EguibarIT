@@ -285,13 +285,13 @@ function New-CentralItOu
         $ItServiceAccountsOuDn = 'OU={0},{1}' -f $ItServiceAccountsOu, $ItAdminOuDn
 
             # It Admin T0SA OU Distinguished Name
-            $ItT0SAOuDn = 'OU={0},{1}' -f $ItSAT0Ou, $ItServiceAccountsOuDn
+            $ItSAT0OuDn = 'OU={0},{1}' -f $ItSAT0Ou, $ItServiceAccountsOuDn
 
             # It Admin T0SA OU Distinguished Name
-            $ItT1SAOuDn = 'OU={0},{1}' -f $ItSAT1Ou, $ItServiceAccountsOuDn
+            $ItSAT1OuDn = 'OU={0},{1}' -f $ItSAT1Ou, $ItServiceAccountsOuDn
 
             # It Admin T0SA OU Distinguished Name
-            $ItT2SAOuDn = 'OU={0},{1}' -f $ItSAT2Ou, $ItServiceAccountsOuDn
+            $ItSAT2OuDn = 'OU={0},{1}' -f $ItSAT2Ou, $ItServiceAccountsOuDn
 
         # It PAW OU Distinguished Name
         $ItPawOuDn = 'OU={0},{1}' -f $ItPawOu, $ItAdminOuDn
