@@ -51,6 +51,10 @@ $FileContent = Import-PowerShellDataFile -Path "$scriptPath\EguibarIT.psd1" -Ver
 
 $Dir1 = Get-ChildItem D:\a\EguibarIT\EguibarIT\src
 Write-Host "Files in SRC directory: $Dir1"
+Write-Host '-------------------------------------------------------------------------------------------------------'
+$PSM1file = Get-Content $outFile
+Write-Host "Content of EguibarIT.psm1: $PSM1file"
+Write-Host '-------------------------------------------------------------------------------------------------------'
 
 # Modify Manifest D:\a\EguibarIT\EguibarIT\EguibarIT.psd1
 $Splat = @{
