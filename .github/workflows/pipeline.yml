@@ -35,4 +35,7 @@ jobs:
 
           $preReleaseTag = "-" + $preLabel
           Write-Host "Publishing -version " + $gvOutput.MajorMinorPatch + "-preReleaseTag " + $preReleaseTag + " -apiKey xxx"
+
+          $DirContent = Get-ChildIt
+           Write-Host $DirContent
           .\publish.ps1 -version $gvOutput.MajorMinorPatch -preReleaseTag $preReleaseTag -apiKey $env:API_KEY
