@@ -13,10 +13,17 @@
     PrivateData          = @{
         PSData = @{
             Tags                       = @('Windows', 'ActiveDirectory', 'AD', 'Infrastructure', 'Testing', 'Checks', 'Audits', 'Checklist', 'Validation')
-            ProjectUri                 = 'https://github.com/vrguibarIT/EguibarIT'
+            ProjectUri                 = 'https://github.com/vreguibarIT/EguibarIT'
             IconUri                    = 'https://EguibarIT.com/wp-content/uploads/2017/09/LOGO_FondoBlanco.png'
-            ExternalModuleDependencies = @('ActiveDirectory', 'GroupPolicy', 'ServerManager')
+            ExternalModuleDependencies = @('ActiveDirectory', 'GroupPolicy', 'ServerManager', 'EguibarIT.Delegation')
         }
     }
     RootModule           = 'EguibarIT.psm1'
+    RequiredModules = @(
+        @{
+            ModuleVersion = '1.2.7296.23723'
+            ModuleName    = 'EguibarIT.Delegation'
+            Guid          = '5953deff-85c3-4e58-b961-79da8c5f7573'
+        }
+    )
 }

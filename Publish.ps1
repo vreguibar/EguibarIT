@@ -5,17 +5,6 @@ param (
 
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 
-
-$srcPath = "$scriptPath\src";
-Write-Host "----------------------------------------------------"
-Write-Host "Script Path $scriptPath"
-# Should be "Script Path D:\a\EguibarIT\EguibarIT"
-Write-Host "----------------------------------------------------"
-Write-Host "Source Path $srcPath"
-# Should be "Script Path D:\a\EguibarIT\EguibarIT\src"
-
-
-
 # Now replace version in psd1
 #Read manifest
 $FileContent = Import-PowerShellDataFile -Path "$scriptPath\EguibarIT.psd1" -Verbose
