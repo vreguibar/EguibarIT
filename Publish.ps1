@@ -46,4 +46,3 @@ $Splat = @{
 Update-ModuleManifest @Splat
 
 Publish-Module -Path $scriptPath\EguibarIT -NuGetApiKey $apiKey -Force -Verbose
- 

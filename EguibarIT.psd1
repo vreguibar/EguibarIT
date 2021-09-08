@@ -18,10 +18,5 @@
             ExternalModuleDependencies = @('ActiveDirectory', 'GroupPolicy', 'ServerManager')
         }
     }
-    RequiredModules      = @( @{
-            ModuleVersion = '1.2.7296.23723'
-            ModuleName    = 'EguibarIT.Delegation'
-            Guid          = '5953deff-85c3-4e58-b961-79da8c5f7573'
-        }, 'ActiveDirectory', 'GroupPolicy', 'ServerManager')
     RootModule           = 'EguibarIT.psm1'
 }
