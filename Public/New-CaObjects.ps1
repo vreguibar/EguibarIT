@@ -37,11 +37,10 @@ Function New-CaObjects
         [string]
         $DMscripts = "C:\PsScripts\"
     )
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -49,12 +48,12 @@ Function New-CaObjects
         [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
-   
+
         ################################################################################
         # Initialisations
         Import-Module -name EguibarIT.Delegation -Verbose:$false
-        
-        
+
+
         #Get the OS Instalation Type
         $OsInstalationType = Get-ItemProperty -Path 'HKLM:Software\Microsoft\Windows NT\CurrentVersion' | Select-Object -ExpandProperty InstallationType
 
@@ -63,20 +62,16 @@ Function New-CaObjects
         #region Declarations
 
 
-        try
-        {
+        try {
             # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn))
-            {
+            If(-Not (Test-Path -Path variable:AdDn)) {
                 New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML))  
-            {
+            If(-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile'])
-                {
+                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
@@ -100,7 +95,7 @@ Function New-CaObjects
         # SG_PAWM_T0
 
         # Organizational Units Distinguished Names
-        
+
         # IT Admin OU
         $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
         # IT Admin OU Distinguished Name
@@ -126,34 +121,33 @@ Function New-CaObjects
         #endregion Declarations
         ################################################################################
     }
-    Process
-    {
+    Process {
         # Check if AD module is installed
         If(-not((Get-WindowsFeature -Name RSAT-AD-PowerShell).Installed)) {
             Install-WindowsFeature -Name RSAT-AD-PowerShell -IncludeAllSubFeature
         }
         Import-Module -name ActiveDirectory      -Verbose:$false
-        
+
         # AD CS Step by Step Guide: Two Tier PKI Hierarchy Deployment
         # https://social.technet.microsoft.com/wiki/contents/articles/15037.ad-cs-step-by-step-guide-two-tier-pki-hierarchy-deployment.aspx
-        
+
         # Deploy a PKI on Windows Server 2016
         # https://timothygruber.com/pki/deploy-a-pki-on-windows-server-2016-part-2/
-        
+
 
         try {
             # Check if feature is installed, if not then proceed to install it.
             If(-not((Get-WindowsFeature -Name ADCS-Cert-Authority).Installed)) {
                 Install-WindowsFeature -Name ADCS-Cert-Authority -IncludeAllSubFeature
-                
+
                 Install-WindowsFeature -Name ADCS-web-enrollment
-                
+
                 Install-WindowsFeature -Name ADCS-Online-Cert
-                
+
                 If($OsInstalationType -ne 'Server Core') {
                     Install-WindowsFeature -Name RSAT-ADCS -IncludeAllSubFeature
                 }
-                
+
                 # https://www.pkisolutions.com/tools/pspki/
                 # Install PSPKI module for managing Certification Authority
                 Install-PackageProvider -Name NuGet -Force
@@ -162,8 +156,8 @@ Function New-CaObjects
 
                 #Define PKI Cname
                 $PkiServer = ('pki.{0}' -f $env:USERDNSDOMAIN)
-                
-                # Create CAPolicy.inf for Enterprise Root CA 
+
+                # Create CAPolicy.inf for Enterprise Root CA
                 $CaPolicy = @"
 [Version]
 Signature="$Windows NT$"
@@ -188,7 +182,7 @@ LoadDefaultTemplates=0
 
                 # Create Folder where to store CA Database
                 $CaConfig = ('{0}\CaConfig\' -f $env:SystemDrive)
-                
+
                 if(-not(Test-Path $CaConfig)) {
                     New-Item -ItemType Directory -Force -Path $CaConfig
                 }
@@ -209,35 +203,31 @@ LoadDefaultTemplates=0
                 }
                 # Configure the new CA
                 Install-AdcsCertificationAuthority @Splat
-                
+
                 # configure the web enrollment role service
                 Install-ADCSwebenrollment -Confirm
             } # End If
         } # End Try
-        catch {} # End Try-Catch
+        catch { throw } # End Try-Catch
         finally {
-            
+
             # Remove all distribution points
             foreach ($crl in Get-CACrlDistributionPoint) {
                 Remove-CACrlDistributionPoint $crl.uri -Force
             }
-            
+
             # Add CDP local path
             Add-CACRLDistributionPoint -Uri C:\Windows\System32\CertSrv\CertEnroll\%3%8%9.crl -PublishToServer -PublishDeltaToServer -Force
-            
+
             # Add CDP url
             Add-CACRLDistributionPoint -Uri http://$PkiServer/CertEnroll/%3%8%9.crl -AddToCertificateCDP -AddToFreshestCrl -Force
-            
+
             Get-CAAuthorityInformationAccess | Where-Object {$_.Uri -like '*ldap*' -or $_.Uri -like '*http*' -or $_.Uri -like '*file*'} | Remove-CAAuthorityInformationAccess -Force
-            
+
             # Add AIA url
             Add-CAAuthorityInformationAccess -AddToCertificateAia http://$PkiServer/CertEnroll/%1_%3%4.crt -Force 
 
 
-
-                # Create a new Windows Script Shell
-                $sh = New-Object -comobject 'Wscript.Shell'
-                
             # Configure CRL and DeltaCRL
             [String]$cmd = "Certutil -setreg CA\CRLPeriodUnits $($confXML.n.CA.CACRLPeriodUnits)"
             Invoke-Expression -Command $cmd
@@ -247,11 +237,11 @@ LoadDefaultTemplates=0
             Invoke-Expression -Command $cmd
             [String]$cmd = "Certutil -setreg CA\CRLDeltaPeriod $($confXML.n.CA.CACRLDeltaPeriod)"
             Invoke-Expression -Command $cmd
-            
-            <##TODO  
-            Failing next 2 
+
+            <##TODO 
+            Failing next 2
             #>
-            
+
             [String]$cmd = "Certutil -setreg CA\CRLOverlapPeriodUnits $($confXML.n.CA.CACRLOverlapPeriodUnits)"
             Invoke-Expression -Command $cmd
             [String]$cmd = "Certutil -setreg CA\CRLOverlapPeriod $($confXML.n.CA.CACRLOverlapPeriod)"
@@ -275,14 +265,14 @@ LoadDefaultTemplates=0
             [String]$Locations = '"65:C:\Windows\system32\CertSrv\CertEnroll\%3%8%9.crl\n79:ldap:///CN=%7%8,CN=%2,CN=CDP,CN=Public Key Services,CN=Services,%6%10\n6:http://{0}/CertEnroll/%3%8%9.crl\n65:\\{1}\CertEnroll\%3%8%9.crl"' -f  $PkiServer, ('{0}.{1}' -f $env:COMPUTERNAME, $env:USERDNSDOMAIN)
             [String]$cmd = "certutil -setreg CA\CRLPublicationURLs $($Locations)"
             Invoke-Expression -Command $cmd
-            
+
             # Configure Online Responder
             #Configure and Publish the OCSP Response Signing Certificate
             Get-CertificateTemplate -Name 'OCSPResponseSigning' | Get-CertificateTemplateAcl | Add-CertificateTemplateAcl -Identity ('{0}$' -f $env:computername) -AccessType Allow -AccessMask Read, Enroll | Set-CertificateTemplateAcl
             Get-CertificationAuthority | Get-CATemplate | Add-CATemplate -DisplayName 'OCSP Response Signing'
-            
+
             Restart-Service certsvc
-            
+ 
         } # End Try-Catch-Finally
 
 <#
@@ -395,7 +385,7 @@ LoadDefaultTemplates=0
 
         #https://github.com/GoateePFE/ADCSTemplate
         # Export-ADCSTemplate -Server DC1 -DisplayName WAC > .\WAC.json
-        
+
         #
         #Windows Admin Center and Enterprise CA
         #https://github.com/microsoft/WSLab/tree/master/Scenarios/Windows%20Admin%20Center%20and%20Enterprise%20CA
@@ -516,8 +506,7 @@ Invoke-Command -ComputerName $GatewayServerName -ScriptBlock {
 
 
     }
-    End
-    {
+    End {
         Write-Verbose -Message ('Function {0} created Certificate Authority objects and Delegations successfully.' -f $MyInvocation.InvocationName)
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'

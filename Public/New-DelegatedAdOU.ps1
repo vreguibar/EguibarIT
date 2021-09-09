@@ -12,12 +12,12 @@ function New-DelegateAdOU
             Param1  OuName:............ [STRING] Name of the OU
             Param2  OuPath:............ [STRING] LDAP path where this ou will be created
             Param3  OuDescrition:...... [STRING] Full description of the OU
-            Param4  OuCity:............ [STRING] 
-            Param5  OuCountry:......... [STRING] 
-            Param6  OuStreetAddress:... [STRING] 
-            Param7  OuState:........... [STRING] 
-            Param8  OuZipCode:......... [STRING] 
-            Param9  strOuDisplayName:.. [STRING] 
+            Param4  OuCity:............ [STRING]
+            Param5  OuCountry:......... [STRING]
+            Param6  OuStreetAddress:... [STRING]
+            Param7  OuState:........... [STRING]
+            Param8  OuZipCode:......... [STRING]
+            Param9  strOuDisplayName:.. [STRING]
             Param10 RemoveAuthenticatedUsers:.. [Switch] Remove Authenticated Users
             Param11 CleanACL:.......... [Switch] Remove Authenticated Users
 
@@ -35,9 +35,8 @@ function New-DelegateAdOU
 
     # https://docs.microsoft.com/en-us/dotnet/api/microsoft.activedirectory.management?view=activedirectory-management-10.0
     [OutputType([Microsoft.ActiveDirectory.Management.ADOrganizationalUnit])]
-    
-    Param
-    (
+
+    Param (
         # Param1 Site Name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Name of the OU',
@@ -114,11 +113,10 @@ function New-DelegateAdOU
 
   )
 
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -126,27 +124,22 @@ function New-DelegateAdOU
         [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
-    
+
         Import-Module -name EguibarIT.Delegation -Verbose:$false
 
         #------------------------------------------------------------------------------
         # Define the variables
 
-        try
-        {
+        try {
           # Active Directory Domain Distinguished Name
-          If(-not (Test-Path -Path variable:AdDn))
-          {
+          If(-not (Test-Path -Path variable:AdDn)) {
             New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
           }
 
           # Sites OU Distinguished Name
           $ouNameDN = 'OU={0},{1}' -f $PSBoundParameters['ouName'], $PSBoundParameters['ouPath']
         }
-        Catch
-        {
-          throw
-        }
+        Catch { throw }
 
         $Return = $null
 
@@ -154,27 +147,21 @@ function New-DelegateAdOU
         #------------------------------------------------------------------------------
     }
 
-      Process
-      {
-        # 
-        if (-not $strOuDisplayName)
-        {
+      Process {
+        #
+        if (-not $strOuDisplayName) {
           $strOuDisplayName = $PSBoundParameters['ouName']
         }
 
-        try
-        {
+        try {
           # Try to get Ou
           $OUexists = Get-AdOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $AdDn
-          
+
           # Check if OU exists
-          If($OUexists)
-          {
+          If($OUexists) {
             # OU it does exists
             Write-Warning -Message ('Organizational Unit {0} already exists.' -f $ouNameDN)
-          }
-          else
-          {
+          } else {
             Write-Verbose -Message ('Creating the {0} Organizational Unit' -f $PSBoundParameters['ouName'])
             # Create OU
             $parameters = @{
@@ -191,23 +178,17 @@ function New-DelegateAdOU
             }
             $OUexists = New-ADOrganizationalUnit @parameters
           }
-        }
-        catch
-        {
-          throw
-        }
+        } catch { throw }
 
         # Remove "Account Operators" and "Print Operators" built-in groups from OU. Any unknown/UnResolvable SID will be removed.
         Start-AdCleanOU -LDAPPath $ouNameDN -RemoveUnknownSIDs
 
-        if($PSBoundParameters['CleanACL'])
-        {
+        if($PSBoundParameters['CleanACL']) {
             Remove-SpecificACLandEnableInheritance -LDAPpath $ouNameDN
         }
       }
 
-    End
-    {
+    End {
 
         Write-Verbose -Message ('Function New-DelegateAdOU finished {0}' -f $ouNameDN)
         Write-Verbose -Message ''

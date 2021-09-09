@@ -5,7 +5,7 @@ function ConvertTo-WmiFilter
         .DESCRIPTION
         .EXAMPLE
             ConvertTo-WmiFilter
-        .INPUTS 
+        .INPUTS
         .NOTES
             Version:         1.0
             DateModified:    25/Mar/2014
@@ -22,7 +22,7 @@ function ConvertTo-WmiFilter
     Begin  {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -42,32 +42,27 @@ function ConvertTo-WmiFilter
         $ADObject | ForEach-Object {
             $path = 'MSFT_SomFilter.Domain="' + $gpDomain.DomainName + '",ID="' + $_.Name + '"'
             $filter = $null
-            try
-            {
+            try {
                 $filter = $gpDomain.GetWmiFilter($path)
             }
-            catch
-            {
-                Write-Host -ForegroundColor Red 'The WMI filter could not be found.'
+            catch {
+                Write-Error -Message 'The WMI filter could not be found.'
             }
-            if ($filter)
-            {
+            if ($filter) {
                 [Guid]$Guid = $_.Name.Substring(1, $_.Name.Length - 2)
                 $filter |
                     Add-Member -MemberType NoteProperty -Name Guid -Value $Guid -PassThru |
                     Add-Member -MemberType NoteProperty -Name Content -Value $_.'msWMI-Parm2' -PassThru
-            }
-            else
-            {
-                Write-Host -ForegroundColor Yellow 'Waiting 5 seconds for Active Directory replication to complete.'
+            } else {
+                Write-Warning -Message 'Waiting 5 seconds for Active Directory replication to complete.'
                 Start-Sleep -Seconds 5
-                Write-Host -ForegroundColor Yellow 'Trying again to retrieve the WMI filter.'
+                Write-Warning -Message 'Trying again to retrieve the WMI filter.'
                 ConvertTo-WmiFilter $ADObject
             }
         }
     }
 
-    End  { 
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished converting the WMI filter."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

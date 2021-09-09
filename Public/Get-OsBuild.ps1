@@ -22,7 +22,7 @@ Function Get-OsBuild
   Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -31,10 +31,8 @@ Function Get-OsBuild
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
   }
-  Process
-  {
-    Try
-    {
+  Process {
+    Try {
       # http://www.gaijin.at/en/lstwinver.php
       # http://en.wikipedia.org/wiki/Windows_NT
       # Get OS Information
@@ -58,8 +56,7 @@ Function Get-OsBuild
       $Global:OsSpMajorVersion  = [Environment]::OSVersion.ServicePack
     }
   }
-  End 
-    {
+  End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting OS build."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

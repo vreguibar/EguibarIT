@@ -23,8 +23,7 @@ function New-AreaShareNTFS
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([String])]
-    Param
-    (
+    Param (
         # Param1 Sharename
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Name of the share to be created',
@@ -78,7 +77,7 @@ function New-AreaShareNTFS
         [ValidateNotNullOrEmpty()]
         [string]
         $ShareLocation,
-                
+        
         # Param7
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'The root share name for general areas.',
@@ -89,11 +88,10 @@ function New-AreaShareNTFS
         $AreasName
     )
 
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -101,7 +99,7 @@ function New-AreaShareNTFS
         [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
-        
+
         #------------------------------------------------------------------------------
         # Define the variables
 
@@ -114,8 +112,7 @@ function New-AreaShareNTFS
         #---------------------
     }
 
-    Process
-    {
+    Process {
         If(-not(test-path -Path $FullShareName))
         {
             # Create the new Directory
@@ -151,16 +148,14 @@ function New-AreaShareNTFS
         Grant-NTFSPermissions -path $FullShareName -object $PSBoundParameters['SG_SiteAdminsGroup'] -permission 'FullControl, ChangePermissions'
 
         #& "$env:windir\system32\net.exe" share $ShareName=$FullShareName '/GRANT:Everyone,FULL'
-        
+
         New-SmbShare -Name $PSBoundParameters['ShareName'] -Path $FullShareName -FullAccess Everyone
-        
-        if ($error.count -eq 0)
-        {
+
+        if ($error.count -eq 0) {
             Write-Verbose -Message ('The folder {0} was shared correctly.' -f $ShareName)
         }
     }
-    End
-    {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating the share."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

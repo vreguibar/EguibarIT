@@ -3,15 +3,15 @@ function New-DelegateAdGpo
     <#
         .Synopsis
             Creates and Links new GPO
-            
+
         .DESCRIPTION
             Create new custom delegated GPO, Delegate rights to an existing group and links it to the given OU
-            
+
         .EXAMPLE
             New-DelegateAdGpo MyNewGPO C "OU=Servers,OU=eguibarit,OU=local" "SL_GpoRight"
         .EXAMPLE
             New-DelegateAdGpo -gpoDescription MyNewGPO -gpoScope C -gpoLinkPath "OU=Servers,OU=eguibarit,OU=local" -GpoAdmin "SL_GpoRight"
-            
+
         .PARAMETER gpoDescription
             [STRING] Description of the GPO. Used to build the name. Only Characters a-z A-Z
         .PARAMETER gpoScope
@@ -22,16 +22,16 @@ function New-DelegateAdGpo
             [STRING] Domain Local Group with GPO Rights to be assigned
 
             No Config.xml needed for this function.
-            
+
         .INPUTS
             None
-            
+
         .OUTPUTS
             Microsoft.GroupPolicy.Gpo
-            
+
         .LINKS
             http://www.eguibarit.com
-        
+
         .NOTES
             Version:         1.2
             DateModified:    22/Jan/2019
@@ -42,8 +42,7 @@ function New-DelegateAdGpo
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([Microsoft.GroupPolicy.Gpo])]
-    Param
-    (
+    Param (
         # Param1 GPO description, used to generate name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Description of the GPO. Used to build the name.',
@@ -69,7 +68,7 @@ function New-DelegateAdGpo
         [ValidateNotNullOrEmpty()]
         [string]
         $gpoLinkPath,
-        
+ 
         # Param4 Domain Local Group with GPO Rights to be assigned
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Domain Local Group with GPO Rights to be assigned',
@@ -79,11 +78,10 @@ function New-DelegateAdGpo
 
     )
 
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -95,31 +93,27 @@ function New-DelegateAdGpo
         Import-Module -name ActiveDirectory -Verbose:$false
         Import-Module -name GroupPolicy     -Verbose:$false
 
-        try
-        {
+        try {
             # Active Directory Domain Distinguished Name
-            If(-not (Test-Path -Path variable:AdDn))
-            {
+            If(-not (Test-Path -Path variable:AdDn)) {
                 New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
             }
         }
         catch { throw }
-        
-        
+
+
         $gpoAlreadyExist = $null
         $gpoName = '{0}-{1}' -f $PSBoundParameters['gpoScope'], $PSBoundParameters['gpoDescription']
         #$adGroupName = Get-ADGroup -Identity $GpoAdmin
         $dcServer = (Get-ADDomaincontroller).HostName
     }
-    Process
-    {
+    Process {
         # Check if the GPO already exist
         $gpoAlreadyExist = Get-GPO -Name $gpoName -ErrorAction SilentlyContinue
         # Clean the error if object does not exist. No need to log.
         $error.clear()
 
-        if (-not $gpoAlreadyExist)
-        {
+        if (-not $gpoAlreadyExist) {
           Write-Verbose -Message ('Policy: Create policy {0}' -f $gpoName)
           $parameters = @{
             Name        = $gpoName
@@ -156,13 +150,10 @@ function New-DelegateAdGpo
 
           #Write-Host "Add AD-Group to Security Filtering on GPO"
           #Set-GPPermissions -Name $gpoName -PermissionLevel GpoApply -TargetName "$($adGroupName)" -TargetType Group -Server $dcServer
-          If ($gpoScope -eq 'C')
-          {
+          If ($gpoScope -eq 'C') {
             Write-Verbose -Message 'Disable Policy User Settings'
             $CurrentNewGPO.GpoStatus = 'UserSettingsDisabled'
-          }
-          else
-          {
+          } else {
             Write-Verbose -Message 'Disable Policy Computer Settings'
             $CurrentNewGPO.GpoStatus = 'ComputerSettingsDisabled'
           }
@@ -190,14 +181,11 @@ function New-DelegateAdGpo
 
           #Write-Host "Remove MyMusic from Start Menu"
           #Set-GPRegistryValue -Name $gpoName -key "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -ValueName NoStartMenuMymusic -Type Dword -value 1
-        }
-        else
-        {
+        } else {
           Write-Verbose -Message ('{0} Policy already exist. Skipping.' -f $gpoName)
         }
     }
-    End
-    {
+    End {
         Write-Verbose -Message ('Function New-DelegateAdGpo Finished creating {0} GPO' -f $gpoName)
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'

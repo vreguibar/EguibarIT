@@ -37,11 +37,10 @@ Function New-AGPMObjects
         [string]
         $DMscripts = "C:\PsScripts\"
     )
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -49,7 +48,7 @@ Function New-AGPMObjects
         [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
-   
+
         ################################################################################
         # Initialisations
         Import-Module -name ActiveDirectory      -Verbose:$false
@@ -59,20 +58,16 @@ Function New-AGPMObjects
         #region Declarations
 
 
-        try
-        {
+        try {
             # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn))
-            {
+            If(-Not (Test-Path -Path variable:AdDn)) {
                 New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML))  
-            {
+            If(-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile'])
-                {
+                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
@@ -96,7 +91,7 @@ Function New-AGPMObjects
         # SG_PAWM_T0
 
         # Organizational Units Distinguished Names
-        
+
         # IT Admin OU
         $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
         # IT Admin OU Distinguished Name
@@ -116,9 +111,8 @@ Function New-AGPMObjects
 
         #endregion Declarations
         ################################################################################
-  }
-    Process
-    {
+    }
+    Process {
         ###############################################################################
         #region Creating Service account
 
@@ -149,7 +143,7 @@ Function New-AGPMObjects
         }
         }
         New-AdUser @parameters
-        
+
         $SA_AGPM = Get-AdUser -Filter { samAccountName -eq 'SA_AGPM_Temp' }
 
         #http://blogs.msdn.com/b/openspecification/archive/2011/05/31/windows-configurations-for-kerberos-supported-encryption-type.aspx
@@ -170,8 +164,7 @@ Function New-AGPMObjects
         Remove-PreWin2000 -LDAPPath $SA_AGPM.DistinguishedName
 
 
-        If ($Global:OsBuild -ge 9200)
-        {
+        If ($Global:OsBuild -ge 9200) {
             $Splat = @{
                 Name                   = $confXML.n.Admin.gMSA.AGPM.Name
                 SamAccountName         = $confXML.n.Admin.gMSA.AGPM.Name
@@ -200,21 +193,17 @@ Function New-AGPMObjects
                 }
             }
 
-            try
-            {
+            try {
                 New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
             }
-            catch {}
-        }
-        else
-        {
+            catch { throw }
+        } else {
             $Splat = @{
                 name        = $confXML.n.Admin.gMSA.AGPM.Name
                 Description = $confXML.n.Admin.gMSA.AGPM.Description
                 Path        = 'OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.name, $ItServiceAccountsOuDn
                 enabled     = $True
             }
-        
             New-ADServiceAccount @Splat
         }
 
@@ -307,9 +296,8 @@ Function New-AGPMObjects
         #
         # 1.- Privileged groups are empty
         # 2.- AGPM will control all GPOs
-  }
-    End
-    {
+    }
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) created objects and Delegations successfully."
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'

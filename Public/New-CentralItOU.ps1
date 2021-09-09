@@ -31,7 +31,7 @@ function New-CentralItOu
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([String])]
-    
+
     Param (
         # PARAM1 full path to the configuration.xml file
         [Parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True, ValueFromRemainingArguments=$false,
@@ -93,14 +93,14 @@ function New-CentralItOu
     Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
         $HTab = "`t"  # Horizontal Tab
         [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
-        
+
 
         ################################################################################
         # Initialisations
@@ -121,7 +121,7 @@ function New-CentralItOu
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML))  
+            If(-Not (Test-Path -Path variable:confXML))
             {
                 # Check if the Config.xml file exist on the given path
                 If(Test-Path -Path $PSBoundParameters['ConfigXMLFile'])
@@ -218,10 +218,9 @@ function New-CentralItOu
         # Global Groups
         Foreach($node in $confXML.n.Admin.GG) {
             Foreach($Child in $node.ChildNodes) {
-            
+                # Create variable for each defined ADMIN GlobalGroup name, Appending SG prefix
+                New-Variable -Name "$('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Child.Name)" -Value ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Child.Name) -Description ($Child.Description) -Option ReadOnly -Force
             }
-            # Create variable for each defined ADMIN GlobalGroup name, Appending SG prefix
-            New-Variable -Name "$('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Child.Name)" -Value ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Child.Name) -Description ($Child.Description) -Force
         }
 
         New-Variable -Name "SG_Operations" -Value ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.Operations.Name) -Force
@@ -374,8 +373,7 @@ function New-CentralItOu
         #endregion Declarations
         ################################################################################
     }
-    Process
-    {
+    Process {
         ###############################################################################
         # Create IT Admin and Sub OUs
         Write-Verbose -Message 'Create Admin Area and related structure...'
@@ -523,8 +521,7 @@ function New-CentralItOu
         Get-ADGroup -Identity 'Denied RODC Password Replication Group' |  Move-ADObject -TargetPath $ItRightsOuDn
 
         # Following groups only exist on Win 2012
-        If ($Global:OsBuild -ge 9200)
-        {
+        If ($Global:OsBuild -ge 9200) {
             Get-ADGroup -Identity 'Protected Users' |              Move-ADObject -TargetPath $ItPGOuDn
             Get-ADGroup -Identity 'Cloneable Domain Controllers' | Move-ADObject -TargetPath $ItPGOuDn
 
@@ -533,8 +530,7 @@ function New-CentralItOu
         }
 
         # Following groups only exist on Win 2019
-        If ($Global:OsBuild -ge 17763)
-        {
+        If ($Global:OsBuild -ge 17763) {
             Get-ADGroup -Identity 'Enterprise Key Admins'               | Move-ADObject -TargetPath $ItPGOuDn
             Get-ADGroup -Identity 'Key Admins'                          | Move-ADObject -TargetPath $ItPGOuDn
             #Get-ADGroup -Identity 'Windows Admin Center CredSSP Admins' | Move-ADObject -TargetPath $ItGroupsOuDn
@@ -570,15 +566,13 @@ function New-CentralItOu
 
         Write-Verbose -Message 'Creating and securing Admin accounts...'
 
-        try
-        {
+        try {
             
             # Try to get the new Admin
             $NewAdminExists = Get-AdUser -Filter { SamAccountName -eq $newAdminName }
             
             # Check if the new Admin account already exist. If not, then create it.
-            If($NewAdminExists)
-            {
+            If($NewAdminExists) {
                 #The user was found. Proceed to modify it accordingly.
                 $parameters = @{
                     Enabled               = $true
@@ -600,8 +594,7 @@ function New-CentralItOu
                         'msDS-SupportedEncryptionTypes' = '24'
                     }
                 }
-                If(Test-Path -Path ('{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName))
-                {
+                If(Test-Path -Path ('{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName)) {
                     # Read the path and file name of JPG picture
                     $PhotoFile = '{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName
                     # Get the content of the JPG file
@@ -613,8 +606,7 @@ function New-CentralItOu
 
                 Set-AdUser -Identity $NewAdminExists
             } #end if -user exists
-            Else
-            {
+            Else {
                 # User was not Found! create new.
                 $parameters = @{
                     Path                  = $ItAdminAccountsOuDn
@@ -641,8 +633,7 @@ function New-CentralItOu
                     }
                 }
 
-                If(Test-Path -Path ('{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName))
-                {
+                If(Test-Path -Path ('{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName)) {
                     # Read the path and file name of JPG picture
                     $PhotoFile = '{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName
                     # Get the content of the JPG file
@@ -712,8 +703,7 @@ function New-CentralItOu
         #region Create Admin groups
 
         # Iterate through all Admin-LocalGroups child nodes
-        Foreach($node in $confXML.n.Admin.LG.ChildNodes)
-        {
+        Foreach($node in $confXML.n.Admin.LG.ChildNodes) {
             Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $node.Name))
             $parameters = @{
                 Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $node.Name
@@ -731,8 +721,7 @@ function New-CentralItOu
         }
 
         # Iterate through all Admin-GlobalGroups child nodes
-        Foreach($node in $confXML.n.Admin.GG.ChildNodes)
-        {
+        Foreach($node in $confXML.n.Admin.GG.ChildNodes) {
             Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $node.Name))
             $parameters = @{
                 Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $node.Name
@@ -825,8 +814,7 @@ function New-CentralItOu
         )
 
         # Move the groups to PG OU
-        foreach($item in $AllGroups)
-        {
+        foreach($item in $AllGroups) {
             # Remove the ProtectedFromAccidentalDeletion, otherwise throws error when moving
             $item | Set-ADObject -ProtectedFromAccidentalDeletion $false
 
@@ -847,8 +835,7 @@ function New-CentralItOu
         # Get the current OS build
         Get-OsBuild
         
-        If ($Global:OsBuild -ge 9200)
-        {
+        If ($Global:OsBuild -ge 9200) {
             # Create the KDS Root Key (only once per domain).  This is used by the KDS service on DCs (along with other information) to generate passwords
             # http://blogs.technet.com/b/askpfeplat/archive/2012/12/17/windows-server-2012-group-managed-service-accounts.aspx
             # If working in a test environment with a minimal number of DCs and the ability to guarantee immediate replication, please use:
@@ -857,8 +844,7 @@ function New-CentralItOu
         }
 
 
-        If ($Global:OsBuild -ge 9200)
-        {
+        If ($Global:OsBuild -ge 9200) {
 
             $Splat = @{
                 Name                   = $confXML.n.Admin.gMSA.AdTaskScheduler.Name
@@ -889,14 +875,12 @@ function New-CentralItOu
                 }
             }
 
-            try
-            {
+            try {
                 New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
             }
-            catch {}
+            catch { throw }
         }
-        else
-        {
+        else {
             $Splat = @{
                 name        = $confXML.n.Admin.gMSA.AdTaskScheduler.Name
                 Description = $confXML.n.Admin.gMSA.AdTaskScheduler.Description
@@ -919,8 +903,7 @@ function New-CentralItOu
         
         $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
 
-        if(-not($PSOexists))
-        {
+        if(-not($PSOexists)) {
             $parameters = @{
               Name                        = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
               Precedence                  = $confXML.n.Admin.PSOs.ItAdminsPSO.Precedence
@@ -996,8 +979,7 @@ function New-CentralItOu
         
         $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
 
-        if(-not($PSOexists))
-        {
+        if(-not($PSOexists)) {
             $parameters = @{
               Name                        = $confXML.n.Admin.PSOs.ServiceAccountsPSO.Name
               Precedence                  = $confXML.n.Admin.PSOs.ServiceAccountsPSO.Precedence
@@ -1849,8 +1831,7 @@ function New-CentralItOu
         $AllSubOu = Get-AdOrganizationalUnit -Filter * -SearchBase $ServersOuDn -SearchScope OneLevel | Select-Object -ExpandProperty DistinguishedName
 
         # Iterate through each sub OU and invoke delegation
-        Foreach ($Item in $AllSubOu)
-        {
+        Foreach ($Item in $AllSubOu) {
             ###############################################################################
             # Delegation to SL_SvrAdmRight group to SERVERS area
 
@@ -1967,8 +1948,7 @@ function New-CentralItOu
 
         ###############################################################################
         # Check if Exchange objects have to be created. Proccess if TRUE
-        if($CreateExchange)
-        {
+        if($CreateExchange) {
         
             # Get the Config.xml file
             $param = @{
@@ -1981,8 +1961,7 @@ function New-CentralItOu
 
         ###############################################################################
         # Check if DFS objects have to be created. Proccess if TRUE
-        if($CreateDfs)
-        {
+        if($CreateDfs) {
             # Get the Config.xml file
             $param = @{
                 ConfigXMLFile = Join-Path -Path $DMscripts -ChildPath Config.xml -Resolve
@@ -1994,22 +1973,19 @@ function New-CentralItOu
 
         ###############################################################################
         # Check if Certificate Authority (PKI) objects have to be created. Proccess if TRUE
-        if($CreateCa)
-        {
+        if($CreateCa) {
             New-CaObjects -ConfigXMLFile $ConfXML
         }
 
         ###############################################################################
         # Check if Advanced Group Policy Management (AGPM) objects have to be created. Proccess if TRUE
-        if($CreateAGPM)
-        {
+        if($CreateAGPM) {
             New-AGPMObjects -ConfigXMLFile $ConfXML
         }
 
         ###############################################################################
         # Check if MS Local Administrator Password Service (LAPS) is to be used. Proccess if TRUE
-        if($CreateLAPS)
-        {
+        if($CreateLAPS) {
             #To-Do
             #New-LAPSobjects -PawOuDn $ItPawOuDn -ServersOuDn $ServersOuDn -SitesOuDn $SitesOuDn
             New-LAPSobjects -ConfigXMLFile $ConfXML
@@ -2017,15 +1993,13 @@ function New-CentralItOu
 
         ###############################################################################
         # Check if DHCP is to be used. Proccess if TRUE
-        if($CreateDHCP)
-        {
+        if($CreateDHCP) {
             #
             New-DHCPobjects -ConfigXMLFile $ConfXML
         }
         
     }
-    End
-    {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating central OU."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
