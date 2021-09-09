@@ -23,6 +23,19 @@ Update-ModuleManifest @Splat
 
 Publish-Module -Path $scriptPath -NuGetApiKey $apiKey -Force -Verbose
 
+
+
+
+
+
+
+
+
+
+
+
+
+
 <#
 param (
     [string] $preReleaseTag,
