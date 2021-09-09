@@ -1,4 +1,4 @@
-function Get-AdSites
+function Get-AdSite
 {
     <#
         .Synopsis
@@ -21,11 +21,10 @@ function Get-AdSites
     [OutputType([array])]
     Param ()
 
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -37,13 +36,11 @@ function Get-AdSites
         Import-Module -name ServerManager   -Verbose:$false
         Import-Module -name ActiveDirectory -Verbose:$false
     }
-    Process
-    {
+    Process {
         Write-Verbose -Message "Get AD Site List `r"
         [array] $ADSites = [DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest().Sites
     }
-    End 
-    {
+    End  {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD Sites."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

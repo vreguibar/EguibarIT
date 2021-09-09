@@ -1,5 +1,9 @@
 Function New-TemplateOID {
-Param($Server,$ConfigNC)
+    [CmdletBinding(ConfirmImpact = 'Medium')]
+    Param(
+        $Server,
+        $ConfigNC
+    )
     <#
     OID CN/Name                    [10000000-99999999].[32 hex characters]
     OID msPKI-Cert-Template-OID    [Forest base OID].[1000000-99999999].[10000000-99999999]  <--- second number same as first number in OID name

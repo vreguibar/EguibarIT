@@ -29,7 +29,7 @@ function New-AdDelegatedGroup
             Eguibar Information Technology S.L.
             http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(ConfirmImpact = 'Medium')]
     [OutputType([Microsoft.ActiveDirectory.Management.AdGroup])]
     Param
     (
@@ -145,11 +145,10 @@ function New-AdDelegatedGroup
 
     )
 
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -165,16 +164,13 @@ function New-AdDelegatedGroup
         $newGroup   = $null
     }
 
-    Process
-    {
-        try
-        {
+    Process {
+        try {
             # Get the group and store it on variable.
-            $newGroup = Get-AdGroup -Filter { SamAccountName -eq $Name } 
+            $newGroup = Get-AdGroup -Filter { SamAccountName -eq $Name }
 
             ### Using $PSBoundParameters['Name'] throws an Error. Using variable instead.
-            If(-not($newGroup))
-            {
+            If(-not($newGroup)) {
                 $parameters = @{
                     Name           = $PSBoundParameters['Name']
                     SamAccountName = $PSBoundParameters['Name']
@@ -185,15 +181,12 @@ function New-AdDelegatedGroup
                     Description    = $PSBoundParameters['Description']
                 }
                 New-ADGroup @parameters
-            }
-            else
-            {
+            } else {
                 Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
-                
+
                 $newGroup | Set-AdObject -ProtectedFromAccidentalDeletion $False
-                
-                Try
-                {
+
+                Try {
                     $parameters = @{
                         Identity      = $PSBoundParameters['Name']
                         Description   = $PSBoundParameters['Description']
@@ -202,60 +195,53 @@ function New-AdDelegatedGroup
                         GroupScope    = $PSBoundParameters['GroupScope']
                     }
                     Set-AdGroup @parameters
-                    
+
                     If(-not($newGroup.DistinguishedName -ccontains $PSBoundParameters['path']))
                     {
                         # Move object to the corresponding OU
                         Move-ADObject -Identity $newGroup -TargetPath $PSBoundParameters['path']
                     }
-                    
+
                 }
                 catch { throw }
             }
 
             # Get the group again and store it on variable.
-            $newGroup = Get-AdGroup -Filter { SamAccountName -eq $Name } 
+            $newGroup = Get-AdGroup -Filter { SamAccountName -eq $Name }
 
 
             # Protect From Accidental Deletion
-            If($PSBoundParameters['ProtectFromAccidentalDeletion'])
-            {
+            If($PSBoundParameters['ProtectFromAccidentalDeletion']) {
                 $newGroup | Set-ADObject -ProtectedFromAccidentalDeletion $true
             }
 
             # Remove Account Operators Built-In group
-            If($PSBoundParameters['RemoveAccountOperators'])
-            {
+            If($PSBoundParameters['RemoveAccountOperators']) {
                 Remove-AccountOperator -LDAPPath $newGroup.DistinguishedName
             }
 
             # Remove Everyone Built-In group
-            If($PSBoundParameters['RemoveEveryone'])
-            {
+            If($PSBoundParameters['RemoveEveryone']) {
                 Remove-Everyone -LDAPPath $newGroup.DistinguishedName
             }
 
             # Remove Authenticated Users Built-In group
-            If($PSBoundParameters['RemoveAuthUsers'])
-            {
+            If($PSBoundParameters['RemoveAuthUsers']) {
                 Remove-AuthUser -LDAPPath $newGroup.DistinguishedName
             }
 
             # Remove Pre-Windows 2000 Built-In group
-            If($PSBoundParameters['RemovePreWin2000'])
-            {
+            If($PSBoundParameters['RemovePreWin2000']) {
                 Remove-PreWin2000 -LDAPPath $newGroup.DistinguishedName
             }
         }
-        catch
-        {
+        catch {
             throw
             Write-Warning -Message ('An unhandeled error was thrown when creating Groups {0}' -f $PSBoundParameters['Name'])
         }
     }
 
-    End
-    {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating Delegated Group."
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'

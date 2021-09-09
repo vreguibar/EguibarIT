@@ -23,7 +23,7 @@ function ConvertTo-IPv4MaskString {
     Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand) 
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -32,14 +32,12 @@ function ConvertTo-IPv4MaskString {
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
     }
-    Process
-    {
+    Process {
         $mask = ([Math]::Pow(2, $MaskBits) - 1) * [Math]::Pow(2, (32 - $MaskBits))
         $bytes = [BitConverter]::GetBytes([UInt32] $mask)
         (($bytes.Count - 1)..0 | ForEach-Object { [String] $bytes[$_] }) -join "."
     }
-    End 
-    {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

@@ -2,13 +2,10 @@ function ConvertTo-WmiFilter
 {
     <#
         .Synopsis
-            
         .DESCRIPTION
-            
         .EXAMPLE
             ConvertTo-WmiFilter
-        .INPUTS
-            
+        .INPUTS 
         .NOTES
             Version:         1.0
             DateModified:    25/Mar/2014
@@ -18,13 +15,11 @@ function ConvertTo-WmiFilter
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
-    Param
-    (
+    Param (
         [Microsoft.ActiveDirectory.Management.ADObject[]] $ADObject
     )
 
-    Begin 
-    {
+    Begin  {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
@@ -37,8 +32,7 @@ function ConvertTo-WmiFilter
 
     }
 
-    Process
-    {
+    Process {
         # The concept of this function has been taken directly from the GPWmiFilter.psm1 module
         # written by Bin Yi from Microsoft. I have modified it to allow for the challenges of
         # Active Directory replication. It will return the WMI filter as an object of type
@@ -73,8 +67,7 @@ function ConvertTo-WmiFilter
         }
     }
 
-    End 
-    { 
+    End  { 
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished converting the WMI filter."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

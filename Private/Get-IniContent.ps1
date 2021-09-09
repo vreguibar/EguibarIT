@@ -51,6 +51,7 @@ function Get-IniContent
   #>
 
   [CmdletBinding(ConfirmImpact = 'Medium')]
+  [OutputType([System.Collections.Hashtable])]
   Param(
     [ValidateNotNullOrEmpty()]
     [Parameter(ValueFromPipeline = $true,HelpMessage = 'Path and Filename to the ini file to be read',Mandatory = $true)]
@@ -61,7 +62,7 @@ function Get-IniContent
     {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line

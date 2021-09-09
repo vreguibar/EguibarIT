@@ -1,5 +1,9 @@
 Function New-Template {
-Param($DisplayName,$TemplateOtherAttributes)
+    [CmdletBinding(ConfirmImpact = 'Medium')]
+    Param(
+        $DisplayName,
+        $TemplateOtherAttributes
+    )
 
     #grab DC
     $Server = (Get-ADDomainController -Discover -ForceDiscover -Writable).HostName[0]

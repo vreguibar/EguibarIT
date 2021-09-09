@@ -21,11 +21,10 @@ function Get-AdSubnets
     [OutputType([array])]
     Param ()
 
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -36,21 +35,19 @@ function Get-AdSubnets
 
         Import-Module -name ServerManager   -Verbose:$false
         Import-Module -name ActiveDirectory -Verbose:$false
-  }
-    Process
-    {
+    }
+    Process {
         #Get a reference to the RootDSE of the current domain
         $ADConfigurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext
 
         [array] $ADSubnets = Get-ADObject -Filter {
             objectclass -eq 'subnet'
         } -SearchBase $ADConfigurationNamingContext -Properties *
-  }
-  End 
-  {
+    }
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD Subnets."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-  }
+    }
 }

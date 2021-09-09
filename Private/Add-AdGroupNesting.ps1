@@ -42,11 +42,10 @@ function Add-AdGroupNesting
         $Members
     )
 
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -62,17 +61,17 @@ function Add-AdGroupNesting
         {
             New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
         }
-            
+
         # Define an empty array
         $CurrentMembers = @()
         $NewMembers     = @()
         $parameters     = $null
-        
+
         If($identity.GetType() -eq [Microsoft.ActiveDirectory.Management.AdGroup])
         {
             $Group = Get-AdGroup -Identity $Identity.ObjectGUID
         }
-        
+
         If($identity.GetType() -eq [System.String])
         {
             If($identity -ccontains $AdDn)
@@ -85,8 +84,7 @@ function Add-AdGroupNesting
             }
         }
     }
-    Process
-    {
+    Process {
         # Get group members
         Get-AdGroupMember -Identity $Group.SID | Select-Object -ExpandProperty sAMAccountName | ForEach-Object { $CurrentMembers += $_ }
 
@@ -113,13 +111,12 @@ function Add-AdGroupNesting
                 Add-AdGroupMember @parameters
             }
             #Add-AdGroupMember @parameters
-            
+
             Write-Verbose -Message ('Member {0} was added correctly to group {1}' -f $Members, $Group.sAMAccountName)
         }
         catch { throw }
     }
-    End 
-    {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) adding members to the group."
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'
