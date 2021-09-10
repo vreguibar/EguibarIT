@@ -40,7 +40,7 @@ task Test {
     catch {
         throw "Couldn't run Script Analyzer"
     }
-
+    <#
     Write-Verbose -Message "Running Pester Tests"
     $config = [PesterConfiguration]::Default
     $config.TestResult.Enabled = $true
@@ -48,6 +48,8 @@ task Test {
     if($Results.FailedCount -gt 0){
         throw "$($Results.FailedCount) Tests failed"
     }
+    #>
+    
 }
 
 task DebugBuild -if ($Configuration -eq "debug") {
