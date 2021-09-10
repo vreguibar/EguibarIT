@@ -1,6 +1,6 @@
 Function IsUniqueOID {
     [CmdletBinding(ConfirmImpact = 'low')]
-    [OutputType([System.bool])]
+    [OutputType([System.Boolean])]
     param (
         $cn,
         $TemplateOID,

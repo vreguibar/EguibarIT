@@ -70,15 +70,15 @@ function Grant-NTFSPermissions
     }
     Process {
         Try {
-        $Account = New-Object -TypeName System.Security.Principal.NTAccount -ArgumentList $PSBoundParameters['object']
+            $Account = New-Object -TypeName System.Security.Principal.NTAccount -ArgumentList $PSBoundParameters['object']
 
-        $FileSystemAccessRule = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList ($Account, $FileSystemRights, $InheritanceFlag, $PropagationFlag, $AccessControlType)
+            $FileSystemAccessRule = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList ($Account, $FileSystemRights, $InheritanceFlag, $PropagationFlag, $AccessControlType)
 
-        $DirectorySecurity = Get-Acl -Path $PSBoundParameters['path']
+            $DirectorySecurity = Get-Acl -Path $PSBoundParameters['path']
 
-        $DirectorySecurity.AddAccessRule($FileSystemAccessRule)
+            $DirectorySecurity.AddAccessRule($FileSystemAccessRule)
 
-        Set-Acl -Path $PSBoundParameters['path'] -AclObject $DirectorySecurity
+            Set-Acl -Path $PSBoundParameters['path'] -AclObject $DirectorySecurity
         } catch { throw }
     }
     End

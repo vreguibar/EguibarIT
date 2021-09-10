@@ -1,5 +1,4 @@
-function Get-AdSite
-{
+function Get-AdSite {
     <#
         .Synopsis
             Get AD Sites from current Forest
@@ -41,6 +40,8 @@ function Get-AdSite
         [array] $ADSites = [DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest().Sites
     }
     End  {
+
+        Return $ADSites
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD Sites."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

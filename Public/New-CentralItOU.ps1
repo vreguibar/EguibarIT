@@ -1,4 +1,4 @@
-function New-CentralItOu
+﻿function New-CentralItOu
 {
     <#
         .Synopsis
@@ -834,12 +834,12 @@ function New-CentralItOu
 
         # Get the current OS build
         Get-OsBuild
-        
+
         If ($Global:OsBuild -ge 9200) {
             # Create the KDS Root Key (only once per domain).  This is used by the KDS service on DCs (along with other information) to generate passwords
             # http://blogs.technet.com/b/askpfeplat/archive/2012/12/17/windows-server-2012-group-managed-service-accounts.aspx
             # If working in a test environment with a minimal number of DCs and the ability to guarantee immediate replication, please use:
-            #    Add-KdsRootKey â€“EffectiveTime ((get-date).addhours(-10))     
+            #    Add-KdsRootKey â€“EffectiveTime ((get-date).addhours(-10))
             Add-KdsRootKey -EffectiveTime ((get-date).addhours(-10))
         }
 
@@ -1519,7 +1519,7 @@ function New-CentralItOu
         #region Create Baseline GPO
 
         Write-Verbose -Message 'Creating Baseline GPOs and configure them accordingly...'
- 
+
         # Domain
         New-DelegateAdGpo -gpoDescription Baseline -gpoScope C -gpoLinkPath $AdDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         New-DelegateAdGpo -gpoDescription Baseline -gpoScope U -gpoLinkPath $AdDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
@@ -1563,10 +1563,10 @@ function New-CentralItOu
 
         ###############################################################################
         # Import GPO from Archive
-        
+
         #Import the Default Domain Policy
         Import-GPO -BackupId $confXML.n.Admin.GPOs.DefaultDomain.backupID -TargetName $confXML.n.Admin.GPOs.DefaultDomain.Name -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
-        
+
         # Configure Default Domain Controllers GPO
         Import-GPO -BackupId $confXML.n.Admin.GPOs.DefaultDomainControllers.backupID -TargetName $confXML.n.Admin.GPOs.DefaultDomainControllers.Name -path (Join-Path $DMscripts SecTmpl)
 
@@ -1575,11 +1575,11 @@ function New-CentralItOu
 
         # C-Baseline
         Import-GPO -BackupId $confXML.n.Admin.GPOs.PCbaseline.backupID -TargetName 'C-Baseline' -path (Join-Path $DMscripts SecTmpl)
-        
+
         # U-Baseline
         Import-GPO -BackupId $confXML.n.Admin.GPOs.Userbaseline.backupID -TargetName 'U-Baseline' -path (Join-Path $DMscripts SecTmpl)
-        
- 
+
+
 
 
 
@@ -1889,7 +1889,7 @@ function New-CentralItOu
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $SitesOu) -DenyInteractiveLogon $parameters -DenyRemoteInteractiveLogon $parameters
 
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $SitesOu) -BatchLogon $SG_T2SA.SamAccountName -ServiceLogon $SG_T2SA.SamAccountName -InteractiveLogon $SG_Tier2Admins.SamAccountName -RemoteInteractiveLogon $SG_Tier2Admins.SamAccountName
- 
+
         # Create Global OU within SITES area
         New-DelegateAdOU -ouName $SitesGlobalOu           -ouPath $SitesOuDn       -ouDescription $confXML.n.Sites.OUs.OuSiteGlobal.Description
         New-DelegateAdOU -ouName $SitesGlobalGroupOu      -ouPath $SitesGlobalOuDn -ouDescription $confXML.n.Sites.OUs.OuSiteGlobalGroups.Description
@@ -1955,7 +1955,7 @@ function New-CentralItOu
                 ConfigXMLFile = Join-Path -Path $DMscripts -ChildPath Config.xml -Resolve
                 verbose = $true
             }
- 
+
             New-ExchangeObjects @param
         }
 

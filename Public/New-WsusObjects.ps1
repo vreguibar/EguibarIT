@@ -1,5 +1,4 @@
-Function New-WsusObjects
-{
+﻿Function New-WsusObjects {
     <#
         .Synopsis
             Create WSUS Objects and Delegations
@@ -51,7 +50,7 @@ Function New-WsusObjects
 
         # Check if feature is installed, if not then proceed to install it.
         If(-not((Get-WindowsFeature -Name UpdateServices-Services).Installed)) {
-  
+
             Install-WindowsFeature -Name UpdateServices, UpdateServices-Services, UpdateServices-WidDB -Restart
 
         }

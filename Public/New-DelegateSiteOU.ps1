@@ -799,7 +799,7 @@ function New-DelegateSiteOU
         If($PSBoundParameters['CreateExchange'])
         {
             Start-AdDelegateSite -ConfigXMLFile $ConfigXMLFile -ouName $ouName -QuarantineDN $ItQuarantineOuDn -CreateExchange
- 
+
             #create Sub-OUs
             # --- USER CLASS ---
             New-DelegateAdOU -ouName $confXML.n.Sites.OUs.OuSiteMailbox.Name   -ouPath $ouNameDN -ouDescription ('{0} {1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteMailbox.Description)

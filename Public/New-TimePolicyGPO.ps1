@@ -2,7 +2,7 @@ Function New-TimePolicyGPO
 {
     <#
         .Synopsis
- 
+
         .DESCRIPTION
 
         .EXAMPLE
@@ -226,7 +226,5 @@ Function New-TimePolicyGPO
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-
-        $ObjectExists = $null
     }
 }

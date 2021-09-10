@@ -1,5 +1,4 @@
-Function Get-OsBuild
-{
+Function Get-OsBuild {
 <#
     .Synopsis
     Function to Identify OS Build number
@@ -17,7 +16,7 @@ Function Get-OsBuild
     Eguibar Information Technology S.L.
     http://www.eguibarit.com
 #>
-  [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+  [CmdletBinding(ConfirmImpact = 'Low')]
   Param ()
   Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
@@ -39,9 +38,9 @@ Function Get-OsBuild
       [int]$Global:OsMajorVersion    = ((Get-CimInstance -ClassName Win32_OperatingSystem).Version).split('.')[0]
       [int]$Global:OsMinorVersion    = ((Get-CimInstance -ClassName Win32_OperatingSystem).Version).split('.')[1]
       [int]$Global:OsBuild           = ((Get-CimInstance -ClassName Win32_OperatingSystem).Version).split('.')[2]
-      [String]$Global:OsCaption      = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
+      #[String]$Global:OsCaption      = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
       [int]$Global:OsSpMajorVersion  = (Get-CimInstance -ClassName Win32_OperatingSystem).ServicePackMajorVersion
-      [int]$Global:OsSpMinorVersion  = (Get-CimInstance -ClassName Win32_OperatingSystem).ServicePackMinorVersion
+      #[int]$Global:OsSpMinorVersion  = (Get-CimInstance -ClassName Win32_OperatingSystem).ServicePackMinorVersion
     }
     catch
     {

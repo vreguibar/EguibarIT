@@ -1,12 +1,11 @@
-function Get-AdSiteLinks
-{
+function Get-AllAdSubnet {
     <#
         .Synopsis
-            Get AD Site Links from current Forest
+            Get AD subnets from current Forest
         .DESCRIPTION
-            Reads all Site Links from the current Forest and store those on an array.
+            Reads all Subnets from the current Forest and store those on an array.
         .EXAMPLE
-            Get-AdSiteLinks
+            Get-AdSubnets
         .INPUTS
             No input needed.
         .NOTES
@@ -16,16 +15,15 @@ function Get-AdSiteLinks
                 vicente@eguibar.com
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
-        #>
+    #>
     [CmdletBinding(ConfirmImpact = 'Medium')]
     [OutputType([array])]
     Param ()
 
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -36,26 +34,21 @@ function Get-AdSiteLinks
 
         Import-Module -name ServerManager   -Verbose:$false
         Import-Module -name ActiveDirectory -Verbose:$false
-
-        $ADSiteDN      = 'CN=Sites,{0}' -f ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
-        #$SubnetsDN     = 'CN=Subnets,{0}' -f $ADSiteDN
-        $ADSiteLinksDN = 'CN=IP,CN=Inter-Site Transports,{0}' -f $ADSiteDN
     }
-    Process
-    {
-        Write-Verbose -Message "Get List of AD Site Links `r"
+    Process {
+        #Get a reference to the RootDSE of the current domain
+        $ADConfigurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext
 
-        [array] $ADSiteLinks = Get-ADObject -Filter { ObjectClass -eq 'sitelink' } -SearchBase $ADSiteDN -Properties *
+        [array] $ADSubnets = Get-ADObject -Filter {
+            objectclass -eq 'subnet'
+        } -SearchBase $ADConfigurationNamingContext -Properties *
+    }
+    End {
 
-        $ADSiteLinksCount = $ADSiteLinks.Count
-
-        Write-Output -InputObject ("There are {0} AD Site Links in {1} `r" -f $ADSiteLinksCount, $env:USERDNSDOMAIN)
-  }
-  End 
-  {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting SiteLinks."
+        Return $ADSubnets
+        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD Subnets."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-  }
+    }
 }

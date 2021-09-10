@@ -1,5 +1,4 @@
-Function New-ExchangeObjects
-{
+Function New-ExchangeObjects {
   <#
       .Synopsis
       Create Exchange Objects and Containers
@@ -37,18 +36,17 @@ Function New-ExchangeObjects
         [string]
         $DMscripts = "C:\PsScripts\"
     )
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
         $HTab = "`t"  # Horizontal Tab
         [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
-   
+
         ################################################################################
         # Initialisations
         Import-Module -name ServerManager        -Verbose:$false
@@ -60,17 +58,14 @@ Function New-ExchangeObjects
         #region Declarations
 
 
-        try
-        {
+        try {
             # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn))
-            {
+            If(-Not (Test-Path -Path variable:AdDn)) {
                 New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML))  
-            {
+            If(-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
                 If(Test-Path -Path $PSBoundParameters['ConfigXMLFile'])
                 {
@@ -98,7 +93,7 @@ Function New-ExchangeObjects
 
 
         # Organizational Units Distinguished Names
-        
+
         # IT Admin OU
         New-Variable -Name 'ItAdminOu' -Value $confXML.n.Admin.OUs.ItAdminOU.name -Option ReadOnly -Force
         # IT Admin OU Distinguished Name
@@ -191,9 +186,8 @@ Function New-ExchangeObjects
 
         #endregion Declarations
         ################################################################################
-  }
-    Process
-    {
+    }
+    Process {
         ###############################################################################
         # Create Sub-OUs for admin
 
@@ -362,8 +356,7 @@ Function New-ExchangeObjects
         # Configure EDGE GPO
         #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExEdge.backupID    -TargetName ('C-{0}-Baseline' -f $ExEdgeOuDn) -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
     }
-    End
-    {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating Exchange containers and objects."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

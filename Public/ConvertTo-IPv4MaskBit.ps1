@@ -10,7 +10,7 @@ function ConvertTo-IPv4MaskBit {
             Specifies the IPv4 network mask string (e.g., "255.255.255.0").
     #>
     [CmdletBinding(ConfirmImpact = 'Medium')]
-    [OutputType([system.int])]
+    [OutputType([System.Int32])]
     Param
     (
         [Parameter(Mandatory = $false,
