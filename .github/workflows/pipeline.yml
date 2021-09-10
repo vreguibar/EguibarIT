@@ -1,3 +1,5 @@
+#https://scriptingchris.tech/2021/05/16/how-to-setup-a-github-actions-pipeline-for-publishing-your-powershell-module/
+
 name: Build Module
 on:
   pull_request: # Only trigger the workflow if there is a pull request to the main branch
