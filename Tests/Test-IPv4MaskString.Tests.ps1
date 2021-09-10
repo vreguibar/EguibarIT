@@ -35,7 +35,8 @@ Describe -Name  'Testing Test-IPv4MaskStringt' {
             '255.0.0.0'
         )
         ForEach($_ in $AllMaskString) {
-            If(Test-IPv4MaskString -MaskString $_ -Verbose) {
+            $result = Test-IPv4MaskString -MaskString $_
+            If( $result) {
                 $TestOutput++
             }
         }
