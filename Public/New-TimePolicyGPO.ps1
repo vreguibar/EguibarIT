@@ -2,13 +2,13 @@ Function New-TimePolicyGPO
 {
     <#
         .Synopsis
-            
+ 
         .DESCRIPTION
-            
+
         .EXAMPLE
             New-TimePolicyGPO
         .INPUTS
-            
+
         .NOTES
             Version:         1.0
             DateModified:    25/Mar/2014
@@ -17,7 +17,7 @@ Function New-TimePolicyGPO
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(ConfirmImpact = 'Medium')]
     Param
     (
         # Param1 GPO Name
@@ -86,11 +86,10 @@ Function New-TimePolicyGPO
         $DisableVMTimeSync
     )
 
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -130,34 +129,27 @@ Function New-TimePolicyGPO
             'msWMI-ChangeDate'     = $msWMICreationDate
             'msWMI-CreationDate'   = $msWMICreationDate
         }
-        
+
         $WMIPath = ('CN=SOM,CN=WMIPolicy,CN=System,{0}' -f ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString())
 
         $ExistingWMIFilters = Get-ADObject -Filter 'objectClass -eq "msWMI-Som"' -Properties 'msWMI-Name', 'msWMI-Parm1', 'msWMI-Parm2'
         $array = @()
     }
 
-    Process
-    {
-        If ($null -ne $ExistingWMIFilters)
-        {
+    Process {
+        If ($null -ne $ExistingWMIFilters) {
             foreach ($ExistingWMIFilter in $ExistingWMIFilters)
             {
                 $array += $ExistingWMIFilter.'msWMI-Name'
             }
-        }
-        Else
-        {
+        } Else {
             $array += 'no filters'
         }
 
-        if ($array -notcontains $msWMIName)
-        {
-            Write-Host -ForegroundColor Green ('Creating the {0} WMI Filter...' -f $msWMIName)
+        if ($array -notcontains $msWMIName) {
+            Write-Output ('Creating the {0} WMI Filter...' -f $msWMIName)
             $WMIFilterADObject = New-ADObject -name $WMICN -type 'msWMI-Som' -Path $WMIPath -OtherAttributes $Attr
-        }
-        Else
-        {
+        } Else {
             Write-Warning -Message ('The {0} WMI Filter already exists.' -f $msWMIName)
         }
 
@@ -171,9 +163,8 @@ Function New-TimePolicyGPO
 
         $ExistingGPO = get-gpo -Name $PSBoundParameters['gpoName'] -ErrorAction 'SilentlyContinue'
 
-        If ($null -eq $ExistingGPO)
-        {
-            Write-Host -ForegroundColor Green ('Creating the {0} Group Policy Object...' -f $PSBoundParameters['gpoName'])
+        If ($null -eq $ExistingGPO) {
+            Write-Output ('Creating the {0} Group Policy Object...' -f $PSBoundParameters['gpoName'])
 
             # Create new GPO shell
             $GPO = New-GPO -Name $PSBoundParameters['gpoName']
@@ -197,8 +188,7 @@ Function New-TimePolicyGPO
                 -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters' `
                 -Type String -ValueName 'Type' -Value "$PSBoundParameters['Type']"
 
-            If ($PSBoundParameters['DisableVMTimeSync'])
-            {
+            If ($PSBoundParameters['DisableVMTimeSync']) {
                 # Disable the Hyper-V time synchronization integration service.
                 $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
                     -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters' `
@@ -221,25 +211,22 @@ Function New-TimePolicyGPO
             }#end if
 
             # Link the new GPO to the Domain Controllers OU
-            Write-Host -ForegroundColor Green ('Linking the {0} Group Policy Object to the OU=Domain Controllers,{1} ...' -f $PSBoundParameters['gpoName'], ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString())
+            Write-Output ('Linking the {0} Group Policy Object to the OU=Domain Controllers,{1} ...' -f $PSBoundParameters['gpoName'], ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString())
             $null = New-GPLink -Name $PSBoundParameters['gpoName'] -Target ('OU=Domain Controllers,{0}' -f ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString())
-        }
-        Else
-        {
+        } Else {
             Write-Warning -Message ('The {0} Group Policy Object already exists.' -f $PSBoundParameters['gpoName'])
-            Write-Host -ForegroundColor Green ('Adding the {0} WMI Filter...' -f $msWMIName)
+            Write-Output ('Adding the {0} WMI Filter...' -f $msWMIName)
             $ExistingGPO.WmiFilter = ConvertTo-WmiFilter $WMIFilterADObject
         }
     }
 
-    End
-    {
-        Write-Host -ForegroundColor Green "Completed.`n"
+    End {
+        Write-Output "Completed.`n"
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating the Time Policy GPO."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-        
+
         $ObjectExists = $null
     }
 }

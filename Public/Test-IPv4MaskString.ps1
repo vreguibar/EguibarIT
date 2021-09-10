@@ -22,7 +22,7 @@ function Test-IPv4MaskString {
     Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -31,7 +31,7 @@ function Test-IPv4MaskString {
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
     }
-    Process{
+    Process {
         $validBytes = '0|128|192|224|240|248|252|254|255'
         $maskPattern = ('^((({0})\.0\.0\.0)|'      -f $validBytes) +
              ('(255\.({0})\.0\.0)|'      -f $validBytes) +
@@ -39,8 +39,7 @@ function Test-IPv4MaskString {
              ('(255\.255\.255\.({0})))$' -f $validBytes)
         $MaskString -match $maskPattern
     }
-    End 
-    {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

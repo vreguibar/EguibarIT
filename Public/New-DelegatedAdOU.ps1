@@ -141,7 +141,7 @@ function New-DelegateAdOU
         }
         Catch { throw }
 
-        $Return = $null
+        #$Return = $null
 
         # END variables
         #------------------------------------------------------------------------------

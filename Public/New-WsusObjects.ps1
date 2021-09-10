@@ -48,20 +48,20 @@ Function New-WsusObjects
         If(-not((Get-WindowsFeature -Name RSAT-AD-PowerShell).Installed)) {
             Install-WindowsFeature -Name RSAT-AD-PowerShell -IncludeAllSubFeature
         }
-        
+
         # Check if feature is installed, if not then proceed to install it.
         If(-not((Get-WindowsFeature -Name UpdateServices-Services).Installed)) {
-            
+  
             Install-WindowsFeature -Name UpdateServices, UpdateServices-Services, UpdateServices-WidDB -Restart
 
         }
-        
+
         If($OsInstalationType -ne 'Server Core') {
             Install-WindowsFeature -Name UpdateServices-RSAT -IncludeAllSubFeature
         }
-        
+
         # Configure Download Location
-        
+
         #Create WSUS folder
         # Create Folder where to store all Delegation Model scripts & files
         $WsusFolder = ('{0}\WSUS\' -f $env:SystemDrive)
@@ -69,10 +69,10 @@ Function New-WsusObjects
         if(-not(Test-Path $WsusFolder)) {
             New-Item -ItemType Directory -Force -Path $WsusFolder
         }
-        
+
         # Create a new Windows Script Shell
         $sh = New-Object -comobject 'Wscript.Shell'
-            
+
         [String]$cmd = '"C:\Program Files\Update Services\Tools\WsusUtil.exe" PostInstall CONTENT_DIR=C:\WSUS'
         $sh.Run($cmd,1,'true')
 
@@ -85,10 +85,10 @@ Function New-WsusObjects
         if ($err) {
             write-Error -Message 'Microsoft Microsoft System CLR Types for SQL Server 2014 could not be downloaded!. Please download and install it manually to use WSUS Reports.'
         }
-        
+
         # Download MICROSOFT� REPORT VIEWER 2015 RUNTIME
         #$URL = 'https://download.microsoft.com/download/A/1/2/A129F694-233C-4C7C-860F-F73139CF2E01/ENU/x86/ReportViewer.msi'
-        
+
         # Download MICROSOFT� REPORT VIEWER 2012 RUNTIME
         $URL = 'https://download.microsoft.com/download/F/B/7/FB728406-A1EE-4AB5-9C56-74EB8BDDF2FF/ReportViewer.msi'
         Start-BitsTransfer -Source $URL -Destination $env:TEMP -Priority High -TransferType Download -RetryInterval 60 -RetryTimeout 180 -ErrorVariable err
@@ -125,7 +125,7 @@ Function New-WsusObjects
         # Cannot be imported in the bigin section due features installation
         Import-Module -Name WebAdministration -Force -Verbose:$false
 
-        
+
 
 
 
@@ -135,15 +135,15 @@ Function New-WsusObjects
         #[int32] $PrivMemMax = 8GB
         [int32] $PrivMemMax = 0
         Set-ItemProperty -Path IIS:\AppPools\WsusPool -Name Recycling.periodicRestart.privateMemory -Value $PrivMemMax
-        
+
 		# ( C:\Program Files\Update Services\WebServices\ClientWebService\web.config ) for WSUS: Replace <httpRuntime maxRequestLength="4096" /> with <httpRuntime maxRequestLength="204800" executionTimeout="7200"/>
-		
+
         <#
         This one are failing
         Set-WebConfiguration -Filter "/system.applicationHost/applicationPools/add[@name='WsusPool']/recycling/periodicRestart/@privateMemory" -Value 0
         Set-WebConfiguration -Filter "/system.applicationHost/applicationPools/add[@name='WsusPool']/processModel/@maxProcesses" -Value 0
         #>
-        
+
         # Other "Unexpected error" hacks
         Set-ItemProperty -Path IIS:\AppPools\WsusPool -Name queueLength -Value 25000
         Set-ItemProperty -Path IIS:\AppPools\WsusPool -Name cpu.resetInterval -Value "00.00:15:00"
@@ -182,13 +182,13 @@ Function New-WsusObjects
             SubjectName       = ('CN={0}' -f $env:COMPUTERNAME).ToLower()
         }
         $WsusCert = Get-Certificate @Splat
-        
+
         # Get the binding as object
         $bind = Get-WebBinding -Name 'WSUS Administration' -Protocol https
-        
+
         # Merge the 2 objects
         $bind.AddSslCertificate($WsusCert.Certificate.Thumbprint, "My")
-        
+
         # Set all corresponding virtual directories to use SSL
         $Splat = @{
             PSPath = 'MACHINE/WEBROOT/APPHOST'
@@ -201,7 +201,7 @@ Function New-WsusObjects
         Set-WebConfigurationProperty @Splat -Location 'WSUS Administration/DSSAuthWebService'
         Set-WebConfigurationProperty @Splat -Location 'WSUS Administration/ServerSyncWebService'
         Set-WebConfigurationProperty @Splat -Location 'WSUS Administration/SimpleAuthWebService'
-        
+
         # Final SSL configuration
         [String]$cmd = '"C:\Program Files\Update Services\Tools\WsusUtil.exe" configuressl {0}' -f ('{0}.{1}' -f $env:COMPUTERNAME, $env:USERDNSDOMAIN).ToLower()
         $sh.Run($cmd,1,'true')
@@ -229,7 +229,7 @@ Function New-WsusObjects
         # Get WSUS Subscription and perform initial synchronization to get latest categories
         $subscription = $wsus.GetSubscription()
         $subscription.StartSynchronizationForCategoryOnly()
-        
+
         while ($subscription.GetSynchronizationProgress().ProcessedItems -ne $subscription.GetSynchronizationProgress().TotalItems) {
             Write-Progress -PercentComplete ( $subscription.GetSynchronizationProgress().ProcessedItems*100/($subscription.GetSynchronizationProgress().TotalItems) ) -Activity "WSUS Sync Progress"
         }
@@ -237,7 +237,7 @@ Function New-WsusObjects
 
         # Disable all previously selected products
         Get-WsusProduct | Set-WsusProduct -Disable
-        
+
         # Configure the Platforms that we want WSUS to receive updates
         Get-WsusProduct | where-Object {
             $_.Product.Title -in (
@@ -281,9 +281,9 @@ Function New-WsusObjects
         } | Set-WsusProduct
 
 
-        
+
         # Configure the Classifications
-        write-host 'Setting WSUS Classifications'
+        write-Output 'Setting WSUS Classifications'
         Get-WsusClassification | Where-Object {
             $_.Classification.Title -in (
             'Critical Updates',
@@ -320,14 +320,14 @@ Function New-WsusObjects
 
 
         # Configure Synchronizations
-        write-host 'Enabling WSUS Automatic Synchronisation'
+        write-Output 'Enabling WSUS Automatic Synchronisation'
         $subscription.SynchronizeAutomatically=$true
-        
+
         # Set synchronization scheduled for midnight each night
         $subscription.SynchronizeAutomaticallyTimeOfDay= (New-TimeSpan -Hours 0)
         $subscription.NumberOfSynchronizationsPerDay=1
         $subscription.Save()
-        
+
         # Kick off a synchronization
         $subscription.StartSynchronization()
 

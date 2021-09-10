@@ -48,11 +48,10 @@ function Set-AdAclDelegateGalAdmin
         [Switch]
         $RemoveRule
     )
-    begin
-    {
+    begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -63,17 +62,14 @@ function Set-AdAclDelegateGalAdmin
 
         $parameters = $null
     }
-    Process
-    {
-        try
-        {
+    Process {
+        try {
             $parameters = @{
                 Group    = $PSBoundParameters['Group']
                 LDAPPath = $PSBoundParameters['LDAPpath']
             }
             # Check if RemoveRule switch is present.
-            If($PSBoundParameters['RemoveRule'])
-            {
+            If($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
                 $parameters.Add('RemoveRule', $true)
             }
@@ -98,8 +94,7 @@ function Set-AdAclDelegateGalAdmin
         }
         catch { throw }
     }
-    End
-    {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating GAL Admin."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

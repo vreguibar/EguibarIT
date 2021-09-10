@@ -37,11 +37,10 @@ Function New-DfsObjects
         [string]
         $DMscripts = "C:\PsScripts\"
     )
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -49,7 +48,7 @@ Function New-DfsObjects
         [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
-   
+
         ################################################################################
         # Initialisations
         Import-Module -name ActiveDirectory      -Verbose:$false
@@ -59,17 +58,14 @@ Function New-DfsObjects
         #region Declarations
 
 
-        try
-        {
+        try {
             # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn))
-            {
+            If(-Not (Test-Path -Path variable:AdDn)) {
                 New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML))  
-            {
+            If(-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
                 If(Test-Path -Path $PSBoundParameters['ConfigXMLFile'])
                 {
@@ -97,7 +93,7 @@ Function New-DfsObjects
 
 
         # Organizational Units Distinguished Names
-        
+
         # IT Admin OU
         $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
         # IT Admin OU Distinguished Name
@@ -118,15 +114,12 @@ Function New-DfsObjects
         #endregion Declarations
         ################################################################################
     }
-    Process
-    {
+    Process {
         # Check if feature is installed, if not then proceed to install it.
-        If(-not((Get-WindowsFeature -Name FS-DFS-Namespace).Installed))
-        {
+        If(-not((Get-WindowsFeature -Name FS-DFS-Namespace).Installed)) {
             Install-WindowsFeature -Name FS-DFS-Namespace -IncludeAllSubFeature
         }
-        If(-not((Get-WindowsFeature -Name FS-DFS-Replication).Installed))
-        {
+        If(-not((Get-WindowsFeature -Name FS-DFS-Replication).Installed)) {
             Install-WindowsFeature -Name FS-DFS-Replication -IncludeAllSubFeature
         }
 
@@ -185,8 +178,7 @@ Function New-DfsObjects
         # Full control over DFS-Configuration & DFSR-GlobalSettings
         Set-AdAclFullControlDFS -Group $SL_DfsRight.SamAccountName
     }
-    End
-    {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) created DFS objects and Delegations successfully."
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'

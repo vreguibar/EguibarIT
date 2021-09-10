@@ -54,11 +54,10 @@ function Start-AdCleanOU
         $RemoveUnknownSIDs
 
     )
-    begin
-    {
+    begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -70,8 +69,7 @@ function Start-AdCleanOU
 
         $Parameters = $null
     }
-    process
-    {
+    process {
         $parameters = @{
             Group      = 'Account Operators'
             LDAPPath   = $PSBoundParameters['LDAPPath']
@@ -107,16 +105,14 @@ function Start-AdCleanOU
         # Remove PRINT OPERATORS 2000 Access group from OU
         Remove-PrintOperator -LDAPPath $PSBoundParameters['LDAPPath']
 
-        If($PsBoundParameters['RemoveAuthenticatedUsers'])
-        {
+        If($PsBoundParameters['RemoveAuthenticatedUsers']) {
             # Remove AUTHENTICATED USERS group from OU
             Remove-AuthUser -LDAPPath $PSBoundParameters['LDAPPath']
 
             Write-Verbose -Message 'Removing Authenticated Users'
         }
 
-        If($PsBoundParameters['$RemoveUnknownSIDs'])
-        {
+        If($PsBoundParameters['$RemoveUnknownSIDs']) {
             # Remove Un-Resolvable SID from a given object
             Remove-UnknownSID -LDAPPath $PSBoundParameters['LDAPPath'] -RemoveSID
 
@@ -124,9 +120,8 @@ function Start-AdCleanOU
         }
 
     }
-    end
-    {
-        Write-Verbose -Message('Builtin groups were removed correctly from object {0}.' -f $PSBoundParameters['LDAPPath']) 
+    end {
+        Write-Verbose -Message('Builtin groups were removed correctly from object {0}.' -f $PSBoundParameters['LDAPPath'])
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''

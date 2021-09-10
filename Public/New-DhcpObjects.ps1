@@ -41,11 +41,10 @@ Function New-DHCPobjects
 
     )
 
-    Begin 
-    {
+    Begin  {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -58,31 +57,27 @@ Function New-DHCPobjects
         # Initialisations
         Import-Module ActiveDirectory      -Verbose:$false
         Import-Module EguibarIT.Delegation -Verbose:$false
-        
+
         ################################################################################
         #region Declarations
 
-        try
-        {
+        try {
             # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn))
-            {
+            If(-Not (Test-Path -Path variable:AdDn)) {
                 New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML))  
-            {
+            If(-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile'])
-                {
+                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
         }
         catch { throw }
-        
+
         # Naming conventions hashtable
         $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
                 'sg'    = $confXML.n.NC.GlobalGroupPreffix;
@@ -95,12 +90,12 @@ Function New-DHCPobjects
 
         #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM, $NC['T0'])
         # SG_PAWM_T0
-        
+
         $parameters = $null
 
 
         # Organizational Units Distinguished Names
-        
+
         # IT Admin OU
         $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
         # IT Admin OU Distinguished Name
@@ -118,12 +113,11 @@ Function New-DHCPobjects
 
         #endregion Declarations
         ################################################################################
-        
-        
+
+
     }
-    
-    Process
-    {
+
+    Process {
         ###############################################################################
         # Create OU Admin groups
         $parameters = @{
@@ -180,9 +174,8 @@ Function New-DHCPobjects
         Set-AdAclFullControlDHCP -Group $SL_DHCPRight.SamAccountName
 
     }
-    
-    End
-    {
+
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) created DHCP objects and Delegations successfully."
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'

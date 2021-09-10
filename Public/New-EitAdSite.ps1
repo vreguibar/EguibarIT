@@ -17,7 +17,7 @@ function New-EitAdSite
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(ConfirmImpact = 'Medium')]
     [OutputType([string])]
     Param
     (
@@ -31,11 +31,10 @@ function New-EitAdSite
         $NewSiteName
     )
 
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -57,37 +56,27 @@ function New-EitAdSite
         Write-Verbose -Message "Set necessary site variables `r "
         $NewADSiteDN = 'CN={0},{1}' -f $PSBoundParameters['NewSiteName'], $ADSiteDN
     }
-    Process
-    {
-        If (Test-Path -Path AD:$NewADSiteDN)
-        {
+    Process {
+        If (Test-Path -Path AD:$NewADSiteDN) {
             Write-Warning -Message ('The site {0} already exist. Please review the name and try again' -f $PSBoundParameters['NewSiteName'])
-        }
-        else
-        {
+        } else {
             Write-Verbose -Message 'Create New Site Object `r '
-            TRY
-            {
+            TRY {
                 New-ADObject -Name $PSBoundParameters['NewSiteName'] -Path $ADSiteDN -Type Site
             }
-            CATCH
-            {
+            CATCH {
                 Write-Warning -Message ('An error occured while attempting to create the new site {0} in the AD Site Path: {1} `r ' -f $PSBoundParameters['NewSiteName'], $ADSiteDN)
             }
 
             $SiteCreationCheck = Test-Path -Path AD:$NewADSiteDN
 
-            IF ($SiteCreationCheck -eq $false)
-            {
+            IF ($SiteCreationCheck -eq $false) {
                 Write-Warning -Message ('Failed to create the new site {0} `r ' -f $PSBoundParameters['NewSiteName'])
-            }
-            ELSE
-            {
+            } ELSE {
                 ## OPEN ELSE Site Object created successfully
                 Write-Verbose -Message 'Create New Site Object Child Objects (NTDS Site Settings & Servers Container) `r '
-                
-                TRY
-                {
+
+                TRY {
                     ## OPEN TRY Create New Site Object Child Objects (NTDS Site Settings & Servers Container)
                     New-ADObject -Name 'NTDS Site Settings' -Path $NewADSiteDN -Type NTDSSiteSettings
                     New-ADObject -Name 'Servers' -Path $NewADSiteDN -Type serversContainer
@@ -95,15 +84,13 @@ function New-EitAdSite
                     Write-Verbose -Message 'Get New AD Site as variable `r '
                     $NewADSiteInfo = Get-ADObject $NewADSiteDN
                 }  ## CLOSE TRY Create New Site Object Child Objects (NTDS Site Settings & Servers Container)
-                CATCH
-                {
+                CATCH {
                     Write-Warning -Message ('An error occured while attempting to create site {0} child objects in the AD Site Path: {1} `r ' -f $PSBoundParameters['NewSiteName'], $NewADSiteDN)
                 }
             }#end elseIf
         }#end elseIf
     }
-  End 
-    {
+  End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating new AD Site."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

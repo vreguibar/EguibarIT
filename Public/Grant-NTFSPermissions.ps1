@@ -19,9 +19,8 @@ function Grant-NTFSPermissions
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
-    Param
-    (
+    [CmdletBinding(ConfirmImpact = 'Medium')]
+    Param (
         # Param1 path to the resource|folder
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Absolute path to the object',
@@ -49,11 +48,10 @@ function Grant-NTFSPermissions
         [string]
         $permission
     )
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -70,22 +68,19 @@ function Grant-NTFSPermissions
         $PropagationFlag   = [Security.AccessControl.PropagationFlags]::None
         $AccessControlType = [Security.AccessControl.AccessControlType]::Allow
     }
-    Process
-  {
-    Try
-    {
-      $Account = New-Object -TypeName System.Security.Principal.NTAccount -ArgumentList $PSBoundParameters['object']
+    Process {
+        Try {
+        $Account = New-Object -TypeName System.Security.Principal.NTAccount -ArgumentList $PSBoundParameters['object']
 
-      $FileSystemAccessRule = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList ($Account, $FileSystemRights, $InheritanceFlag, $PropagationFlag, $AccessControlType)
+        $FileSystemAccessRule = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList ($Account, $FileSystemRights, $InheritanceFlag, $PropagationFlag, $AccessControlType)
 
-      $DirectorySecurity = Get-Acl -Path $PSBoundParameters['path']
+        $DirectorySecurity = Get-Acl -Path $PSBoundParameters['path']
 
-      $DirectorySecurity.AddAccessRule($FileSystemAccessRule)
+        $DirectorySecurity.AddAccessRule($FileSystemAccessRule)
 
-      Set-Acl -Path $PSBoundParameters['path'] -AclObject $DirectorySecurity
+        Set-Acl -Path $PSBoundParameters['path'] -AclObject $DirectorySecurity
+        } catch { throw }
     }
-    catch { throw }
-  }
     End
     {
         Write-Verbose -Message ('The User/Group {0} was given {1} to folder {2}.' -f $PSBoundParameters['object'], $PSBoundParameters['permission'], $PSBoundParameters['path'])

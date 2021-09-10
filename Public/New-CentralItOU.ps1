@@ -257,7 +257,7 @@ function New-CentralItOu
         # Iterate all OUs within Admin
         Foreach($node in $confXML.n.Admin.OUs) {
             Foreach($Child in $node.ChildNodes) {
-                # Create variable for current OUs name, Using the XML LocalName of the node for the variable           
+                # Create variable for current OUs name, Using the XML LocalName of the node for the variable
                 New-Variable -Name "$($Child.LocalName)" -Value ($Child.Name) -Description ($Child.Description) -Option ReadOnly -Force
             }
         }
@@ -284,13 +284,13 @@ function New-CentralItOu
         $ItServiceAccountsOuDn = 'OU={0},{1}' -f $ItServiceAccountsOu, $ItAdminOuDn
 
             # It Admin T0SA OU Distinguished Name
-            $ItSAT0OuDn = 'OU={0},{1}' -f $ItSAT0Ou, $ItServiceAccountsOuDn
+            #$ItSAT0OuDn = 'OU={0},{1}' -f $ItSAT0Ou, $ItServiceAccountsOuDn
 
             # It Admin T0SA OU Distinguished Name
-            $ItSAT1OuDn = 'OU={0},{1}' -f $ItSAT1Ou, $ItServiceAccountsOuDn
+            #$ItSAT1OuDn = 'OU={0},{1}' -f $ItSAT1Ou, $ItServiceAccountsOuDn
 
             # It Admin T0SA OU Distinguished Name
-            $ItSAT2OuDn = 'OU={0},{1}' -f $ItSAT2Ou, $ItServiceAccountsOuDn
+            #$ItSAT2OuDn = 'OU={0},{1}' -f $ItSAT2Ou, $ItServiceAccountsOuDn
 
         # It PAW OU Distinguished Name
         $ItPawOuDn = 'OU={0},{1}' -f $ItPawOu, $ItAdminOuDn
@@ -324,20 +324,20 @@ function New-CentralItOu
 
         # It HOUSEKEEPING OU Distinguished Name
         $ItHousekeepingOuDn = 'OU={0},{1}' -f $ItHousekeepingOu, $ItAdminOuDn
-        
-        
-        
+
+
+
         # Servers Area
-        
+
         # Servers OU
         New-Variable -Name 'ServersOu' -Value $confXML.n.Servers.OUs.ServersOU.Name -Option ReadOnly -Force
         # Servers OU Distinguished Name
         $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $AdDn
-        
-        
-        
+
+
+
         # Sites Area
-        
+
         # Sites OU
         New-Variable -Name 'SitesOu' -Value $confXML.n.Sites.OUs.SitesOU.name -Option ReadOnly -Force
         # Sites OU Distinguished Name
@@ -489,7 +489,7 @@ function New-CentralItOu
         Set-AdInheritance -LDAPPath $ItInfraT1OuDn      @Splat
         Set-AdInheritance -LDAPPath $ItInfraT2OuDn      @Splat
         Set-AdInheritance -LDAPPath $ItInfraStagingOuDn @Splat
-        
+
         #endregion
 
         ###############################################################################
@@ -567,10 +567,10 @@ function New-CentralItOu
         Write-Verbose -Message 'Creating and securing Admin accounts...'
 
         try {
-            
+
             # Try to get the new Admin
             $NewAdminExists = Get-AdUser -Filter { SamAccountName -eq $newAdminName }
-            
+
             # Check if the new Admin account already exist. If not, then create it.
             If($NewAdminExists) {
                 #The user was found. Proceed to modify it accordingly.
@@ -753,7 +753,7 @@ function New-CentralItOu
             RemovePreWin2000              = $True
         }
         New-Variable -Name "$('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.Operations.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
-        
+
         $parameters = @{
             Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name
             GroupCategory                 = 'Security'
@@ -767,7 +767,7 @@ function New-CentralItOu
             RemovePreWin2000              = $True
         }
         New-Variable -Name "$('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
-        
+
         $parameters = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name
             GroupCategory                 = 'Security'
@@ -781,7 +781,7 @@ function New-CentralItOu
             RemovePreWin2000              = $True
         }
         New-Variable -Name "$('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
-        
+
         $parameters = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name
             GroupCategory                 = 'Security'
@@ -821,7 +821,7 @@ function New-CentralItOu
             # Move objects to PG OU
             $item | Move-ADObject -TargetPath $ItPGOuDn
 
-            # Set back again the ProtectedFromAccidentalDeletion flag. 
+            # Set back again the ProtectedFromAccidentalDeletion flag.
             #The group has to be fetch again because of the previus move
             Get-ADGroup -Identity $item.SamAccountName | Set-ADObject -ProtectedFromAccidentalDeletion $true
         }
@@ -831,7 +831,7 @@ function New-CentralItOu
 
         ###############################################################################
         #region Create Group Managed Service Account
-        
+
         # Get the current OS build
         Get-OsBuild
         
@@ -887,7 +887,7 @@ function New-CentralItOu
                 Path        = 'OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.name, $ItServiceAccountsOuDn
                 enabled     = $True
             }
-            
+
             New-ADServiceAccount @Splat
         }
 
@@ -896,11 +896,11 @@ function New-CentralItOu
 
         ###############################################################################
         #region Create a New Fine Grained Password Policy for Admins Accounts
-        
+
         $PSOexists = $null
-        
+
         $PsoName = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
-        
+
         $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
 
         if(-not($PSOexists)) {
@@ -921,7 +921,7 @@ function New-CentralItOu
             }
 
             New-ADFineGrainedPasswordPolicy @parameters
-            
+
             [String]$PsoName = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
 
             $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
@@ -971,12 +971,12 @@ function New-CentralItOu
 
         ###############################################################################
         #region Create a New Fine Grained Password Policy for Service Accounts
-        
+
         $PSOexists = $null
-        
-        
+
+
         $PsoName = $confXML.n.Admin.PSOs.ServiceAccountsPSO.Name
-        
+
         $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
 
         if(-not($PSOexists)) {
@@ -997,7 +997,7 @@ function New-CentralItOu
             }
 
             New-ADFineGrainedPasswordPolicy @parameters
-            
+
             $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
         }
 
@@ -1089,7 +1089,7 @@ function New-CentralItOu
         Add-AdGroupNesting -Identity 'Performance Monitor Users' -Members $SG_AdAdmins, $SG_Operations
 
         Add-AdGroupNesting -Identity 'Remote Desktop Users' -Members $SG_AdAdmins
-        
+
         # https://technet.microsoft.com/en-us/library/dn466518(v=ws.11).aspx
         $parameters = @($AdminName,
                         $NewAdminName,
@@ -1109,7 +1109,7 @@ function New-CentralItOu
                         $SG_ServiceDesk
         )
         Add-AdGroupNesting -Identity 'Protected Users' -Members $parameters
-        
+
 
         #endregion
         ###############################################################################
@@ -1414,7 +1414,7 @@ function New-CentralItOu
         }
         Set-AdAclCreateDeleteGMSA       @parameters
         Set-AdAclCreateDeleteMSA        @parameters
-        
+
         # TIER 0
         $parameters = @{
             Group    = $SL_PSAM.SamAccountName
@@ -1516,17 +1516,17 @@ function New-CentralItOu
         ###############################################################################
 
         ###############################################################################
-        #region Create Baseline GPO 
-        
+        #region Create Baseline GPO
+
         Write-Verbose -Message 'Creating Baseline GPOs and configure them accordingly...'
-        
+ 
         # Domain
         New-DelegateAdGpo -gpoDescription Baseline -gpoScope C -gpoLinkPath $AdDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         New-DelegateAdGpo -gpoDescription Baseline -gpoScope U -gpoLinkPath $AdDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
-        
+
         # Domain Controllers
         New-DelegateAdGpo -gpoDescription DomainControllers-Baseline -gpoScope C -gpoLinkPath ('OU=Domain Controllers,{0}' -f $AdDn) -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
-        
+
         # Admin Area
         New-DelegateAdGpo -gpoDescription ItAdmin-Baseline -gpoScope C -gpoLinkPath $ItAdminOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         New-DelegateAdGpo -gpoDescription ItAdmin-Baseline -gpoScope U -gpoLinkPath $ItAdminOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
@@ -1551,12 +1551,12 @@ function New-CentralItOu
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT1.Name, $ItInfraOuDn) -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT2.Name, $ItInfraOuDn) -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn) -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
-        
+
         # redirected containers (X-Computers & X-Users)
         New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name, $AdDn) -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name)     -gpoScope U -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name, $AdDn) -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
-        
-        # Housekeeping 
+
+        # Housekeeping
         New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItHousekeepingOU.Name) -gpoScope U -gpoLinkPath $ItHousekeepingOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItHousekeepingOU.Name) -gpoScope C -gpoLinkPath $ItHousekeepingOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
 
@@ -1579,11 +1579,11 @@ function New-CentralItOu
         # U-Baseline
         Import-GPO -BackupId $confXML.n.Admin.GPOs.Userbaseline.backupID -TargetName 'U-Baseline' -path (Join-Path $DMscripts SecTmpl)
         
-        
-        
-        
-        
-        
+ 
+
+
+
+
 
         ###############################################################################
         # Configure GPO Restrictions based on Tier Model
@@ -1629,7 +1629,7 @@ function New-CentralItOu
             $newAdminName
         )
         Set-GpoPrivilegeRights -GpoToModify 'C-Baseline' -DenyBatchLogon $parameters -DenyServiceLogon $parameters
-            
+
         $parameters = @(
             'Network Service',
             'NT SERVICE\All Services'
@@ -1655,7 +1655,7 @@ function New-CentralItOu
             $newAdminName
         )
         Set-GpoPrivilegeRights -GpoToModify 'C-DomainControllers-Baseline' -DenyBatchLogon $parameters -DenyServiceLogon $parameters
-        
+
         Set-GpoPrivilegeRights -GpoToModify 'C-DomainControllers-Baseline' -BatchLogon $SG_T0SA.SamAccountName -ServiceLogon $SG_T0SA.SamAccountName, 'Network Service'
 
         $parameters = @(
@@ -1699,14 +1699,14 @@ function New-CentralItOu
             $newAdminName
         )
         Set-GpoPrivilegeRights -GpoToModify 'C-ItAdmin-Baseline' -DenyBatchLogon $parameters -DenyServiceLogon $parameters
-        
+
         $parameters = @(
             $SG_T0SA.SamAccountName
             'Network Service',
             'NT SERVICE\All Services'
         )
         Set-GpoPrivilegeRights -GpoToModify 'C-ItAdmin-Baseline' -BatchLogon $SG_T0SA.SamAccountName -ServiceLogon $parameters
-        
+
         # Admin Area = HOUSEKEEPING
         $parameters = @(
             $SG_Tier0Admins.SamAccountName,
@@ -1714,9 +1714,9 @@ function New-CentralItOu
             'Administrators'
         )
         Set-GpoPrivilegeRights -GpoToModify 'C-Housekeeping-LOCKDOWN' -NetworkLogon $parameters -InteractiveLogon $parameters
-        
+
         # Admin Area = Infrastructure
-        
+
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name) -InteractiveLogon $SL_PISM.SamAccountName, 'Domain Admins', Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name) -RemoteInteractiveLogon $SL_PISM.SamAccountName
         $parameters = @(
@@ -1725,36 +1725,36 @@ function New-CentralItOu
             'NT SERVICE\All Services'
         )
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name) -BatchLogon $SG_T0SA.SamAccountName -ServiceLogon $parameters
-        
+
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -InteractiveLogon $SG_Tier1Admins.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -RemoteInteractiveLogon $SG_Tier1Admins.SamAccountName
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -BatchLogon $SG_T1SA.SamAccountName -ServiceLogon $SG_T1SA.SamAccountName
-        
+
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2.Name) -InteractiveLogon $SG_Tier2Admins.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -RemoteInteractiveLogon $SG_Tier2Admins.SamAccountName
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2.Name) -BatchLogon $SG_T2SA.SamAccountName -ServiceLogon $SG_T2SA.SamAccountName
-        
+
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -InteractiveLogon $SL_PISM.SamAccountName, 'Domain Admins', Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -RemoteInteractiveLogon $SL_PISM.SamAccountName
-        
+
         # Admin Area = PAWs
 
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -InteractiveLogon $SL_PAWM.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -RemoteInteractiveLogon $SL_PAWM.SamAccountName
-        
+
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -InteractiveLogon $SL_PAWM.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -RemoteInteractiveLogon $SL_PAWM.SamAccountName
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -BatchLogon $SG_T0SA.SamAccountName -ServiceLogon $SG_T0SA.SamAccountName
-        
+
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -InteractiveLogon $SG_Tier1Admins.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -RemoteInteractiveLogon $SG_Tier1Admins.SamAccountName
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -BatchLogon $SG_T1SA.SamAccountName -ServiceLogon $SG_T1SA.SamAccountName
-        
+
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -InteractiveLogon $SG_Tier2Admins.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -RemoteInteractiveLogon $SG_Tier2Admins.SamAccountName
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -BatchLogon $SG_T2SA.SamAccountName -ServiceLogon $SG_T2SA.SamAccountName
-        
-        
+
+
         #endregion
         ###############################################################################
 
@@ -1765,7 +1765,7 @@ function New-CentralItOu
 
         ###############################################################################
         # Create Servers and Sub OUs
-        New-DelegateAdOU -ouName $ServersOu -ouPath $AdDn -ouDescription $confXML.n.Servers.OUs.ServersOU.Description 
+        New-DelegateAdOU -ouName $ServersOu -ouPath $AdDn -ouDescription $confXML.n.Servers.OUs.ServersOU.Description
 
         # Create Sub-OUs for Servers
         New-DelegateAdOU -ouName $confXML.n.Servers.OUs.SqlOU.Name           -ouPath $ServersOuDn -ouDescription $confXML.n.Servers.OUs.SqlOU.Description
@@ -1819,9 +1819,9 @@ function New-CentralItOu
             $newAdminName
         )
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $ServersOu) -DenyInteractiveLogon $parameters -DenyRemoteInteractiveLogon $parameters
-        
+
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $ServersOu) -BatchLogon $SG_T1SA.SamAccountName -ServiceLogon $SG_T1SA.SamAccountName -InteractiveLogon $SG_Tier1Admins.SamAccountName -RemoteInteractiveLogon $SG_Tier0Admins.SamAccountName
-        
+
 
         ###############################################################################
         #region Delegation to SL_SvrAdmRight and SL_SvrOpsRight groups to SERVERS area
@@ -1870,7 +1870,7 @@ function New-CentralItOu
         # Create basic GPO for Users and Computers
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope C -gpoLinkPath $SitesOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope U -gpoLinkPath $SitesOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
-        
+
         # Tier Restrictions
         $parameters = @(
             $SG_Tier0Admins.SamAccountName,
@@ -1887,15 +1887,15 @@ function New-CentralItOu
             $newAdminName
         )
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $SitesOu) -DenyInteractiveLogon $parameters -DenyRemoteInteractiveLogon $parameters
-        
+
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $SitesOu) -BatchLogon $SG_T2SA.SamAccountName -ServiceLogon $SG_T2SA.SamAccountName -InteractiveLogon $SG_Tier2Admins.SamAccountName -RemoteInteractiveLogon $SG_Tier2Admins.SamAccountName
-        
+ 
         # Create Global OU within SITES area
         New-DelegateAdOU -ouName $SitesGlobalOu           -ouPath $SitesOuDn       -ouDescription $confXML.n.Sites.OUs.OuSiteGlobal.Description
         New-DelegateAdOU -ouName $SitesGlobalGroupOu      -ouPath $SitesGlobalOuDn -ouDescription $confXML.n.Sites.OUs.OuSiteGlobalGroups.Description
         New-DelegateAdOU -ouName $SitesGlobalAppAccUserOu -ouPath $SitesGlobalOuDn -ouDescription $confXML.n.Sites.OUs.OuSiteGlobalAppAccessUsers.Description
 
-        
+
         # Sites OU
         # Create/Delete OUs within Sites
         Set-AdAclCreateDeleteOU  -Group $SL_InfraRight.SamAccountName -LDAPPath $SitesOuDn
@@ -1949,13 +1949,13 @@ function New-CentralItOu
         ###############################################################################
         # Check if Exchange objects have to be created. Proccess if TRUE
         if($CreateExchange) {
-        
+
             # Get the Config.xml file
             $param = @{
                 ConfigXMLFile = Join-Path -Path $DMscripts -ChildPath Config.xml -Resolve
                 verbose = $true
             }
-            
+ 
             New-ExchangeObjects @param
         }
 
@@ -1967,7 +1967,7 @@ function New-CentralItOu
                 ConfigXMLFile = Join-Path -Path $DMscripts -ChildPath Config.xml -Resolve
                 verbose = $true
             }
-            
+
             New-DfsObjects @param
         }
 
@@ -1997,7 +1997,7 @@ function New-CentralItOu
             #
             New-DHCPobjects -ConfigXMLFile $ConfXML
         }
-        
+
     }
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating central OU."

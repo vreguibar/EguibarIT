@@ -36,7 +36,7 @@ function Revoke-Inheritance
   Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -45,10 +45,8 @@ function Revoke-Inheritance
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
   }
-  Process
-  {
-    Try
-    {
+  Process {
+    Try {
       $isProtected = $true
       $preserveInheritance = $true
       $DirectorySecurity = Get-Acl -Path $path
@@ -58,13 +56,9 @@ function Revoke-Inheritance
       $DirectorySecurity.SetAccessRuleProtection($isProtected, $preserveInheritance)
       Set-Acl -Path $path -AclObject $DirectorySecurity
     }
-    Catch
-    {
-      Throw
-    }
+    Catch { Throw }
   }
-  End
-  {
+  End {
         Write-Verbose -Message ('The folder {0} was removed inheritance.' -f $path)
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

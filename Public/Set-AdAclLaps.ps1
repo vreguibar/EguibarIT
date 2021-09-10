@@ -65,11 +65,10 @@ function Set-AdAclLaps
         [Switch]
         $RemoveRule
     )
-    begin
-    {
+    begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -80,15 +79,13 @@ function Set-AdAclLaps
 
 
         Import-Module -Name 'AdmPwd.PS' -Verbose:$false
-        
+
         $guidmap = $null
         $guidmap = @{}
         $guidmap = Get-AttributeSchemaHashTable
     }
-    Process
-    {
-        if(-not($null -eq $guidmap["ms-Mcs-AdmPwdExpirationTime"]))
-        {
+    Process {
+        if(-not($null -eq $guidmap["ms-Mcs-AdmPwdExpirationTime"])) {
             Write-Verbose -Message "LAPS is supported on this environment. We can proceed to configure it."
 
             Set-AdmPwdComputerSelfPermission -Identity $LDAPpath
@@ -96,14 +93,11 @@ function Set-AdAclLaps
             Set-AdmPwdReadPasswordPermission -AllowedPrincipals $ReadGroup -Identity $LDAPpath
 
             Set-AdmPwdResetPasswordPermission -AllowedPrincipals $ResetGroup -Identity $LDAPpath
-        }
-        else
-        {
+        } else {
             Write-Error -Message "Not Implemented. Schema does not contains the requiered attributes."
         }
     }
-    End
-    {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating LAPS Admin."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

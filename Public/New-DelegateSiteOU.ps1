@@ -96,21 +96,21 @@ function New-DelegateSiteOU
         Position = 8)]
         [switch]
         $CreateLAPS,
-        
+
         # PARAM10 full path to the configuration.xml file
         [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
             HelpMessage='Full path to the configuration.xml file',
             Position=9)]
         [string]
         $ConfigXMLFile
-        
+
     )
 
     Begin
     {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -136,7 +136,7 @@ function New-DelegateSiteOU
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML))  
+            If(-Not (Test-Path -Path variable:confXML))
             {
                 # Check if the Config.xml file exist on the given path
                 If(Test-Path -Path $PSBoundParameters['ConfigXMLFile'])
@@ -165,7 +165,7 @@ function New-DelegateSiteOU
 
         ####################
         # Users
-        
+
         ####################
         # Groups
         $SG_AllSiteAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AllSiteAdmins.Name)
@@ -176,7 +176,7 @@ function New-DelegateSiteOU
         # OU DistinguishedNames
 
         # Admin Area
-        
+
         # IT Admin OU
         $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
         # IT Admin OU Distinguished Name
@@ -202,7 +202,7 @@ function New-DelegateSiteOU
 
 
         # Sites Area
-        
+
         # Sites OU
         $SitesOu = $confXML.n.Sites.OUs.SitesOU.name
         # Sites OU Distinguished Name
@@ -331,7 +331,7 @@ function New-DelegateSiteOU
 
 
         Write-Verbose -Message ('Create requiered groups for the site {0}' -f $PSBoundParameters['ouName'])
-        
+
         ###############################################################################
         #region Create the required Right's Local Domain groups
 
@@ -351,7 +351,7 @@ function New-DelegateSiteOU
                 RemoveEveryone                = $True
                 RemovePreWin2000              = $True
             }
-            
+
             New-Variable -Name "$('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $node.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
         }
 
@@ -383,7 +383,7 @@ function New-DelegateSiteOU
 
         #endregion
         ###############################################################################
-    
+
 
 
 
@@ -452,7 +452,7 @@ function New-DelegateSiteOU
         Write-Verbose -Message 'Create basic GPO'
         ###############################################################################
         #region Create basic GPO
-        
+
         # Create Desktop Baseline
         $splat = @{
             gpoDescription = '{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name
@@ -469,7 +469,7 @@ function New-DelegateSiteOU
             gpoLinkPath    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $ouNameDN
             GpoAdmin       = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         }
-        New-DelegateAdGpo @splat    
+        New-DelegateAdGpo @splat
 
         # Create Users Baseline
         $splat = @{
@@ -504,7 +504,7 @@ function New-DelegateSiteOU
                 path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
             }
             Import-GPO @splat
-            
+
             # File-Print Baseline Tiering Restrictions
             $splat = @(
                 'Schema Admins',
@@ -544,10 +544,10 @@ function New-DelegateSiteOU
                 $confXML.n.Admin.users.newAdmin.name
             )
             Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteFilePrint.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
-            
-            $splat = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name) 
+
+            $splat = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name)
             Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteFilePrint.Name) -BatchLogon $splat -ServiceLogon $splat
-            
+
 
 
 
@@ -598,14 +598,14 @@ function New-DelegateSiteOU
                 $confXML.n.Admin.users.newAdmin.name
             )
             Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLocalServer.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
-            
+
             $splat = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name
             Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLocalServer.Name) -BatchLogon $splat -ServiceLogon $splat
-            
-        }
-        
 
-   
+        }
+
+
+
 
         # Configure Desktop Baseline
         $splat = @{
@@ -654,10 +654,10 @@ function New-DelegateSiteOU
             $confXML.n.Admin.users.newAdmin.name
         )
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
-        
+
         $splat = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name) -BatchLogon $splat -ServiceLogon $splat
-        
+
 
 
 
@@ -711,10 +711,10 @@ function New-DelegateSiteOU
             $confXML.n.Admin.users.newAdmin.name
         )
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
-        
+
         $splat = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name) -BatchLogon $splat -ServiceLogon $splat
-        
+
 
 
 
@@ -738,7 +738,7 @@ function New-DelegateSiteOU
                 Verbose         = $true
             }
             Set-GPPermissions @splat
-            
+
             Write-Verbose -Message ('Add Local Admin to new {0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLocalServer.Name)
             $splat = @{
                 Name            = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLocalServer.Name)
@@ -750,7 +750,7 @@ function New-DelegateSiteOU
             }
             Set-GPPermissions @splat
         }
-        
+
         # Give Rights to SG_SiteAdmin_XXXX to $ouName + -Desktop
         Write-Verbose -Message ('Add Local Admin to new {0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name)
         $splat = @{
@@ -774,7 +774,7 @@ function New-DelegateSiteOU
         }
         Set-GPPermissions @splat
 
-        
+
 
 
         Write-Verbose -Message ('Add Local Admin to new {0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteUser.Name)
@@ -799,7 +799,7 @@ function New-DelegateSiteOU
         If($PSBoundParameters['CreateExchange'])
         {
             Start-AdDelegateSite -ConfigXMLFile $ConfigXMLFile -ouName $ouName -QuarantineDN $ItQuarantineOuDn -CreateExchange
-        
+ 
             #create Sub-OUs
             # --- USER CLASS ---
             New-DelegateAdOU -ouName $confXML.n.Sites.OUs.OuSiteMailbox.Name   -ouPath $ouNameDN -ouDescription ('{0} {1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteMailbox.Description)

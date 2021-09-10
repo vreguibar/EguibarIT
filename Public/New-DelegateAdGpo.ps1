@@ -68,7 +68,7 @@ function New-DelegateAdGpo
         [ValidateNotNullOrEmpty()]
         [string]
         $gpoLinkPath,
- 
+
         # Param4 Domain Local Group with GPO Rights to be assigned
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Domain Local Group with GPO Rights to be assigned',

@@ -1,5 +1,6 @@
 Function New-TemplateOID {
     [CmdletBinding(ConfirmImpact = 'Medium')]
+    [OutputType([System.Collections.Hashtable])]
     Param(
         $Server,
         $ConfigNC

@@ -3,7 +3,7 @@ function Start-AdDelegateSite
 {
     <#
         .Synopsis
-            The function will create 
+            The function will create
         .DESCRIPTION
             Long description
         .EXAMPLE
@@ -56,27 +56,26 @@ function Start-AdDelegateSite
             Position = 3)]
         [switch]
         $CreateExchange,
-        
+
         # Param5 Location of all scripts & files
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Path to all the scripts and files needed by this function',
         Position = 4)]
         [string]
         $DMscripts = "C:\PsScripts\",
-        
+
         # PARAM6 Switch indicating if local server containers has to be created. Not recommended due TIer segregation
         [Parameter(Mandatory = $false, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
             HelpMessage='Switch indicating if local server containers has to be created. Not recommended due TIer segregation',
             Position=5)]
         [switch]
         $CreateSrvContainer
-        
+
     )
-    begin
-    {
+    begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -90,20 +89,16 @@ function Start-AdDelegateSite
         ################################################################################
         #region Declarations
 
-        try
-        {
+        try {
             # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn))
-            {
+            If(-Not (Test-Path -Path variable:AdDn)) {
                 New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML))  
-            {
+            If(-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile'])
-                {
+                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
@@ -130,11 +125,10 @@ function Start-AdDelegateSite
         #region Get all newly created Groups and store on variable
 
         # Iterate through all Site-DomainLocalGroups child nodes
-        Foreach($node in $confXML.n.Sites.LG.ChildNodes)
-        {
-            
+        Foreach($node in $confXML.n.Sites.LG.ChildNodes) {
+
             $TempName = '{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
-            
+
             Write-Verbose -Message ('Get group {0}' -f $TempName)
 
             New-Variable -Name "$($TempName)" -Value (Get-AdGroup $TempName) -Force
@@ -145,16 +139,14 @@ function Start-AdDelegateSite
 
 
         # Sites OU Distinguished Name
-        If(-Not (Test-Path -Path variable:ouNameDN))
-        {
+        If(-Not (Test-Path -Path variable:ouNameDN)) {
             $ouNameDN = 'OU={0},OU={1},{2}' -f $ouName, $confXML.n.Sites.OUs.SitesOU.name, $AdDn
         }
 
-        $OuSiteDefComputer    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.name, $ouNameDN        
+        $OuSiteDefComputer    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.name, $ouNameDN
         $OuSiteDefLaptop      = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.name, $ouNameDN
-        
-        if($PSBoundParameters['CreateSrvContainer'])
-        {
+
+        if($PSBoundParameters['CreateSrvContainer']) {
             $OuSiteDefLocalServer = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLocalServer.name, $ouNameDN
             $OuSiteDefFilePrint   = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteFilePrint.name, $ouNameDN
         }
@@ -169,8 +161,7 @@ function Start-AdDelegateSite
         #endregion
         ###############################################################################
     }
-    process
-    {
+    process {
         Write-Verbose -Message 'START USER Site Delegation'
         ###############################################################################
         #region USER Site Administrator Delegation
@@ -259,10 +250,9 @@ function Start-AdDelegateSite
         # Change Public Info
         Set-AdAclComputerPublicInfo -Group $SL_GALRight.SamAccountName         -LDAPPath $OuSiteDefComputer
         Set-AdAclComputerPublicInfo -Group $SL_GALRight.SamAccountName         -LDAPPath $OuSiteDefLaptop
-        
-        
-        if($PSBoundParameters['CreateSrvContainer'])
-        {
+
+
+        if($PSBoundParameters['CreateSrvContainer']) {
             # Create/Delete Computers
             Set-AdAclDelegateComputerAdmin -Group $SL_LocalServerRight.SamAccountName -LDAPPath $OuSiteDefFilePrint   -QuarantineDN $PSBoundParameters['QuarantineDN']
             Set-AdAclDelegateComputerAdmin -Group $SL_LocalServerRight.SamAccountName -LDAPPath $OuSiteDefLocalServer -QuarantineDN $PSBoundParameters['QuarantineDN']
@@ -280,9 +270,9 @@ function Start-AdDelegateSite
             Set-AdAclComputerPublicInfo -Group $SL_LocalServerRight.SamAccountName -LDAPPath $OuSiteDefFilePrint
             Set-AdAclComputerPublicInfo -Group $SL_LocalServerRight.SamAccountName -LDAPPath $OuSiteDefLocalServer
         }
-        
-        
-        
+
+
+
 
         #endregion COMPUTER Site Delegation
         ###############################################################################
@@ -345,8 +335,7 @@ function Start-AdDelegateSite
         ###############################################################################
         #region Exchange Related delegation
         ###############################################################################
-        If($PSBoundParameters['CreateExchange'])
-        {
+        If($PSBoundParameters['CreateExchange']) {
             # USER class
             # Create/Delete Users
             Set-AdAclCreateDeleteUser -Group $SL_CreateUserRight.SamAccountName -LDAPPath $OuSiteDefMailbox
@@ -402,8 +391,7 @@ function Start-AdDelegateSite
         #endregion Exchange Related delegation
         ###############################################################################
     }
-    end
-    {
+    end {
         Write-Verbose -Message ('Site delegation was completed succesfully to {0}' -f $PSBoundParameters['ouName'])
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

@@ -55,10 +55,10 @@ function Revoke-NTFSPermissions
     [string]
     $permission
   )
-    Begin{
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -67,11 +67,9 @@ function Revoke-NTFSPermissions
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
     }
-    
-    Process
-    {
-        Try
-        {
+
+    Process {
+        Try {
             $FileSystemRights = [Security.AccessControl.FileSystemRights]$permission
             $InheritanceFlag = [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
             $PropagationFlag = [Security.AccessControl.PropagationFlags]'None'
@@ -84,8 +82,7 @@ function Revoke-NTFSPermissions
         }
         Catch { Throw }
     }
-    End
-    {
+    End {
         Write-Verbose -Message ('The User/Group {0} was removed {1} from folder {2}.' -f $object, $permission, $path)
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

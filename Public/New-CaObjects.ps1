@@ -102,9 +102,9 @@ Function New-CaObjects
         $ItAdminOuDn = 'OU={0},{1}' -f $ItAdminOu, $AdDn
 
         # It Admin Groups OU
-        $ItGroupsOu = $confXML.n.Admin.OUs.ItAdminGroupsOU.name
+        # $ItGroupsOu = $confXML.n.Admin.OUs.ItAdminGroupsOU.name
         # It Admin Groups OU Distinguished Name
-        $ItGroupsOuDn = 'OU={0},{1}' -f $ItGroupsOu, $ItAdminOuDn
+        # $ItGroupsOuDn = 'OU={0},{1}' -f $ItGroupsOu, $ItAdminOuDn
 
         # It Privileged Groups OU
         $ItPGOu = $confXML.n.Admin.OUs.ItPrivGroupsOU.name
@@ -225,7 +225,7 @@ LoadDefaultTemplates=0
             Get-CAAuthorityInformationAccess | Where-Object {$_.Uri -like '*ldap*' -or $_.Uri -like '*http*' -or $_.Uri -like '*file*'} | Remove-CAAuthorityInformationAccess -Force
 
             # Add AIA url
-            Add-CAAuthorityInformationAccess -AddToCertificateAia http://$PkiServer/CertEnroll/%1_%3%4.crt -Force 
+            Add-CAAuthorityInformationAccess -AddToCertificateAia http://$PkiServer/CertEnroll/%1_%3%4.crt -Force
 
 
             # Configure CRL and DeltaCRL
@@ -238,7 +238,7 @@ LoadDefaultTemplates=0
             [String]$cmd = "Certutil -setreg CA\CRLDeltaPeriod $($confXML.n.CA.CACRLDeltaPeriod)"
             Invoke-Expression -Command $cmd
 
-            <##TODO 
+            <##TODO
             Failing next 2
             #>
 
@@ -272,7 +272,7 @@ LoadDefaultTemplates=0
             Get-CertificationAuthority | Get-CATemplate | Add-CATemplate -DisplayName 'OCSP Response Signing'
 
             Restart-Service certsvc
- 
+
         } # End Try-Catch-Finally
 
 <#

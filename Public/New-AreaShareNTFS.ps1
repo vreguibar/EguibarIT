@@ -77,7 +77,7 @@ function New-AreaShareNTFS
         [ValidateNotNullOrEmpty()]
         [string]
         $ShareLocation,
-        
+
         # Param7
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'The root share name for general areas.',
@@ -113,8 +113,7 @@ function New-AreaShareNTFS
     }
 
     Process {
-        If(-not(test-path -Path $FullShareName))
-        {
+        If(-not(test-path -Path $FullShareName)) {
             # Create the new Directory
             New-Item -Path $FullShareName -ItemType Directory
         }

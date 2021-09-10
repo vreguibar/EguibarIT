@@ -21,7 +21,7 @@ function Set-AdAclDelegateComputerAdmin
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(ConfirmImpact = 'Medium')]
     Param
     (
         # PARAM1 STRING for the Delegated Group Name
@@ -55,13 +55,12 @@ function Set-AdAclDelegateComputerAdmin
         [ValidateNotNullOrEmpty()]
         [Switch]
         $RemoveRule
-        
+
     )
-    begin
-    {
+    begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
@@ -73,22 +72,18 @@ function Set-AdAclDelegateComputerAdmin
         $parameters = $null
 
         # Active Directory Domain Distinguished Name
-        If(-Not (Test-Path -Path variable:AdDn))
-        {
+        If(-Not (Test-Path -Path variable:AdDn)) {
             New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
         }
     }
-    Process
-    {
-        try
-        {
+    Process {
+        try {
             $parameters = @{
                 Group    = $PSBoundParameters['Group']
                 LDAPPath = $PSBoundParameters['LDAPpath']
             }
             # Check if RemoveRule switch is present.
-            If($PSBoundParameters['RemoveRule'])
-            {
+            If($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
                 $parameters.Add('RemoveRule', $true)
             }
@@ -122,15 +117,14 @@ function Set-AdAclDelegateComputerAdmin
 
             # Grant the right to delete computers from default container. Move Computers
             Set-DeleteOnlyComputer -Group $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['QuarantineDN']
-            
+
             # Set LAPS
             Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['LDAPpath']
-            
+
         }
         catch { throw }
     }
-    End
-    {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating Computer Admin."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

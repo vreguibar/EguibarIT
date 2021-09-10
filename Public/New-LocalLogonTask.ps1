@@ -15,7 +15,7 @@ function New-LocalLogonTask
             Eguibar Information Technology S.L.
             http://www.eguibarit.com
 #>
-  [CmdletBinding(ConfirmImpact = 'Medium')]
+  [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
   Param
   (
     # Param1 help description
@@ -81,7 +81,7 @@ function New-LocalLogonTask
   {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)  
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
         $NL   = "`n"  # New Line
