@@ -45,7 +45,7 @@ task Test {
     $config = [PesterConfiguration]::Default
     $config.TestResult.Enabled = $true
     $Results = Invoke-Pester -Script ".\*.Tests.ps1" -OutputFormat NUnitXml -OutputFile ".\Tests\TestResults.xml" -Configuration $config
-    if($Results.FailedCount -gt 0){
+    if($Results.FailedCount -gt 0) {
         throw "$($Results.FailedCount) Tests failed"
     }
     #>
