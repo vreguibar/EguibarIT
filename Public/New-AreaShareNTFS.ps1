@@ -68,7 +68,7 @@ function New-AreaShareNTFS
         [ValidateNotNullOrEmpty()]
         [string]
         $sitePath,
-        
+
         # Param6
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Absolute path to the root Share folder (e.g. "C:\Shares\")',
