@@ -1,4 +1,4 @@
-Describe 'Test-IPv4MaskStringt' {
+Describe -Name  'Testing Test-IPv4MaskStringt' {
     It 'Simple test' {
         $AllMaskString = @(
             '255.255.255.128',
