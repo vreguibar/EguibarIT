@@ -63,10 +63,10 @@ jobs:
   # 2nd Job -- Releasing the module
   release:
     needs: build
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
         # Check out the main branch
-      - uses: ubuntu/checkout@main
+      - uses: actions/checkout@main
         
         # Downloads the powershell module build artifact made in the build step
       - name: Download build artifact
