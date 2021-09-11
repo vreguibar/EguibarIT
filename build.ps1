@@ -301,8 +301,8 @@ task Build -if($Configuration -eq "Release"){
         Write-Verbose -Message "Docs folder is empty, generating new fiiles"
         if(Get-Module -Name $($ModuleName)) {
             Write-Verbose -Message "Module: $($ModuleName) is imported into session, generating Help Files"
-            New-MarkdownHelp -Module $ModuleName -OutputFolder ".\Docs" -ErrorAction SilentlyContinue
-            New-MarkdownAboutHelp -OutputFolder ".\Docs" -AboutName $ModuleName -ErrorAction SilentlyContinue
+            #New-MarkdownHelp -Module $ModuleName -OutputFolder ".\Docs" -ErrorAction SilentlyContinue
+            #New-MarkdownAboutHelp -OutputFolder ".\Docs" -AboutName $ModuleName -ErrorAction SilentlyContinue
             #New-ExternalHelp ".\Docs" -OutputPath ".\Output\$($ModuleName)\$($ModuleVersion)\en-US\" -ErrorAction SilentlyContinue
         }
         else {
@@ -314,7 +314,7 @@ task Build -if($Configuration -eq "Release"){
         Remove-Item -Path ".\Docs\*.*" -Exclude "about_*"
         if(Get-Module -Name $($ModuleName)) {
             Write-Verbose -Message "Module: $($ModuleName) is imported into session, generating Help Files"
-            New-MarkdownHelp -Module $ModuleName -OutputFolder ".\Docs" -ErrorAction SilentlyContinue
+            #New-MarkdownHelp -Module $ModuleName -OutputFolder ".\Docs" -ErrorAction SilentlyContinue
             #New-ExternalHelp ".\Docs" -OutputPath ".\Output\$($ModuleName)\$($ModuleVersion)\en-US\" -ErrorAction SilentlyContinue
         }
     }
