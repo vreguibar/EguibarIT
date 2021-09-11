@@ -303,7 +303,7 @@ task Build -if($Configuration -eq "Release"){
             Write-Verbose -Message "Module: $($ModuleName) is imported into session, generating Help Files"
             New-MarkdownHelp -Module $ModuleName -OutputFolder ".\Docs" -ErrorAction SilentlyContinue
             New-MarkdownAboutHelp -OutputFolder ".\Docs" -AboutName $ModuleName -ErrorAction SilentlyContinue
-            New-ExternalHelp ".\Docs" -OutputPath ".\Output\$($ModuleName)\$($ModuleVersion)\en-US\" -ErrorAction SilentlyContinue
+            #New-ExternalHelp ".\Docs" -OutputPath ".\Output\$($ModuleName)\$($ModuleVersion)\en-US\" -ErrorAction SilentlyContinue
         }
         else {
             throw "Module is not imported, cannot generate help files"
@@ -315,7 +315,7 @@ task Build -if($Configuration -eq "Release"){
         if(Get-Module -Name $($ModuleName)) {
             Write-Verbose -Message "Module: $($ModuleName) is imported into session, generating Help Files"
             New-MarkdownHelp -Module $ModuleName -OutputFolder ".\Docs" -ErrorAction SilentlyContinue
-            New-ExternalHelp ".\Docs" -OutputPath ".\Output\$($ModuleName)\$($ModuleVersion)\en-US\" -ErrorAction SilentlyContinue
+            #New-ExternalHelp ".\Docs" -OutputPath ".\Output\$($ModuleName)\$($ModuleVersion)\en-US\" -ErrorAction SilentlyContinue
         }
     }
 
