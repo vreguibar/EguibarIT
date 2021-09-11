@@ -229,7 +229,7 @@ task Build -if($Configuration -eq "Release"){
     $ModuleFile = ".\Output\$($ModuleName)\$($ModuleVersion)\$($ModuleName).psm1"
     Write-Verbose -Message "Building the .psm1 file"
     Write-Verbose -Message "Appending Public Functions"
-    Add-Content -Path $ModuleFile -Value "### --- PUBLIC FUNCTIONS --- ###"
+    Add-Content -Path $ModuleFile -Value "### --- PUBLIC FUNCTIONS --- ### "
     foreach($function in $publicFunctions.Name){
         try {
             Write-Verbose -Message "Updating the .psm1 file with function: $($function)"
