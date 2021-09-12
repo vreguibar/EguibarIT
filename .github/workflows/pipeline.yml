@@ -56,7 +56,7 @@ jobs:
           git add .
           git commit -am "Pushing Artifacts"
           git push
-          echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+          echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
         
         # Uploads the build powershell module as an artifact
       - name: Upload Build Artifact
@@ -73,13 +73,17 @@ jobs:
         # Check out the main branch
       - uses: actions/checkout@master
       
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ steps.vars.outputs.tag }}
+          tag_name: ${{ steps.tag.outputs.tag }}
           release_name: Release ${{ github.event.release.tag_name }}
           draft: true
           prerelease: false
