@@ -50,7 +50,6 @@ jobs:
         # Pushing the changes from InvokeBuild to the main branch
       - name: Push changes to Git Repository
         run: |
-          git push origin :refs/tags/refs/heads/master
           git tag -d refs/heads/master
           git config --global user.name 'vreguibar'
           git config --global user.email 'vicente@eguibarIT.com'
@@ -58,7 +57,6 @@ jobs:
           git add .
           git commit -am "Pushing Artifacts"
           git push
-          git tag
         
         # Uploads the build powershell module as an artifact
       - name: Upload Build Artifact
@@ -81,7 +79,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ github.event.release.tag_name }}
+          tag_name: ${{ github.ref }}
           release_name: Release ${{ github.event.release.tag_name }}
           draft: true
           prerelease: false
