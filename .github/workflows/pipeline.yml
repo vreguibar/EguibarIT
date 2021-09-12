@@ -86,17 +86,11 @@ jobs:
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
-        shell: pwsh
-        run: |
-            $ModuleName = (Get-ChildItem -Path ./Output/).Name
-            $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\$($ModuleName).psd1").Version)
-            write-host $PS_Module_Version
-            echo "::set-output name=MODULE_VERSION::$PS_Module_Version"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ env.MODULE_VERSION }}
-          release_name: Release ${{ env.MODULE_VERSION }}
+          tag_name: $env.MODULE_VERSION
+          release_name: Release $env.MODULE_VERSION
           draft: false
           prerelease: false
 
