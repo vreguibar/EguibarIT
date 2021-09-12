@@ -8,9 +8,11 @@ on:
   workflow_dispatch: # Enables the possibility to trigger the workflow manually
 
   push:
-    # Sequence of patterns matched against refs/tags
-    tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    branches: [ main ]
+    
+      # Sequence of patterns matched against refs/tags
+      tags:
+        - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
   # 1st Job -- Building the module
