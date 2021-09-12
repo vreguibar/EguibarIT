@@ -56,6 +56,7 @@ jobs:
           git add .
           git commit -am "Pushing Artifacts"
           git push
+          git tag
         
         # Uploads the build powershell module as an artifact
       - name: Upload Build Artifact
