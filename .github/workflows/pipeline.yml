@@ -50,6 +50,8 @@ jobs:
         # Pushing the changes from InvokeBuild to the main branch
       - name: Push changes to Git Repository
         run: |
+          git push origin :refs/tags/refs/heads/master
+          git tag -d refs/heads/master
           git config --global user.name 'vreguibar'
           git config --global user.email 'vicente@eguibarIT.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
@@ -75,6 +77,9 @@ jobs:
       
       - name: Create Release
         id: create_release
+        run: echo "::set-output name=version::${{ steps.package_version.outputs.version }}"
+        outputs:
+          version: ${{ steps.step_version.outputs.version }}
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
