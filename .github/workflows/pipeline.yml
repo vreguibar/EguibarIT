@@ -46,17 +46,6 @@ jobs:
       - name: Invoke Build
         shell: pwsh
         run: pwsh -command "Invoke-Build -File ./build.ps1 -Configuration 'Release' -ExportAlias"
-        
-      - name: Create tag
-        id: create_tag
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
 
         # Pushing the changes from InvokeBuild to the main branch
       - name: Push changes to Git Repository
@@ -67,7 +56,6 @@ jobs:
           git add .
           git commit -am "Pushing Artifacts"
           git push
-          echo ::set-output name=VERSION::$(echo $GITHUB_REF | cut -d / -f 3)
         
         # Uploads the build powershell module as an artifact
       - name: Upload Build Artifact
@@ -90,6 +78,10 @@ jobs:
 
       - name: Create Release
         id: create_release
+        shell: pwsh
+        run: |
+            (Test-ModuleManifest -Path ".\$($ModuleName).psd1").Version
+        
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
