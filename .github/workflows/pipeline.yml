@@ -80,7 +80,8 @@ jobs:
         id: create_release
         shell: pwsh
         run: |
-            (Test-ModuleManifest -Path ".\$($ModuleName).psd1").Version
+            $ModuleName = (Get-ChildItem -Path ./Output/).Name
+            write-host (Test-ModuleManifest -Path ".\$($ModuleName).psd1").Version
         
         uses: actions/create-release@v1
         env:
