@@ -226,56 +226,22 @@ task Build -if($Configuration -eq "Release"){
     catch {
         throw "Failed updating Module manifest with public functions"
     }
-    $ModuleFile = ".\Output\$($ModuleName)\$($ModuleVersion)\$($ModuleName).psm1"
-    Write-Verbose -Message "Building the .psm1 file"
-    Write-Verbose -Message "Appending Public Functions"
-    Add-Content -Path $ModuleFile -Value "### --- PUBLIC FUNCTIONS --- ### "
-    foreach($function in $publicFunctions.Name){
-        try {
-            Write-Verbose -Message "Updating the .psm1 file with function: $($function)"
-            $content = Get-Content -Path ".\Public\$($function)"
-            Add-Content -Path $ModuleFile -Value "#Region - $function"
-            Add-Content -Path $ModuleFile -Value $content
-            if($ExportAlias.IsPresent){
-                $AliasSwitch = $false
-                $Sel = Select-String -Path ".\Public\$($function)" -Pattern "CmdletBinding" -Context 0,1
-                $mylist = $Sel.ToString().Split([Environment]::NewLine)
-                foreach($s in $mylist){
-                    if($s -match "Alias"){
-                        $alias = (($s.split(":")[2]).split("(")[1]).split(")")[0]
-                        Write-Verbose -Message "Exporting Alias: $($alias) to Function: $($function)"
-                        Add-Content -Path $ModuleFile -Value "Export-ModuleMember -Function $(($function.split('.')[0]).ToString()) -Alias $alias"
-                        $AliasSwitch = $true
-                    }
-                }
-                if($AliasSwitch -eq $false){
-                    Write-Verbose -Message "No alias was found in function: $($function))"
-                    Add-Content -Path $ModuleFile -Value "Export-ModuleMember -Function $(($function.split('.')[0]).ToString())"
-                }
-            }
-            else {
-                Add-Content -Path $ModuleFile -Value "Export-ModuleMember -Function $(($function.split('.')[0]).ToString())"
-            }
-            Add-Content -Path $ModuleFile -Value "#EndRegion - $function"            
-        }
-        catch {
-            throw "Failed adding content to .psm1 for function: $($function)"
-        }
+    
+    Write-Verbose -Message "Copying Public .ps1 files"
+    try {
+        Copy-Item -Path ".\$($ModuleName)\EguibarIT.psm1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\"
+        Copy-Item -Path ".\$($ModuleName)\Public\*.ps1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\Public"
+    }
+    catch {
+        throw "Failed copying Public functions from: .\$($ModuleName)\Public\ to .\Output\$($ModuleName)\$ModuleVersion\Public\"
     }
 
-    Write-Verbose -Message "Appending Private functions"
-    Add-Content -Path $ModuleFile -Value "### --- PRIVATE FUNCTIONS --- ###"
-    foreach($function in $privateFunctions.Name){
-        try {
-            Write-Verbose -Message "Updating the .psm1 file with function: $($function)"
-            $content = Get-Content -Path ".\Private\$($function)"
-            Add-Content -Path $ModuleFile -Value "#Region - $function"
-            Add-Content -Path $ModuleFile -Value $content
-            Add-Content -Path $ModuleFile -Value "#EndRegion - $function"            
-        }
-        catch {
-            throw "Failed adding content to .psm1 for function: $($function)"
-        }
+    Write-Verbose -Message "Copying Private .ps1 functions"
+    try {
+        Copy-Item -Path ".\$($ModuleName)\Private\*.ps1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\Private"
+    }
+    catch {
+        throw "Failed copying Private functions from: .\$($ModuleName)\Private\ to .\Output\$($ModuleName)\$ModuleVersion\Private\"
     }
 
     Write-Verbose -Message "Updating Module Manifest with root module"

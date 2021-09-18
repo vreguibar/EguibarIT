@@ -826,9 +826,9 @@
         $AllGroups = @(
             $SG_InfraAdmins,
             $SG_AdAdmins,
-            $SG_T0SA,
-            $SG_T1SA,
-            $SG_T2SA,
+            $SG_Tier0ServiceAccount,
+            $SG_Tier1ServiceAccount,
+            $SG_Tier2ServiceAccount,
             $SG_GpoAdmins,
             $SG_Tier0Admins,
             $SG_Tier1Admins,

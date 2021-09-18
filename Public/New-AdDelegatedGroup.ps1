@@ -156,7 +156,7 @@ function New-AdDelegatedGroup {
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
 
-        Import-Module -name ActiveDirectory      -Verbose:$false
+        Import-Module -name ActiveDirectory      -Verbose:$false -Force
         Import-Module -name EguibarIT.Delegation -Verbose:$false
 
         $parameters = $null
