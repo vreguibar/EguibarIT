@@ -229,8 +229,8 @@ task Build -if($Configuration -eq "Release"){
     
     Write-Verbose -Message "Copying Public .ps1 files"
     try {
-        Copy-Item -Path ".\$($ModuleName)\EguibarIT.psm1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\"
-        Copy-Item -Path ".\$($ModuleName)\Public\*.ps1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\Public"
+        Copy-Item -Path ".\$($ModuleName)\$($ModuleName).psm1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\"
+        Copy-Item -Path ".\$($ModuleName)\Public\*.ps1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\Public\"
     }
     catch {
         throw "Failed copying Public functions from: .\$($ModuleName)\Public\ to .\Output\$($ModuleName)\$ModuleVersion\Public\"
@@ -238,7 +238,7 @@ task Build -if($Configuration -eq "Release"){
 
     Write-Verbose -Message "Copying Private .ps1 functions"
     try {
-        Copy-Item -Path ".\$($ModuleName)\Private\*.ps1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\Private"
+        Copy-Item -Path ".\$($ModuleName)\Private\*.ps1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\Private\"
     }
     catch {
         throw "Failed copying Private functions from: .\$($ModuleName)\Private\ to .\Output\$($ModuleName)\$ModuleVersion\Private\"
