@@ -76,7 +76,7 @@ jobs:
         id: tag
         shell: pwsh
         run: |
-            $ModuleName = (Get-ChildItem -Path ./Output/).Name
+            $ModuleName = (Get-ChildItem -Path ./EguibarIT/Output/).Name
             $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\$($ModuleName).psd1").Version)
             write-host $PS_Module_Version
             echo "::set-output name=MODULE_VERSION::$PS_Module_Version"
