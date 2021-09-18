@@ -229,7 +229,8 @@ task Build -if($Configuration -eq "Release"){
     
     Write-Verbose -Message "Copying Public .ps1 files"
     try {
-        #Copy-Item -Path ".\$($ModuleName).psm1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\"
+        New-Item -Path ".\Output\$($ModuleName)\$($ModuleVersion)\Public" -ItemType Directory
+        Copy-Item -Path ".\$($ModuleName).psm1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\"
         Copy-Item -Path ".\Public\*.ps1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\Public\"
     }
     catch {
@@ -238,6 +239,7 @@ task Build -if($Configuration -eq "Release"){
 
     Write-Verbose -Message "Copying Private .ps1 functions"
     try {
+        New-Item -Path ".\Output\$($ModuleName)\$($ModuleVersion)\Private" -ItemType Directory
         Copy-Item -Path ".\$($ModuleName)\Private\*.ps1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\Private\"
     }
     catch {
