@@ -1,5 +1,4 @@
-function New-AdDelegatedGroup
-{
+function New-AdDelegatedGroup {
     <#
     .SYNOPSIS
         Same as New-AdGroup but with error handling, Security changes and loging

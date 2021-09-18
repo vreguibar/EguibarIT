@@ -112,91 +112,69 @@
         ################################################################################
         #region Declarations
 
-        try
-        {
+        try {
             # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn))
-            {
+            If(-Not (Test-Path -Path variable:AdDn)) {
                 New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML))
-            {
+            If(-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile'])
-                {
+                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
-        }
-        catch { throw }
+        } catch { throw } # End Try
 
         # Read the value from parsed SWITCH parameters.
-        try
-        {
+        try {
             # Check if CreateExchange parameter is parsed.
-            If($PSBoundParameters['CreateExchange'])
-            {
+            If($PSBoundParameters['CreateExchange']) {
                 # If parameter is parsed, then make variable TRUE
                 $CreateExchange = $True
-            }
-            else
-            {
+            } else {
                 # Otherwise variable is FALSE
                 $CreateExchange = $False
             }
 
             # Check if CreateDfs parameter is parsed.
-            If($PSBoundParameters['CreateDfs'])
-            {
+            If($PSBoundParameters['CreateDfs']) {
                 # If parameter is parsed, then make variable TRUE
                 $CreateDfs = $True
-            }
-            else
-            {
+            } else {
                 # Otherwise variable is FALSE
                 $CreateDfs = $False
             }
 
             # Check if CreateCa parameter is parsed.
-            If($PSBoundParameters['CreateCa'])
-            {
+            If($PSBoundParameters['CreateCa']) {
                 # If parameter is parsed, then make variable TRUE
                 $CreateCa = $True
-            }
-            else
-            {
+            } else {
                 # Otherwise variable is FALSE
                 $CreateCa = $False
             }
 
             # Check if CreateAGPM  parameter is parsed.
-            If($PSBoundParameters['CreateAGPM'])
-            {
+            If($PSBoundParameters['CreateAGPM']) {
                 # If parameter is parsed, then make variable TRUE
                 $CreateAGPM = $True
-            }
-            else
-            {
+            } else {
                 # Otherwise variable is FALSE
                 $CreateAGPM = $False
             }
 
             # Check if CreateLAPS  parameter is parsed.
-            If($PSBoundParameters['CreateLAPS'])
-            {
+            If($PSBoundParameters['CreateLAPS']) {
                 # If parameter is parsed, then make variable TRUE
                 $CreateLAPS = $True
-            }
-            else
-            {
+            } else {
                 # Otherwise variable is FALSE
                 $CreateLAPS = $False
             }
-        }
-        catch { throw }
+        } catch { throw } # End Try
 
         # Naming conventions hashtable
         $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
@@ -216,11 +194,16 @@
 
 
         # Global Groups
-        Foreach($node in $confXML.n.Admin.GG) {
-            Foreach($Child in $node.ChildNodes) {
-                # Create variable for each defined ADMIN GlobalGroup name, Appending SG prefix
-                New-Variable -Name "$('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Child.Name)" -Value ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Child.Name) -Description ($Child.Description) -Option ReadOnly -Force
+        Foreach($node in $confXML.n.Admin.GG.ChildNodes) {
+            $param = @{
+                Name        = "$('sg{0}{1}' -f $NC['Delim'], $Node.LocalName)"
+                Value       = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Node.Name
+                Description = $Node.Description
+                Option      = 'RreadOnly'
+                Force       = $true
             }
+            # Create variable for each defined ADMIN GlobalGroup name, Appending SG prefix
+            New-Variable @Param
         }
 
         New-Variable -Name "SG_Operations" -Value ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.Operations.Name) -Force
@@ -231,11 +214,17 @@
 
 
         # Domain Local Groups
-        Foreach($node in $confXML.n.Admin.LG) {
-            Foreach($Child in $node.ChildNodes) {
-                # Create variable for each defined ADMIN LocalGroup name using the XML name, Appending SL prefix
-                New-Variable -Name "$('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Child.LocalName)" -Value ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Child.Name) -Description ($Child.Description) -Option ReadOnly -Force
+        Foreach($node in $confXML.n.Admin.LG.ChildNodes) {
+            $param = @{
+                Name        = "$('sl{0}{1}' -f $NC['Delim'], $Node.LocalName)"
+                Value       = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Node.Name
+                Description = $Node.Description
+                Option      = 'RreadOnly'
+                Force       = $true
             }
+            # Create variable for each defined ADMIN LocalGroup name using the XML name, Appending SL prefix
+            New-Variable @Param
+
         }
 
         New-Variable -Name "SL_SvrAdmRight" -Value ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name) -Force
@@ -255,11 +244,16 @@
 
         # Organizational Units Names
         # Iterate all OUs within Admin
-        Foreach($node in $confXML.n.Admin.OUs) {
-            Foreach($Child in $node.ChildNodes) {
-                # Create variable for current OUs name, Using the XML LocalName of the node for the variable
-                New-Variable -Name "$($Child.LocalName)" -Value ($Child.Name) -Description ($Child.Description) -Option ReadOnly -Force
+        Foreach($node in $confXML.n.Admin.OUs.ChildNodes) {
+            $param = @{
+                Name        = "$($Node.LocalName)"
+                Value       = $Node.Name
+                Description = $Node.Description
+                Option      = 'RreadOnly'
+                Force       = $true
             }
+            # Create variable for current OUs name, Using the XML LocalName of the node for the variable
+            New-Variable @Param
         }
 
         # Organizational Units Distinguished Names
@@ -284,13 +278,13 @@
         $ItServiceAccountsOuDn = 'OU={0},{1}' -f $ItServiceAccountsOu, $ItAdminOuDn
 
             # It Admin T0SA OU Distinguished Name
-            #$ItSAT0OuDn = 'OU={0},{1}' -f $ItSAT0Ou, $ItServiceAccountsOuDn
+            $ItSAT0OuDn = 'OU={0},{1}' -f $ItSAT0Ou, $ItServiceAccountsOuDn
 
             # It Admin T0SA OU Distinguished Name
-            #$ItSAT1OuDn = 'OU={0},{1}' -f $ItSAT1Ou, $ItServiceAccountsOuDn
+            $ItSAT1OuDn = 'OU={0},{1}' -f $ItSAT1Ou, $ItServiceAccountsOuDn
 
             # It Admin T0SA OU Distinguished Name
-            #$ItSAT2OuDn = 'OU={0},{1}' -f $ItSAT2Ou, $ItServiceAccountsOuDn
+            $ItSAT2OuDn = 'OU={0},{1}' -f $ItSAT2Ou, $ItServiceAccountsOuDn
 
         # It PAW OU Distinguished Name
         $ItPawOuDn = 'OU={0},{1}' -f $ItPawOu, $ItAdminOuDn
@@ -466,9 +460,9 @@
             RemoveInheritance = $false
             RemovePermissions = $True
         }
-        Set-AdInheritance -LDAPPath $ItT0SAOuDn @Splat
-        Set-AdInheritance -LDAPPath $ItT1SAOuDn @Splat
-        Set-AdInheritance -LDAPPath $ItT2SAOuDn @Splat
+        Set-AdInheritance -LDAPPath $ItSAT0OuDn @Splat
+        Set-AdInheritance -LDAPPath $ItSAT1OuDn @Splat
+        Set-AdInheritance -LDAPPath $ItSAT2OuDn @Splat
 
         # Infrastructure Servers Sub-OUs
         $Splat = @{
@@ -522,18 +516,18 @@
 
         # Following groups only exist on Win 2012
         If ($Global:OsBuild -ge 9200) {
-            Get-ADGroup -Identity 'Protected Users' |              Move-ADObject -TargetPath $ItPGOuDn
-            Get-ADGroup -Identity 'Cloneable Domain Controllers' | Move-ADObject -TargetPath $ItPGOuDn
+            Get-ADGroup -Identity 'Protected Users' |              Move-ADObject -TargetPath $ItPrivGroupsOUDn
+            Get-ADGroup -Identity 'Cloneable Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
 
-            Get-ADGroup -Identity 'Access-Denied Assistance Users' | Move-ADObject -TargetPath $ItGroupsOuDn
-            Get-ADGroup -Filter { SamAccountName -like "WinRMRemoteWMIUsers*" } |           Move-ADObject -TargetPath $ItGroupsOuDn
+            Get-ADGroup -Identity 'Access-Denied Assistance Users' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
+            Get-ADGroup -Filter { SamAccountName -like "WinRMRemoteWMIUsers*" } |           Move-ADObject -TargetPath $ItPrivGroupsOUDn
         }
 
         # Following groups only exist on Win 2019
         If ($Global:OsBuild -ge 17763) {
-            Get-ADGroup -Identity 'Enterprise Key Admins'               | Move-ADObject -TargetPath $ItPGOuDn
-            Get-ADGroup -Identity 'Key Admins'                          | Move-ADObject -TargetPath $ItPGOuDn
-            #Get-ADGroup -Identity 'Windows Admin Center CredSSP Admins' | Move-ADObject -TargetPath $ItGroupsOuDn
+            Get-ADGroup -Identity 'Enterprise Key Admins'               | Move-ADObject -TargetPath $ItPrivGroupsOUDn
+            Get-ADGroup -Identity 'Key Admins'                          | Move-ADObject -TargetPath $ItPrivGroupsOUDn
+            #Get-ADGroup -Identity 'Windows Admin Center CredSSP Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
         }
 
         # Get-ADGroup "Administrators" |                          Move-ADObject -TargetPath $ItRightsOuDn
@@ -602,6 +596,16 @@
 
                     # Only if photo exists, add it to splatting
                     $parameters.Replace.Add('thumbnailPhoto',$photo)
+                } else {
+                    If(Test-Path -Path ('{0}\Pic\Default.jpg' -f $DMscripts)) {
+                        # Read the path and file name of JPG picture
+                        $PhotoFile = '{0}\Pic\Default.jpg' -f $DMscripts
+                        # Get the content of the JPG file
+                        $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
+    
+                        # Only if photo exists, add it to splatting
+                        $parameters.Replace.Add('thumbnailPhoto',$photo)
+                    }
                 }
 
                 Set-AdUser -Identity $NewAdminExists
@@ -641,6 +645,16 @@
 
                     # Only if photo exists, add it to splatting
                     $parameters.OtherAttributes.Add('thumbnailPhoto',$photo)
+                } else {
+                    If(Test-Path -Path ('{0}\Pic\Default.jpg' -f $DMscripts)) {
+                        # Read the path and file name of JPG picture
+                        $PhotoFile = '{0}\Pic\Default.jpg' -f $DMscripts
+                        # Get the content of the JPG file
+                        $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
+    
+                        # Only if photo exists, add it to splatting
+                        $parameters.Replace.Add('thumbnailPhoto',$photo)
+                    }
                 }
 
                 # Create the new Admin with special values
@@ -703,39 +717,44 @@
         #region Create Admin groups
 
         # Iterate through all Admin-LocalGroups child nodes
-        Foreach($node in $confXML.n.Admin.LG.ChildNodes) {
-            Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $node.Name))
-            $parameters = @{
-                Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $node.Name
-                GroupCategory                 = 'Security'
-                GroupScope                    = 'DomainLocal'
-                DisplayName                   = $node.DisplayName
-                Path                          = $ItRightsOuDn
-                Description                   = $node.Description
-                ProtectFromAccidentalDeletion = $True
-                RemoveAccountOperators        = $True
-                RemoveEveryone                = $True
-                RemovePreWin2000              = $True
+        Foreach($node in $confXML.n.Admin.LG) {
+            Foreach($Child in $Node.ChildNodes) {
+                Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Child.localname))
+                $parameters = @{
+                    Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Child.Name
+                    GroupCategory                 = 'Security'
+                    GroupScope                    = 'DomainLocal'
+                    DisplayName                   = $Child.DisplayName
+                    Path                          = $ItRightsOuDn
+                    Description                   = $Child.Description
+                    ProtectFromAccidentalDeletion = $True
+                    RemoveAccountOperators        = $True
+                    RemoveEveryone                = $True
+                    RemovePreWin2000              = $True
+                }
+                New-Variable -Name "$('DL{0}{1}' -f $NC['Delim'], $Child.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
             }
-            New-Variable -Name "$('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $node.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
+            
         }
 
         # Iterate through all Admin-GlobalGroups child nodes
-        Foreach($node in $confXML.n.Admin.GG.ChildNodes) {
-            Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $node.Name))
-            $parameters = @{
-                Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $node.Name
-                GroupCategory                 = 'Security'
-                GroupScope                    = 'Global'
-                DisplayName                   = $node.DisplayName
-                Path                          = $ItGroupsOuDn
-                Description                   = $node.Description
-                ProtectFromAccidentalDeletion = $True
-                RemoveAccountOperators        = $True
-                RemoveEveryone                = $True
-                RemovePreWin2000              = $True
+        Foreach($node in $confXML.n.Admin.GG) {
+            Foreach($Child in $Node.ChildNodes) {
+                Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Child.localname))
+                $parameters = @{
+                    Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Child.Name
+                    GroupCategory                 = 'Security'
+                    GroupScope                    = 'Global'
+                    DisplayName                   = $Child.DisplayName
+                    Path                          = $ItAdminGroupsOuDn
+                    Description                   = $Child.Description
+                    ProtectFromAccidentalDeletion = $True
+                    RemoveAccountOperators        = $True
+                    RemoveEveryone                = $True
+                    RemovePreWin2000              = $True
+                }
+                New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $Child.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
             }
-            New-Variable -Name "$('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $node.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
         }
 
 
@@ -745,28 +764,28 @@
             GroupCategory                 = 'Security'
             GroupScope                    = 'Global'
             DisplayName                   = $confXML.n.Servers.GG.Operations.DisplayName
-            Path                          = $ItGroupsOuDn
+            Path                          = $ItAdminGroupsOuDn
             Description                   = $confXML.n.Servers.GG.Operations.Description
             ProtectFromAccidentalDeletion = $True
             RemoveAccountOperators        = $True
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.Operations.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
+        New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
 
         $parameters = @{
             Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name
             GroupCategory                 = 'Security'
             GroupScope                    = 'Global'
             DisplayName                   = $confXML.n.Servers.GG.ServerAdmins.DisplayName
-            Path                          = $ItGroupsOuDn
+            Path                          = $ItAdminGroupsOuDn
             Description                   = $confXML.n.Servers.GG.ServerAdmins.Description
             ProtectFromAccidentalDeletion = $True
             RemoveAccountOperators        = $True
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
+        New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
 
         $parameters = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name
@@ -780,7 +799,7 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
+        New-Variable -Name "$('DL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
 
         $parameters = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name
@@ -794,7 +813,7 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
+        New-Variable -Name "$('DL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
 
 
 
@@ -819,7 +838,7 @@
             $item | Set-ADObject -ProtectedFromAccidentalDeletion $false
 
             # Move objects to PG OU
-            $item | Move-ADObject -TargetPath $ItPGOuDn
+            $item | Move-ADObject -TargetPath $ItPrivGroupsOUDn
 
             # Set back again the ProtectedFromAccidentalDeletion flag.
             #The group has to be fetch again because of the previus move
@@ -925,7 +944,7 @@
             [String]$PsoName = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
 
             $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
-        }
+        } # End If PSO exists
 
 
         # Apply the PSO to the corresponding accounts and groups
@@ -1374,10 +1393,10 @@
 
         # PGM - Privileged Group Management
         # Create/Delete Groups
-        Set-AdAclCreateDeleteGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItPGOuDn
+        Set-AdAclCreateDeleteGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItPrivGroupsOUDn
         Set-AdAclCreateDeleteGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItRightsOuDn
         # Change Group Properties
-        Set-AdAclChangeGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItPGOuDn
+        Set-AdAclChangeGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItPrivGroupsOUDn
         Set-AdAclChangeGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItRightsOuDn
 
 
