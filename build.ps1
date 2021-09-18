@@ -230,7 +230,8 @@ task Build -if($Configuration -eq "Release"){
     Write-Verbose -Message "Copying Public .ps1 files"
     try {
         Copy-Item -Path ".\$($ModuleName)\$($ModuleName).psm1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\"
-        Copy-Item -Path ".\$($ModuleName)\Public\*.ps1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\Public\"
+        #Copy-Item -Path ".\$($ModuleName)\Public\*.ps1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\Public\"
+        Copy-Item -Path ".\EguibarIT\Public" -Filter *.ps1 -Recurse -Container:$false -Destination ".\Output\$($ModuleName)\$ModuleVersion\Public\"
     }
     catch {
         throw "Failed copying Public functions from: .\$($ModuleName)\Public\ to .\Output\$($ModuleName)\$ModuleVersion\Public\"
