@@ -199,7 +199,7 @@
                 Name        = "$('sg{0}{1}' -f $NC['Delim'], $Node.LocalName)"
                 Value       = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Node.Name
                 Description = $Node.Description
-                Option      = 'RreadOnly'
+                Option      = 'ReadOnly'
                 Force       = $true
             }
             # Create variable for each defined ADMIN GlobalGroup name, Appending SG prefix
@@ -219,7 +219,7 @@
                 Name        = "$('sl{0}{1}' -f $NC['Delim'], $Node.LocalName)"
                 Value       = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Node.Name
                 Description = $Node.Description
-                Option      = 'RreadOnly'
+                Option      = 'ReadOnly'
                 Force       = $true
             }
             # Create variable for each defined ADMIN LocalGroup name using the XML name, Appending SL prefix
@@ -249,7 +249,7 @@
                 Name        = "$($Node.LocalName)"
                 Value       = $Node.Name
                 Description = $Node.Description
-                Option      = 'RreadOnly'
+                Option      = 'ReadOnly'
                 Force       = $true
             }
             # Create variable for current OUs name, Using the XML LocalName of the node for the variable
