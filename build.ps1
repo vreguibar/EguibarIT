@@ -229,7 +229,7 @@ task Build -if($Configuration -eq "Release"){
     
     Write-Verbose -Message "Copying Public .ps1 files"
     try {
-        Copy-Item -Path ".\$($ModuleName).psm1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\"
+        #Copy-Item -Path ".\$($ModuleName).psm1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\"
         Copy-Item -Path ".\Public\*.ps1" -Destination ".\Output\$($ModuleName)\$ModuleVersion\Public\"
     }
     catch {
