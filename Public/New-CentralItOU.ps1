@@ -717,45 +717,50 @@
         #region Create Admin groups
 
         # Iterate through all Admin-LocalGroups child nodes
-        Foreach($node in $confXML.n.Admin.LG) {
-            Foreach($Child in $Node.ChildNodes) {
-                Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Child.localname))
-                $parameters = @{
-                    Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Child.Name
-                    GroupCategory                 = 'Security'
-                    GroupScope                    = 'DomainLocal'
-                    DisplayName                   = $Child.DisplayName
-                    Path                          = $ItRightsOuDn
-                    Description                   = $Child.Description
-                    ProtectFromAccidentalDeletion = $True
-                    RemoveAccountOperators        = $True
-                    RemoveEveryone                = $True
-                    RemovePreWin2000              = $True
-                }
-                New-Variable -Name "$('DL{0}{1}' -f $NC['Delim'], $Child.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
+        Foreach($Node in $confXML.n.Admin.LG.ChildNodes) {
+            Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Node.Name))
+            $parameters = @{
+                Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Node.Name
+                GroupCategory                 = 'Security'
+                GroupScope                    = 'DomainLocal'
+                DisplayName                   = $Node.DisplayName
+                Path                          = $ItRightsOuDn
+                Description                   = $Node.Description
+                ProtectFromAccidentalDeletion = $True
+                RemoveAccountOperators        = $True
+                RemoveEveryone                = $True
+                RemovePreWin2000              = $True
             }
-            
-        }
+            $varparam = @{
+                Name  = "$('SL{0}{1}' -f $NC['Delim'], $Node.LocalName)"
+                Value = New-AdDelegatedGroup @parameters
+                Force = $true
+            }
+            New-Variable @varparam
+        } # End ForEach
 
         # Iterate through all Admin-GlobalGroups child nodes
-        Foreach($node in $confXML.n.Admin.GG) {
-            Foreach($Child in $Node.ChildNodes) {
-                Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Child.localname))
-                $parameters = @{
-                    Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Child.Name
-                    GroupCategory                 = 'Security'
-                    GroupScope                    = 'Global'
-                    DisplayName                   = $Child.DisplayName
-                    Path                          = $ItAdminGroupsOuDn
-                    Description                   = $Child.Description
-                    ProtectFromAccidentalDeletion = $True
-                    RemoveAccountOperators        = $True
-                    RemoveEveryone                = $True
-                    RemovePreWin2000              = $True
-                }
-                New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $Child.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
+        Foreach($Node in $confXML.n.Admin.GG.ChildNodes) {
+            Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Node.localname))
+            $parameters = @{
+                Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Node.Name
+                GroupCategory                 = 'Security'
+                GroupScope                    = 'Global'
+                DisplayName                   = $Node.DisplayName
+                Path                          = $ItAdminGroupsOuDn
+                Description                   = $Node.Description
+                ProtectFromAccidentalDeletion = $True
+                RemoveAccountOperators        = $True
+                RemoveEveryone                = $True
+                RemovePreWin2000              = $True
             }
-        }
+            $varparam = @{
+                Name  = "$('SG{0}{1}' -f $NC['Delim'], $Node.LocalName)"
+                Value = New-AdDelegatedGroup @parameters
+                Force = $true
+            }
+            New-Variable @varparam
+        } # End ForEach
 
 
         # Create Servers Area / Tier1 Domain Local & Global Groups
@@ -799,7 +804,7 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('DL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
+        New-Variable -Name "$('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
 
         $parameters = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name
@@ -813,7 +818,7 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('DL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
+        New-Variable -Name "$('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
 
 
 
