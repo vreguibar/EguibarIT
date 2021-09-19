@@ -868,52 +868,58 @@
         }
 
 
-        If ($Global:OsBuild -ge 9200) {
+        # Check if ServiceAccount exists
+        $tmpSA = Get-ADServiceAccount -Identity $confXML.n.Admin.gMSA.AdTaskScheduler.Name -ErrorAction SilentlyContinue
 
-            $Splat = @{
-                Name                   = $confXML.n.Admin.gMSA.AdTaskScheduler.Name
-                SamAccountName         = $confXML.n.Admin.gMSA.AdTaskScheduler.Name
-                DNSHostName            = ('{0}.{1}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name, $env:USERDNSDOMAIN)
-                AccountNotDelegated    = $true
-                Description            = $confXML.n.Admin.gMSA.AdTaskScheduler.Description
-                DisplayName            = $confXML.n.Admin.gMSA.AdTaskScheduler.DisplayName
-                KerberosEncryptionType = 'AES128,AES256'
-                Path                   = 'OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.name, $ItServiceAccountsOuDn
-                enabled                = $True
-                TrustedForDelegation   = $false
-                ServicePrincipalName   = ('HOST/{0}.{1}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name, $env:USERDNSDOMAIN)
-            }
+        If(-not $tmpSA) {
+            If ($Global:OsBuild -ge 9200) {
 
-            $ReplaceParams = @{
-                Replace = @{
-                    'c'="MX"
-                    'co'="Mexico"
-                    'company'=$confXML.n.RegisteredOrg
-                    'department'="IT"
-                    'employeeID'='T0'
-                    'employeeType'="ServiceAccount"
-                    'info'=$confXML.n.Admin.gMSA.AdTaskScheduler.Description
-                    'l'="Puebla"
-                    'title'=$confXML.n.Admin.gMSA.AdTaskScheduler.DisplayName
-                    'userPrincipalName'='{0}@{1}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name, $env:USERDNSDOMAIN
+                $Splat = @{
+                    Name                   = $confXML.n.Admin.gMSA.AdTaskScheduler.Name
+                    SamAccountName         = $confXML.n.Admin.gMSA.AdTaskScheduler.Name
+                    DNSHostName            = ('{0}.{1}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name, $env:USERDNSDOMAIN)
+                    AccountNotDelegated    = $true
+                    Description            = $confXML.n.Admin.gMSA.AdTaskScheduler.Description
+                    DisplayName            = $confXML.n.Admin.gMSA.AdTaskScheduler.DisplayName
+                    KerberosEncryptionType = 'AES128,AES256'
+                    Path                   = 'OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.name, $ItServiceAccountsOuDn
+                    enabled                = $True
+                    TrustedForDelegation   = $false
+                    ServicePrincipalName   = ('HOST/{0}.{1}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name, $env:USERDNSDOMAIN)
+                    ErrorAction            = 'SilentlyContinue'
                 }
-            }
 
-            try {
-                New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
-            }
-            catch { throw }
-        }
-        else {
-            $Splat = @{
-                name        = $confXML.n.Admin.gMSA.AdTaskScheduler.Name
-                Description = $confXML.n.Admin.gMSA.AdTaskScheduler.Description
-                Path        = 'OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.name, $ItServiceAccountsOuDn
-                enabled     = $True
-            }
+                $ReplaceParams = @{
+                    Replace = @{
+                        'c'="MX"
+                        'co'="Mexico"
+                        'company'=$confXML.n.RegisteredOrg
+                        'department'="IT"
+                        'employeeID'='T0'
+                        'employeeType'="ServiceAccount"
+                        'info'=$confXML.n.Admin.gMSA.AdTaskScheduler.Description
+                        'l'="Puebla"
+                        'title'=$confXML.n.Admin.gMSA.AdTaskScheduler.DisplayName
+                        'userPrincipalName'='{0}@{1}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name, $env:USERDNSDOMAIN
+                    }
+                    ErrorAction = 'SilentlyContinue'
+                }
 
-            New-ADServiceAccount @Splat
-        }
+                try {
+                    New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
+                } catch { throw }
+            } else {
+                $Splat = @{
+                    name        = $confXML.n.Admin.gMSA.AdTaskScheduler.Name
+                    Description = $confXML.n.Admin.gMSA.AdTaskScheduler.Description
+                    Path        = 'OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.name, $ItServiceAccountsOuDn
+                    enabled     = $True
+                    ErrorAction = 'SilentlyContinue'
+                }
+
+                New-ADServiceAccount @Splat
+            }
+        } # End If
 
         #endregion
         ###############################################################################
