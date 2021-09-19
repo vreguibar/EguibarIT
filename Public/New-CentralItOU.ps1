@@ -565,6 +565,23 @@
             # Try to get the new Admin
             $NewAdminExists = Get-AdUser -Filter { SamAccountName -eq $newAdminName }
 
+            # Get picture if exist. Use default if not.
+            If(Test-Path -Path ('{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName)) {
+                # Read the path and file name of JPG picture
+                $PhotoFile = '{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName
+                # Get the content of the JPG file
+                $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
+            } else {
+                If(Test-Path -Path ('{0}\Pic\Default.jpg' -f $DMscripts)) {
+                    # Read the path and file name of JPG picture
+                    $PhotoFile = '{0}\Pic\Default.jpg' -f $DMscripts
+                    # Get the content of the JPG file
+                    $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
+                } else {
+                    $photo = $null
+                }
+            }
+
             # Check if the new Admin account already exist. If not, then create it.
             If($NewAdminExists) {
                 #The user was found. Proceed to modify it accordingly.
@@ -588,24 +605,11 @@
                         'msDS-SupportedEncryptionTypes' = '24'
                     }
                 }
-                If(Test-Path -Path ('{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName)) {
-                    # Read the path and file name of JPG picture
-                    $PhotoFile = '{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName
-                    # Get the content of the JPG file
-                    $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
 
+                # If photo exist, add it to parameters
+                If($photo) {
                     # Only if photo exists, add it to splatting
                     $parameters.Replace.Add('thumbnailPhoto',$photo)
-                } else {
-                    If(Test-Path -Path ('{0}\Pic\Default.jpg' -f $DMscripts)) {
-                        # Read the path and file name of JPG picture
-                        $PhotoFile = '{0}\Pic\Default.jpg' -f $DMscripts
-                        # Get the content of the JPG file
-                        $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
-    
-                        # Only if photo exists, add it to splatting
-                        $parameters.Replace.Add('thumbnailPhoto',$photo)
-                    }
                 }
 
                 Set-AdUser -Identity $NewAdminExists
@@ -637,24 +641,9 @@
                     }
                 }
 
-                If(Test-Path -Path ('{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName)) {
-                    # Read the path and file name of JPG picture
-                    $PhotoFile = '{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName
-                    # Get the content of the JPG file
-                    $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
-
+                If($photo) {
                     # Only if photo exists, add it to splatting
                     $parameters.OtherAttributes.Add('thumbnailPhoto',$photo)
-                } else {
-                    If(Test-Path -Path ('{0}\Pic\Default.jpg' -f $DMscripts)) {
-                        # Read the path and file name of JPG picture
-                        $PhotoFile = '{0}\Pic\Default.jpg' -f $DMscripts
-                        # Get the content of the JPG file
-                        $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
-    
-                        # Only if photo exists, add it to splatting
-                        $parameters.Replace.Add('thumbnailPhoto',$photo)
-                    }
                 }
 
                 # Create the new Admin with special values
@@ -694,18 +683,18 @@
 
             ###
             # Configure TheGood account
-
-            # Read the path and file name of JPG picture
-            $PhotoFile = '{0}\Pic\{1}.jpg' -f $DMscripts, $AdminName
-            # Get the content of the JPG file
-            $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
-
-            Get-ADUser -Identity $AdminName | Set-AdUser -TrustedForDelegation $false -AccountNotDelegated $true -Add @{
-                'employeeType'                = $confXML.n.NC.AdminAccSufix0
-                'msNpAllowDialin'             = $false
+            $params = @{
+                'employeeType'                  = $confXML.n.NC.AdminAccSufix0
+                'msNpAllowDialin'               = $false
                 'msDS-SupportedEncryptionTypes' = '24'
-                'thumbnailPhoto'              = $photo
             }
+
+            If($photo) {
+                # Only if photo exists, add it to splatting
+                $params.Add('thumbnailPhoto',$photo)
+            }
+
+            Set-AdUser -Identity $AdminName -TrustedForDelegation $false -AccountNotDelegated $true -Add $params
         } # end try
         catch { throw }
         finally { Write-Verbose -Message 'Admin accounts created and secured.' }
@@ -869,9 +858,10 @@
 
 
         # Check if ServiceAccount exists
-        $tmpSA = Get-ADServiceAccount -Identity $confXML.n.Admin.gMSA.AdTaskScheduler.Name -ErrorAction SilentlyContinue
+        $gMSASamAccountName = '{0}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name
+        $ExistSA = Get-ADServiceAccount -filter { SamAccountName -like $gMSASamAccountName }
 
-        If(-not $tmpSA) {
+        If(-not $ExistSA) {
             If ($Global:OsBuild -ge 9200) {
 
                 $Splat = @{
@@ -919,7 +909,9 @@
 
                 New-ADServiceAccount @Splat
             }
-        } # End If
+        } else {
+            Write-Warning -Message ('Service Account {0} already exists.' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name)
+        }# End If
 
         #endregion
         ###############################################################################
@@ -1032,9 +1024,9 @@
         }
 
         # Apply the PSO to all Tier Service Accounts
-        $parameters = @( $SG_T0SA.SamAccountName,
-                         $SG_T1SA.SamAccountName,
-                         $SG_T2SA.SamAccountName
+        $parameters = @( $SG_Tier0ServiceAccount.SamAccountName,
+                         $SG_Tier1ServiceAccount.SamAccountName,
+                         $SG_Tier2ServiceAccount.SamAccountName
                         )
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $parameters
 
@@ -1057,9 +1049,9 @@
                          $SG_Tier0Admins,
                          $SG_Tier1Admins,
                          $SG_Tier2Admins,
-                         $SG_T0SA,
-                         $SG_T1SA,
-                         $SG_T2SA,
+                         $SG_Tier0ServiceAccount,
+                         $SG_Tier1ServiceAccount,
+                         $SG_Tier2ServiceAccount,
                          $SG_Operations,
                          $SG_ServerAdmins,
                          $SG_AllSiteAdmins,
@@ -1387,8 +1379,8 @@
 
 
         # GM - Semi-Privileged Group Management
-        Set-AdAclCreateDeleteGroup -Group $SL_GM.SamAccountName -LDAPPath $ItGroupsOuDn
-        Set-AdAclChangeGroup       -Group $SL_GM.SamAccountName -LDAPPath $ItGroupsOuDn
+        Set-AdAclCreateDeleteGroup -Group $SL_GM.SamAccountName -LDAPPath $ItAdminGroupsOuDn
+        Set-AdAclChangeGroup       -Group $SL_GM.SamAccountName -LDAPPath $ItAdminGroupsOuDn
 
 
 
@@ -1448,7 +1440,7 @@
         # TIER 0
         $parameters = @{
             Group    = $SL_PSAM.SamAccountName
-            LDAPPath = $ItT0SAOuDn
+            LDAPPath = $ItSAT0OuDn
         }
         Set-AdAclCreateDeleteGMSA       @parameters
         Set-AdAclCreateDeleteMSA        @parameters
@@ -1462,7 +1454,7 @@
         # TIER 1
         $parameters = @{
             Group    = $SL_PSAM.SamAccountName
-            LDAPPath = $ItT1SAOuDn
+            LDAPPath = $ItSAT1OuDn
         }
         Set-AdAclCreateDeleteGMSA       @parameters
         Set-AdAclCreateDeleteMSA        @parameters
@@ -1476,7 +1468,7 @@
         # TIER 2
        $parameters = @{
             Group    = $SL_PSAM.SamAccountName
-            LDAPPath = $ItT0SAOuDn
+            LDAPPath = $ItSAT2OuDn
         }
         Set-AdAclCreateDeleteGMSA       @parameters
         Set-AdAclCreateDeleteMSA        @parameters
@@ -1628,16 +1620,16 @@
         Set-GpoPrivilegeRights -GpoToModify 'C-Baseline' -DenyNetworkLogon $Splat
 
         $parameters = @(
-            $SG_T0SA.SamAccountName,
-            $SG_T1SA.SamAccountName,
-            $SG_T2SA.SamAccountName
+            $SG_Tier0ServiceAccount.SamAccountName,
+            $SG_Tier1ServiceAccount.SamAccountName,
+            $SG_Tier2ServiceAccount.SamAccountName
         )
         Set-GpoPrivilegeRights -GpoToModify 'C-Baseline' -DenyInteractiveLogon $parameters
 
         $parameters = @(
-            $SG_T0SA.SamAccountName,
-            $SG_T1SA.SamAccountName,
-            $SG_T2SA.SamAccountName,
+            $SG_Tier0ServiceAccount.SamAccountName,
+            $SG_Tier1ServiceAccount.SamAccountName,
+            $SG_Tier2ServiceAccount.SamAccountName,
             $AdminName,
             $newAdminName
         )
@@ -1668,8 +1660,8 @@
 
         # Domain Controllers
         $parameters = @(
-            $SG_T1SA.SamAccountName,
-            $SG_T2SA.SamAccountName,
+            $SG_Tier1ServiceAccount.SamAccountName,
+            $SG_Tier2ServiceAccount.SamAccountName,
             $SG_Tier0Admins.SamAccountName,
             $SG_Tier1Admins.SamAccountName,
             $SG_Tier2Admins.SamAccountName,
@@ -1686,7 +1678,7 @@
         )
         Set-GpoPrivilegeRights -GpoToModify 'C-DomainControllers-Baseline' -DenyBatchLogon $parameters -DenyServiceLogon $parameters
 
-        Set-GpoPrivilegeRights -GpoToModify 'C-DomainControllers-Baseline' -BatchLogon $SG_T0SA.SamAccountName -ServiceLogon $SG_T0SA.SamAccountName, 'Network Service'
+        Set-GpoPrivilegeRights -GpoToModify 'C-DomainControllers-Baseline' -BatchLogon $SG_Tier0ServiceAccount.SamAccountName -ServiceLogon $SG_Tier0ServiceAccount.SamAccountName, 'Network Service'
 
         $parameters = @(
             $SG_Tier0Admins.SamAccountName,
@@ -1700,8 +1692,8 @@
         Set-GpoPrivilegeRights -GpoToModify 'C-DomainControllers-Baseline' -InteractiveLogon $parameters -RemoteInteractiveLogon $parameters
 
         $parameters = @(
-            $SG_T1SA.SamAccountName,
-            $SG_T2SA.SamAccountName,
+            $SG_Tier1ServiceAccount.SamAccountName,
+            $SG_Tier2ServiceAccount.SamAccountName,
             $SG_Tier1Admins.SamAccountName,
             $SG_Tier2Admins.SamAccountName,
             'Account Operators',
@@ -1712,8 +1704,8 @@
 
         # Admin Area
         $parameters = @(
-            $SG_T1SA.SamAccountName,
-            $SG_T2SA.SamAccountName,
+            $SG_Tier1ServiceAccount.SamAccountName,
+            $SG_Tier2ServiceAccount.SamAccountName,
             $SG_Tier0Admins.SamAccountName,
             $SG_Tier1Admins.SamAccountName,
             $SG_Tier2Admins.SamAccountName,
@@ -1731,11 +1723,11 @@
         Set-GpoPrivilegeRights -GpoToModify 'C-ItAdmin-Baseline' -DenyBatchLogon $parameters -DenyServiceLogon $parameters
 
         $parameters = @(
-            $SG_T0SA.SamAccountName
+            $SG_Tier0ServiceAccount.SamAccountName
             'Network Service',
             'NT SERVICE\All Services'
         )
-        Set-GpoPrivilegeRights -GpoToModify 'C-ItAdmin-Baseline' -BatchLogon $SG_T0SA.SamAccountName -ServiceLogon $parameters
+        Set-GpoPrivilegeRights -GpoToModify 'C-ItAdmin-Baseline' -BatchLogon $SG_Tier0ServiceAccount.SamAccountName -ServiceLogon $parameters
 
         # Admin Area = HOUSEKEEPING
         $parameters = @(
@@ -1750,19 +1742,19 @@
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name) -InteractiveLogon $SL_PISM.SamAccountName, 'Domain Admins', Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name) -RemoteInteractiveLogon $SL_PISM.SamAccountName
         $parameters = @(
-            $SG_T0SA.SamAccountName
+            $SG_Tier0ServiceAccount.SamAccountName
             'Network Service',
             'NT SERVICE\All Services'
         )
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name) -BatchLogon $SG_T0SA.SamAccountName -ServiceLogon $parameters
+        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name) -BatchLogon $SG_Tier0ServiceAccount.SamAccountName -ServiceLogon $parameters
 
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -InteractiveLogon $SG_Tier1Admins.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -RemoteInteractiveLogon $SG_Tier1Admins.SamAccountName
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -BatchLogon $SG_T1SA.SamAccountName -ServiceLogon $SG_T1SA.SamAccountName
+        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -BatchLogon $SG_Tier1ServiceAccount.SamAccountName -ServiceLogon $SG_Tier1ServiceAccount.SamAccountName
 
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2.Name) -InteractiveLogon $SG_Tier2Admins.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -RemoteInteractiveLogon $SG_Tier2Admins.SamAccountName
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2.Name) -BatchLogon $SG_T2SA.SamAccountName -ServiceLogon $SG_T2SA.SamAccountName
+        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2.Name) -BatchLogon $SG_Tier2ServiceAccount.SamAccountName -ServiceLogon $SG_Tier2ServiceAccount.SamAccountName
 
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -InteractiveLogon $SL_PISM.SamAccountName, 'Domain Admins', Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -RemoteInteractiveLogon $SL_PISM.SamAccountName
@@ -1774,15 +1766,15 @@
 
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -InteractiveLogon $SL_PAWM.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -RemoteInteractiveLogon $SL_PAWM.SamAccountName
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -BatchLogon $SG_T0SA.SamAccountName -ServiceLogon $SG_T0SA.SamAccountName
+        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -BatchLogon $SG_Tier0ServiceAccount.SamAccountName -ServiceLogon $SG_Tier0ServiceAccount.SamAccountName
 
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -InteractiveLogon $SG_Tier1Admins.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -RemoteInteractiveLogon $SG_Tier1Admins.SamAccountName
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -BatchLogon $SG_T1SA.SamAccountName -ServiceLogon $SG_T1SA.SamAccountName
+        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -BatchLogon $SG_Tier1ServiceAccount.SamAccountName -ServiceLogon $SG_Tier1ServiceAccount.SamAccountName
 
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -InteractiveLogon $SG_Tier2Admins.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -RemoteInteractiveLogon $SG_Tier2Admins.SamAccountName
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -BatchLogon $SG_T2SA.SamAccountName -ServiceLogon $SG_T2SA.SamAccountName
+        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -BatchLogon $SG_Tier2ServiceAccount.SamAccountName -ServiceLogon $SG_Tier2ServiceAccount.SamAccountName
 
 
         #endregion
@@ -1850,7 +1842,7 @@
         )
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $ServersOu) -DenyInteractiveLogon $parameters -DenyRemoteInteractiveLogon $parameters
 
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $ServersOu) -BatchLogon $SG_T1SA.SamAccountName -ServiceLogon $SG_T1SA.SamAccountName -InteractiveLogon $SG_Tier1Admins.SamAccountName -RemoteInteractiveLogon $SG_Tier0Admins.SamAccountName
+        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $ServersOu) -BatchLogon $SG_Tier1ServiceAccount.SamAccountName -ServiceLogon $SG_Tier1ServiceAccount.SamAccountName -InteractiveLogon $SG_Tier1Admins.SamAccountName -RemoteInteractiveLogon $SG_Tier0Admins.SamAccountName
 
 
         ###############################################################################
@@ -1918,7 +1910,7 @@
         )
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $SitesOu) -DenyInteractiveLogon $parameters -DenyRemoteInteractiveLogon $parameters
 
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $SitesOu) -BatchLogon $SG_T2SA.SamAccountName -ServiceLogon $SG_T2SA.SamAccountName -InteractiveLogon $SG_Tier2Admins.SamAccountName -RemoteInteractiveLogon $SG_Tier2Admins.SamAccountName
+        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $SitesOu) -BatchLogon $SG_Tier2ServiceAccount.SamAccountName -ServiceLogon $SG_Tier2ServiceAccount.SamAccountName -InteractiveLogon $SG_Tier2Admins.SamAccountName -RemoteInteractiveLogon $SG_Tier2Admins.SamAccountName
 
         # Create Global OU within SITES area
         New-DelegateAdOU -ouName $SitesGlobalOu           -ouPath $SitesOuDn       -ouDescription $confXML.n.Sites.OUs.OuSiteGlobal.Description
