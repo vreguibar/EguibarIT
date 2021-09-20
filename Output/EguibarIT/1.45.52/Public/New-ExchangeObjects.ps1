@@ -125,22 +125,22 @@ Function New-ExchangeObjects {
                 $ItExDistGroupsOuDn = 'OU={0},{1}' -f $ItExDistGroupsOu, $ItExchangeOuDn
 
                 # It Admin Exchange External Contacts OU
-                #$ItExExternalContactOu = $confXML.n.AdminXtra.OUs.ItExExternalContact.name
+                $ItExExternalContactOu = $confXML.n.AdminXtra.OUs.ItExExternalContact.name
                 # It Admin Exchange External Contacts OU Distinguished Name
                 #$ItExExternalContactOuDn = 'OU={0},{1}' -f $ItExExternalContactOu, $ItExchangeOuDn
 
                 # It Admin Exchange Resource OU
-                #$ItExResourceOu = $confXML.n.AdminXtra.OUs.ItExResource.name
+                $ItExResourceOu = $confXML.n.AdminXtra.OUs.ItExResource.name
                 # It Admin Exchange Resource OU Distinguished Name
                 #$ItExResourceOuDn = 'OU={0},{1}' -f $ItExResourceOu, $ItExchangeOuDn
 
                 # It Admin Exchange Shared OU
-                #$ItExSharedOu = $confXML.n.AdminXtra.OUs.ItExShared.name
+                $ItExSharedOu = $confXML.n.AdminXtra.OUs.ItExShared.name
                 # It Admin Exchange Shared OU Distinguished Name
                 #$ItExSharedOuDn = 'OU={0},{1}' -f $ItExSharedOu, $ItExchangeOuDn
 
                 # It Admin Exchange Equipment OU
-                #$ItExEquipOu = $confXML.n.AdminXtra.OUs.ItExEquip.name
+                $ItExEquipOu = $confXML.n.AdminXtra.OUs.ItExEquip.name
                 # It Admin Exchange Equipment OU Distinguished Name
                 #$ItExEquipOuDn = 'OU={0},{1}' -f $ItExEquipOu, $ItExchangeOuDn
 
