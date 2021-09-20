@@ -127,26 +127,21 @@ function New-DelegateSiteOU
         #------------------------------------------------------------------------------
         # Define the variables
 
-        try
-        {
+        try {
             # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn))
-            {
+            If(-Not (Test-Path -Path variable:AdDn)) {
                 New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML))
-            {
+            If(-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile'])
-                {
+                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
-        }
-        Catch { throw }
+        } Catch { throw }
 
 
         ####################
@@ -352,7 +347,7 @@ function New-DelegateSiteOU
                 RemovePreWin2000              = $True
             }
 
-            New-Variable -Name "$('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $node.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
+            New-Variable -Name "$('SL{0}{1}' -f $NC['Delim'], $node.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
         }
 
         #endregion
@@ -378,7 +373,7 @@ function New-DelegateSiteOU
                 RemoveEveryone                = $True
                 RemovePreWin2000              = $True
             }
-            New-Variable -Name "$('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $node.Name)" -Value (New-AdDelegatedGroup @parameters) -Force
+            New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $node.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
         }
 
         #endregion
@@ -394,11 +389,6 @@ function New-DelegateSiteOU
         #region NESTING Global groups into Domain Local Groups -> order Less privileged to more privileged
 
         Add-AdGroupNesting -Identity $SL_PwdRight -Members $SG_PwdAdmins, $SG_GALAdmins, $SG_SiteAdmins
-
-        if($PSBoundParameters['CreateSrvContainer'])
-        {
-            Add-AdGroupNesting -Identity $SL_LocalServerRight -Members $SG_LocalServerAdmins
-        }
 
         Add-AdGroupNesting -Identity $SL_PcRight -Members $SG_ComputerAdmins, $SG_SiteAdmins
 
@@ -417,11 +407,6 @@ function New-DelegateSiteOU
         #region NESTING Global groups into Global Groups -> order Less privileged to more privileged
 
         Add-AdGroupNesting -Identity $SG_PwdAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.ServiceDesk.Name)
-
-        if($PSBoundParameters['CreateSrvContainer'])
-        {
-            Add-AdGroupNesting -Identity $SG_LocalServerAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name)
-        }
 
         Add-AdGroupNesting -Identity $SG_ComputerAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalPcAdmins.Name)
 
@@ -495,114 +480,7 @@ function New-DelegateSiteOU
         }
         Import-GPO @splat
 
-        if($PSBoundParameters['CreateSrvContainer'])
-        {
-            # Configure File-Print Server Baseline GPO
-            $splat = @{
-                BackupId   = $confXML.n.Sites.OUs.OuSiteFilePrint.backupID
-                TargetName = 'C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteFilePrint.Name
-                path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
-            }
-            Import-GPO @splat
 
-            # File-Print Baseline Tiering Restrictions
-            $splat = @(
-                'Schema Admins',
-                'Enterprise Admins',
-                'Domain Admins',
-                $confXML.n.Admin.users.Admin.name,
-                $confXML.n.Admin.users.newAdmin.name,
-                'Guests'
-            )
-            Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteFilePrint.Name) -DenyNetworkLogon $splat
-
-            $splat = @(
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2Admins.Name),
-                'Guests'
-            )
-            Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteFilePrint.Name) -DenyInteractiveLogon $splat -DenyRemoteInteractiveLogon $splat
-
-            $splat = @(
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2Admins.Name),
-                'Schema Admins',
-                'Enterprise Admins',
-                'Domain Admins',
-                'Administrators',
-                'Account Operators',
-                'Backup Operators',
-                'Print Operators',
-                'Server Operators',
-                'Guests',
-                $confXML.n.Admin.users.Admin.name,
-                $confXML.n.Admin.users.newAdmin.name
-            )
-            Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteFilePrint.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
-
-            $splat = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name)
-            Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteFilePrint.Name) -BatchLogon $splat -ServiceLogon $splat
-
-
-
-
-            # Configure Local Servers Baseline
-            $splat = @{
-                BackupId   = $confXML.n.Sites.OUs.OuSiteLocalServer.backupID
-                TargetName = 'C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLocalServer.Name
-                path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
-            }
-            Import-GPO @splat
-
-            # Local Servers Baseline Tiering Restrictions
-            $splat = @(
-                'Schema Admins',
-                'Enterprise Admins',
-                'Domain Admins',
-                'Guests',
-                $confXML.n.Admin.users.Admin.name,
-                $confXML.n.Admin.users.newAdmin.name
-            )
-            Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLocalServer.Name) -DenyNetworkLogon $splat
-
-            $splat = @(
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2Admins.Name),
-                'Guests'
-            )
-            Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLocalServer.Name) -DenyInteractiveLogon $splat -DenyRemoteInteractiveLogon $splat
-
-            $splat = @(
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name),
-                ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2Admins.Name),
-                'Schema Admins',
-                'Enterprise Admins',
-                'Domain Admins',
-                'Administrators',
-                'Account Operators',
-                'Backup Operators',
-                'Print Operators',
-                'Server Operators',
-                'Guests',
-                $confXML.n.Admin.users.Admin.name,
-                $confXML.n.Admin.users.newAdmin.name
-            )
-            Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLocalServer.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
-
-            $splat = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name
-            Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLocalServer.Name) -BatchLogon $splat -ServiceLogon $splat
-
-        }
 
 
 
@@ -725,31 +603,6 @@ function New-DelegateSiteOU
         Write-Verbose -Message 'Delegate GPO'
         ###############################################################################
         #region Delegate GPO
-
-        if($PSBoundParameters['CreateSrvContainer'])
-        {
-            Write-Verbose -Message ('Add Local Admin to new {0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteFilePrint.Name)
-            $splat = @{
-                Name            = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteFilePrint.Name)
-                PermissionLevel = 'GpoEdit'
-                TargetName      = $SG_SiteAdmins.SamAccountName
-                TargetType      = 'group'
-                ErrorAction     = 'SilentlyContinue'
-                Verbose         = $true
-            }
-            Set-GPPermissions @splat
-
-            Write-Verbose -Message ('Add Local Admin to new {0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLocalServer.Name)
-            $splat = @{
-                Name            = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLocalServer.Name)
-                PermissionLevel = 'GpoEdit'
-                TargetName      = $SG_SiteAdmins.SamAccountName
-                TargetType      = 'group'
-                ErrorAction     = 'SilentlyContinue'
-                Verbose         = $true
-            }
-            Set-GPPermissions @splat
-        }
 
         # Give Rights to SG_SiteAdmin_XXXX to $ouName + -Desktop
         Write-Verbose -Message ('Add Local Admin to new {0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name)

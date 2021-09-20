@@ -27,7 +27,7 @@ Author = 'Vicente Rodriguez Eguibar'
 CompanyName = 'EguibarIT'
 
 # Copyright statement for this module
-Copyright = 'All rights reserved (c) 2021 - Eguibar Information Technology S.L.'
+Copyright = 'All rights reserved (c) 2021 - EguibarIT'
 
 # Description of the functionality provided by this module
 Description = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory'
@@ -95,13 +95,13 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Windows','ActiveDirectory','AD','Infrastructure','Testing','Checks','Audits','Checklist','Validation'
+        Tags = 'Windows','ActiveDirectory','AD', 'Security', 'DelegationModel', 'TierModel', 'RBACmodel', 'Infrastructure','Testing','Checks','Audits','Checklist','Validation'
 
         # A URL to the license for this module.
         # LicenseUri = ''
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/vreguibarIT/EguibarIT'
+        ProjectUri = 'https://github.com/vreguibar/EguibarIT'
 
         # A URL to an icon representing this module.
         IconUri = 'https://EguibarIT.com/wp-content/uploads/2017/09/LOGO_FondoBlanco.png'
@@ -123,7 +123,7 @@ PrivateData = @{
  } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
-# HelpInfoURI = ''
+HelpInfoURI = 'https://eguibarit.eu/powershell/delegation-model-powershell-scripts/eguibarit-powershell-module/'
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''

@@ -18,7 +18,7 @@ function ConvertTo-IPv4MaskString {
             ValueFromRemainingArguments = $false,
         Position = 1)]
         [ValidateRange(0,32)]
-        [Int] $MaskBits
+        [System.Int32] $MaskBits
     )
     Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
