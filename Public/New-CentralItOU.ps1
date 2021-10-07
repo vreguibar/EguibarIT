@@ -1024,9 +1024,9 @@
         }
 
         # Apply the PSO to all Tier Service Accounts
-        $parameters = @( $SG_Tier0ServiceAccount.SamAccountName,
-                         $SG_Tier1ServiceAccount.SamAccountName,
-                         $SG_Tier2ServiceAccount.SamAccountName
+        $parameters = @( $SG_Tier0ServiceAccount,
+                         $SG_Tier1ServiceAccount,
+                         $SG_Tier2ServiceAccount
                         )
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $parameters
 
