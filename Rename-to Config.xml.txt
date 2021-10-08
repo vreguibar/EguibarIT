@@ -175,7 +175,7 @@
         <GatewayIPv6>fd36:46d4:a1a7:9d18:ceed:dcff:fe02:f87d</GatewayIPv6>
         <DNSserver1>192.168.1.1</DNSserver1>
         <DNSserver1IPv6>fd36:46d4:a1a7:9d18:ceed:dcff:fe02:f87d</DNSserver1IPv6>
-        <IPv4ReverseZone>137.168.192.in-addr.arpa</IPv4ReverseZone>
+        <IPv4ReverseZone>0.168.192.in-addr.arpa</IPv4ReverseZone>
         <IPv6ReverseZone>8.1.d.9.7.a.1.a.4.d.6.4.6.3.d.f.ip6.arpa</IPv6ReverseZone>
         <GoogleDns1Ipv4>8.8.8.8</GoogleDns1Ipv4>
         <GoogleDns2Ipv4>8.8.4.4</GoogleDns2Ipv4>
@@ -434,18 +434,18 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <Name>Infra</Name>
                 <description>IT Administration purposes, containing IT Infrastructure Services</description>
              </ItInfraOU>
-             <ItInfraT0>
+             <ItInfraT0OU>
                 <Name>InfraT0</Name>
                 <description>Tier 0 Infrastructure Services</description>
-            </ItInfraT0>
-             <ItInfraT1>
+            </ItInfraT0OU>
+             <ItInfraT1OU>
                 <Name>InfraT1</Name>
                 <description>Tier 1 Infrastructure Services</description>
-             </ItInfraT1>
-             <ItInfraT2>
+             </ItInfraT1OU>
+             <ItInfraT2OU>
                 <Name>InfraT2</Name>
                 <description>Tier 2 Infrastructure Services</description>
-             </ItInfraT2>
+             </ItInfraT2OU>
              <ItInfraStagingOU>
                 <Name>InfraStaging</Name>
                 <description>Infrastructure Services staging and maintenance</description>
@@ -1125,4 +1125,3 @@ $NC = @{"sl"    = $confXML.n.NC.LocalDomainGroupPreffix;
        -->
      </NC>
  </N>
-
