@@ -7,20 +7,74 @@
             Create Central OU including sub-OUs, secure them accordingly, move built-in objects
             and secure them, create needed groups and secure them, make nesting and delegations
             and finaly create PSO and delegate accordingly.
+            This function is mainly a wrapper used to create Tier0 objects
         .EXAMPLE
-            New-CentralItOu
-        .PARAMETER
-            Param1 ConfigXFileFile:..[STRING] Full path to the configuration.xml file
-            Param2 CreateExchange:...[SWITCH] If present It will create all needed Exchange objects, containers and delegations
-            Param3 CreateDfs:........[SWITCH] If present It will create all needed DFS objects, containers and delegations
-            Param4 CreateCa:.........[SWITCH] If present It will create all needed Certificate Authority (PKI) objects, containers and delegations
-            Param5 CreateAGPM:.......[SWITCH] If present It will create all needed AGPM objects, containers and delegations
-            Param6 CreateLAPS:.......[SWITCH] If present It will create all needed LAPS objects, containers and delegations
-            Param7 CreateDHCP:.......[SWITCH] If present It will create all needed DHCP objects, containers and delegations
-            Param8 DMscripts:........[String] Full path to the Delegation Model Scripts Directory
+            New-CentralItOu -ConfigXMLFile 'C:\PsScripts\Configuration.xml'
+        .EXAMPLE
+            # Get the Config.xml file
+            $param = @{
+                ConfigXMLFile = Join-Path -Path $DMscripts -ChildPath Config.xml -Resolve
+                verbose = $true
+            }
 
+            # Check if Exchange needs to be created
+            if($confXML.N.Domains.Prod.CreateExContainers) {
+                $param.add("CreateExchange", $true)
+            }
+
+            # Check if DFS needs to be created
+            if($confXML.N.Domains.Prod.CreateDFS) {
+                $param.add("CreateDFS", $true)
+            }
+
+            # Check if CA needs to be created
+            if($confXML.N.Domains.Prod.CreateCa) {
+                $param.add("CreateCa", $true)
+            }
+
+            # Check if LAPS needs to be created
+            if($confXML.N.Domains.Prod.CreateLAPS) {
+                $param.add("CreateLAPS", $true)
+            }
+
+            # Check if DHCP needs to be created
+            if($confXML.N.Domains.Prod.CreateDHCP) {
+                $param.add("CreateDHCP", $true)
+            }
+
+            #Create Central OU Structure
+            New-CentralItOu @param 
+
+        .PARAMETER ConfigXMLFile
+            [STRING] Full path to the configuration.xml file
+        .PARAMETER CreateExchange
+            [SWITCH] If present It will create all needed Exchange objects, containers and delegations
+        .PARAMETER CreateDfs
+            [SWITCH] If present It will create all needed DFS objects, containers and delegations
+        .PARAMETER CreateCa
+            [SWITCH] If present It will create all needed Certificate Authority (PKI) objects, containers and delegations
+        .PARAMETER CreateAGPM
+            [SWITCH] If present It will create all needed AGPM objects, containers and delegations
+        .PARAMETER CreateLAPS
+            [SWITCH] If present It will create all needed LAPS objects, containers and delegations
+        .PARAMETER CreateDHCP
+            [SWITCH] If present It will create all needed DHCP objects, containers and delegations
+        .PARAMETER DMscripts
+            [String] Full path to the Delegation Model Scripts Directory
+        .NOTES
             This function relies on Config.xml file.
-
+        .NOTES
+            Used Functions:
+                Name                           | Module
+                -------------------------------|--------------------------
+                Get-CurrentErrorToDisplay      | EguibarIT
+                New-DelegateAdOU               | EguibarIT
+                Set-AdInheritance              | EguibarIT.Delegation
+                Get-ADGroup                    | ActiveDirectory
+                Move-ADObject                  | ActiveDirectory
+                Get-AdUser                     | ActiveDirectory
+                Set-AdUser                     | ActiveDirectory
+                New-AdUser                     | ActiveDirectory
         .NOTES
             Version:         1.2
             DateModified:    28/Oct/2019
@@ -861,7 +915,7 @@
 
 
         # Check if ServiceAccount exists
-        $gMSASamAccountName = '{0}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name
+        $gMSASamAccountName = '{0}$' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name
         $ExistSA = Get-ADServiceAccount -filter { SamAccountName -like $gMSASamAccountName }
 
         If(-not $ExistSA) {

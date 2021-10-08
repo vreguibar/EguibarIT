@@ -254,24 +254,22 @@ Function New-ExchangeObjects {
         ###############################################################################
         # START Delegation to SL_InfraRights group on ADMIN area
 
-        $SL_InfraRight = (Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.InfraRight.Name)).SamAccountName
-        $SL_AdRight     = (Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.AdRight.Name)).SamAccountName
-        $SL_PGM         = (Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PGM.Name)).SamAccountName
+        $SL_InfraRight = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.InfraRight.Name)
+        $SL_AdRight    = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.AdRight.Name)
+        $SL_PGM        = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PGM.Name)
 
         # Administration OU
-        Set-AdAclCreateDeleteGroup -Group $SL_InfraRight             -LDAPPath $ItExDistGroupsOuDn
-        Set-AdAclCreateDeleteGroup -Group $SL_PGM                    -LDAPPath $ItExDistGroupsOuDn
-        Set-AdAclCreateDeleteGroup -Group $SL_ExRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
+        Set-AdAclCreateDeleteGroup -Group $SL_InfraRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
+        Set-AdAclCreateDeleteGroup -Group $SL_PGM.SamAccountName        -LDAPPath $ItExDistGroupsOuDn
+        Set-AdAclCreateDeleteGroup -Group $SL_ExRight.SamAccountName    -LDAPPath $ItExDistGroupsOuDn
 
         ###############################################################################
         # START Delegation to SL_AdRights group on ADMIN area
 
-        $SL_AdRights = (Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.AdRight.Name)).SamAccountName
-
         # Administration OU
-        Set-AdAclChangeGroup     -Group $SL_AdRights.SamAccountName -LDAPPath $ItExDistGroupsOuDn
-        Set-AdAclChangeGroup     -Group $SL_PGM                     -LDAPPath $ItExDistGroupsOuDn
-        Set-AdAclChangeGroup     -Group $SL_ExRight.SamAccountName  -LDAPPath $ItExDistGroupsOuDn
+        Set-AdAclChangeGroup     -Group $SL_AdRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
+        Set-AdAclChangeGroup     -Group $SL_PGM.SamAccountName     -LDAPPath $ItExDistGroupsOuDn
+        Set-AdAclChangeGroup     -Group $SL_ExRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
 
         ###############################################################################
         # Create Servers and Sub OUs
@@ -307,12 +305,12 @@ Function New-ExchangeObjects {
 
         # Servers OU
         # Change Public Info
-        Set-AdAclComputerPublicInfo   -Group $SL_AdRight -LDAPPath $ExServersOuDn
-        Set-AdAclComputerPublicInfo   -Group $SL_AdRight -LDAPPath $ExCasOuDn
-        Set-AdAclComputerPublicInfo   -Group $SL_AdRight -LDAPPath $ExHubOuDn
-        Set-AdAclComputerPublicInfo   -Group $SL_AdRight -LDAPPath $ExEdgeOuDn
-        Set-AdAclComputerPublicInfo   -Group $SL_AdRight -LDAPPath $ExMailboxOuDn
-        Set-AdAclComputerPublicInfo   -Group $SL_AdRight -LDAPPath $ExMixedOuDn
+        Set-AdAclComputerPublicInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExServersOuDn
+        Set-AdAclComputerPublicInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExCasOuDn
+        Set-AdAclComputerPublicInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExHubOuDn
+        Set-AdAclComputerPublicInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExEdgeOuDn
+        Set-AdAclComputerPublicInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExMailboxOuDn
+        Set-AdAclComputerPublicInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExMixedOuDn
 
         Set-AdAclComputerPublicInfo   -Group $SL_ExRight.SamAccountName -LDAPPath $ExServersOuDn
         Set-AdAclComputerPublicInfo   -Group $SL_ExRight.SamAccountName -LDAPPath $ExCasOuDn
@@ -322,12 +320,12 @@ Function New-ExchangeObjects {
         Set-AdAclComputerPublicInfo   -Group $SL_ExRight.SamAccountName -LDAPPath $ExMixedOuDn
 
         # Change Personal Info
-        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight -LDAPPath $ExServersOuDn
-        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight -LDAPPath $ExCasOuDn
-        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight -LDAPPath $ExHubOuDn
-        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight -LDAPPath $ExEdgeOuDn
-        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight -LDAPPath $ExMailboxOuDn
-        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight -LDAPPath $ExMixedOuDn
+        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExServersOuDn
+        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExCasOuDn
+        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExHubOuDn
+        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExEdgeOuDn
+        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExMailboxOuDn
+        Set-AdAclComputerPersonalInfo   -Group $SL_AdRight.SamAccountName -LDAPPath $ExMixedOuDn
 
         Set-AdAclComputerPersonalInfo   -Group $SL_ExRight.SamAccountName -LDAPPath $ExServersOuDn
         Set-AdAclComputerPersonalInfo   -Group $SL_ExRight.SamAccountName -LDAPPath $ExCasOuDn
