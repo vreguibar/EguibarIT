@@ -20,6 +20,7 @@ function ConvertTo-WmiFilter
     )
 
     Begin  {
+        $error.Clear()
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -47,6 +48,7 @@ function ConvertTo-WmiFilter
             }
             catch {
                 Write-Error -Message 'The WMI filter could not be found.'
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
             }
             if ($filter) {
                 [Guid]$Guid = $_.Name.Substring(1, $_.Name.Length - 2)

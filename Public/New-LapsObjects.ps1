@@ -42,6 +42,8 @@ Function New-LAPSobjects
 
     )
     Begin {
+        $error.Clear()
+
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -77,7 +79,7 @@ Function New-LAPSobjects
                 } #end if
             } #end if
         }
-        catch { throw }
+        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
         # Naming conventions hashtable
         $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
@@ -189,7 +191,7 @@ Function New-LAPSobjects
                         Write-Verbose -Message 'Modify the schema...!'
                         Update-AdmPwdADSchema  -Verbose
                     }
-                    catch { throw }
+                    catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
                     finally {
                         # If Schema extension OK, remove user from Schema Admin
                         Remove-ADGroupMember -Identity 'Schema Admins' -Members $env:username -Confirm:$false
@@ -197,7 +199,7 @@ Function New-LAPSobjects
                 }#end if
             }#end if
         }#end try
-        catch { throw }
+        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
         Finally {
             Write-Verbose -Message 'Schema was extended succesfully for LAPS.'
         }#end finally

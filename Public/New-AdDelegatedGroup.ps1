@@ -145,6 +145,8 @@ function New-AdDelegatedGroup {
     )
 
     Begin {
+        $error.Clear()
+
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -202,7 +204,7 @@ function New-AdDelegatedGroup {
                     }
 
                 }
-                catch { throw }
+                catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
             }
 
             # Get the group again and store it on variable.
@@ -235,7 +237,7 @@ function New-AdDelegatedGroup {
             }
         }
         catch {
-            throw
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
             Write-Warning -Message ('An unhandeled error was thrown when creating Groups {0}' -f $PSBoundParameters['Name'])
         }
     }

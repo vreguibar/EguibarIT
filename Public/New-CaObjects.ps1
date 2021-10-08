@@ -38,6 +38,8 @@ Function New-CaObjects
         $DMscripts = "C:\PsScripts\"
     )
     Begin {
+        $error.Clear()
+
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -77,7 +79,7 @@ Function New-CaObjects
                 } #end if
             } #end if
         }
-        catch { throw }
+        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
 
 
@@ -208,7 +210,7 @@ LoadDefaultTemplates=0
                 Install-ADCSwebenrollment -Confirm
             } # End If
         } # End Try
-        catch { throw } # End Try-Catch
+        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] } # End Try-Catch
         finally {
 
             # Remove all distribution points

@@ -49,6 +49,8 @@ function Grant-NTFSPermissions
         $permission
     )
     Begin {
+        $error.Clear()
+        
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -79,7 +81,7 @@ function Grant-NTFSPermissions
             $DirectorySecurity.AddAccessRule($FileSystemAccessRule)
 
             Set-Acl -Path $PSBoundParameters['path'] -AclObject $DirectorySecurity
-        } catch { throw }
+        } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
     }
     End
     {

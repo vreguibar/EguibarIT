@@ -37,6 +37,8 @@ Function New-ExchangeObjects {
         $DMscripts = "C:\PsScripts\"
     )
     Begin {
+        $error.Clear()
+        
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -74,7 +76,7 @@ Function New-ExchangeObjects {
                 } #end if
             } #end if
         }
-        catch { throw }
+        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
 
 

@@ -49,6 +49,8 @@ function Set-AdAclDelegateUserAdmin
         $RemoveRule
     )
     begin {
+        $error.Clear()
+        
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -94,7 +96,7 @@ function Set-AdAclDelegateUserAdmin
             # Change User Account Logon Info
             Set-AdAclUserLogonInfo @parameters
         }
-        catch { throw }
+        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
     }
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating User Admin."

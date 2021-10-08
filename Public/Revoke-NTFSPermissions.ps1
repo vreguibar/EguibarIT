@@ -56,6 +56,8 @@ function Revoke-NTFSPermissions
     $permission
   )
     Begin {
+        $error.Clear()
+        
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -80,7 +82,7 @@ function Revoke-NTFSPermissions
             $DirectorySecurity.RemoveAccessRuleAll($FileSystemAccessRule)
             Set-Acl -Path $path -AclObject $DirectorySecurity
         }
-        Catch { Throw }
+        Catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
     }
     End {
         Write-Verbose -Message ('The User/Group {0} was removed {1} from folder {2}.' -f $object, $permission, $path)

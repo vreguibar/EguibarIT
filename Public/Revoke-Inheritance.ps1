@@ -34,6 +34,8 @@ function Revoke-Inheritance
     $path
   )
   Begin {
+    $error.Clear()
+    
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -56,7 +58,7 @@ function Revoke-Inheritance
       $DirectorySecurity.SetAccessRuleProtection($isProtected, $preserveInheritance)
       Set-Acl -Path $path -AclObject $DirectorySecurity
     }
-    Catch { Throw }
+    Catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
   }
   End {
         Write-Verbose -Message ('The folder {0} was removed inheritance.' -f $path)

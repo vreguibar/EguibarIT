@@ -91,6 +91,9 @@
     )
 
     Begin {
+
+        $error.clear()
+
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -126,7 +129,7 @@
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
-        } catch { throw } # End Try
+        } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] } # End Try
 
         # Read the value from parsed SWITCH parameters.
         try {
@@ -174,7 +177,7 @@
                 # Otherwise variable is FALSE
                 $CreateLAPS = $False
             }
-        } catch { throw } # End Try
+        } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] } # End Try
 
         # Naming conventions hashtable
         $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
@@ -696,7 +699,7 @@
 
             Set-AdUser -Identity $AdminName -TrustedForDelegation $false -AccountNotDelegated $true -Add $params
         } # end try
-        catch { throw }
+        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
         finally { Write-Verbose -Message 'Admin accounts created and secured.' }
 
         #endregion Creating Secured Admin accounts
@@ -897,7 +900,7 @@
 
                 try {
                     New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
-                } catch { throw }
+                } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
             } else {
                 $Splat = @{
                     name        = $confXML.n.Admin.gMSA.AdTaskScheduler.Name

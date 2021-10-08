@@ -106,8 +106,9 @@ function New-DelegateSiteOU
 
     )
 
-    Begin
-    {
+    Begin {
+        $error.Clear()
+
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -141,7 +142,7 @@ function New-DelegateSiteOU
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
-        } Catch { throw }
+        } Catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
 
         ####################

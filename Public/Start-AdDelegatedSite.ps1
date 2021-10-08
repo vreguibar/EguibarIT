@@ -73,6 +73,8 @@ function Start-AdDelegateSite
 
     )
     begin {
+        $error.Clear()
+        
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -104,7 +106,7 @@ function Start-AdDelegateSite
                 } #end if
             } #end if
         }
-        catch { throw }
+        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
 
         # Naming conventions hashtable

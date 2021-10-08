@@ -49,6 +49,8 @@ function Set-AdAclDelegateGalAdmin
         $RemoveRule
     )
     begin {
+        $error.Clear()
+        
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -92,7 +94,7 @@ function Set-AdAclDelegateGalAdmin
             # Change Email Info
             Set-AdAclUserEmailInfo @parameters
         }
-        catch { throw }
+        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
     }
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating GAL Admin."

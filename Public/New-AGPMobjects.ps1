@@ -38,6 +38,8 @@ Function New-AGPMObjects
         $DMscripts = "C:\PsScripts\"
     )
     Begin {
+        $error.Clear()
+
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -73,7 +75,7 @@ Function New-AGPMObjects
                 } #end if
             } #end if
         }
-        catch { throw }
+        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
 
 
@@ -196,7 +198,7 @@ Function New-AGPMObjects
             try {
                 New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
             }
-            catch { throw }
+            catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
         } else {
             $Splat = @{
                 name        = $confXML.n.Admin.gMSA.AGPM.Name

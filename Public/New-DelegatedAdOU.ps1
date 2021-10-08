@@ -114,6 +114,8 @@ function New-DelegateAdOU
   )
 
     Begin {
+        $error.Clear()
+
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -139,7 +141,7 @@ function New-DelegateAdOU
           # Sites OU Distinguished Name
           $ouNameDN = 'OU={0},{1}' -f $PSBoundParameters['ouName'], $PSBoundParameters['ouPath']
         }
-        Catch { throw }
+        Catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
         #$Return = $null
 
@@ -178,7 +180,7 @@ function New-DelegateAdOU
             }
             $OUexists = New-ADOrganizationalUnit @parameters
           }
-        } catch { throw }
+        } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
         # Remove "Account Operators" and "Print Operators" built-in groups from OU. Any unknown/UnResolvable SID will be removed.
         Start-AdCleanOU -LDAPPath $ouNameDN -RemoveUnknownSIDs
