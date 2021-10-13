@@ -65,16 +65,69 @@
             This function relies on Config.xml file.
         .NOTES
             Used Functions:
-                Name                           | Module
-                -------------------------------|--------------------------
-                Get-CurrentErrorToDisplay      | EguibarIT
-                New-DelegateAdOU               | EguibarIT
-                Set-AdInheritance              | EguibarIT.Delegation
-                Get-ADGroup                    | ActiveDirectory
-                Move-ADObject                  | ActiveDirectory
-                Get-AdUser                     | ActiveDirectory
-                Set-AdUser                     | ActiveDirectory
-                New-AdUser                     | ActiveDirectory
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Set-AdAclDelegateComputerAdmin         | EguibarIT
+                Add-AdGroupNesting                     | EguibarIT
+                Get-CurrentErrorToDisplay              | EguibarIT
+                Get-CurrentErrorToDisplay              | EguibarIT
+                New-AdDelegatedGroup                   | EguibarIT
+                New-DelegateAdGpo                      | EguibarIT
+                New-DelegateAdOU                       | EguibarIT
+                New-DelegateAdOU                       | EguibarIT
+                Set-AdAclDelegateUserAdmin             | EguibarIT
+                Set-AdAclDelegateGalAdmin              | EguibarIT
+                Remove-Everyone                        | EguibarIT.Delegation
+                Remove-PreWin2000                      | EguibarIT.Delegation
+                Set-AdAclChangeGroup                   | EguibarIT.Delegation
+                Set-AdAclChangeOU                      | EguibarIT.Delegation
+                Set-AdAclChangeSite                    | EguibarIT.Delegation
+                Set-AdAclChangeSiteLink                | EguibarIT.Delegation
+                Set-AdAclChangeSubnet                  | EguibarIT.Delegation
+                Set-AdAclChangeUserPassword            | EguibarIT.Delegation
+                Set-AdAclComputerPersonalInfo          | EguibarIT.Delegation
+                Set-AdAclComputerPublicInfo            | EguibarIT.Delegation
+                Set-AdAclCreateDeleteComputer          | EguibarIT.Delegation
+                Set-AdAclCreateDeleteContact           | EguibarIT.Delegation
+                Set-AdAclCreateDeleteGMSA              | EguibarIT.Delegation
+                Set-AdAclCreateDeleteGPO               | EguibarIT.Delegation
+                Set-AdAclCreateDeleteGroup             | EguibarIT.Delegation
+                Set-AdAclCreateDeleteMSA               | EguibarIT.Delegation
+                Set-AdAclCreateDeleteOU                | EguibarIT.Delegation
+                Set-AdAclCreateDeleteOU                | EguibarIT.Delegation
+                Set-AdAclCreateDeletePrintQueue        | EguibarIT.Delegation
+                Set-AdAclCreateDeleteSite              | EguibarIT.Delegation
+                Set-AdAclCreateDeleteSiteLink          | EguibarIT.Delegation
+                Set-AdAclCreateDeleteSubnet            | EguibarIT.Delegation
+                Set-AdAclCreateDeleteUser              | EguibarIT.Delegation
+                Set-AdAclCreateDeleteUser              | EguibarIT.Delegation
+                Set-AdAclGPoption                      | EguibarIT.Delegation
+                Set-AdAclLinkGPO                       | EguibarIT.Delegation
+                Set-AdAclMngPrivilegedAccounts         | EguibarIT.Delegation
+                Set-AdAclMngPrivilegedGroups           | EguibarIT.Delegation
+                Set-AdAclResetUserPassword             | EguibarIT.Delegation
+                Set-AdAclUserAccountRestriction        | EguibarIT.Delegation
+                Set-AdAclUserGroupMembership           | EguibarIT.Delegation
+                Set-AdAclUserLogonInfo                 | EguibarIT.Delegation
+                Set-AdDirectoryReplication             | EguibarIT.Delegation
+                Set-AdInheritance                      | EguibarIT.Delegation
+                Set-CreateDeleteInetOrgPerson          | EguibarIT.Delegation
+                Set-DeleteOnlyComputer                 | EguibarIT.Delegation
+                Set-GpoPrivilegeRights                 | EguibarIT.Delegation
+                Add-ADFineGrainedPasswordPolicySubject | ActiveDirectory
+                Get-ADFineGrainedPasswordPolicy        | ActiveDirectory
+                Get-ADGroup                            | ActiveDirectory
+                Get-ADServiceAccount                   | ActiveDirectory
+                Get-AdUser                             | ActiveDirectory
+                Move-ADObject                          | ActiveDirectory
+                New-ADFineGrainedPasswordPolicy        | ActiveDirectory
+                New-ADServiceAccount                   | ActiveDirectory
+                New-AdUser                             | ActiveDirectory
+                Set-ADObject                           | ActiveDirectory
+                Set-AdUser                             | ActiveDirectory
+                Import-GPO                             | GroupPolicy
+                Add-KdsRootKey                         | Kds
+
         .NOTES
             Version:         1.2
             DateModified:    28/Oct/2019
