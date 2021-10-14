@@ -7,9 +7,18 @@ Function New-DfsObjects
             Create the DFS Objects used to manage
             this organization by following the defined Delegation Model.
         .EXAMPLE
-            New-DfsObjects
-        .INPUTS
-
+            New-DfsObjects -ConfigXMLFile 'C:\PsScripts\Config.xml'
+        .PARAMETER ConfigXMLFile
+            [String] Full path to the configuration.xml file
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Add-AdGroupNesting                     | EguibarIT
+                Get-CurrentErrorToDisplay              | EguibarIT
+                New-AdDelegatedGroup                   | EguibarIT
+                Set-AdAclFullControlDFS                | EguibarIT.Delegation
+                Add-ADFineGrainedPasswordPolicySubject | ActiveDirectory
         .NOTES
             Version:         1.3
             DateModified:    01/Feb/2018
@@ -25,17 +34,7 @@ Function New-DfsObjects
             HelpMessage='Full path to the configuration.xml file',
             Position=0)]
         [string]
-        $ConfigXMLFile,
-
-        # Param2 Location of all scripts & files
-        [Parameter(Mandatory = $false,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $false,
-            HelpMessage = 'Path to all the scripts and files needed by this function',
-        Position = 1)]
-        [string]
-        $DMscripts = "C:\PsScripts\"
+        $ConfigXMLFile
     )
     Begin {
         $error.Clear()
@@ -75,8 +74,7 @@ Function New-DfsObjects
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
-        }
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+        } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
 
 

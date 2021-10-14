@@ -74,7 +74,6 @@
                 New-AdDelegatedGroup                   | EguibarIT
                 New-DelegateAdGpo                      | EguibarIT
                 New-DelegateAdOU                       | EguibarIT
-                New-DelegateAdOU                       | EguibarIT
                 Set-AdAclDelegateUserAdmin             | EguibarIT
                 Set-AdAclDelegateGalAdmin              | EguibarIT
                 Remove-Everyone                        | EguibarIT.Delegation

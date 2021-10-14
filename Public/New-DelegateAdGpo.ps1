@@ -29,9 +29,16 @@ function New-DelegateAdGpo
         .OUTPUTS
             Microsoft.GroupPolicy.Gpo
 
-        .LINKS
-            http://www.eguibarit.com
-
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Get-CurrentErrorToDisplay              | EguibarIT
+                Get-ADDomaincontroller                 | ActiveDirectory
+                Get-GPO                                | GroupPolicy
+                New-GPO                                | GroupPolicy
+                New-GPLink                             | GroupPolicy
+                Set-GPPermissions                      | GroupPolicy
         .NOTES
             Version:         1.2
             DateModified:    22/Jan/2019
@@ -100,8 +107,7 @@ function New-DelegateAdGpo
             If(-not (Test-Path -Path variable:AdDn)) {
                 New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
             }
-        }
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+        } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
 
         $gpoAlreadyExist = $null
