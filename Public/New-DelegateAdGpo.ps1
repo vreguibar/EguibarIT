@@ -21,11 +21,6 @@ function New-DelegateAdGpo
         .PARAMETER GpoAdmin
             [STRING] Domain Local Group with GPO Rights to be assigned
 
-            No Config.xml needed for this function.
-
-        .INPUTS
-            None
-
         .OUTPUTS
             Microsoft.GroupPolicy.Gpo
 
@@ -190,7 +185,7 @@ function New-DelegateAdGpo
           #Write-Host "Remove MyMusic from Start Menu"
           #Set-GPRegistryValue -Name $gpoName -key "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -ValueName NoStartMenuMymusic -Type Dword -value 1
         } else {
-          Write-Verbose -Message ('{0} Policy already exist. Skipping.' -f $gpoName)
+            Write-Verbose -Message ('{0} Policy already exist. Skipping.' -f $gpoName)
         }
     }
     End {
