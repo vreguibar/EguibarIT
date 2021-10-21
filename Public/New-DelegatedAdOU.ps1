@@ -12,7 +12,7 @@ function New-DelegateAdOU
             $Splat = @{
                 ouPath        = 'OU=GOOD,OU=Sites,DC=EguibarIT,DC=local'
                 CleanACL      = $True
-                ouName        = 'Computers''
+                ouName        = 'Computers'
                 ouDescription = 'Container for the secure computers'
             }
             New-DelegateAdOU @Splat
@@ -171,7 +171,7 @@ function New-DelegateAdOU
         #
         if (-not $strOuDisplayName) {
           $strOuDisplayName = $PSBoundParameters['ouName']
-        }
+        } # End If
 
         try {
           # Try to get Ou

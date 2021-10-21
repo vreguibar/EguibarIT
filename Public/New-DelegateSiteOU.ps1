@@ -44,6 +44,91 @@ function New-DelegateSiteOU
                 Import-GPO                             | GroupPolicy
                 Set-GPPermissions                      | GroupPolicy
 
+
+
+                LocalDomainGroupPreffix
+                GlobalGroupPreffix
+                UniversalGroupPreffix
+                Delimiter
+                AdminAccSufix0
+                AdminAccSufix1
+                AdminAccSufix2
+
+                AllSiteAdmins
+                AllGalAdmins
+                ServiceDesk
+                GlobalPcAdmins
+                GlobalGroupAdmins
+                GlobalUserAdmins
+
+
+                ITAdminOu
+                ItAdminGroupsOu
+                ItRightsOu
+                SitesOu
+                ItQuarantineOu
+
+
+                OuSiteUser
+                OuSiteUser-Description
+                OuSiteUser-BackupID
+                OuSiteComputer
+                OuSiteComputer-Description
+                OuSiteComputer-BackupID
+                OuSiteLaptop
+                OuSiteLaptop-Description
+                OuSiteLaptop-BackupID
+                OuSiteGroup
+                OuSiteGroup-Description
+                OuSiteShares
+                OuSiteShares-Description
+                OuSitePrintQueue
+                OuSitePrintQueue-Description
+
+                PwdRight
+                PwdRight-DisplayName
+                PwdRight-Description
+                PcRight
+                PcRight-DisplayName
+                PcRight-Description
+                GroupRight
+                GroupRight-DisplayName
+                GroupRight-Description
+                CreateUserRight
+                CreateUserRight-DisplayName
+                CreateUserRight-Description
+                GALRight
+                GALRight-DisplayName
+                GALRight-Description
+                SiteRight
+                SiteRight-DisplayName
+                SiteRight-Description
+
+
+                PwdAdmins
+                PwdAdmins-DisplayName
+                PwdAdmins-Description
+                ComputerAdmins
+                ComputerAdmins-DisplayName
+                ComputerAdmins-Description
+                GroupAdmins
+                GroupAdmins-DisplayName
+                GroupAdmins-Description
+                UserAdmins
+                UserAdmins-DisplayName
+                UserAdmins-Description
+                GALAdmins
+                GALAdmins-DisplayName
+                GALAdmins-Description
+                SiteAdmins
+                SiteAdmins-DisplayName
+                SiteAdmins-Description
+
+
+
+
+
+
         .NOTES
             Version:         1.2
             DateModified:    11/Feb/2019
