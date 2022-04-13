@@ -10,19 +10,124 @@ function New-DelegateSiteOU
             GPOs and finally delegating right to those objects.
         .EXAMPLE
             New-DelegateSiteOU -ouName "Mexico" -ouDescription "Mexico Site root" -ConfigXMLFile "C:\PsScripts\Config.xml"
-        .INPUTS
-            Param1 ouName:...............[String] Name of the OU corresponding to the SITE root
-            Param2 ouDescription:........[String] Description of the OU
-            Param3 ouCity:...............[String]
-            Param4 ouCountry:............[String]
-            Param5 ouStreetAddress:......[String]
-            Param6 ouState:..............[String]
-            Param7 ouZIPCode:............[String]
-            Param8 CreateExchange:.......[switch] If present It will create all needed Exchange objects and containers.
-            Param9 CreateLAPS............[switch] If present It will create all needed LAPS objects, containers and delegations.
-            Param10 ConfigXMLFile:.......[String] Full path to the configuration.xml file
-
+        .PARAMETER ouName
+            [String] Name of the OU corresponding to the SITE root
+        .PARAMETER ouDescription
+            [String] Description of the OU
+        .PARAMETER ouCity
+        .PARAMETER ouCountry
+        .PARAMETER ouStreetAddress
+        .PARAMETER ouState
+        .PARAMETER ouZIPCode
+        .PARAMETER CreateExchange
+            [switch] If present It will create all needed Exchange objects and containers.
+        .PARAMETER CreateLAPS
+            [switch] If present It will create all needed LAPS objects, containers and delegations.
+        .PARAMETER ConfigXMLFile
+            [String] Full path to the configuration.xml file
+        .NOTES
             This function relies on Config.xml file.
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Add-AdGroupNesting                     | EguibarIT
+                Get-CurrentErrorToDisplay              | EguibarIT
+                New-DelegateAdOU                       | EguibarIT
+                New-DelegateAdGpo                      | EguibarIT
+                Start-AdDelegateSite                   | EguibarIT
+                Start-AdCleanOU                        | EguibarIT
+                Set-AdAclLaps                          | EguibarIT
+                Set-GpoPrivilegeRights                 | EguibarIT.Delegation
+                Get-ADGroup                            | ActiveDirectory
+                Get-AdOrganizationalUnit               | ActiveDirectory
+                Import-GPO                             | GroupPolicy
+                Set-GPPermissions                      | GroupPolicy
+
+
+
+                LocalDomainGroupPreffix
+                GlobalGroupPreffix
+                UniversalGroupPreffix
+                Delimiter
+                AdminAccSufix0
+                AdminAccSufix1
+                AdminAccSufix2
+
+                AllSiteAdmins
+                AllGalAdmins
+                ServiceDesk
+                GlobalPcAdmins
+                GlobalGroupAdmins
+                GlobalUserAdmins
+
+
+                ITAdminOu
+                ItAdminGroupsOu
+                ItRightsOu
+                SitesOu
+                ItQuarantineOu
+
+
+                OuSiteUser
+                OuSiteUser-Description
+                OuSiteUser-BackupID
+                OuSiteComputer
+                OuSiteComputer-Description
+                OuSiteComputer-BackupID
+                OuSiteLaptop
+                OuSiteLaptop-Description
+                OuSiteLaptop-BackupID
+                OuSiteGroup
+                OuSiteGroup-Description
+                OuSiteShares
+                OuSiteShares-Description
+                OuSitePrintQueue
+                OuSitePrintQueue-Description
+
+                PwdRight
+                PwdRight-DisplayName
+                PwdRight-Description
+                PcRight
+                PcRight-DisplayName
+                PcRight-Description
+                GroupRight
+                GroupRight-DisplayName
+                GroupRight-Description
+                CreateUserRight
+                CreateUserRight-DisplayName
+                CreateUserRight-Description
+                GALRight
+                GALRight-DisplayName
+                GALRight-Description
+                SiteRight
+                SiteRight-DisplayName
+                SiteRight-Description
+
+
+                PwdAdmins
+                PwdAdmins-DisplayName
+                PwdAdmins-Description
+                ComputerAdmins
+                ComputerAdmins-DisplayName
+                ComputerAdmins-Description
+                GroupAdmins
+                GroupAdmins-DisplayName
+                GroupAdmins-Description
+                UserAdmins
+                UserAdmins-DisplayName
+                UserAdmins-Description
+                GALAdmins
+                GALAdmins-DisplayName
+                GALAdmins-Description
+                SiteAdmins
+                SiteAdmins-DisplayName
+                SiteAdmins-Description
+
+
+
+
+
 
         .NOTES
             Version:         1.2
@@ -241,15 +346,13 @@ function New-DelegateSiteOU
         # END variables
         #------------------------------------------------------------------------------
     }
-    Process
-    {
+    Process {
         # Checking if the OU exist is done prior calling this function.
 
         Write-Verbose -Message ('Create Site root OU {0}' -f $PSBoundParameters['ouName'])
 
         # Check if the Site OU exists
-        If(-not(Get-AdOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $AdDn))
-        {
+        If(-not(Get-AdOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $AdDn)) {
             $splat = @{
                 ouName           = $PSBoundParameters['ouName']
                 ouPath           = $SitesOuDn
@@ -263,9 +366,7 @@ function New-DelegateSiteOU
             }
             # If does not exist, create it.
             New-DelegateAdOU @splat
-        }
-        else
-        {
+        } else {
             Write-Warning -Message ('Site {0} already exist. Continue to cleanup.' -f $PSBoundParameters['ouName'])
             # If OU already exist, clean it.
             Start-AdCleanOU -LDAPPath $ouNameDN  -RemoveUnknownSIDs
@@ -332,8 +433,7 @@ function New-DelegateSiteOU
         #region Create the required Right's Local Domain groups
 
         # Iterate through all Site-LocalGroups child nodes
-        Foreach($node in $confXML.n.Sites.LG.ChildNodes)
-        {
+        Foreach($node in $confXML.n.Sites.LG.ChildNodes) {
             Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']))
             $parameters = @{
                 Name                          = '{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
@@ -359,8 +459,7 @@ function New-DelegateSiteOU
 
 
         # Iterate through all Site-GlobalGroups child nodes
-        Foreach($node in $confXML.n.Sites.GG.ChildNodes)
-        {
+        Foreach($node in $confXML.n.Sites.GG.ChildNodes) {
             Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']))
             $parameters = @{
                 Name                          = '{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
@@ -650,8 +749,7 @@ function New-DelegateSiteOU
 
         # --- Exchange Related
         ###############################################################################
-        If($PSBoundParameters['CreateExchange'])
-        {
+        If($PSBoundParameters['CreateExchange']) {
             Start-AdDelegateSite -ConfigXMLFile $ConfigXMLFile -ouName $ouName -QuarantineDN $ItQuarantineOuDn -CreateExchange
 
             #create Sub-OUs
@@ -684,24 +782,20 @@ function New-DelegateSiteOU
                 ErrorAction     = 'SilentlyContinue'
             }
             Set-GPPermissions @splat
-        }# end if CreateExchange
-        else
-        {
+        } else {
             Start-AdDelegateSite -ConfigXMLFile $ConfigXMLFile -ouName $ouName -QuarantineDN $ItQuarantineOuDn
-        }
+        } # end if CreateExchange
 
         # --- LAPS Related
         ###############################################################################
-        If($PSBoundParameters['CreateLAPS'])
-        {
+        If($PSBoundParameters['CreateLAPS']) {
             # Desktop LAPS delegation
             Set-AdAclLaps -ResetGroup $SL_PwdRight.SamAccountName -ReadGroup $SL_PwdRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.Name, $ouNameDN)
 
             # Laptop LAPS delegation
             Set-AdAclLaps -ResetGroup $SL_PwdRight.SamAccountName -ReadGroup $SL_PwdRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $ouNameDN)
 
-            If($PsBoundParameters['CreateSrvContainer'])
-            {
+            If($PsBoundParameters['CreateSrvContainer']) {
                 # File-Print LAPS delegation
                 Set-AdAclLaps -ResetGroup $SL_LocalServerRight.SamAccountName -ReadGroup $SL_LocalServerRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteFilePrint.Name, $ouNameDN)
 
@@ -710,8 +804,7 @@ function New-DelegateSiteOU
             }
         }
     }
-    End
-    {
+    End {
         Write-Verbose -Message ("Function $($MyInvocation.InvocationName) finished creating creating Site {0}" -f $PSBoundParameters['ouName'])
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

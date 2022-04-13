@@ -1,5 +1,4 @@
-Function New-LAPSobjects
-{
+Function New-LAPSobjects {
     <#
         .Synopsis
             Create Local Administration Password Services (LAPS) Objects and Delegations
@@ -8,10 +7,20 @@ Function New-LAPSobjects
             this organization by following the defined Delegation Model.
         .EXAMPLE
             New-LAPSobjects -PawOuDn "OU=PAW,OU=Admin,DC=EguibarIT,DC=local" -ServersOuDn "OU=Servers,DC=EguibarIT,DC=local" -SitesOuDn "OU=Sites,DC=EguibarIT,DC=local"
-        .INPUTS
-            Param1 PawOuDn:......[String] Distinguished Name of the IT PrivilegedAccess Workstations OU
-            Param2 ServersOuDn:..[String] Distinguished Name of the Servers OU
-            Param3 SitesOuDn:....[String] Distinguished Name of the Sites OU
+        .PARAMETER ConfigXMLFile
+            [String] Full path to the configuration.xml file
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Get-CurrentErrorToDisplay              | EguibarIT
+                Set-AdAclLaps                          | EguibarIT
+                Get-AttributeSchemaHashTable           | EguibarIT.Delegation
+                Get-ADGroup                            | ActiveDirectory
+                Add-ADGroupMember                      | ActiveDirectory
+                Get-AdOrganizationalUnit               | ActiveDirectory
+                Remove-ADGroupMember                   | ActiveDirectory
+                Update-AdmPwdADSchema                  | AdmPwd.PS
         .NOTES
             Version:         1.1
             DateModified:    11/Feb/2019
@@ -28,18 +37,7 @@ Function New-LAPSobjects
             HelpMessage='Full path to the configuration.xml file',
             Position=0)]
         [string]
-        $ConfigXMLFile,
-
-        # Param2 Location of all scripts & files
-        [Parameter(Mandatory = $false,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $false,
-            HelpMessage = 'Path to all the scripts and files needed by this function',
-        Position = 1)]
-        [string]
-        $DMscripts = "C:\PsScripts\"
-
+        $ConfigXMLFile
     )
     Begin {
         $error.Clear()

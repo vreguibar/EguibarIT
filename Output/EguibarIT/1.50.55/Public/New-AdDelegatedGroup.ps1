@@ -8,18 +8,53 @@ function New-AdDelegatedGroup {
         should continue after writting a log.
     .EXAMPLE
         New-AdDelegatedGroup -Name "Poor Admins" -GroupCategory Security -GroupScope DomainLocal -DisplayName "Poor Admins" -Path 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local' -Description 'New Admin Group'
-    .PARAMS
-        PARAM1........: [STRING] Name
-        PARAM2........: [ValidateSet] GroupCategory
-        PARAM3........: [ValidateSet] GroupScope
-        PARAM4........: [STRING] DisplayName
-        PARAM5........: [STRING] Path
-        PARAM6........: [STRING] Description
-        PARAM7........: [SWITCH] ProtectFromAccidentalDeletion
-        PARAM8........: [SWITCH] RemoveAccountOperators
-        PARAM9........: [SWITCH] RemoveEveryone
-        PARAM10.......: [SWITCH] RemoveAuthUsers
-        PARAM11.......: [SWITCH] RemovePreWin2000
+    .EXAMPLE
+        $splat = @{
+            Name                          = 'Poor Admins'
+            GroupCategory                 = 'Security'
+            GroupScope                    = 'DomainLocal'
+            DisplayName                   = 'Poor Admins'
+            Path                          = 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local'
+            Description                   = 'New Admin Group'
+            ProtectFromAccidentalDeletion = $true
+        }
+        New-AdDelegatedGroup @Splat
+    .PARAMETER Name
+        [STRING] Name of the group to be created. SamAccountName
+    .PARAMETER GroupCategory
+        [ValidateSet] Group category, either Security or Distribution
+    .PARAMETER GroupScope
+        [ValidateSet] Group Scope, either DomainLocal, Global or Universal
+    .PARAMETER DisplayName
+        [STRING] Display Name of the group to be created
+    .PARAMETER path
+        [STRING] DistinguishedName of the container where the group will be created.
+    .PARAMETER Description
+        [STRING] Description of the group.
+    .PARAMETER ProtectFromAccidentalDeletion
+        [Switch] Protect from accidental deletion.
+    .PARAMETER RemoveAccountOperators
+        [Switch] Remove Account Operators Built-In group
+    .PARAMETER RemoveEveryone
+        [Switch] Remove Everyone Built-In group
+    .PARAMETER RemoveAuthUsers
+        [Switch] Remove Authenticated Users Built-In group
+    .PARAMETER RemovePreWin2000
+        [Switch] Remove Pre-Windows 2000 Built-In group
+    .NOTES
+        Used Functions:
+            Name                                   | Module
+            ---------------------------------------|--------------------------
+            Get-CurrentErrorToDisplay              | EguibarIT
+            Remove-AccountOperator                 | EguibarIT.Delegation
+            Remove-Everyone                        | EguibarIT.Delegation
+            Remove-AuthUser                        | EguibarIT.Delegation
+            Remove-PreWin2000                      | EguibarIT.Delegation
+            Get-AdGroup                            | ActiveDirectory
+            Move-ADObject                          | ActiveDirectory
+            New-ADGroup                            | ActiveDirectory
+            Set-AdGroup                            | ActiveDirectory
+            Set-AdObject                           | ActiveDirectory
     .NOTES
         Version:         1.1
         DateModified:    15/Feb/2017
@@ -28,115 +63,86 @@ function New-AdDelegatedGroup {
             Eguibar Information Technology S.L.
             http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+    [CmdletBinding(ConfirmImpact = 'Low')]
     [OutputType([Microsoft.ActiveDirectory.Management.AdGroup])]
     Param
     (
         # Param1 Group which membership is to be changed
-        [Parameter(Mandatory = $true,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Name of the group to be created. SamAccountName',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
+        [System.String]
         $Name,
 
         # Param2 Group category, either Security or Distribution
-        [Parameter(Mandatory = $true,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Group category, either Security or Distribution',
             Position = 1)]
         [ValidateSet('Security','Distribution')]
         $GroupCategory,
 
         # Param3 Group Scope, either DomainLocal, Global or Universal
-        [Parameter(Mandatory = $true,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Group Scope, either DomainLocal, Global or Universal',
             Position = 2)]
         [ValidateSet('DomainLocal','Global','Universal')]
         $GroupScope,
 
         # Param4 Display Name of the group to be created
-        [Parameter(Mandatory = $true,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Display Name of the group to be created',
             Position = 3)]
         [ValidateNotNullOrEmpty()]
+        [System.String]
         $DisplayName,
 
         # Param5 DistinguishedName of the container where the group will be created.
-        [Parameter(Mandatory = $true,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'DistinguishedName of the container where the group will be created.',
             Position = 4)]
         [ValidateNotNullOrEmpty()]
+        [System.String]
         $path,
 
         # Param6 Description of the group.
-        [Parameter(Mandatory = $true,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Description of the group.',
             Position = 5)]
         [ValidateNotNullOrEmpty()]
+        [System.String]
         $Description,
 
         # Param7 Protect from accidental deletion.
-        [Parameter(Mandatory = $False,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $False, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Protect from accidental deletion.',
             Position = 6)]
         [Switch]
         $ProtectFromAccidentalDeletion,
 
         # Param8 Remove Account Operators Built-In group.
-        [Parameter(Mandatory = $False,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $False, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Remove Account Operators Built-In group',
             Position = 7)]
         [Switch]
         $RemoveAccountOperators,
 
         # Param9 Remove Everyone Built-In group.
-        [Parameter(Mandatory = $False,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $False, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Remove Everyone Built-In group',
             Position = 8)]
         [Switch]
         $RemoveEveryone,
 
         # Param10 Remove Authenticated Users Built-In group.
-        [Parameter(Mandatory = $False,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $False, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Remove Authenticated Users Built-In group',
             Position = 9)]
         [Switch]
         $RemoveAuthUsers,
 
         # Param11 Remove Pre-Windows 2000 Built-In group.
-        [Parameter(Mandatory = $False,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $False, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Remove Pre-Windows 2000 Built-In group',
             Position = 10)]
         [Switch]
@@ -159,11 +165,11 @@ function New-AdDelegatedGroup {
 
 
         Import-Module -name ActiveDirectory      -Verbose:$false -Force
-        Import-Module -name EguibarIT.Delegation -Verbose:$false
+        Import-Module -name EguibarIT.Delegation -Verbose:$false -Force
 
         $parameters = $null
         $newGroup   = $null
-    }
+    } # End Begin Section
 
     Process {
         try {
@@ -203,9 +209,8 @@ function New-AdDelegatedGroup {
                         Move-ADObject -Identity $newGroup -TargetPath $PSBoundParameters['path']
                     }
 
-                }
-                catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
-            }
+                } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+            } # End If
 
             # Get the group again and store it on variable.
             $newGroup = Get-AdGroup -Filter { SamAccountName -eq $Name }
@@ -235,12 +240,11 @@ function New-AdDelegatedGroup {
             If($PSBoundParameters['RemovePreWin2000']) {
                 Remove-PreWin2000 -LDAPPath $newGroup.DistinguishedName
             }
-        }
-        catch {
+        } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
             Write-Warning -Message ('An unhandeled error was thrown when creating Groups {0}' -f $PSBoundParameters['Name'])
         }
-    }
+    } # End Process section
 
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating Delegated Group."

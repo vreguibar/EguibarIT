@@ -118,7 +118,7 @@ function Set-AdAclDelegateComputerAdmin
             Set-AdAclBitLockerTPM @parameters
 
             # Grant the right to delete computers from default container. Move Computers
-            Set-DeleteOnlyComputer -Group $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['QuarantineDN']
+            Set-DeleteOnlyComputer @parameters
 
             # Set LAPS
             Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['LDAPpath']

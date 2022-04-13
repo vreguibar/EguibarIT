@@ -8,9 +8,19 @@ Function New-DHCPobjects
             this organization by following the defined Delegation Model.
         .EXAMPLE
             New-DHCPobjects
-        .INPUTS
-            Param1 ConfigXMLFile:..[STRING] Full path to the configuration.xml file
-            Param2 DMscripts:......[String] Full path to the Delegation Model Scripts Directory
+        .EXAMPLE
+            New-DfsObjects -ConfigXMLFile 'C:\PsScripts\Config.xml'
+        .PARAMETER ConfigXMLFile
+            [String] Full path to the configuration.xml file
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Add-AdGroupNesting                     | EguibarIT
+                Get-CurrentErrorToDisplay              | EguibarIT
+                New-AdDelegatedGroup                   | EguibarIT
+                Set-AdAclFullControlDHCP               | EguibarIT.Delegation
+                Add-ADFineGrainedPasswordPolicySubject | ActiveDirectory
         .NOTES
             Version:         1.0
             DateModified:    29/Oct/2019
@@ -27,18 +37,7 @@ Function New-DHCPobjects
             HelpMessage='Full path to the configuration.xml file',
             Position=0)]
         [string]
-        $ConfigXMLFile,
-
-        # Param2 Location of all scripts & files
-        [Parameter(Mandatory = $false,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $false,
-            HelpMessage = 'Path to all the scripts and files needed by this function',
-        Position = 1)]
-        [string]
-        $DMscripts = "C:\PsScripts\"
-
+        $ConfigXMLFile
     )
 
     Begin  {

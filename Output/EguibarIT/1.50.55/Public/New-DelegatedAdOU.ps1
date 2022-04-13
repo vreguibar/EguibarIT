@@ -8,21 +8,38 @@ function New-DelegateAdOU
             some groups as Account Operators and Print Operators
         .EXAMPLE
             New-DelegateAdOU OuName OuPath OuDescription ...
-        .INPUTS
-            Param1  OuName:............ [STRING] Name of the OU
-            Param2  OuPath:............ [STRING] LDAP path where this ou will be created
-            Param3  OuDescrition:...... [STRING] Full description of the OU
-            Param4  OuCity:............ [STRING]
-            Param5  OuCountry:......... [STRING]
-            Param6  OuStreetAddress:... [STRING]
-            Param7  OuState:........... [STRING]
-            Param8  OuZipCode:......... [STRING]
-            Param9  strOuDisplayName:.. [STRING]
-            Param10 RemoveAuthenticatedUsers:.. [Switch] Remove Authenticated Users
-            Param11 CleanACL:.......... [Switch] Remove Authenticated Users
-
-            No Config.xml needed for this function.
-
+        .EXAMPLE
+            $Splat = @{
+                ouPath        = 'OU=GOOD,OU=Sites,DC=EguibarIT,DC=local'
+                CleanACL      = $True
+                ouName        = 'Computers'
+                ouDescription = 'Container for the secure computers'
+            }
+            New-DelegateAdOU @Splat
+        .PARAMETER ouName
+            [STRING] Name of the OU
+        .PARAMETER ouPath
+            [STRING] LDAP path where this ou will be created
+        .PARAMETER ouDescription
+            [STRING] Full description of the OU
+        .PARAMETER ouCity
+        .PARAMETER ouCountry
+        .PARAMETER ouStreetAddress
+        .PARAMETER ouState
+        .PARAMETER ouZIPCode
+        .PARAMETER strOuDisplayName
+        .PARAMETER RemoveAuthenticatedUsers
+            [Switch] Remove Authenticated Users. CAUTION! This might affect applying GPO to objects.
+        .PARAMETER CleanACL
+            [Switch] Remove Specific Non-Inherited ACE and enable inheritance.
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Get-CurrentErrorToDisplay              | EguibarIT
+                Get-AdOrganizationalUnit               | EguibarIT
+                Start-AdCleanOU                        | EguibarIT
+                Remove-SpecificACLandEnableInheritance | EguibarIT
         .NOTES
             Version:         1.2
             DateModified:    01/Feb/2017
@@ -57,6 +74,7 @@ function New-DelegateAdOU
 
         # Param3 OU Description
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        HelpMessage = 'Full description of the OU',
             Position = 2)]
         [string]
         $ouDescription,
@@ -106,7 +124,7 @@ function New-DelegateAdOU
 
         #PARAM11 Remove Specific Non-Inherited ACE and enable inheritance
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-            HelpMessage = ' Remove Specific Non-Inherited ACE and enable inheritance.',
+            HelpMessage = 'Remove Specific Non-Inherited ACE and enable inheritance.',
         Position = 10)]
         [switch]
         $CleanACL
@@ -153,7 +171,7 @@ function New-DelegateAdOU
         #
         if (-not $strOuDisplayName) {
           $strOuDisplayName = $PSBoundParameters['ouName']
-        }
+        } # End If
 
         try {
           # Try to get Ou
