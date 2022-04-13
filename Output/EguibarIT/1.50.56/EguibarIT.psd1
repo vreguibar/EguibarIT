@@ -12,7 +12,7 @@
 RootModule = 'EguibarIT.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.50.55'
+ModuleVersion = '1.50.56'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Desktop'
@@ -27,7 +27,7 @@ Author = 'Vicente Rodriguez Eguibar'
 CompanyName = 'EguibarIT'
 
 # Copyright statement for this module
-Copyright = 'All rights reserved (c) 2021 - EguibarIT'
+Copyright = 'All rights reserved (c) 2022 - EguibarIT'
 
 # Description of the functionality provided by this module
 Description = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory'

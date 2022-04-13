@@ -3,17 +3,41 @@ function Start-AdCleanOU
 {
     <#
         .Synopsis
+            Clean default OU permissions.
+        .DESCRIPTION
             The function will remove some of the default premission on
             the provided OU. It will remove the "Account Operators" and
             "Print Operators" built-in groups.
-        .DESCRIPTION
-            Long description
         .EXAMPLE
             Start-AdCleanOU -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
-        .INPUTS
-            Param1 LDAPPath:................... [STRING] Distinguished name of the OU to be cleaned.
-            Param2 RemoveAuthenticatedUsers:... [SWITCH] Remove Authenticated Users.
-            Param3 RemoveUnknownSIDs:.......... [SWITCH] Remove Unknown SIDs.
+        .EXAMPLE
+            Start-AdCleanOU -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveAuthenticatedUsers
+        .EXAMPLE
+            Start-AdCleanOU -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveUnknownSIDs
+        .EXAMPLE
+            Start-AdCleanOU -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveAuthenticatedUsers -RemoveUnknownSIDs
+        .PARAMETER LDAPPath
+            Distinguished name of the OU to be cleaned.
+        .PARAMETER RemoveAuthenticatedUsers
+            If present, Remove Authenticated Users.
+        .PARAMETER RemoveUnknownSIDs
+           If present, Remove Unknown SIDs.
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Set-AdAclCreateDeleteUser              | EguibarIT.Delegation
+                Set-AdAclCreateDeleteComputer          | EguibarIT.Delegation
+                Set-AdAclCreateDeleteGroup             | EguibarIT.Delegation
+                Set-AdAclCreateDeleteContact           | EguibarIT.Delegation
+                Set-CreateDeleteInetOrgPerson          | EguibarIT.Delegation
+                Set-AdAclCreateDeletePrintQueue        | EguibarIT.Delegation
+                Remove-PreWin2000                      | EguibarIT.Delegation
+                Remove-PreWin2000FromOU                | EguibarIT.Delegation
+                Remove-AccountOperator                 | EguibarIT.Delegation
+                Remove-PrintOperator                   | EguibarIT.Delegation
+                Remove-AuthUser                        | EguibarIT.Delegation
+                Remove-UnknownSID                      | EguibarIT.Delegation
         .NOTES
             Version:         1.2
             DateModified:    19/Dec/2017

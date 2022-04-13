@@ -1,18 +1,31 @@
 # Group together all USER admin delegations
-function Set-AdAclDelegateUserAdmin
+function Set-AdAclDelegateGalAdmin
 {
     <#
         .Synopsis
-            The function will consolidate all rights used for USER object container.
+            Wrapper for all rights used for GAL admin.
         .DESCRIPTION
-
+            The function will consolidate all rights used for GAL admin.
         .EXAMPLE
-            Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
-            Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
-        .INPUTS
-            Param1 Group:........[STRING] for the Delegated Group Name
-            Param2 LDAPPath:.....[STRING] Distinguished Name of the OU where given group will fully manage a User object.
-            Param3 RemoveRule:...[SWITCH] If present, the access rule will be removed
+            Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
+        .EXAMPLE
+            Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
+        .PARAMETER Group
+            Delegated Group Name
+        .PARAMETER LDAPPath
+            Distinguished Name of the OU where given group will manage a User GAL.
+        .PARAMETER RemoveRule
+            If present, the access rule will be removed
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Set-AdAclUserGroupMembership           | EguibarIT.Delegation
+                Set-AdAclUserPersonalInfo              | EguibarIT.Delegation
+                Set-AdAclUserPublicInfo                | EguibarIT.Delegation
+                Set-AdAclUserGeneralInfo               | EguibarIT.Delegation
+                Set-AdAclUserWebInfo                   | EguibarIT.Delegation
+                Set-AdAclUserEmailInfo                 | EguibarIT.Delegation
         .NOTES
             Version:         1.1
             DateModified:    12/Feb/2018
@@ -32,9 +45,9 @@ function Set-AdAclDelegateUserAdmin
         [String]
         $Group,
 
-        # PARAM2 Distinguished Name of the OU where given group can read the User password
+        # PARAM2 Distinguished Name of the OU where given group will manage a User GAL.
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Distinguished Name of the OU where given group will fully manage a User object',
+            HelpMessage = 'Distinguished Name of the OU where given group will manage a User GAL.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
         [String]
@@ -61,6 +74,7 @@ function Set-AdAclDelegateUserAdmin
         [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
+
         $parameters = $null
     }
     Process {
@@ -75,31 +89,28 @@ function Set-AdAclDelegateUserAdmin
                 $parameters.Add('RemoveRule', $true)
             }
 
-            # Create/Delete Users
-            Set-AdAclCreateDeleteUser @parameters
+            # Change Group Membership
+            Set-AdAclUserGroupMembership @parameters
 
-            # Reset User Password
-            Set-AdAclResetUserPassword @parameters
+            # Change Personal Information
+            Set-AdAclUserPersonalInfo @parameters
 
-            # Change User Password
-            Set-AdAclChangeUserPassword @parameters
+            # Change Public Information
+            Set-AdAclUserPublicInfo @parameters
 
-            # Enable and/or Disable user right
-            Set-AdAclEnableDisableUser @parameters
+            # Change General Information
+            Set-AdAclUserGeneralInfo @parameters
 
-            # Unlock user account
-            Set-AdAclUnlockUser @parameters
+            # Change Web Info
+            Set-AdAclUserWebInfo @parameters
 
-            # Change User Restrictions
-            Set-AdAclUserAccountRestriction @parameters
-
-            # Change User Account Logon Info
-            Set-AdAclUserLogonInfo @parameters
+            # Change Email Info
+            Set-AdAclUserEmailInfo @parameters
         }
         catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
     }
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating User Admin."
+        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating GAL Admin."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''

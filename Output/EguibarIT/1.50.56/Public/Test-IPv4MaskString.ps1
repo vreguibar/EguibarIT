@@ -2,18 +2,12 @@ function Test-IPv4MaskString {
     <#
         .SYNOPSIS
             Tests whether an IPv4 network mask string (e.g., "255.255.255.0") is valid.
-
         .DESCRIPTION
             Tests whether an IPv4 network mask string (e.g., "255.255.255.0") is valid.
-
         .PARAMETER MaskString
             Specifies the IPv4 network mask string (e.g., "255.255.255.0").
-
         .EXAMPLE
             Test-IPv4MaskString -MaskString "255.255.255.0"
-
-        .INPUTS
-            Param1  MaskString:............ [STRING] Specifies the IPv4 network mask string
     #>
     [CmdletBinding(ConfirmImpact = 'Medium')]
     Param

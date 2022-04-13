@@ -11,7 +11,13 @@ Function ConvertTo-IPv4NetworkAddress {
         .PARAMETER PrefixLength
             Specifies the network prefix length, also known as CIDR  (e.g., 24)
         .EXAMPLE
-            
+            ConvertTo-IPv4NetworkAddress -IPv4Address "192.168.1.200" -SubnetMask "255.255.255.0"
+        .EXAMPLE
+            ConvertTo-IPv4NetworkAddress -IPv4Address "192.168.1.200" -PrefixLength "24"
+        .EXAMPLE
+            ConvertTo-IPv4NetworkAddress "192.168.1.200" "255.255.255.0"
+        .EXAMPLE
+            ConvertTo-IPv4NetworkAddress "192.168.1.200" "24"
         .NOTES
             Used Functions:
                 Name                                   | Module

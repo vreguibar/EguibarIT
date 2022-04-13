@@ -12,7 +12,7 @@
 RootModule = 'EguibarIT.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.50.55'
+ModuleVersion = '1.50.56'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Desktop'

@@ -1,21 +1,35 @@
-# Group together all COMPUTER admin delegations
-function Set-AdAclDelegateComputerAdmin
+# Group together all USER admin delegations
+function Set-AdAclDelegateUserAdmin
 {
     <#
         .Synopsis
-            The function will consolidate all rights used for Computer object container.
+            Wrapper for all rights used for USER object container.
         .DESCRIPTION
-
+            The function will consolidate all rights used for USER object container.
         .EXAMPLE
             Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
+        .EXAMPLE
             Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
-        .INPUTS
-            Param1 Group:........[STRING] for the Delegated Group Name
-            Param2 LDAPPath:.....[STRING] Distinguished Name of the OU where given group will fully manage a computer object.
-            Param3 RemoveRule:...[SWITCH] If present, the access rule will be removed
+        .PARAMETER Group
+            Delegated Group Name
+        .PARAMETER LDAPPath
+            Distinguished Name of the OU where given group will fully manage a User object.
+        .PARAMETER RemoveRule
+            If present, the access rule will be removed
         .NOTES
-            Version:         1.0
-            DateModified:    19/Oct/2016
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Set-AdAclCreateDeleteUser              | EguibarIT.Delegation
+                Set-AdAclResetUserPassword             | EguibarIT.Delegation
+                Set-AdAclChangeUserPassword            | EguibarIT.Delegation
+                Set-AdAclEnableDisableUser             | EguibarIT.Delegation
+                Set-AdAclUnlockUser                    | EguibarIT.Delegation
+                Set-AdAclUserAccountRestriction        | EguibarIT.Delegation
+                Set-AdAclUserLogonInfo                 | EguibarIT.Delegation
+        .NOTES
+            Version:         1.1
+            DateModified:    12/Feb/2018
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
                 Eguibar Information Technology S.L.
@@ -32,30 +46,21 @@ function Set-AdAclDelegateComputerAdmin
         [String]
         $Group,
 
-        # PARAM2 Distinguished Name of the OU where given group can read the computer password
+        # PARAM2 Distinguished Name of the OU where given group can read the User password
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Distinguished Name of the OU where given group will fully manage a computer object',
+            HelpMessage = 'Distinguished Name of the OU where given group will fully manage a User object',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
         [String]
         $LDAPpath,
 
-        # PARAM3 Distinguished Name of the quarantine OU
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Distinguished Name of the quarantine OU',
-            Position = 2)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $QuarantineDN,
-
-        # PARAM4 SWITCH If present, the access rule will be removed.
+        # PARAM3 SWITCH If present, the access rule will be removed.
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'If present, the access rule will be removed.',
-            Position = 3)]
+            Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Switch]
         $RemoveRule
-
     )
     begin {
         $error.Clear()
@@ -70,13 +75,7 @@ function Set-AdAclDelegateComputerAdmin
         [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
-
         $parameters = $null
-
-        # Active Directory Domain Distinguished Name
-        If(-Not (Test-Path -Path variable:AdDn)) {
-            New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
-        }
     }
     Process {
         try {
@@ -90,44 +89,31 @@ function Set-AdAclDelegateComputerAdmin
                 $parameters.Add('RemoveRule', $true)
             }
 
-            # Create/Delete Computers
-            Set-AdAclCreateDeleteComputer @parameters
+            # Create/Delete Users
+            Set-AdAclCreateDeleteUser @parameters
 
-            # Reset Computer Password
-            Set-AdAclResetComputerPassword @parameters
+            # Reset User Password
+            Set-AdAclResetUserPassword @parameters
 
-            # Change Computer Password
-            Set-AdAclChangeComputerPassword @parameters
+            # Change User Password
+            Set-AdAclChangeUserPassword @parameters
 
-            # Validated write to DNS host name
-            Set-AdAclValidateWriteDnsHostName @parameters
+            # Enable and/or Disable user right
+            Set-AdAclEnableDisableUser @parameters
 
-            # Validated write to SPN
-            Set-AdAclValidateWriteSPN @parameters
+            # Unlock user account
+            Set-AdAclUnlockUser @parameters
 
-            # Change Computer Account Restriction
-            Set-AdAclComputerAccountRestriction @parameters
+            # Change User Restrictions
+            Set-AdAclUserAccountRestriction @parameters
 
-            # Change DNS Hostname Info
-            Set-AdAclDnsInfo @parameters
-
-            # Change MS TerminalServices info
-            Set-AdAclMsTsGatewayInfo @parameters
-
-            # Access to BitLocker & TMP info
-            Set-AdAclBitLockerTPM @parameters
-
-            # Grant the right to delete computers from default container. Move Computers
-            Set-DeleteOnlyComputer @parameters
-
-            # Set LAPS
-            Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['LDAPpath']
-
+            # Change User Account Logon Info
+            Set-AdAclUserLogonInfo @parameters
         }
         catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
     }
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating Computer Admin."
+        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating User Admin."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
