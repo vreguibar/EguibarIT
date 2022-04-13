@@ -128,8 +128,8 @@
                 Add-KdsRootKey                         | Kds
 
         .NOTES
-            Version:         1.2
-            DateModified:    28/Oct/2019
+            Version:         1.3
+            DateModified:    21/Oct/2021
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
                 Eguibar Information Technology S.L.
@@ -804,9 +804,11 @@
             }
 
             Set-AdUser -Identity $AdminName -TrustedForDelegation $false -AccountNotDelegated $true -Add $params
+        } catch { 
+            Get-CurrentErrorToDisplay -CurrentError $error[0] 
+        } finally { 
+            Write-Verbose -Message 'Admin accounts created and secured.' 
         } # end try
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
-        finally { Write-Verbose -Message 'Admin accounts created and secured.' }
 
         #endregion Creating Secured Admin accounts
         ###############################################################################
@@ -1652,11 +1654,25 @@
         Write-Verbose -Message 'Creating Baseline GPOs and configure them accordingly...'
 
         # Domain
-        New-DelegateAdGpo -gpoDescription Baseline -gpoScope C -gpoLinkPath $AdDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription Baseline -gpoScope U -gpoLinkPath $AdDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        $parameter = @{
+            gpoDescription = 'Baseline'
+            gpoLinkPath    = $AdDn
+            GpoAdmin       = $sl_GpoAdminRight.SamAccountName
+            gpoBackupPath  = Join-Path $DMscripts SecTmpl
+        }
+        New-DelegateAdGpo @parameter -gpoScope C -gpoBackupID $confXML.n.Admin.GPOs.PCbaseline.backupID
+        New-DelegateAdGpo @parameter -gpoScope U -gpoBackupID $confXML.n.Admin.GPOs.Userbaseline.backupID
 
         # Domain Controllers
-        New-DelegateAdGpo -gpoDescription DomainControllers-Baseline -gpoScope C -gpoLinkPath ('OU=Domain Controllers,{0}' -f $AdDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        $parameter = @{
+            gpoDescription = $confXML.n.Admin.GPOs.DCBaseline.Name
+            gpoScope       = $confXML.n.Admin.GPOs.DCBaseline.Scope
+            gpoLinkPath    = 'OU=Domain Controllers,{0}' -f $AdDn
+            GpoAdmin       = $sl_GpoAdminRight.SamAccountName
+            BackupId       = $confXML.n.Admin.GPOs.DCBaseline.backupID
+            gpoBackupPath  = Join-Path $DMscripts SecTmpl
+        }
+        New-DelegateAdGpo 
 
         # Admin Area
         New-DelegateAdGpo -gpoDescription ItAdmin-Baseline -gpoScope C -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
@@ -1701,14 +1717,8 @@
         # Configure Default Domain Controllers GPO
         Import-GPO -BackupId $confXML.n.Admin.GPOs.DefaultDomainControllers.backupID -TargetName $confXML.n.Admin.GPOs.DefaultDomainControllers.Name -path (Join-Path $DMscripts SecTmpl)
 
-        # C-DomainControllers-Baseline
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.DCBaseline.backupID -TargetName ('{0}-{1}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Scope, $confXML.n.Admin.GPOs.DCBaseline.Name) -path (Join-Path $DMscripts SecTmpl)
 
-        # C-Baseline
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.PCbaseline.backupID -TargetName 'C-Baseline' -path (Join-Path $DMscripts SecTmpl)
 
-        # U-Baseline
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.Userbaseline.backupID -TargetName 'U-Baseline' -path (Join-Path $DMscripts SecTmpl)
 
 
 
@@ -1911,28 +1921,29 @@
 
 
         # Create basic GPO for Servers
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $ServersOu) -gpoScope C -gpoLinkPath $ServersOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        $parameter = @{
+            gpoDescription = '{0}-Baseline' -f $ServersOu
+            gpoScope       = $confXML.n.Admin.GPOs.Servers.Scope
+            gpoLinkPath    = $ServersOuDn
+            GpoAdmin       = $sl_GpoAdminRight.SamAccountName
+            BackupId       = $confXML.n.Servers.GPOs.Servers.backupID
+            gpoBackupPath  = Join-Path $DMscripts SecTmpl
+        }
+        New-DelegateAdGpo @parameters
 
         # Create basic GPOs for different types under Servers
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.ApplicationOU.Name)   -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.ApplicationOU.Name, $ServersOuDn)   -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.FileOU.Name)          -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.FileOU.Name, $ServersOuDn)          -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.HypervOU.Name)        -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.HypervOU.Name, $ServersOuDn)        -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name, $ServersOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.SqlOU.Name)           -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.SqlOU.Name, $ServersOuDn)           -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.WebOU.Name)           -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.WebOU.Name, $ServersOuDn)           -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        $parameter = @{
+            gpoScope       = 'C'
+            GpoAdmin       = $sl_GpoAdminRight.SamAccountName
+            gpoBackupPath  = Join-Path $DMscripts SecTmpl
+        }
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.ApplicationOU.Name)   -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.ApplicationOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.FileOU.Name)          -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.FileOU.Name, $ServersOuDn)          -BackupId $confXML.n.Servers.GPOs.FileSrv.backupID
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.HypervOU.Name)        -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.HypervOU.Name, $ServersOuDn)        -BackupId $confXML.n.Servers.GPOs.HyperV.backupID
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name, $ServersOuDn) -BackupId $confXML.n.Servers.GPOs.RemoteDesktop.backupID
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.SqlOU.Name)           -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.SqlOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.WebOU.Name)           -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.WebOU.Name, $ServersOuDn)           -BackupId $confXML.n.Servers.GPOs.WebSrv.backupID
 
-        # Import the security templates to the corresponding GPOs under Servers
-
-        # Configure Default Servers Baseline
-        Import-GPO -BackupId $confXML.n.Servers.GPOs.Servers.backupID       -TargetName ('C-{0}-Baseline' -f $ServersOu)       -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
-        # Configure File Server GPO
-        Import-GPO -BackupId $confXML.n.Servers.GPOs.FileSrv.backupID       -TargetName ('C-{0}-Baseline' -f $confXML.n.Servers.OUs.FileOU.Name)          -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
-        # Configure Hyper-V GPO
-        Import-GPO -BackupId $confXML.n.Servers.GPOs.HyperV.backupID        -TargetName ('C-{0}-Baseline' -f $confXML.n.Servers.OUs.HypervOU.Name)        -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
-        # Configure RemoteDesktop GPO
-        Import-GPO -BackupId $confXML.n.Servers.GPOs.RemoteDesktop.backupID -TargetName ('C-{0}-Baseline' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name) -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
-        # Configure Web GPO
-        Import-GPO -BackupId $confXML.n.Servers.GPOs.WebSrv.backupID        -TargetName ('C-{0}-Baseline' -f $confXML.n.Servers.OUs.WebOU.Name)           -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
 
         # Tier Restrictions
         $parameters = @(
