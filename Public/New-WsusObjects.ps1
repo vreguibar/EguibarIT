@@ -131,8 +131,8 @@
         # Set Application Pool Maximum Private memory
         #Clear-ItemProperty IIS:\AppPools\WsusPool -Name Recycling.periodicRestart.privatememory
         #[int32] $PrivMemMax = 4GB
-        #[int32] $PrivMemMax = 8GB
-        [int32] $PrivMemMax = 0
+        [int32] $PrivMemMax = 8GB
+        #[int32] $PrivMemMax = 0
         Set-ItemProperty -Path IIS:\AppPools\WsusPool -Name Recycling.periodicRestart.privateMemory -Value $PrivMemMax
 
 		# ( C:\Program Files\Update Services\WebServices\ClientWebService\web.config ) for WSUS: Replace <httpRuntime maxRequestLength="4096" /> with <httpRuntime maxRequestLength="204800" executionTimeout="7200"/>

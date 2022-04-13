@@ -2,21 +2,30 @@ function ConvertTo-IPv4MaskString {
     <#
         .SYNOPSIS
             Converts a number of bits (0-32) to an IPv4 network mask string (e.g., "255.255.255.0").
-
         .DESCRIPTION
             Converts a number of bits (0-32) to an IPv4 network mask string (e.g., "255.255.255.0").
-
         .PARAMETER MaskBits
             Specifies the number of bits in the mask.
+        .EXAMPLE
+            ConvertTo-IPv4MaskString -MaskBits "24"
+        .EXAMPLE
+            ConvertTo-IPv4MaskString "24"
+        .NOTES
+            Version:         1.0
+            DateModified:    13/Apr/2022
+            LasModifiedBy:   Vicente Rodriguez Eguibar
+                vicente@eguibar.com
+                Eguibar Information Technology S.L.
+                http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(ConfirmImpact = 'Low')]
     Param
     (
-        [Parameter(Mandatory = $false,
+        [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-        Position = 1)]
+        Position =0)]
         [ValidateRange(0,32)]
         [System.Int32] $MaskBits
     )

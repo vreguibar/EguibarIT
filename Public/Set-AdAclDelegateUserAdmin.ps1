@@ -3,16 +3,30 @@ function Set-AdAclDelegateUserAdmin
 {
     <#
         .Synopsis
-            The function will consolidate all rights used for USER object container.
+            Wrapper for all rights used for USER object container.
         .DESCRIPTION
-
+            The function will consolidate all rights used for USER object container.
         .EXAMPLE
             Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
+        .EXAMPLE
             Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
-        .INPUTS
-            Param1 Group:........[STRING] for the Delegated Group Name
-            Param2 LDAPPath:.....[STRING] Distinguished Name of the OU where given group will fully manage a User object.
-            Param3 RemoveRule:...[SWITCH] If present, the access rule will be removed
+        .PARAMETER Group
+            Delegated Group Name
+        .PARAMETER LDAPPath
+            Distinguished Name of the OU where given group will fully manage a User object.
+        .PARAMETER RemoveRule
+            If present, the access rule will be removed
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Set-AdAclCreateDeleteUser              | EguibarIT.Delegation
+                Set-AdAclResetUserPassword             | EguibarIT.Delegation
+                Set-AdAclChangeUserPassword            | EguibarIT.Delegation
+                Set-AdAclEnableDisableUser             | EguibarIT.Delegation
+                Set-AdAclUnlockUser                    | EguibarIT.Delegation
+                Set-AdAclUserAccountRestriction        | EguibarIT.Delegation
+                Set-AdAclUserLogonInfo                 | EguibarIT.Delegation
         .NOTES
             Version:         1.1
             DateModified:    12/Feb/2018

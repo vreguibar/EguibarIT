@@ -3,17 +3,59 @@ function Start-AdDelegateSite
 {
     <#
         .Synopsis
-            The function will create
+            The function will create the corresponding Tier2 site
         .DESCRIPTION
-            Long description
+            This function will create all needed objects and related delegations for the
+            given site. This Tier2 site is intended to hold all related Tier2 objects, as Users, Computers, Groups, etc.
+            and provide all delegated rights and permissions according to the delegation model.
         .EXAMPLE
-            Start-AdDelegateSite -ConfigXMLFile "C:\PsScripts\Config.xml" -ouName "GOOD" -QuarantineDN "Quarantine" -CreateExchange -DMscripts "C:\PsScripts\"
-        .INPUTS
-            Param1 ConfigXMLFile:....[String] Full path to the Configuration.XML file
-            Param1 ouName:...........[String] Enter the Name of the Site OU
-            Param2 QuarantineDN:.....[String] Enter the Name new redirected OU for computers
-            Param3 CreateExchange:...[String] If present It will create all needed Exchange objects and containers.
-            Param4 DMscripts:........[String] Path to all the scripts and files needed by this function
+            Start-AdDelegateSite -ConfigXMLFile "C:\PsScripts\Config.xml" -ouName "GOOD" -QuarantineDN "Quarantine" -CreateExchange
+        .EXAMPLE
+            $Splat = @{
+                ConfigXMLFile  = "C:\PsScripts\Config.xml"
+                ouName         = "GOOD"
+                QuarantineDN   = "Quarantine"
+                CreateExchange = $true
+            }
+            Start-AdDelegateSite @Splat
+        .PARAMETER ConfigXMLFile
+            Full path to the Configuration.XML file
+        .PARAMETER ouName
+            Name of the Site OU
+        .PARAMETER QuarantineDN
+            Name new redirected OU for computers
+        .PARAMETER CreateExchange
+            If present It will create all needed Exchange objects and containers.
+        .NOTES
+            This function relies on Config.xml file.
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Set-AdAclResetUserPassword             | EguibarIT.Delegation
+                Set-AdAclChangeUserPassword            | EguibarIT.Delegation
+                Set-AdAclUnlockUser                    | EguibarIT.Delegation
+                Set-AdAclCreateDeleteUser              | EguibarIT.Delegation
+                Set-AdAclEnableDisableUser             | EguibarIT.Delegation
+                Set-AdAclUserAccountRestriction        | EguibarIT.Delegation
+                Set-AdAclUserLogonInfo                 | EguibarIT.Delegation
+                Set-AdAclUserGroupMembership           | EguibarIT.Delegation
+                Set-AdAclUserPersonalInfo              | EguibarIT.Delegation
+                Set-AdAclUserPublicInfo                | EguibarIT.Delegation
+                Set-AdAclUserGeneralInfo               | EguibarIT.Delegation
+                Set-AdAclUserWebInfo                   | EguibarIT.Delegation
+                Set-AdAclUserEmailInfo                 | EguibarIT.Delegation
+                Set-AdAclDelegateComputerAdmin         | EguibarIT
+                Set-DeleteOnlyComputer                 | EguibarIT.Delegation
+                Set-AdAclComputerPersonalInfo          | EguibarIT.Delegation
+                Set-AdAclComputerPublicInfo            | EguibarIT.Delegation
+                Set-AdAclCreateDeleteGroup             | EguibarIT.Delegation
+                Set-AdAclChangeGroup                   | EguibarIT.Delegation
+                Set-AdAclCreateDeletePrintQueue        | EguibarIT.Delegation
+                Set-AdAclChangePrintQueue              | EguibarIT.Delegation
+                Set-AdAclCreateDeleteVolume            | EguibarIT.Delegation
+                Set-AdAclChangeVolume                  | EguibarIT.Delegation
+                Set-AdAclCreateDeleteContact           | EguibarIT.Delegation
         .NOTES
             Version:         1.3
             DateModified:    12/Feb/2019
@@ -57,17 +99,10 @@ function Start-AdDelegateSite
         [switch]
         $CreateExchange,
 
-        # Param5 Location of all scripts & files
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-            HelpMessage = 'Path to all the scripts and files needed by this function',
-        Position = 4)]
-        [string]
-        $DMscripts = "C:\PsScripts\",
-
-        # PARAM6 Switch indicating if local server containers has to be created. Not recommended due TIer segregation
+        # PARAM5 Switch indicating if local server containers has to be created. Not recommended due TIer segregation
         [Parameter(Mandatory = $false, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
             HelpMessage='Switch indicating if local server containers has to be created. Not recommended due TIer segregation',
-            Position=5)]
+            Position=4)]
         [switch]
         $CreateSrvContainer
 

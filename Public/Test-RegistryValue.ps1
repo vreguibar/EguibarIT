@@ -4,12 +4,14 @@ function Test-RegistryValue
         .Synopsis
             Function to Test Registry Values
         .DESCRIPTION
-
-        .INPUTS
-            Param1 Path:...[STRING] Registry path to be tested
-            Param2 Value:..[STRING] Registry value to be tested
+            Function to Test Registry Values
+        .PARAMETER Path
+            Registry path to be tested
+        .PARAMETER Value
+            Registry value to be tested
         .EXAMPLE
             Test-RegistryValue -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Value "AutoAdminLogon"
+        .EXAMPLE
             Test-RegistryValue "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "AutoAdminLogon"
         .NOTES
             Version:         1.0
@@ -19,7 +21,7 @@ function Test-RegistryValue
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
   #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+    [CmdletBinding(ConfirmImpact = 'Low')]
     [OutputType([Bool])]
     Param (
         [parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,

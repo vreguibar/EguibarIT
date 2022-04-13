@@ -3,16 +3,29 @@ function Set-AdAclDelegateGalAdmin
 {
     <#
         .Synopsis
-            The function will consolidate all rights used for GAL admin.
+            Wrapper for all rights used for GAL admin.
         .DESCRIPTION
-
+            The function will consolidate all rights used for GAL admin.
         .EXAMPLE
             Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
+        .EXAMPLE
             Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
-        .INPUTS
-            Param1 Group:........[STRING] for the Delegated Group Name
-            Param2 LDAPPath:.....[STRING] Distinguished Name of the OU where given group will manage a User GAL.
-            Param3 RemoveRule:...[SWITCH] If present, the access rule will be removed
+        .PARAMETER Group
+            Delegated Group Name
+        .PARAMETER LDAPPath
+            Distinguished Name of the OU where given group will manage a User GAL.
+        .PARAMETER RemoveRule
+            If present, the access rule will be removed
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Set-AdAclUserGroupMembership           | EguibarIT.Delegation
+                Set-AdAclUserPersonalInfo              | EguibarIT.Delegation
+                Set-AdAclUserPublicInfo                | EguibarIT.Delegation
+                Set-AdAclUserGeneralInfo               | EguibarIT.Delegation
+                Set-AdAclUserWebInfo                   | EguibarIT.Delegation
+                Set-AdAclUserEmailInfo                 | EguibarIT.Delegation
         .NOTES
             Version:         1.1
             DateModified:    12/Feb/2018

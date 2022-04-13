@@ -3,16 +3,34 @@ function Set-AdAclDelegateComputerAdmin
 {
     <#
         .Synopsis
-            The function will consolidate all rights used for Computer object container.
+            Wrapper for all rights used for Computer object container.
         .DESCRIPTION
-
+            The function will consolidate all rights used for Computer object container.
         .EXAMPLE
             Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
+        .EXAMPLE
             Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
-        .INPUTS
-            Param1 Group:........[STRING] for the Delegated Group Name
-            Param2 LDAPPath:.....[STRING] Distinguished Name of the OU where given group will fully manage a computer object.
-            Param3 RemoveRule:...[SWITCH] If present, the access rule will be removed
+        .PARAMETER Group
+            Delegated Group Name
+        .PARAMETER LDAPPath
+            Distinguished Name of the OU where given group will fully manage a computer object.
+        .PARAMETER RemoveRule
+            If present, the access rule will be removed
+        .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Set-AdAclCreateDeleteComputer          | EguibarIT.Delegation
+                Set-AdAclResetComputerPassword         | EguibarIT.Delegation
+                Set-AdAclChangeComputerPassword        | EguibarIT.Delegation
+                Set-AdAclValidateWriteDnsHostName      | EguibarIT.Delegation
+                Set-AdAclValidateWriteSPN              | EguibarIT.Delegation
+                Set-AdAclComputerAccountRestriction    | EguibarIT.Delegation
+                Set-AdAclDnsInfo                       | EguibarIT.Delegation
+                Set-AdAclMsTsGatewayInfo               | EguibarIT.Delegation
+                Set-AdAclBitLockerTPM                  | EguibarIT.Delegation
+                Set-DeleteOnlyComputer                 | EguibarIT.Delegation
+                Set-AdAclLaps                          | EguibarIT
         .NOTES
             Version:         1.0
             DateModified:    19/Oct/2016
