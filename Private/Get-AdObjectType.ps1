@@ -45,7 +45,7 @@ function Get-AdObjectType {
 
     If($Identity -is [String]) {
       Write-Verbose -Message 'Simple String'
-      
+
       if(Test-IsValidDN -ObjectDN $Identity) {
         $newObject = get-AdObject -filter {
           DistinguishedName -eq $Identity
@@ -55,7 +55,7 @@ function Get-AdObjectType {
           SamAccountName -eq $Identity
         }
       } # End if
-      
+
       Switch ($newObject.ObjectClass) {
         'user' {
           Write-Verbose -Message 'AD User Object from STRING'

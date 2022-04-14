@@ -4,8 +4,8 @@ function New-DelegateAdGpo
         .Synopsis
             Creates and Links new GPO
         .DESCRIPTION
-            Create new custom delegated GPO, Delegate rights to an existing group and links it to 
-            the given OU. 
+            Create new custom delegated GPO, Delegate rights to an existing group and links it to
+            the given OU.
             This function can import settings from an existing GPO backup.
         .EXAMPLE
             New-DelegateAdGpo -gpoDescription MyNewGPO -gpoScope C -gpoLinkPath "OU=Servers,OU=eguibarit,OU=local" -GpoAdmin "SL_GpoRight"
@@ -56,7 +56,7 @@ function New-DelegateAdGpo
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium', DefaultParameterSetName = 'DelegatedAdGpo')]
+    [CmdletBinding(ConfirmImpact = 'Medium', DefaultParameterSetName = 'DelegatedAdGpo')]
     [OutputType([Microsoft.GroupPolicy.Gpo])]
     Param (
         # Param1 GPO description, used to generate name
@@ -189,7 +189,7 @@ function New-DelegateAdGpo
                 }
                 New-GPLink @parameters
             } # End If
-            
+
             # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             # Adding settings
             #Write-Host "Setting Screen saver timeout to 15 minutes"
@@ -227,8 +227,8 @@ function New-DelegateAdGpo
 
         # Check if Backup needs to be imported
         If($PSBoundParameters['gpoBackupID']) {
-            
-            # Import the Backup 
+
+            # Import the Backup
             Write-Verbose -Message ('Importing GPO Backup {0} from path {1} to GPO {2}' -f $PSBoundParameters['gpoBackupID'], $PSBoundParameters['gpoBackupPath'], $gpoName)
 
             $parameters = @{

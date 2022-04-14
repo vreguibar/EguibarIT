@@ -15,7 +15,7 @@ function New-LocalLogonTask
             Eguibar Information Technology S.L.
             http://www.eguibarit.com
 #>
-  [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+  [CmdletBinding(ConfirmImpact = 'Medium')]
   Param
   (
     # Param1 help description

@@ -43,7 +43,7 @@
             }
 
             #Create Central OU Structure
-            New-CentralItOu @param 
+            New-CentralItOu @param
 
         .PARAMETER ConfigXMLFile
             [STRING] Full path to the configuration.xml file
@@ -804,10 +804,10 @@
             }
 
             Set-AdUser -Identity $AdminName -TrustedForDelegation $false -AccountNotDelegated $true -Add $params
-        } catch { 
-            Get-CurrentErrorToDisplay -CurrentError $error[0] 
-        } finally { 
-            Write-Verbose -Message 'Admin accounts created and secured.' 
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        } finally {
+            Write-Verbose -Message 'Admin accounts created and secured.'
         } # end try
 
         #endregion Creating Secured Admin accounts
@@ -1672,7 +1672,7 @@
             BackupId       = $confXML.n.Admin.GPOs.DCBaseline.backupID
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
-        New-DelegateAdGpo 
+        New-DelegateAdGpo
 
         # Admin Area
         New-DelegateAdGpo -gpoDescription ItAdmin-Baseline -gpoScope C -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName

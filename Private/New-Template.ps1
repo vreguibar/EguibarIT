@@ -1,11 +1,11 @@
 Function New-Template {
     <#
         .Synopsis
-            
+
         .DESCRIPTION
-            
+
         .EXAMPLE
-            
+
         .PARAMETER DisplayName
 
         .PARAMETER TemplateOtherAttributes
@@ -66,7 +66,7 @@ Function New-Template {
     } # End BEGIN section
 
     Process {
-        
+
         #Create OID
         $OID = New-TemplateOID -Server $Server -ConfigNC $ConfigNC
 
@@ -77,7 +77,7 @@ Function New-Template {
                 'msPKI-Cert-Template-OID' = $OID.TemplateOID
         }
         New-ADObject -Path $TemplateOIDPath -OtherAttributes $OIDOtherAttributes -Name $OID.TemplateName -Type 'msPKI-Enterprise-Oid' -Server $Server
-    
+
         #Create Template itself
         $TemplateOtherAttributes+= @{
             'msPKI-Cert-Template-OID' = $OID.TemplateOID

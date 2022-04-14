@@ -1,4 +1,4 @@
-Function New-DHCPobjects
+﻿Function New-DHCPobjects
 {
     <#
         .Synopsis
@@ -42,7 +42,7 @@ Function New-DHCPobjects
 
     Begin  {
         $error.Clear()
-        
+
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)

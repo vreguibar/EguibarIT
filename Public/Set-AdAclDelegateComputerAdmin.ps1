@@ -84,7 +84,7 @@ function Set-AdAclDelegateComputerAdmin
     )
     begin {
         $error.Clear()
-        
+
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)

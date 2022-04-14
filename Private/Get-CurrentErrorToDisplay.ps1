@@ -38,13 +38,13 @@ function Get-CurrentErrorToDisplay {
 
     Begin {
         $Section     = '----------------------------------------'
-        $Header      = '################################################################################'        
+        $Header      = '################################################################################'
         $OutputError = New-Object -TypeName "System.Text.StringBuilder"
 
     } # End BEGIN section
 
     Process {
-        
+
         [void]$OutputError.AppendLine()
         [void]$OutputError.AppendLine($Header)
         [void]$OutputError.AppendLine('#         Error: {0}' -f $CurrentError.ToString())
@@ -62,7 +62,7 @@ function Get-CurrentErrorToDisplay {
         [void]$OutputError.AppendLine($CurrentError.PSMessageDetails)
         [void]$OutputError.AppendLine()
         [void]$OutputError.AppendLine()
-        
+
         [void]$OutputError.AppendLine('   Exception')
         [void]$OutputError.AppendLine($Section)
         [void]$OutputError.AppendLine($CurrentError.Exception)
