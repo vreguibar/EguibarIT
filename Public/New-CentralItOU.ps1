@@ -1715,9 +1715,31 @@
         Import-GPO -BackupId $confXML.n.Admin.GPOs.DefaultDomain.backupID -TargetName $confXML.n.Admin.GPOs.DefaultDomain.Name -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
 
         # Configure Default Domain Controllers GPO
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.DefaultDomainControllers.backupID -TargetName $confXML.n.Admin.GPOs.DefaultDomainControllers.Name -path (Join-Path $DMscripts SecTmpl)
+        #Import-GPO -BackupId $confXML.n.Admin.GPOs.DefaultDomainControllers.backupID -TargetName $confXML.n.Admin.GPOs.DefaultDomainControllers.Name -path (Join-Path $DMscripts SecTmpl)
 
+        # C-DomainControllers-Baseline
+        Import-GPO -BackupId $confXML.n.Admin.GPOs.DCBaseline.backupID -TargetName ('C-{0}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Name) -path (Join-Path $DMscripts SecTmpl)
 
+        # C-Baseline
+        Import-GPO -BackupId $confXML.n.Admin.GPOs.PCbaseline.backupID -TargetName 'C-Baseline' -path (Join-Path $DMscripts SecTmpl)
+
+        # U-Baseline
+        Import-GPO -BackupId $confXML.n.Admin.GPOs.Userbaseline.backupID -TargetName 'U-Baseline' -path (Join-Path $DMscripts SecTmpl)
+
+        # C-ItAdmin-Baseline
+
+        # U-ItAdmin-Baseline
+
+        # U-Admin-Baseline
+        Import-GPO -BackupId $confXML.n.Admin.GPOs.AdminUserbaseline.backupID -TargetName ('U-{0}-Baseline' -f $confXML.n.Admin.OUs.ItAdminOU.Name) -path (Join-Path $DMscripts SecTmpl)
+
+        # C-Infra-Baseline
+        Import-GPO -BackupId $confXML.n.Admin.GPOs.INFRAbaseline.backupID -TargetName ('C-{0}-Baseline' -f $confXML.n.Admin.GPOs.INFRAbaseline.Name) -path (Join-Path $DMscripts SecTmpl)
+
+        # C-PAW-Baseline
+        Import-GPO -BackupId $confXML.n.Admin.GPOs.PAWbaseline.backupID -TargetName ('C-{0}-Baseline' -f $confXML.n.Admin.GPOs.PAWbaseline.Name) -path (Join-Path $DMscripts SecTmpl)
+
+        
 
 
 
@@ -1945,6 +1967,27 @@
         New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.WebOU.Name)           -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.WebOU.Name, $ServersOuDn)           -BackupId $confXML.n.Servers.GPOs.WebSrv.backupID
 
 
+        ###############################################################################
+        # Import GPO from Archive
+
+        # C-Servers-Baseline
+        Import-GPO -BackupId $confXML.n.Servers.GPOs.Servers.backupID -TargetName ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.Servers.Scope, $confXML.n.Servers.GPOs.Servers.Name) -path (Join-Path $DMscripts SecTmpl)
+
+        # C-File-Baseline
+        Import-GPO -BackupId $confXML.n.Servers.GPOs.FileSrv.backupID -TargetName ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.FileSrv.Scope, $confXML.n.Servers.GPOs.FileSrv.Name) -path (Join-Path $DMscripts SecTmpl)
+
+        # C-Hyper-V-Baseline
+        Import-GPO -BackupId $confXML.n.Servers.GPOs.HyperV.backupID -TargetName ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.HyperV.Scope, $confXML.n.Servers.GPOs.HyperV.Name) -path (Join-Path $DMscripts SecTmpl)
+
+        # C-Remote Desktop-Baseline
+        Import-GPO -BackupId $confXML.n.Servers.GPOs.RemoteDesktop.backupID -TargetName ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.RemoteDesktop.Scope,  $confXML.n.Servers.GPOs.RemoteDesktop.Name) -path (Join-Path $DMscripts SecTmpl)
+
+        # C-Web-Baseline
+        Import-GPO -BackupId $confXML.n.Servers.GPOs.WebSrv.backupID -TargetName ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.WebSrv.Scope, $confXML.n.Servers.GPOs.WebSrv.Name) -path (Join-Path $DMscripts SecTmpl)
+
+
+
+
         # Tier Restrictions
         $parameters = @(
             $SG_Tier0Admins.SamAccountName,
@@ -2012,6 +2055,29 @@
         # Create basic GPO for Users and Computers
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope C -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope U -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+
+
+        ###############################################################################
+        # Import GPO from Archive
+
+        # Configure Users
+        $splat = @{
+            BackupId   = $confXML.n.Sites.OUs.SitesOU.backupID
+            TargetName = '{0}-{1}-Baseline' -f $confXML.n.Sites.OUs.SitesOU.Scope, $confXML.n.Sites.OUs.SitesOU.Name
+            path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
+        }
+        Import-GPO @splat
+
+
+        # Configure Desktop Baseline
+        $splat = @{
+            BackupId   = $confXML.n.Sites.OUs.OuSiteComputer.backupID
+            TargetName = '{0}-{1}-Baseline' -f $confXML.n.Sites.OUs.OuSiteComputer.Scope, $confXML.n.Sites.OUs.OuSiteComputer.Name
+            path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
+        }
+        Import-GPO @splat
+
+
 
         # Tier Restrictions
         $parameters = @(
