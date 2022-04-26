@@ -1712,32 +1712,84 @@
         # Import GPO from Archive
 
         #Import the Default Domain Policy
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.DefaultDomain.backupID -TargetName $confXML.n.Admin.GPOs.DefaultDomain.Name -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+        If($confXML.n.Admin.GPOs.DefaultDomain.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Admin.GPOs.DefaultDomain.backupID 
+                TargetName = $confXML.n.Admin.GPOs.DefaultDomain.Name 
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
+        
 
         # Configure Default Domain Controllers GPO
         #Import-GPO -BackupId $confXML.n.Admin.GPOs.DefaultDomainControllers.backupID -TargetName $confXML.n.Admin.GPOs.DefaultDomainControllers.Name -path (Join-Path $DMscripts SecTmpl)
 
         # C-DomainControllers-Baseline
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.DCBaseline.backupID -TargetName ('C-{0}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Name) -path (Join-Path $DMscripts SecTmpl)
+        If($confXML.n.Admin.GPOs.DCBaseline.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Admin.GPOs.DCBaseline.backupID
+                TargetName = ('{0}-{1}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Scope, $confXML.n.Admin.GPOs.DCBaseline.Name)
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
 
         # C-Baseline
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.PCbaseline.backupID -TargetName 'C-Baseline' -path (Join-Path $DMscripts SecTmpl)
+        If($confXML.n.Admin.GPOs.PCbaseline.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Admin.GPOs.PCbaseline.backupID
+                TargetName = '{0}}-Baseline' -f $confXML.n.Admin.GPOs.PCbaseline.Scope
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
 
         # U-Baseline
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.Userbaseline.backupID -TargetName 'U-Baseline' -path (Join-Path $DMscripts SecTmpl)
+        If($confXML.n.Admin.GPOs.Userbaseline.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Admin.GPOs.Userbaseline.backupID
+                TargetName = '{0}-Baseline' -f $confXML.n.Admin.GPOs.Userbaseline.Scope
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
 
         # C-ItAdmin-Baseline
 
         # U-ItAdmin-Baseline
 
         # U-Admin-Baseline
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.AdminUserbaseline.backupID -TargetName ('U-{0}-Baseline' -f $confXML.n.Admin.OUs.ItAdminOU.Name) -path (Join-Path $DMscripts SecTmpl)
-
+        If($confXML.n.Admin.GPOs.AdminUserbaseline.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Admin.GPOs.AdminUserbaseline.backupID
+                TargetName = ('{0}-{1}-Baseline' -f $confXML.n.Admin.GPOs.AdminUserbaseline.Scope, $confXML.n.Admin.OUs.ItAdminOU.Name)
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
+        
         # C-Infra-Baseline
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.INFRAbaseline.backupID -TargetName ('C-{0}-Baseline' -f $confXML.n.Admin.GPOs.INFRAbaseline.Name) -path (Join-Path $DMscripts SecTmpl)
+        If($confXML.n.Admin.GPOs.INFRAbaseline.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Admin.GPOs.INFRAbaseline.backupID
+                TargetName = ('{0}-{1}-Baseline' -f $confXML.n.Admin.GPOs.INFRAbaseline.Scope, $confXML.n.Admin.GPOs.INFRAbaseline.Name)
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
+        
 
         # C-PAW-Baseline
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.PAWbaseline.backupID -TargetName ('C-{0}-Baseline' -f $confXML.n.Admin.GPOs.PAWbaseline.Name) -path (Join-Path $DMscripts SecTmpl)
+        If($confXML.n.Admin.GPOs.PAWbaseline.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Admin.GPOs.PAWbaseline.backupID
+                TargetName = ('{0}-{1}-Baseline' -f $confXML.n.Admin.GPOs.PAWbaseline.Scope, $confXML.n.Admin.GPOs.PAWbaseline.Name)
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
+        
 
         
 
@@ -1971,19 +2023,58 @@
         # Import GPO from Archive
 
         # C-Servers-Baseline
-        Import-GPO -BackupId $confXML.n.Servers.GPOs.Servers.backupID -TargetName ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.Servers.Scope, $confXML.n.Servers.GPOs.Servers.Name) -path (Join-Path $DMscripts SecTmpl)
+        If($confXML.n.Servers.GPOs.Servers.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Servers.GPOs.Servers.backupID
+                TargetName = ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.Servers.Scope, $confXML.n.Servers.GPOs.Servers.Name)
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
+        
 
         # C-File-Baseline
-        Import-GPO -BackupId $confXML.n.Servers.GPOs.FileSrv.backupID -TargetName ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.FileSrv.Scope, $confXML.n.Servers.GPOs.FileSrv.Name) -path (Join-Path $DMscripts SecTmpl)
+        If($confXML.n.Servers.GPOs.FileSrv.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Servers.GPOs.FileSrv.backupID
+                TargetName = ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.FileSrv.Scope, $confXML.n.Servers.GPOs.FileSrv.Name)
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
+        
 
         # C-Hyper-V-Baseline
-        Import-GPO -BackupId $confXML.n.Servers.GPOs.HyperV.backupID -TargetName ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.HyperV.Scope, $confXML.n.Servers.GPOs.HyperV.Name) -path (Join-Path $DMscripts SecTmpl)
+        If($confXML.n.Servers.GPOs.HyperV.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Servers.GPOs.HyperV.backupID
+                TargetName = ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.HyperV.Scope, $confXML.n.Servers.GPOs.HyperV.Name)
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
+        
 
         # C-Remote Desktop-Baseline
-        Import-GPO -BackupId $confXML.n.Servers.GPOs.RemoteDesktop.backupID -TargetName ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.RemoteDesktop.Scope,  $confXML.n.Servers.GPOs.RemoteDesktop.Name) -path (Join-Path $DMscripts SecTmpl)
+        If($confXML.n.Servers.GPOs.RemoteDesktop.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Servers.GPOs.RemoteDesktop.backupID
+                TargetName = ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.RemoteDesktop.Scope,  $confXML.n.Servers.GPOs.RemoteDesktop.Name)
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
+        
 
         # C-Web-Baseline
-        Import-GPO -BackupId $confXML.n.Servers.GPOs.WebSrv.backupID -TargetName ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.WebSrv.Scope, $confXML.n.Servers.GPOs.WebSrv.Name) -path (Join-Path $DMscripts SecTmpl)
+        If($confXML.n.Servers.GPOs.WebSrv.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Servers.GPOs.WebSrv.backupID
+                TargetName = ('{0}-{1}-Baseline' -f $confXML.n.Servers.GPOs.WebSrv.Scope, $confXML.n.Servers.GPOs.WebSrv.Name)
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
 
 
 
