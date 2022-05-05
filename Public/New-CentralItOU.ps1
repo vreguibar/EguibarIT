@@ -366,6 +366,10 @@
         }
 
         # Organizational Units Distinguished Names
+
+        # Domain Controllers DistinguishedName
+        $DCsOuDn = ('OU=Domain Controllers,{0}' -f $AdDn)
+
         # Admin Area
 
         # IT Admin OU Distinguished Name
@@ -1087,7 +1091,9 @@
                          $SL_PUM.SamAccountName,
                          $SL_PGM.SamAccountName,
                          $SL_GpoAdminRight.SamAccountName,
+                         $SL_DnsAdminRight.SamAccountName,
                          $SL_DirReplRight.SamAccountName,
+                         $SL_PromoteDcRight.SamAccountName,
                          $SL_PISM.SamAccountName,
                          $SL_PAWM.SamAccountName,
                          $SL_PSAM.SamAccountName,
@@ -1178,7 +1184,9 @@
                          $SL_PUM,
                          $SL_PGM,
                          $SL_GpoAdminRight,
+                         $SL_DnsAdminRight,
                          $SL_DirReplRight,
+                         $SL_PromoteDcRight,
                          $SL_PISM,
                          $SL_PAWM,
                          $SL_PSAM,
@@ -1633,17 +1641,19 @@
 
 
         # AD Admins
+        # Domain Controllers management
+        Set-AdAclDelegateComputerAdmin -Group $SL_AdRight.SamAccountName -LDAPPath $DCsOuDn          -QuarantineDN $ItQuarantineOuDn
         # Delete computers from default container
-        Set-DeleteOnlyComputer -Group $SL_AdRight.SamAccountName -LDAPPath $ItQuarantineOuDn
+        Set-DeleteOnlyComputer         -Group $SL_AdRight.SamAccountName -LDAPPath $ItQuarantineOuDn
         # Subnet Configuration Container|
         # Change Subnet
-        Set-AdAclChangeSubnet   -Group $SL_AdRight.SamAccountName
+        Set-AdAclChangeSubnet           -Group $SL_AdRight.SamAccountName
         # Site Configuration Container
         # Change Site
-        Set-AdAclChangeSite     -Group $SL_AdRight.SamAccountName
+        Set-AdAclChangeSite             -Group $SL_AdRight.SamAccountName
         # Site-Link Configuration Container
         # Change SiteLink
-        Set-AdAclChangeSiteLink -Group $SL_AdRight.SamAccountName
+        Set-AdAclChangeSiteLink         -Group $SL_AdRight.SamAccountName
 
         #endregion
         ###############################################################################
