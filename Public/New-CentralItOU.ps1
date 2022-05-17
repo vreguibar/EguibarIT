@@ -1685,8 +1685,8 @@
         New-DelegateAdGpo
 
         # Admin Area
-        New-DelegateAdGpo -gpoDescription ItAdmin-Baseline -gpoScope C -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ItAdmin-Baseline -gpoScope U -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription 'ItAdmin-Baseline' -gpoScope 'C' -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription 'ItAdmin-Baseline' -gpoScope 'U' -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItAdminOU.Name) -gpoScope U -gpoLinkPath $ItAdminAccountsOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
 
         # Service Accounts
