@@ -100,6 +100,7 @@ function New-DelegateAdGpo
             ParameterSetName = 'DelegatedAdGpo',
         Position = 4)]
         [Parameter(ParameterSetName = 'GpoBackup', Position = 4)]
+        [Alias('BackupID')]
         [string]
         $gpoBackupID,
 
