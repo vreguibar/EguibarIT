@@ -1682,7 +1682,7 @@
             BackupId       = $confXML.n.Admin.GPOs.DCBaseline.backupID
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
-        New-DelegateAdGpo
+        New-DelegateAdGpo @parameter
 
         # Admin Area
         New-DelegateAdGpo -gpoDescription 'ItAdmin-Baseline' -gpoScope 'C' -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
