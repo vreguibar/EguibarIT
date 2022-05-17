@@ -133,7 +133,7 @@ function New-DelegateAdGpo
         $gpoAlreadyExist = $null
         $gpoName = '{0}-{1}' -f $PSBoundParameters['gpoScope'], $PSBoundParameters['gpoDescription']
         #$adGroupName = Get-ADGroup -Identity $GpoAdmin
-        $dcServer = (Get-ADDomaincontroller -Discover -Service 'PrimaryDC').HostName
+        [system.string]$dcServer = (Get-ADDomaincontroller -Discover -Service 'PrimaryDC').HostName
     } # End Begin Section
 
     Process {
@@ -182,7 +182,7 @@ function New-DelegateAdGpo
             Write-Verbose -Message 'Add GPO-link to corresponding OU'
             If( Test-IsValidDN -ObjectDN $PSBoundParameters['gpoLinkPath'] ) {
                 $parameters = @{
-                    GUID        = $CurrentNewGPO.Id
+                    GUID        = $gpoAlreadyExist.Id
                     Target      = $PSBoundParameters['gpoLinkPath']
                     LinkEnabled = 'Yes'
                     Server      = $dcServer
