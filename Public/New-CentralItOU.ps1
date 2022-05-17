@@ -1670,8 +1670,8 @@
             GpoAdmin       = $sl_GpoAdminRight.SamAccountName
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
-        New-DelegateAdGpo @parameter -gpoScope C -gpoBackupID $confXML.n.Admin.GPOs.PCbaseline.backupID
-        New-DelegateAdGpo @parameter -gpoScope U -gpoBackupID $confXML.n.Admin.GPOs.Userbaseline.backupID
+        New-DelegateAdGpo @parameter -gpoScope 'C' -gpoBackupID $confXML.n.Admin.GPOs.PCbaseline.backupID
+        New-DelegateAdGpo @parameter -gpoScope 'U' -gpoBackupID $confXML.n.Admin.GPOs.Userbaseline.backupID
 
         # Domain Controllers
         $parameter = @{
