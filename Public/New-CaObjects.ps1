@@ -38,8 +38,6 @@ Function New-CaObjects
         $DMscripts = "C:\PsScripts\"
     )
     Begin {
-        $error.Clear()
-
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -79,7 +77,7 @@ Function New-CaObjects
                 } #end if
             } #end if
         }
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+        catch { throw }
 
 
 
@@ -210,7 +208,7 @@ LoadDefaultTemplates=0
                 Install-ADCSwebenrollment -Confirm
             } # End If
         } # End Try
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] } # End Try-Catch
+        catch { throw } # End Try-Catch
         finally {
 
             # Remove all distribution points
@@ -386,34 +384,93 @@ LoadDefaultTemplates=0
         # START Create new Templates
 
         #https://github.com/GoateePFE/ADCSTemplate
+        # Install-Module -Name ADCSTemplate
+        # Get-ADCSTemplate -DisplayName 'WinRM' -Server 'DC1.EguibarIT.local' | Select-Object *
         # Export-ADCSTemplate -Server DC1 -DisplayName WAC > .\WAC.json
+        #
+        # ldifde -m -v -d “CN=WinRM,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=EguibarIT,DC=local” -f sourcetemplate.ldf
 
         #
         #Windows Admin Center and Enterprise CA
         #https://github.com/microsoft/WSLab/tree/master/Scenarios/Windows%20Admin%20Center%20and%20Enterprise%20CA
 
+        <#
+        Get-ADCSTemplate -DisplayName 'RemoteDesktopAuthentication' -Server 'DC1.EguibarIT.local' | Select-Object *
 
+CanonicalName                        : EguibarIT.local/Configuration/Services/Public Key Services/Certificate Templates/RemoteDesktopAuthentication
+CN                                   : RemoteDesktopAuthentication
+Created                              : 08/10/2021 17:19:50
+createTimeStamp                      : 08/10/2021 17:19:50
+Deleted                              :
+Description                          :
+DisplayName                          : RemoteDesktopAuthentication
+DistinguishedName                    : CN=RemoteDesktopAuthentication,CN=Certificate Templates,CN=Public Key Services,CN=Services,CN=Configuration,DC=EguibarIT,DC=local
+dSCorePropagationData                : {27/10/2021 17:00:33, 01/01/1601 1:00:00}
+flags                                : 131680
+instanceType                         : 4
+isDeleted                            :
+LastKnownParent                      :
+Modified                             : 23/12/2021 17:16:43
+modifyTimeStamp                      : 23/12/2021 17:16:43
+msPKI-Cert-Template-OID              : 1.3.6.1.4.1.311.21.8.2144245.16492515.9915066.5498192.1427428.109.8434507.13944343
+msPKI-Certificate-Application-Policy : {1.3.6.1.4.1.311.54.1.2, 1.3.6.1.5.5.7.3.1}
+msPKI-Certificate-Name-Flag          : 1249902592
+msPKI-Enrollment-Flag                : 40
+msPKI-Minimal-Key-Size               : 2048
+msPKI-Private-Key-Flag               : 101056512
+msPKI-RA-Application-Policies        : {msPKI-Asymmetric-Algorithm`PZPWSTR`RSA`msPKI-Hash-Algorithm`PZPWSTR`SHA256`msPKI-Key-Usage`DWORD`16777215`msPKI-Symmetric-Algorithm`PZPWSTR`3DES`msPKI-Symmetr
+                                       ic-Key-Length`DWORD`168`}
+msPKI-RA-Signature                   : 0
+msPKI-Template-Minor-Revision        : 1
+msPKI-Template-Schema-Version        : 4
+Name                                 : RemoteDesktopAuthentication
+nTSecurityDescriptor                 : System.DirectoryServices.ActiveDirectorySecurity
+ObjectCategory                       : CN=PKI-Certificate-Template,CN=Schema,CN=Configuration,DC=EguibarIT,DC=local
+ObjectClass                          : pKICertificateTemplate
+ObjectGUID                           : 2f2dc922-669b-4917-a264-c5f1429788b1
+pKICriticalExtensions                : {2.5.29.15}
+pKIDefaultKeySpec                    : 1
+pKIExpirationPeriod                  : {0, 128, 114, 14…}
+pKIExtendedKeyUsage                  : {1.3.6.1.4.1.311.54.1.2, 1.3.6.1.5.5.7.3.1}
+pKIKeyUsage                          : {160, 0}
+pKIMaxIssuingDepth                   : 0
+pKIOverlapPeriod                     : {0, 128, 166, 10…}
+ProtectedFromAccidentalDeletion      : False
+revision                             : 101
+sDRightsEffective                    : 15
+showInAdvancedViewOnly               : True
+uSNChanged                           : 179020
+uSNCreated                           : 21502
+whenChanged                          : 23/12/2021 17:16:43
+whenCreated                          : 08/10/2021 17:19:50
+PropertyNames                        : {CanonicalName, CN, Created, createTimeStamp…}
+AddedProperties                      : {}
+RemovedProperties                    : {}
+ModifiedProperties                   : {}
+PropertyCount                        : 45
+        #>
         $DisplayName="RemoteDesktopAuthentication"
         $TemplateOtherAttributes = @{
             'Name'                                 = [System.String]$DisplayName
+            'description'                          = [System.String]'SSL Certificate used to secure RDP connections.'
             'ObjectClass'                          = [System.String]'pKICertificateTemplate'
             'flags'                                = [System.Int32]'131680'
-            'revision'                             = [System.Int32]'104'
-            'msPKI-Cert-Template-OID'              = '1.3.6.1.4.1.311.21.8.2144245.16492515.9915066.5498192.1427428.109.8434507.13944343'
-            'msPKI-Certificate-Application-Policy' = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.54.1.2','1.3.6.1.5.5.7.3.1')
+            'revision'                             = [System.Int32]'100'
+            'msPKI-Cert-Template-OID'              = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.21.8.13605061.7836627.5522072.972782.1389733.240.7712192.10755021')
+            'msPKI-Certificate-Application-Policy' = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.54.1.2')
             'msPKI-Certificate-Name-Flag'          = [System.Int32]'1249902592'
             'msPKI-Enrollment-Flag'                = [System.Int32]'40'
             'msPKI-Minimal-Key-Size'               = [System.Int32]'2048'
             'msPKI-Private-Key-Flag'               = [System.Int32]'101056512'
-            'msPKI-RA-Application-Policies'        = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('msPKI-Asymmetric-Algorithm`PZPWSTR`RSA`msPKI-Hash-Algorithm`PZPWSTR`SHA256`msPKI-Key-Usage`DWORD`16777215`msPKI-Symmetric-Algorithm`PZPWSTR`3DES`msPKI-Symmetric-Key-Length`DWORD`168')
+            'msPKI-RA-Application-Policies'        = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('msPKI-Asymmetric-Algorithm`PZPWSTR`RSA`msPKI-Hash-Algorithm`PZPWSTR`SHA512`msPKI-Key-Usage`DWORD`16777215`msPKI-Symmetric-Algorithm`PZPWSTR`3DES`msPKI-Symmetric-Key-Length`DWORD`168')
             'msPKI-RA-Signature'                   = [System.Int32]'0'
-            'msPKI-Template-Minor-Revision'        = [System.Int32]'0'
+            'msPKI-Template-Minor-Revision'        = [System.Int32]'8'
             'msPKI-Template-Schema-Version'        = [System.Int32]'4'
             'pKICriticalExtensions'                = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('2.5.29.15')
-            'pKIDefaultCSPs'                       = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1,Microsoft RSA SChannel Cryptographic Provider')
+            'pKIDefaultCSPs'                       = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('3,Microsoft Smart Card Key Storage Provider, 2,Microsoft Platform Crypto Provider, 1,Microsoft Software Key Storage Provider')
             'pKIDefaultKeySpec'                    = [System.Int32]'1'
             'pKIExpirationPeriod'                  = [System.Byte[]]@('0','128','114','14','93','194','253','255')
-            'pKIExtendedKeyUsage'                  = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.54.1.2','1.3.6.1.5.5.7.3.1')
+            'pKIExtendedKeyUsage'                  = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.54.1.2')
             'pKIKeyUsage'                          = [System.Byte[]]@('160','0')
             'pKIMaxIssuingDepth'                   = [System.Int32]'0'
             'pKIOverlapPeriod'                     = [System.Byte[]]@('0','128','166','10','255','222','255','255')
@@ -458,19 +515,19 @@ LoadDefaultTemplates=0
             'Name'                                 = [System.String]$DisplayName
             'ObjectClass'                          = [System.String]'pKICertificateTemplate'
             'flags'                                = [System.Int32]'131649'
-            'revision'                             = [System.Int32]'101'
-            "msPKI-Cert-Template-OID"              = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.21.8.14549150.3855793.16599969.611048.427463.215.13637799.7562754')
+            'revision'                             = [System.Int32]'100'
+            "msPKI-Cert-Template-OID"              = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.21.8.13605061.7836627.5522072.972782.1389733.240.12298286.5997517')
             'msPKI-Certificate-Application-Policy' = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.1')
             'msPKI-Certificate-Name-Flag'          = [System.Int32]'1249902592'
             'msPKI-Enrollment-Flag'                = [System.Int32]'40'
             'msPKI-Minimal-Key-Size'               = [System.Int32]'2048'
             'msPKI-Private-Key-Flag'               = [System.Int32]'101056512'
-            'msPKI-RA-Application-Policies'        = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@("msPKI-Asymmetric-Algorithm`PZPWSTR`RSA`msPKI-Hash-Algorithm`PZPWSTR`SHA256`msPKI-Key-Usage`DWORD`16777215`msPKI-Symmetric-Algorithm`PZPWSTR`3DES`msPKI-Symmetric-Key-Length`DWORD`168")
+            'msPKI-RA-Application-Policies'        = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('msPKI-Asymmetric-Algorithm`PZPWSTR`RSA`msPKI-Hash-Algorithm`PZPWSTR`SHA256`msPKI-Key-Usage`DWORD`16777215`msPKI-Symmetric-Algorithm`PZPWSTR`3DES`msPKI-Symmetric-Key-Length`DWORD`168')
             'msPKI-RA-Signature'                   = [System.Int32]'0'
-            'msPKI-Template-Minor-Revision'        = [System.Int32]'0'
+            'msPKI-Template-Minor-Revision'        = [System.Int32]'5'
             'msPKI-Template-Schema-Version'        = [System.Int32]'4'
             'pKICriticalExtensions'                = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('2.5.29.15')
-            'pKIDefaultCSPs'                       = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1,Microsoft RSA SChannel Cryptographic Provider','2,Microsoft DH SChannel Cryptographic Provider')
+            'pKIDefaultCSPs'                       = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('3,Microsoft Smart Card Key Storage Provider, 2,Microsoft Platform Crypto Provider, 1,Microsoft Software Key Storage Provider')
             'pKIDefaultKeySpec'                    = [System.Int32]'1'
             'pKIExpirationPeriod'                  = [System.Byte[]]@('0','128','114','14','93','194','253','255')
             'pKIExtendedKeyUsage'                  = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.1')
@@ -483,24 +540,24 @@ LoadDefaultTemplates=0
         #Publish  Template
         PublishCert -CertDisplayName  $DisplayName
 
-        $DisplayName="WebServerV2"
+        $DisplayName="Web Server V2"
         $TemplateOtherAttributes = @{
             'Name'                                 = [System.String]$DisplayName
             'ObjectClass'                          = [System.String]'pKICertificateTemplate'
             'flags'                                = [System.Int32]'131649'
-            'revision'                             = [System.Int32]'101'
+            'revision'                             = [System.Int32]'100'
             "msPKI-Cert-Template-OID"              = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.21.8.14549150.3855793.16599969.611048.427463.215.10855872.15895385')
             'msPKI-Certificate-Application-Policy' = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.1')
-            'msPKI-Certificate-Name-Flag'          = [System.Int32]'1249902592'
+            'msPKI-Certificate-Name-Flag'          = [System.Int32]'-1971322880'
             'msPKI-Enrollment-Flag'                = [System.Int32]'40'
             'msPKI-Minimal-Key-Size'               = [System.Int32]'2048'
             'msPKI-Private-Key-Flag'               = [System.Int32]'101056512'
-            'msPKI-RA-Application-Policies'        = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@("msPKI-Asymmetric-Algorithm`PZPWSTR`RSA`msPKI-Hash-Algorithm`PZPWSTR`SHA256`msPKI-Key-Usage`DWORD`16777215`msPKI-Symmetric-Algorithm`PZPWSTR`3DES`msPKI-Symmetric-Key-Length`DWORD`168")
+            'msPKI-RA-Application-Policies'        = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('msPKI-Asymmetric-Algorithm`PZPWSTR`RSA`msPKI-Hash-Algorithm`PZPWSTR`SHA256`msPKI-Key-Usage`DWORD`16777215`msPKI-Symmetric-Algorithm`PZPWSTR`3DES`msPKI-Symmetric-Key-Length`DWORD`168`')
             'msPKI-RA-Signature'                   = [System.Int32]'0'
-            'msPKI-Template-Minor-Revision'        = [System.Int32]'0'
+            'msPKI-Template-Minor-Revision'        = [System.Int32]'5'
             'msPKI-Template-Schema-Version'        = [System.Int32]'4'
             'pKICriticalExtensions'                = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('2.5.29.15')
-            'pKIDefaultCSPs'                       = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1,Microsoft RSA SChannel Cryptographic Provider','2,Microsoft DH SChannel Cryptographic Provider')
+            'pKIDefaultCSPs'                       = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('3,Microsoft Platform Crypto Provider, 2,Microsoft Smart Card Key Storage Provider, 1,Microsoft Software Key Storage Provider')
             'pKIDefaultKeySpec'                    = [System.Int32]'1'
             'pKIExpirationPeriod'                  = [System.Byte[]]@('0','128','114','14','93','194','253','255')
             'pKIExtendedKeyUsage'                  = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.1')
@@ -512,8 +569,6 @@ LoadDefaultTemplates=0
 
         #Publish  Template
         PublishCert -CertDisplayName  $DisplayName
-
-
 
 <#
 
