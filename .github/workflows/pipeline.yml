@@ -76,8 +76,9 @@ jobs:
         id: tag
         shell: pwsh
         run: |
-            $ModuleName = (Get-ChildItem -Path .\Output).Name
-            $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\$($ModuleName).psd1").Version)
+            # $ModuleName = (Get-ChildItem -Path .\Output).Name
+            # $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\$($ModuleName).psd1").Version)
+            $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
             write-host $PS_Module_Version
             echo "::set-output name=MODULE_VERSION::$PS_Module_Version"
             echo "MODULE_VERSION=$PS_Module_Version"  >> $Env:GITHUB_ENV
