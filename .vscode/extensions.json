@@ -1,5 +1,6 @@
 {
     "recommendations": [
-        "GitHub.vscode-pull-request-github"
+        "github.vscode-pull-request-github",
+        "ms-vscode.powershell"
     ]
 }

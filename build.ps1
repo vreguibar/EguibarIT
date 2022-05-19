@@ -162,7 +162,8 @@ task DebugBuild -if ($Configuration -eq "debug") {
 }
 
 task Build -if($Configuration -eq "Release"){
-    $Script:ModuleName = (Test-ModuleManifest -Path ".\*.psd1").Name
+    $CurrentModule = Test-ModuleManifest -Path ".\*.psd1"
+    $Script:ModuleName = $CurrentModule.Name
     Write-Verbose $ModuleName
     if(Test-Path ".\Output\$($ModuleName)") {
         Write-Verbose -Message "Output folder does exist, continuing build."
