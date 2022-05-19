@@ -24,7 +24,7 @@ Update-ModuleManifest @Splat
 $splat = @{
     Path = $scriptPath
     NuGetApiKey = $apiKey
-    Tag         = 'Active Directory', 'AD', 'Security', 'Delegation Model', 'Tier Model', 'Credential Teaf', 'RBAC'
+    Tag         = 'Active Directory', 'Active-Directory', 'AD', 'Security', 'Delegation Model', 'Tiering', 'Tier Model', 'Credential Teaf', 'RBAC', 'RBAC Model'
     ProjectUri  = 'https://delegationmodel.com'
     Force       = $true
     Verbose     = $true
