@@ -40,5 +40,6 @@
     // Ignore the MD rule:
     "markdownlint.config": {
       "MD024": false // no-duplicate-header
-    }
+    },
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true
   }
