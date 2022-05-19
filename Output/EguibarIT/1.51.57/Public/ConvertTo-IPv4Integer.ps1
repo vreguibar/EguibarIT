@@ -19,7 +19,7 @@ function ConvertTo-IPv4Integer {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(ConfirmImpact = 'Low')]
-    [OutputType([System.Int32])]
+    [OutputType([System.UInt32])]
     Param
     (
         [Parameter(Mandatory = $true,

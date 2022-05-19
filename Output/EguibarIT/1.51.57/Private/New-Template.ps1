@@ -72,16 +72,19 @@ Function New-Template {
 
         $TemplateOIDPath = 'CN=OID,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC
         $OIDOtherAttributes = @{
-                'DisplayName' = $DisplayName
-                'flags' = [System.Int32]'1'
+                'DisplayName'             = $DisplayName
+                'flags'                   = [System.Int32]'1'
                 'msPKI-Cert-Template-OID' = $OID.TemplateOID
         }
         New-ADObject -Path $TemplateOIDPath -OtherAttributes $OIDOtherAttributes -Name $OID.TemplateName -Type 'msPKI-Enterprise-Oid' -Server $Server
     
-        #Create Template itself
-        $TemplateOtherAttributes+= @{
-            'msPKI-Cert-Template-OID' = $OID.TemplateOID
-        }
+        # Ensure if msPKI-Cert-Template-OID already add it to hashtable
+        If(-not $TemplateOtherAttributes.ContainsKey('msPKI-Cert-Template-OID')) {
+            #Create Template itself
+            $TemplateOtherAttributes+= @{
+                'msPKI-Cert-Template-OID' = $OID.TemplateOID
+            }
+        }        
         $TemplatePath = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC
 
         New-ADObject -Path $TemplatePath -OtherAttributes $TemplateOtherAttributes -Name $DisplayName -DisplayName $DisplayName -Type pKICertificateTemplate -Server $Server
@@ -89,7 +92,7 @@ Function New-Template {
     } # End PROCESS section
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) adding members to the group."
+        Write-Verbose -Message "Function $($MyInvocation.InvocationName) adding new PKI template."
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'
         Write-Verbose -Message ''

@@ -43,7 +43,7 @@
             }
 
             #Create Central OU Structure
-            New-CentralItOu @param 
+            New-CentralItOu @param
 
         .PARAMETER ConfigXMLFile
             [STRING] Full path to the configuration.xml file
@@ -69,7 +69,6 @@
                 ---------------------------------------|--------------------------
                 Set-AdAclDelegateComputerAdmin         | EguibarIT
                 Add-AdGroupNesting                     | EguibarIT
-                Get-CurrentErrorToDisplay              | EguibarIT
                 Get-CurrentErrorToDisplay              | EguibarIT
                 New-AdDelegatedGroup                   | EguibarIT
                 New-DelegateAdGpo                      | EguibarIT
@@ -366,6 +365,10 @@
         }
 
         # Organizational Units Distinguished Names
+
+        # Domain Controllers DistinguishedName
+        $DCsOuDn = ('OU=Domain Controllers,{0}' -f $AdDn)
+
         # Admin Area
 
         # IT Admin OU Distinguished Name
@@ -804,10 +807,10 @@
             }
 
             Set-AdUser -Identity $AdminName -TrustedForDelegation $false -AccountNotDelegated $true -Add $params
-        } catch { 
-            Get-CurrentErrorToDisplay -CurrentError $error[0] 
-        } finally { 
-            Write-Verbose -Message 'Admin accounts created and secured.' 
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        } finally {
+            Write-Verbose -Message 'Admin accounts created and secured.'
         } # end try
 
         #endregion Creating Secured Admin accounts
@@ -1087,7 +1090,9 @@
                          $SL_PUM.SamAccountName,
                          $SL_PGM.SamAccountName,
                          $SL_GpoAdminRight.SamAccountName,
+                         $SL_DnsAdminRight.SamAccountName,
                          $SL_DirReplRight.SamAccountName,
+                         $SL_PromoteDcRight.SamAccountName,
                          $SL_PISM.SamAccountName,
                          $SL_PAWM.SamAccountName,
                          $SL_PSAM.SamAccountName,
@@ -1128,10 +1133,9 @@
               PasswordHistoryCount        = $confXML.n.Admin.PSOs.ServiceAccountsPSO.PasswordHistoryCount
               ReversibleEncryptionEnabled = [System.Boolean]$confXML.n.Admin.PSOs.ServiceAccountsPSO.ReversibleEncryptionEnabled
             }
-
             New-ADFineGrainedPasswordPolicy @parameters
-
-            $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
+            #$PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
+            $PSOexists = Get-ADFineGrainedPasswordPolicy -Identity $PsoName
         }
 
         # Apply the PSO to all Tier Service Accounts
@@ -1178,7 +1182,9 @@
                          $SL_PUM,
                          $SL_PGM,
                          $SL_GpoAdminRight,
+                         $SL_DnsAdminRight,
                          $SL_DirReplRight,
+                         $SL_PromoteDcRight,
                          $SL_PISM,
                          $SL_PAWM,
                          $SL_PSAM,
@@ -1633,17 +1639,19 @@
 
 
         # AD Admins
+        # Domain Controllers management
+        Set-AdAclDelegateComputerAdmin -Group $SL_AdRight.SamAccountName -LDAPPath $DCsOuDn          -QuarantineDN $ItQuarantineOuDn
         # Delete computers from default container
-        Set-DeleteOnlyComputer -Group $SL_AdRight.SamAccountName -LDAPPath $ItQuarantineOuDn
+        Set-DeleteOnlyComputer         -Group $SL_AdRight.SamAccountName -LDAPPath $ItQuarantineOuDn
         # Subnet Configuration Container|
         # Change Subnet
-        Set-AdAclChangeSubnet   -Group $SL_AdRight.SamAccountName
+        Set-AdAclChangeSubnet           -Group $SL_AdRight.SamAccountName
         # Site Configuration Container
         # Change Site
-        Set-AdAclChangeSite     -Group $SL_AdRight.SamAccountName
+        Set-AdAclChangeSite             -Group $SL_AdRight.SamAccountName
         # Site-Link Configuration Container
         # Change SiteLink
-        Set-AdAclChangeSiteLink -Group $SL_AdRight.SamAccountName
+        Set-AdAclChangeSiteLink         -Group $SL_AdRight.SamAccountName
 
         #endregion
         ###############################################################################
@@ -1654,30 +1662,30 @@
         Write-Verbose -Message 'Creating Baseline GPOs and configure them accordingly...'
 
         # Domain
-        $parameter = @{
+        $parameters = @{
             gpoDescription = 'Baseline'
             gpoLinkPath    = $AdDn
             GpoAdmin       = $sl_GpoAdminRight.SamAccountName
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
-        New-DelegateAdGpo @parameter -gpoScope C -gpoBackupID $confXML.n.Admin.GPOs.PCbaseline.backupID
-        New-DelegateAdGpo @parameter -gpoScope U -gpoBackupID $confXML.n.Admin.GPOs.Userbaseline.backupID
+        New-DelegateAdGpo @parameters -gpoScope 'C' -gpoBackupID $confXML.n.Admin.GPOs.PCbaseline.backupID
+        New-DelegateAdGpo @parameters -gpoScope 'U' -gpoBackupID $confXML.n.Admin.GPOs.Userbaseline.backupID
 
         # Domain Controllers
-        $parameter = @{
-            gpoDescription = $confXML.n.Admin.GPOs.DCBaseline.Name
+        $parameters = @{
+            gpoDescription = '{0}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Name
             gpoScope       = $confXML.n.Admin.GPOs.DCBaseline.Scope
             gpoLinkPath    = 'OU=Domain Controllers,{0}' -f $AdDn
             GpoAdmin       = $sl_GpoAdminRight.SamAccountName
-            BackupId       = $confXML.n.Admin.GPOs.DCBaseline.backupID
+            gpoBackupId    = $confXML.n.Admin.GPOs.DCBaseline.backupID
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
-        New-DelegateAdGpo 
+        New-DelegateAdGpo @parameters
 
         # Admin Area
-        New-DelegateAdGpo -gpoDescription ItAdmin-Baseline -gpoScope C -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ItAdmin-Baseline -gpoScope U -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItAdminOU.Name) -gpoScope U -gpoLinkPath $ItAdminAccountsOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription 'ItAdmin-Baseline' -gpoScope 'C' -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription 'ItAdmin-Baseline' -gpoScope 'U' -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItAdminOU.Name) -gpoScope U -gpoLinkPath $ItAdminAccountsOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupId $confXML.n.Admin.GPOs.AdminUserbaseline.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
 
         # Service Accounts
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItServiceAccountsOU.Name) -gpoScope U -gpoLinkPath $ItServiceAccountsOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
@@ -1686,14 +1694,14 @@
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT2OU.Name) -gpoScope U -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT2OU.Name, $ItServiceAccountsOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
 
         # PAWs
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name)   -gpoScope C -gpoLinkPath $ItPawOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name)   -gpoScope C -gpoLinkPath $ItPawOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupId $confXML.n.Admin.GPOs.PAWbaseline.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT1OU.Name, $ItPawOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT2OU.Name, $ItPawOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name, $ItPawOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
 
         # Infrastructure Servers
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name) -gpoScope C -gpoLinkPath $ItInfraOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name) -gpoScope C -gpoLinkPath $ItInfraOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupId $confXML.n.Admin.GPOs.INFRAbaseline.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0.Name, $ItInfraOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT1.Name, $ItInfraOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT2.Name, $ItInfraOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
@@ -1712,16 +1720,19 @@
         # Import GPO from Archive
 
         #Import the Default Domain Policy
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.DefaultDomain.backupID -TargetName $confXML.n.Admin.GPOs.DefaultDomain.Name -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+        If($confXML.n.Admin.GPOs.DefaultDomain.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Admin.GPOs.DefaultDomain.backupID 
+                TargetName = $confXML.n.Admin.GPOs.DefaultDomain.Name 
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
+        
 
-        # Configure Default Domain Controllers GPO
-        Import-GPO -BackupId $confXML.n.Admin.GPOs.DefaultDomainControllers.backupID -TargetName $confXML.n.Admin.GPOs.DefaultDomainControllers.Name -path (Join-Path $DMscripts SecTmpl)
+        # C-ItAdmin-Baseline
 
-
-
-
-
-
+        # U-ItAdmin-Baseline
 
 
 
@@ -1921,28 +1932,28 @@
 
 
         # Create basic GPO for Servers
-        $parameter = @{
+        $parameters = @{
             gpoDescription = '{0}-Baseline' -f $ServersOu
             gpoScope       = $confXML.n.Admin.GPOs.Servers.Scope
             gpoLinkPath    = $ServersOuDn
             GpoAdmin       = $sl_GpoAdminRight.SamAccountName
-            BackupId       = $confXML.n.Servers.GPOs.Servers.backupID
+            gpoBackupId    = $confXML.n.Servers.GPOs.Servers.backupID
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
         New-DelegateAdGpo @parameters
 
         # Create basic GPOs for different types under Servers
-        $parameter = @{
+        $parameters = @{
             gpoScope       = 'C'
             GpoAdmin       = $sl_GpoAdminRight.SamAccountName
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
         New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.ApplicationOU.Name)   -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.ApplicationOU.Name, $ServersOuDn)
-        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.FileOU.Name)          -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.FileOU.Name, $ServersOuDn)          -BackupId $confXML.n.Servers.GPOs.FileSrv.backupID
-        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.HypervOU.Name)        -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.HypervOU.Name, $ServersOuDn)        -BackupId $confXML.n.Servers.GPOs.HyperV.backupID
-        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name, $ServersOuDn) -BackupId $confXML.n.Servers.GPOs.RemoteDesktop.backupID
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.FileOU.Name)          -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.FileOU.Name, $ServersOuDn)          -gpoBackupId $confXML.n.Servers.GPOs.FileSrv.backupID
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.HypervOU.Name)        -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.HypervOU.Name, $ServersOuDn)        -gpoBackupId $confXML.n.Servers.GPOs.HyperV.backupID
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name, $ServersOuDn) -gpoBackupId $confXML.n.Servers.GPOs.RemoteDesktop.backupID
         New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.SqlOU.Name)           -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.SqlOU.Name, $ServersOuDn)
-        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.WebOU.Name)           -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.WebOU.Name, $ServersOuDn)           -BackupId $confXML.n.Servers.GPOs.WebSrv.backupID
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.WebOU.Name)           -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.WebOU.Name, $ServersOuDn)           -gpoBackupId $confXML.n.Servers.GPOs.WebSrv.backupID
 
 
         # Tier Restrictions
@@ -2010,8 +2021,11 @@
         New-DelegateAdOU -ouName $SitesOu -ouPath $AdDn -ouDescription $confXML.n.Sites.OUs.SitesOU.Description
 
         # Create basic GPO for Users and Computers
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope C -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope U -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope 'C' -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupID $confXML.n.Sites.OUs.OuSiteComputer.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
+        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope 'U' -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupID $confXML.n.Sites.OUs.SitesOU.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
+
+
+
 
         # Tier Restrictions
         $parameters = @(

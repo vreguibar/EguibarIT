@@ -70,7 +70,7 @@ Function New-TemplateOID {
             $Splat = @{
                 Server     = $Server
                 Identity   = "CN=OID,CN=Public Key Services,CN=Services,$ConfigNC"
-                Properties = msPKI-Cert-Template-OID
+                Properties = 'msPKI-Cert-Template-OID'
             }
             $OID_Forest = Get-ADObject @splat | Select-Object -ExpandProperty msPKI-Cert-Template-OID
 

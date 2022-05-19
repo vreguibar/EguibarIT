@@ -1,4 +1,4 @@
-function New-AdDelegatedGroup {
+﻿function New-AdDelegatedGroup {
     <#
     .SYNOPSIS
         Same as New-AdGroup but with error handling, Security changes and loging
@@ -79,14 +79,14 @@ function New-AdDelegatedGroup {
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Group category, either Security or Distribution',
             Position = 1)]
-        [ValidateSet('Security','Distribution')]
+        [ValidateSet('Security', 'Distribution')]
         $GroupCategory,
 
         # Param3 Group Scope, either DomainLocal, Global or Universal
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Group Scope, either DomainLocal, Global or Universal',
             Position = 2)]
-        [ValidateSet('DomainLocal','Global','Universal')]
+        [ValidateSet('DomainLocal', 'Global', 'Universal')]
         $GroupScope,
 
         # Param4 Display Name of the group to be created
@@ -158,7 +158,7 @@ function New-AdDelegatedGroup {
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
 
         #display PSBoundparameters formatted nicely for Verbose output
-        $NL   = "`n"  # New Line
+        $NL = "`n"  # New Line
         $HTab = "`t"  # Horizontal Tab
         [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
@@ -168,7 +168,7 @@ function New-AdDelegatedGroup {
         Import-Module -name EguibarIT.Delegation -Verbose:$false -Force
 
         $parameters = $null
-        $newGroup   = $null
+        $newGroup = $null
     } # End Begin Section
 
     Process {
@@ -177,7 +177,7 @@ function New-AdDelegatedGroup {
             $newGroup = Get-AdGroup -Filter { SamAccountName -eq $Name }
 
             ### Using $PSBoundParameters['Name'] throws an Error. Using variable instead.
-            If(-not($newGroup)) {
+            If (-not($newGroup)) {
                 $parameters = @{
                     Name           = $PSBoundParameters['Name']
                     SamAccountName = $PSBoundParameters['Name']
@@ -188,7 +188,8 @@ function New-AdDelegatedGroup {
                     Description    = $PSBoundParameters['Description']
                 }
                 New-ADGroup @parameters
-            } else {
+            }
+            else {
                 Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
 
                 $newGroup | Set-AdObject -ProtectedFromAccidentalDeletion $False
@@ -203,13 +204,13 @@ function New-AdDelegatedGroup {
                     }
                     Set-AdGroup @parameters
 
-                    If(-not($newGroup.DistinguishedName -ccontains $PSBoundParameters['path']))
-                    {
+                    If (-not($newGroup.DistinguishedName -ccontains $PSBoundParameters['path'])) {
                         # Move object to the corresponding OU
                         Move-ADObject -Identity $newGroup -TargetPath $PSBoundParameters['path']
                     }
 
-                } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+                }
+                catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
             } # End If
 
             # Get the group again and store it on variable.
@@ -217,30 +218,31 @@ function New-AdDelegatedGroup {
 
 
             # Protect From Accidental Deletion
-            If($PSBoundParameters['ProtectFromAccidentalDeletion']) {
+            If ($PSBoundParameters['ProtectFromAccidentalDeletion']) {
                 $newGroup | Set-ADObject -ProtectedFromAccidentalDeletion $true
             }
 
             # Remove Account Operators Built-In group
-            If($PSBoundParameters['RemoveAccountOperators']) {
+            If ($PSBoundParameters['RemoveAccountOperators']) {
                 Remove-AccountOperator -LDAPPath $newGroup.DistinguishedName
             }
 
             # Remove Everyone Built-In group
-            If($PSBoundParameters['RemoveEveryone']) {
+            If ($PSBoundParameters['RemoveEveryone']) {
                 Remove-Everyone -LDAPPath $newGroup.DistinguishedName
             }
 
             # Remove Authenticated Users Built-In group
-            If($PSBoundParameters['RemoveAuthUsers']) {
+            If ($PSBoundParameters['RemoveAuthUsers']) {
                 Remove-AuthUser -LDAPPath $newGroup.DistinguishedName
             }
 
             # Remove Pre-Windows 2000 Built-In group
-            If($PSBoundParameters['RemovePreWin2000']) {
+            If ($PSBoundParameters['RemovePreWin2000']) {
                 Remove-PreWin2000 -LDAPPath $newGroup.DistinguishedName
             }
-        } catch {
+        }
+        catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
             Write-Warning -Message ('An unhandeled error was thrown when creating Groups {0}' -f $PSBoundParameters['Name'])
         }

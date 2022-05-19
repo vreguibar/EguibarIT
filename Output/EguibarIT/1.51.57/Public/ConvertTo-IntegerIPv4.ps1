@@ -44,15 +44,15 @@ function ConvertTo-IntegerIPv4 {
 
     Process {
         Try {
-          $bytes=[System.BitConverter]::GetBytes($Integer)
-          
-          [Array]::Reverse($bytes)
-          
-          ([IPAddress]($bytes)).ToString()
+            $bytes=[System.BitConverter]::GetBytes($Integer)
 
-          } Catch {
+            [Array]::Reverse($bytes)
+
+            ([IPAddress]($bytes)).ToString()
+
+        } Catch {
             Write-Error -Exception $_.Exception -Category $_.CategoryInfo.Category
-          }
+        }
     }
 
     End {

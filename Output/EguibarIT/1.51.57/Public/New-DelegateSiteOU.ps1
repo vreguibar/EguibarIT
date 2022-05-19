@@ -1,4 +1,4 @@
-function New-DelegateSiteOU
+﻿function New-DelegateSiteOU
 {
     <#
         .Synopsis
@@ -541,7 +541,7 @@ function New-DelegateSiteOU
         # Create Desktop Baseline
         $splat = @{
             gpoDescription = '{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name
-            gpoScope       = 'C'
+            gpoScope       = $confXML.n.Sites.OUs.OuSiteComputer.Scope
             gpoLinkPath    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.Name, $ouNameDN
             GpoAdmin       = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         }
@@ -550,7 +550,7 @@ function New-DelegateSiteOU
         # Create Laptop-Baseline Baseline
         $splat = @{
             gpoDescription = '{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name
-            gpoScope       = 'C'
+            gpoScope       = $confXML.n.Sites.OUs.OuSiteLaptop.Scope
             gpoLinkPath    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $ouNameDN
             GpoAdmin       = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         }
@@ -559,7 +559,7 @@ function New-DelegateSiteOU
         # Create Users Baseline
         $splat = @{
             gpoDescription = '{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteUser.Name
-            gpoScope       = 'U'
+            gpoScope       = $confXML.n.Sites.OUs.OuSiteUser.Scope
             gpoLinkPath    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteUser.Name, $ouNameDN
             GpoAdmin       = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
         }
@@ -573,12 +573,14 @@ function New-DelegateSiteOU
         #region Configure GPO
 
         # Configure Users
-        $splat = @{
-            BackupId   = $confXML.n.Sites.OUs.OuSiteUser.backupID
-            TargetName = 'U-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteUser.Name
-            path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
+        If($confXML.n.Sites.OUs.OuSiteUser.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Sites.OUs.OuSiteUser.backupID
+                TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteUser.Scope, $ouName, $confXML.n.Sites.OUs.OuSiteUser.Name
+                path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
+            }
+            Import-GPO @splat
         }
-        Import-GPO @splat
 
 
 
@@ -586,12 +588,14 @@ function New-DelegateSiteOU
 
 
         # Configure Desktop Baseline
-        $splat = @{
-            BackupId   = $confXML.n.Sites.OUs.OuSiteComputer.backupID
-            TargetName = 'C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name
-            path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
+        If($confXML.n.Sites.OUs.OuSiteComputer.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Sites.OUs.OuSiteComputer.backupID
+                TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteComputer.Scope, $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name
+                path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
+            }
+            Import-GPO @splat
         }
-        Import-GPO @splat
 
         # Desktop Baseline Tiering Restrictions
         $splat = @(
@@ -643,12 +647,14 @@ function New-DelegateSiteOU
 
 
         # Configure Laptop Baseline
-        $splat = @{
-            BackupId   = $confXML.n.Sites.OUs.OuSiteLaptop.backupID
-            TargetName = 'C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name
-            path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
+        If($confXML.n.Sites.OUs.OuSiteLaptop.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Sites.OUs.OuSiteLaptop.backupID
+                TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Scope, $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name
+                path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
+            }
+            Import-GPO @splat
         }
-        Import-GPO @splat
 
         # Laptop Baseline Tiering Restrictions
         $splat = @(
