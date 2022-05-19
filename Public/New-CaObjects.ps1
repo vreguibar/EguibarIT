@@ -8,8 +8,8 @@ Function New-CaObjects
             this organization by following the defined Delegation Model.
         .EXAMPLE
             New-CaObjects
-        .INPUTS
-
+        .PARAMETER ConfigXMLFile
+            Full path to the configuration.xml file
         .NOTES
             Version:         1.3
             DateModified:    01/Feb/2018
@@ -25,17 +25,7 @@ Function New-CaObjects
             HelpMessage='Full path to the configuration.xml file',
             Position=0)]
         [string]
-        $ConfigXMLFile,
-
-        # Param2 Location of all scripts & files
-        [Parameter(Mandatory = $false,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $false,
-            HelpMessage = 'Path to all the scripts and files needed by this function',
-        Position = 1)]
-        [string]
-        $DMscripts = "C:\PsScripts\"
+        $ConfigXMLFile
     )
     Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
@@ -53,14 +43,11 @@ Function New-CaObjects
         # Initialisations
         Import-Module -name EguibarIT.Delegation -Verbose:$false
 
-
         #Get the OS Instalation Type
         $OsInstalationType = Get-ItemProperty -Path 'HKLM:Software\Microsoft\Windows NT\CurrentVersion' | Select-Object -ExpandProperty InstallationType
 
-
         ################################################################################
         #region Declarations
-
 
         try {
             # Active Directory Domain Distinguished Name
@@ -90,7 +77,6 @@ Function New-CaObjects
                 'T1'    = $confXML.n.NC.AdminAccSufix1;
                 'T2'    = $confXML.n.NC.AdminAccSufix2
         }
-
         #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM, $NC['T0'])
         # SG_PAWM_T0
 
