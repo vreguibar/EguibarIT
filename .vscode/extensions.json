@@ -1,6 +1,10 @@
 {
     "recommendations": [
+        "editorconfig.editorconfig",
+        "ms-azure-devops.azure-pipelines",
         "github.vscode-pull-request-github",
-        "ms-vscode.powershell"
+        "ms-vscode.powershell",
+        "ms-vscode.vscode-typescript-tslint-plugin",
+        "davidanson.vscode-markdownlint"
     ]
 }
