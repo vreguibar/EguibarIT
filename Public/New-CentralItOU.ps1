@@ -672,146 +672,142 @@
 
         Write-Verbose -Message 'Creating and securing Admin accounts...'
 
-        try {
+        #try {
 
-            # Try to get the new Admin
-            $NewAdminExists = Get-AdUser -Filter { SamAccountName -eq $newAdminName }
+        # Try to get the new Admin
+        $NewAdminExists = Get-AdUser -Filter { SamAccountName -eq $newAdminName }
 
-            # Get picture if exist. Use default if not.
-            If(Test-Path -Path ('{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName)) {
+        # Get picture if exist. Use default if not.
+        If(Test-Path -Path ('{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName)) {
+            # Read the path and file name of JPG picture
+            $PhotoFile = '{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName
+            # Get the content of the JPG file
+            $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
+        } else {
+            If(Test-Path -Path ('{0}\Pic\Default.jpg' -f $DMscripts)) {
                 # Read the path and file name of JPG picture
-                $PhotoFile = '{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName
+                $PhotoFile = '{0}\Pic\Default.jpg' -f $DMscripts
                 # Get the content of the JPG file
                 $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
             } else {
-                If(Test-Path -Path ('{0}\Pic\Default.jpg' -f $DMscripts)) {
-                    # Read the path and file name of JPG picture
-                    $PhotoFile = '{0}\Pic\Default.jpg' -f $DMscripts
-                    # Get the content of the JPG file
-                    $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
-                } else {
-                    $photo = $null
+                $photo = $null
+            } #end If-Else
+        } #end If-Else
+
+        # Check if the new Admin account already exist. If not, then create it.
+        If($NewAdminExists) {
+            #The user was found. Proceed to modify it accordingly.
+            $parameters = @{
+                Enabled               = $true
+                UserPrincipalName     = ('{0}@{1}' -f $newAdminName, $env:USERDNSDOMAIN)
+                SamAccountName        = $newAdminName
+                DisplayName           = $newAdminName
+                Description           = $confXML.n.Admin.users.NEWAdmin.description
+                employeeId            = '0123456'
+                TrustedForDelegation  = $false
+                AccountNotDelegated   = $true
+                Company               = $confXML.n.RegisteredOrg
+                Country               = 'MX'
+                Department            = $confXML.n.Admin.users.NEWAdmin.department
+                State                 = 'Puebla'
+                EmailAddress          = ('{0}@{1}' -f $newAdminName, $env:USERDNSDOMAIN)
+                Replace               = @{
+                    'employeeType'                  = $confXML.n.NC.AdminAccSufix0
+                    'msNpAllowDialin'               = $false
+                    'msDS-SupportedEncryptionTypes' = '24'
                 }
             }
 
-            # Check if the new Admin account already exist. If not, then create it.
-            If($NewAdminExists) {
-                #The user was found. Proceed to modify it accordingly.
-                $parameters = @{
-                    Enabled               = $true
-                    UserPrincipalName     = ('{0}@{1}' -f $newAdminName, $env:USERDNSDOMAIN)
-                    SamAccountName        = $newAdminName
-                    DisplayName           = $newAdminName
-                    Description           = $confXML.n.Admin.users.NEWAdmin.description
-                    employeeId            = '0123456'
-                    TrustedForDelegation  = $false
-                    AccountNotDelegated   = $true
-                    Company               = $confXML.n.RegisteredOrg
-                    Country               = 'MX'
-                    Department            = $confXML.n.Admin.users.NEWAdmin.department
-                    State                 = 'Puebla'
-                    EmailAddress          = ('{0}@{1}' -f $newAdminName, $env:USERDNSDOMAIN)
-                    Replace               = @{
-                        'employeeType'                  = $confXML.n.NC.AdminAccSufix0
-                        'msNpAllowDialin'               = $false
-                        'msDS-SupportedEncryptionTypes' = '24'
-                    }
+            # If photo exist, add it to parameters
+            If($photo) {
+                # Only if photo exists, add it to splatting
+                $parameters.Replace.Add('thumbnailPhoto',$photo)
+            }
+
+            Set-AdUser -Identity $NewAdminExists
+        }  Else {
+            # User was not Found! create new.
+            $parameters = @{
+                Path                  = $ItAdminAccountsOuDn
+                Name                  = $newAdminName
+                AccountPassword       = (ConvertTo-SecureString -String $confXML.n.DefaultPassword -AsPlainText -Force)
+                ChangePasswordAtLogon = $false
+                Enabled               = $true
+                UserPrincipalName     = ('{0}@{1}' -f $newAdminName, $env:USERDNSDOMAIN)
+                SamAccountName        = $newAdminName
+                DisplayName           = $newAdminName
+                Description           = $confXML.n.Admin.users.NEWAdmin.description
+                employeeId            = '0123456'
+                TrustedForDelegation  = $false
+                AccountNotDelegated   = $true
+                Company               = $confXML.n.RegisteredOrg
+                Country               = 'MX'
+                Department            = $confXML.n.Admin.users.NEWAdmin.department
+                State                 = 'Puebla'
+                EmailAddress          = ('{0}@{1}' -f $newAdminName, $env:USERDNSDOMAIN)
+                OtherAttributes       = @{
+                    'employeeType'                  = $confXML.n.NC.AdminAccSufix0
+                    'msNpAllowDialin'               = $false
+                    'msDS-SupportedEncryptionTypes' = '24'
                 }
-
-                # If photo exist, add it to parameters
-                If($photo) {
-                    # Only if photo exists, add it to splatting
-                    $parameters.Replace.Add('thumbnailPhoto',$photo)
-                }
-
-                Set-AdUser -Identity $NewAdminExists
-            } #end if -user exists
-            Else {
-                # User was not Found! create new.
-                $parameters = @{
-                    Path                  = $ItAdminAccountsOuDn
-                    Name                  = $newAdminName
-                    AccountPassword       = (ConvertTo-SecureString -String $confXML.n.DefaultPassword -AsPlainText -Force)
-                    ChangePasswordAtLogon = $false
-                    Enabled               = $true
-                    UserPrincipalName     = ('{0}@{1}' -f $newAdminName, $env:USERDNSDOMAIN)
-                    SamAccountName        = $newAdminName
-                    DisplayName           = $newAdminName
-                    Description           = $confXML.n.Admin.users.NEWAdmin.description
-                    employeeId            = '0123456'
-                    TrustedForDelegation  = $false
-                    AccountNotDelegated   = $true
-                    Company               = $confXML.n.RegisteredOrg
-                    Country               = 'MX'
-                    Department            = $confXML.n.Admin.users.NEWAdmin.department
-                    State                 = 'Puebla'
-                    EmailAddress          = ('{0}@{1}' -f $newAdminName, $env:USERDNSDOMAIN)
-                    OtherAttributes       = @{
-                        'employeeType'                  = $confXML.n.NC.AdminAccSufix0
-                        'msNpAllowDialin'               = $false
-                        'msDS-SupportedEncryptionTypes' = '24'
-                    }
-                }
-
-                If($photo) {
-                    # Only if photo exists, add it to splatting
-                    $parameters.OtherAttributes.Add('thumbnailPhoto',$photo)
-                }
-
-                # Create the new Admin with special values
-                New-AdUser @parameters
-                $NewAdminExists = Get-AdUser -Identity $newAdminName
-
-                #http://blogs.msdn.com/b/openspecification/archive/2011/05/31/windows-configurations-for-kerberos-supported-encryption-type.aspx
-                # 'msDS-SupportedEncryptionTypes'= Kerberos DES Encryption = 2, Kerberos AES 128 = 8, Kerberos AES 256 = 16
-            } #end esle-if new user created
-
-            # Set the Protect against accidental deletions attribute
-            Get-AdUser -Identity $AdminName | Set-ADObject -ProtectedFromAccidentalDeletion $true
-            $NewAdminExists                 | Set-ADObject -ProtectedFromAccidentalDeletion $true
-
-            # Make it member of administrative groups
-            Add-AdGroupNesting -Identity 'Domain Admins'                          -Members $NewAdminExists
-            Add-AdGroupNesting -Identity 'Enterprise Admins'                      -Members $NewAdminExists
-            Add-AdGroupNesting -Identity 'Group Policy Creator Owners'            -Members $NewAdminExists
-            Add-AdGroupNesting -Identity 'Denied RODC Password Replication Group' -Members $NewAdminExists
-
-            # http://blogs.msdn.com/b/muaddib/archive/2013/12/30/how-to-modify-security-inheritance-on-active-directory-objects.aspx
-
-            ####
-            # Remove Everyone group from Admin-User & Administrator
-            Remove-Everyone -LDAPPath $NewAdminExists.DistinguishedName
-            Remove-Everyone -LDAPPath ('CN={0},{1}' -f $AdminName, $ItAdminAccountsOuDn)
-
-            ####
-            # Remove AUTHENTICATED USERS group from Admin-User & Administrator
-            #Remove-AuthUser -LDAPPath $NewAdminExists.DistinguishedName
-            #Remove-AuthUser -LDAPPath ('CN={0},{1}' -f $AdminName, $ItAdminAccountsOuDn)
-
-            ####
-            # Remove Pre-Windows 2000 Compatible Access group from Admin-User & Administrator
-            Remove-PreWin2000 -LDAPPath $NewAdminExists.DistinguishedName
-            Remove-PreWin2000 -LDAPPath ('CN={0},{1}' -f $AdminName, $ItAdminAccountsOuDn)
-
-            ###
-            # Configure TheGood account
-            $params = @{
-                'employeeType'                  = $confXML.n.NC.AdminAccSufix0
-                'msNpAllowDialin'               = $false
-                'msDS-SupportedEncryptionTypes' = '24'
             }
 
             If($photo) {
                 # Only if photo exists, add it to splatting
-                $params.Add('thumbnailPhoto',$photo)
-            }
+                $parameters.OtherAttributes.Add('thumbnailPhoto',$photo)
+            } #end If
 
-            Set-AdUser -Identity $AdminName -TrustedForDelegation $false -AccountNotDelegated $true -Add $params
-        } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
-        } finally {
-            Write-Verbose -Message 'Admin accounts created and secured.'
-        } # end try
+            # Create the new Admin with special values
+            New-AdUser @parameters
+            $NewAdminExists = Get-AdUser -Identity $newAdminName
+
+            #http://blogs.msdn.com/b/openspecification/archive/2011/05/31/windows-configurations-for-kerberos-supported-encryption-type.aspx
+            # 'msDS-SupportedEncryptionTypes'= Kerberos DES Encryption = 2, Kerberos AES 128 = 8, Kerberos AES 256 = 16
+        } #end esle-if new user created
+
+        # Set the Protect against accidental deletions attribute
+        Get-AdUser -Identity $AdminName | Set-ADObject -ProtectedFromAccidentalDeletion $true
+        $NewAdminExists                 | Set-ADObject -ProtectedFromAccidentalDeletion $true
+
+        # Make it member of administrative groups
+        Add-AdGroupNesting -Identity 'Domain Admins'                          -Members $NewAdminExists
+        Add-AdGroupNesting -Identity 'Enterprise Admins'                      -Members $NewAdminExists
+        Add-AdGroupNesting -Identity 'Group Policy Creator Owners'            -Members $NewAdminExists
+        Add-AdGroupNesting -Identity 'Denied RODC Password Replication Group' -Members $NewAdminExists
+
+        # http://blogs.msdn.com/b/muaddib/archive/2013/12/30/how-to-modify-security-inheritance-on-active-directory-objects.aspx
+
+        ####
+        # Remove Everyone group from Admin-User & Administrator
+        Remove-Everyone -LDAPPath $NewAdminExists.DistinguishedName
+        Remove-Everyone -LDAPPath ('CN={0},{1}' -f $AdminName, $ItAdminAccountsOuDn)
+
+        ####
+        # Remove AUTHENTICATED USERS group from Admin-User & Administrator
+        #Remove-AuthUser -LDAPPath $NewAdminExists.DistinguishedName
+        #Remove-AuthUser -LDAPPath ('CN={0},{1}' -f $AdminName, $ItAdminAccountsOuDn)
+
+        ####
+        # Remove Pre-Windows 2000 Compatible Access group from Admin-User & Administrator
+        Remove-PreWin2000 -LDAPPath $NewAdminExists.DistinguishedName
+        Remove-PreWin2000 -LDAPPath ('CN={0},{1}' -f $AdminName, $ItAdminAccountsOuDn)
+
+        ###
+        # Configure TheGood account
+        $params = @{
+            'employeeType'                  = $confXML.n.NC.AdminAccSufix0
+            'msNpAllowDialin'               = $false
+            'msDS-SupportedEncryptionTypes' = 24
+        }
+
+        If($photo) {
+            # Only if photo exists, add it to splatting
+            $params.Add('thumbnailPhoto',$photo)
+        }
+
+        Set-AdUser -Identity $AdminName -TrustedForDelegation $false -AccountNotDelegated $true -Add $params
+
+        Write-Verbose -Message 'Admin accounts created and secured.'
 
         #endregion Creating Secured Admin accounts
         ###############################################################################
@@ -1035,9 +1031,9 @@
 
         $PSOexists = $null
 
-        $PsoName = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
+        [String]$PsoName = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
 
-        $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
+        $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -eq $PsoName }
 
         if(-not($PSOexists)) {
             $parameters = @{
@@ -1058,9 +1054,7 @@
 
             New-ADFineGrainedPasswordPolicy @parameters
 
-            [String]$PsoName = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
-
-            $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
+            $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -eq $PsoName }
         } # End If PSO exists
 
 
@@ -1113,9 +1107,9 @@
         $PSOexists = $null
 
 
-        $PsoName = $confXML.n.Admin.PSOs.ServiceAccountsPSO.Name
+        [String]$PsoName = $confXML.n.Admin.PSOs.ServiceAccountsPSO.Name
 
-        $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
+        $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -eq $PsoName }
 
         if(-not($PSOexists)) {
             $parameters = @{
@@ -1688,24 +1682,36 @@
         New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItAdminOU.Name) -gpoScope U -gpoLinkPath $ItAdminAccountsOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupId $confXML.n.Admin.GPOs.AdminUserbaseline.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
 
         # Service Accounts
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItServiceAccountsOU.Name) -gpoScope U -gpoLinkPath $ItServiceAccountsOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT0OU.Name) -gpoScope U -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.Name, $ItServiceAccountsOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT1OU.Name) -gpoScope U -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT1OU.Name, $ItServiceAccountsOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT2OU.Name) -gpoScope U -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT2OU.Name, $ItServiceAccountsOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        $parameters = @{
+            gpoScope = 'U'
+            GpoAdmin = $sl_GpoAdminRight.SamAccountName
+        }
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItServiceAccountsOU.Name)  -gpoLinkPath $ItServiceAccountsOuDn
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT0OU.Name)             -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.Name, $ItServiceAccountsOuDn)
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT1OU.Name)             -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT1OU.Name, $ItServiceAccountsOuDn)
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT2OU.Name)             -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT2OU.Name, $ItServiceAccountsOuDn)
 
         # PAWs
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name)   -gpoScope C -gpoLinkPath $ItPawOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupId $confXML.n.Admin.GPOs.PAWbaseline.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT1OU.Name, $ItPawOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT2OU.Name, $ItPawOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name, $ItPawOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        $parameters = @{
+            gpoScope = 'C'
+            GpoAdmin = $sl_GpoAdminRight.SamAccountName
+        }
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name)   -gpoLinkPath $ItPawOuDn -gpoBackupId $confXML.n.Admin.GPOs.PAWbaseline.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn)
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT1OU.Name, $ItPawOuDn)
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT2OU.Name, $ItPawOuDn)
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name, $ItPawOuDn)
 
         # Infrastructure Servers
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name) -gpoScope C -gpoLinkPath $ItInfraOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupId $confXML.n.Admin.GPOs.INFRAbaseline.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0.Name, $ItInfraOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT1.Name, $ItInfraOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT2.Name, $ItInfraOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
+        $parameters = @{
+            gpoScope = 'C'
+            GpoAdmin = $sl_GpoAdminRight.SamAccountName
+        }
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name) -gpoLinkPath $ItInfraOuDn -gpoBackupId $confXML.n.Admin.GPOs.INFRAbaseline.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0.Name, $ItInfraOuDn)
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT1.Name, $ItInfraOuDn)
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT2.Name, $ItInfraOuDn)
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn)
 
         # redirected containers (X-Computers & X-Users)
         New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name, $AdDn) -GpoAdmin  $sl_GpoAdminRight.SamAccountName
@@ -1722,13 +1728,13 @@
         #Import the Default Domain Policy
         If($confXML.n.Admin.GPOs.DefaultDomain.backupID) {
             $splat = @{
-                BackupId   = $confXML.n.Admin.GPOs.DefaultDomain.backupID 
-                TargetName = $confXML.n.Admin.GPOs.DefaultDomain.Name 
+                BackupId   = $confXML.n.Admin.GPOs.DefaultDomain.backupID
+                TargetName = $confXML.n.Admin.GPOs.DefaultDomain.Name
                 path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
             }
             Import-GPO @splat
         }
-        
+
 
         # C-ItAdmin-Baseline
 

@@ -41,5 +41,6 @@
     "markdownlint.config": {
       "MD024": false // no-duplicate-header
     },
-    "editor.bracketPairColorization.independentColorPoolPerBracketType": true
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+    "editor.guides.bracketPairs": true
   }
