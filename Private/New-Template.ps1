@@ -1,11 +1,11 @@
 Function New-Template {
     <#
         .Synopsis
-            
+
         .DESCRIPTION
-            
+
         .EXAMPLE
-            
+
         .PARAMETER DisplayName
 
         .PARAMETER TemplateOtherAttributes
@@ -66,7 +66,7 @@ Function New-Template {
     } # End BEGIN section
 
     Process {
-        
+
         #Create OID
         $OID = New-TemplateOID -Server $Server -ConfigNC $ConfigNC
 
@@ -77,14 +77,14 @@ Function New-Template {
                 'msPKI-Cert-Template-OID' = $OID.TemplateOID
         }
         New-ADObject -Path $TemplateOIDPath -OtherAttributes $OIDOtherAttributes -Name $OID.TemplateName -Type 'msPKI-Enterprise-Oid' -Server $Server
-    
+
         # Ensure if msPKI-Cert-Template-OID already add it to hashtable
         If(-not $TemplateOtherAttributes.ContainsKey('msPKI-Cert-Template-OID')) {
             #Create Template itself
             $TemplateOtherAttributes+= @{
                 'msPKI-Cert-Template-OID' = $OID.TemplateOID
             }
-        }        
+        }
         $TemplatePath = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC
 
         New-ADObject -Path $TemplatePath -OtherAttributes $TemplateOtherAttributes -Name $DisplayName -DisplayName $DisplayName -Type pKICertificateTemplate -Server $Server

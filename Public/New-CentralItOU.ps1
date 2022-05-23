@@ -223,7 +223,7 @@
         try {
             # Active Directory Domain Distinguished Name
             If(-Not (Test-Path -Path variable:AdDn)) {
-                New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
+                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
@@ -1087,6 +1087,7 @@
                          $SL_DnsAdminRight.SamAccountName,
                          $SL_DirReplRight.SamAccountName,
                          $SL_PromoteDcRight.SamAccountName,
+                         $SL_TransferFSMOright.SamAccountName,
                          $SL_PISM.SamAccountName,
                          $SL_PAWM.SamAccountName,
                          $SL_PSAM.SamAccountName,
@@ -1179,6 +1180,7 @@
                          $SL_DnsAdminRight,
                          $SL_DirReplRight,
                          $SL_PromoteDcRight,
+                         $SL_TransferFSMOright,
                          $SL_PISM,
                          $SL_PAWM,
                          $SL_PSAM,
@@ -1627,7 +1629,8 @@
         # Site-Link Configuration Container
         # Create/Delete Site-Link
         Set-AdAclCreateDeleteSiteLink -Group $SL_InfraRight.SamAccountName
-
+        # Transfer FSMO roles
+        Set-AdAclFMSOtransfer -Group $SL_TransferFSMOright.SamAccountName -FSMOroles 'Schema', 'Infrastructure', 'DomainNaming', 'RID', 'PDC'
 
 
 
@@ -1679,7 +1682,7 @@
         # Admin Area
         New-DelegateAdGpo -gpoDescription 'ItAdmin-Baseline' -gpoScope 'C' -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
         New-DelegateAdGpo -gpoDescription 'ItAdmin-Baseline' -gpoScope 'U' -gpoLinkPath $ItAdminOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItAdminOU.Name) -gpoScope U -gpoLinkPath $ItAdminAccountsOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupId $confXML.n.Admin.GPOs.AdminUserbaseline.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
+        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItAdminOU.Name) -gpoScope U -gpoLinkPath $ItAdminAccountsOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupId $confXML.n.Admin.GPOs.AdminUserbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
 
         # Service Accounts
         $parameters = @{
@@ -1696,7 +1699,7 @@
             gpoScope = 'C'
             GpoAdmin = $sl_GpoAdminRight.SamAccountName
         }
-        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name)   -gpoLinkPath $ItPawOuDn -gpoBackupId $confXML.n.Admin.GPOs.PAWbaseline.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name)   -gpoLinkPath $ItPawOuDn -gpoBackupId $confXML.n.Admin.GPOs.PAWbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
         New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn)
         New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT1OU.Name, $ItPawOuDn)
         New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT2OU.Name, $ItPawOuDn)
@@ -1707,7 +1710,7 @@
             gpoScope = 'C'
             GpoAdmin = $sl_GpoAdminRight.SamAccountName
         }
-        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name) -gpoLinkPath $ItInfraOuDn -gpoBackupId $confXML.n.Admin.GPOs.INFRAbaseline.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
+        New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name) -gpoLinkPath $ItInfraOuDn -gpoBackupId $confXML.n.Admin.GPOs.INFRAbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
         New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0.Name, $ItInfraOuDn)
         New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT1.Name, $ItInfraOuDn)
         New-DelegateAdGpo @parameters -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT2.Name, $ItInfraOuDn)
@@ -1940,7 +1943,7 @@
         # Create basic GPO for Servers
         $parameters = @{
             gpoDescription = '{0}-Baseline' -f $ServersOu
-            gpoScope       = $confXML.n.Admin.GPOs.Servers.Scope
+            gpoScope       = $confXML.n.Servers.GPOs.Servers.Scope
             gpoLinkPath    = $ServersOuDn
             GpoAdmin       = $sl_GpoAdminRight.SamAccountName
             gpoBackupId    = $confXML.n.Servers.GPOs.Servers.backupID
@@ -2024,11 +2027,11 @@
 
         Write-Verbose -Message 'Creating Sites Area...'
 
-        New-DelegateAdOU -ouName $SitesOu -ouPath $AdDn -ouDescription $confXML.n.Sites.OUs.SitesOU.Description
+        New-DelegatedAdOU -ouName $SitesOu -ouPath $AdDn -ouDescription $confXML.n.Sites.OUs.SitesOU.Description
 
         # Create basic GPO for Users and Computers
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope 'C' -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupID $confXML.n.Sites.OUs.OuSiteComputer.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope 'U' -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupID $confXML.n.Sites.OUs.SitesOU.backupID -gpoBackupPath Join-Path $DMscripts SecTmpl
+        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope 'C' -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupID $confXML.n.Sites.OUs.OuSiteComputer.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
+        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope 'U' -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupID $confXML.n.Sites.OUs.SitesOU.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
 
 
 

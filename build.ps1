@@ -49,7 +49,6 @@ task Test {
         throw "$($Results.FailedCount) Tests failed"
     }
     #>
-    
 }
 
 task DebugBuild -if ($Configuration -eq "debug") {
@@ -138,7 +137,7 @@ task DebugBuild -if ($Configuration -eq "debug") {
             else {
                 Add-Content -Path $ModuleFile -Value "Export-ModuleMember -Function $(($function.split('.')[0]).ToString())"
             }
-            Add-Content -Path $ModuleFile -Value "#EndRegion - $function"            
+            Add-Content -Path $ModuleFile -Value "#EndRegion - $function"
         }
         catch {
             throw "Failed adding content to .psm1 for function: $($function)"
@@ -153,7 +152,7 @@ task DebugBuild -if ($Configuration -eq "debug") {
             $content = Get-Content -Path ".\Private\$($function)"
             Add-Content -Path $ModuleFile -Value "#Region - $function"
             Add-Content -Path $ModuleFile -Value $content
-            Add-Content -Path $ModuleFile -Value "#EndRegion - $function"            
+            Add-Content -Path $ModuleFile -Value "#EndRegion - $function"
         }
         catch {
             throw "Failed adding content to .psm1 for function: $($function)"
@@ -197,7 +196,7 @@ task Build -if($Configuration -eq "Release"){
         Remove-Item -Path ".\Output\$($ModuleName)" -Recurse -Force
     }
     try {
-        
+
         New-Item -Path ".\Output\$($ModuleName)\$($ModuleVersion)" -ItemType Directory
     }
     catch {
@@ -226,7 +225,7 @@ task Build -if($Configuration -eq "Release"){
     catch {
         throw "Failed updating Module manifest with public functions"
     }
-    
+
     Write-Verbose -Message "Copying Public .ps1 files"
     try {
         New-Item -Path ".\Output\$($ModuleName)\$($ModuleVersion)\Public" -ItemType Directory -ErrorAction Continue

@@ -29,9 +29,12 @@ function Test-IsValidDN {
         [string]
         $ObjectDN
     )
-
-    # Define DN Regex
-    [regex]$distinguishedNameRegex = '^(?:(?<cn>CN=(?<name>(?:[^,]|\,)*)),)?(?:(?<path>(?:(?:CN|OU)=(?:[^,]|\,)+,?)+),)?(?<domain>(?:DC=(?:[^,]|\,)+,?)+)$'
-
-    return $ObjectDN -match $distinguishedNameRegex
+    Begin {}
+    Process {
+        # Define DN Regex
+        [regex]$distinguishedNameRegex = '^(?:(?<cn>CN=(?<name>(?:[^,]|\,)*)),)?(?:(?<path>(?:(?:CN|OU)=(?:[^,]|\,)+,?)+),)?(?<domain>(?:DC=(?:[^,]|\,)+,?)+)$'
+    }
+    end {
+        return $ObjectDN -match $distinguishedNameRegex
+    }
 }

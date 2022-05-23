@@ -1,5 +1,4 @@
-function Grant-NTFSPermissions
-{
+function Grant-NTFSPermission {
     <#
         .Synopsis
             Function to Add NTFS permissions to a folder
@@ -50,7 +49,7 @@ function Grant-NTFSPermissions
     )
     Begin {
         $error.Clear()
-        
+
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
