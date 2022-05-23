@@ -380,6 +380,9 @@
         # It Admin Groups OU Distinguished Name
         $ItAdminGroupsOuDn = 'OU={0},{1}' -f $ItAdminGroupsOu, $ItAdminOuDn
 
+        # IT Administration purposes, containing groups used to grant local server Admin access.
+        $ItAdminSrvGroupsOU = 'OU={0},{1}' -f $ItAdminGroupsOu, $ItAdminOuDn
+
         # It Privileged Groups OU Distinguished Name
         $ItPrivGroupsOUDn = 'OU={0},{1}' -f $ItPrivGroupsOU, $ItAdminOuDn
 
@@ -523,6 +526,7 @@
         New-DelegateAdOU -ouName $ItServiceAccountsOu -ouDescription $confXML.n.Admin.OUs.ItServiceAccountsOU.description @Splat
         New-DelegateAdOU -ouName $ItHousekeepingOu    -ouDescription $confXML.n.Admin.OUs.ItHousekeepingOU.description    @Splat
         New-DelegateAdOU -ouName $ItInfraOu           -ouDescription $confXML.n.Admin.OUs.ItInfraOU.description           @Splat
+        New-DelegateAdOU -ouName $ItAdminSrvGroups    -ouDescription $confXML.n.Admin.OUs.ItAdminSrvGroups.description    @Splat
 
         # Ensure inheritance is enabled for child Admin OUs
         $Splat = @{
@@ -1518,6 +1522,15 @@
 
 
 
+        # Local Admin groups management
+        # Create/Delete Groups
+        Set-AdAclCreateDeleteGroup -Group $SL_SAGM.SamAccountName -LDAPPath $ItAdminSrvGroupsOU
+        # Change Group Properties
+        Set-AdAclChangeGroup -Group $SL_SAGM.SamAccountName -LDAPPath $ItAdminSrvGroupsOU
+
+
+
+
 
         # PISM - Privileged Infrastructure Services Management
         # Create/Delete Computers
@@ -1630,7 +1643,7 @@
         # Create/Delete Site-Link
         Set-AdAclCreateDeleteSiteLink -Group $SL_InfraRight.SamAccountName
         # Transfer FSMO roles
-        Set-AdAclFMSOtransfer -Group $SL_TransferFSMOright.SamAccountName -FSMOroles 'Schema', 'Infrastructure', 'DomainNaming', 'RID', 'PDC'
+        Set-AdAclFSMOtransfer -Group $SL_TransferFSMOright.SamAccountName -FSMOroles 'Schema', 'Infrastructure', 'DomainNaming', 'RID', 'PDC'
 
 
 
@@ -2027,7 +2040,7 @@
 
         Write-Verbose -Message 'Creating Sites Area...'
 
-        New-DelegatedAdOU -ouName $SitesOu -ouPath $AdDn -ouDescription $confXML.n.Sites.OUs.SitesOU.Description
+        New-DelegateAdOU -ouName $SitesOu -ouPath $AdDn -ouDescription $confXML.n.Sites.OUs.SitesOU.Description
 
         # Create basic GPO for Users and Computers
         $Splat = @{

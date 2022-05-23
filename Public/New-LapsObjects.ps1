@@ -122,17 +122,17 @@ Function New-LAPSobjects {
         $ItInfraServersOuDn = 'OU={0},{1}' -f $ItInfraServersOu, $ItAdminOuDn
 
         # It InfraServers Tier0 OU
-        $ItInfraT0OU = $confXML.n.Admin.OUs.ItInfraT0.name
+        $ItInfraT0OU = $confXML.n.Admin.OUs.ItInfraT0OU.name
         #  It InfraServers Tier0 OU Distinguished Name
         $ItInfraT0OUDN = 'OU={0},{1}' -f $ItInfraT0OU, $ItInfraServersOuDn
 
         # It InfraServers Tier1 OU
-        $ItInfraT1OU = $confXML.n.Admin.OUs.ItInfraT1.name
+        $ItInfraT1OU = $confXML.n.Admin.OUs.ItInfraT1OU.name
         #  It InfraServers Tier1 OU Distinguished Name
         $ItInfraT1OUDN = 'OU={0},{1}' -f $ItInfraT1OU, $ItInfraServersOuDn
 
         # It InfraServers Tier2 OU
-        $ItInfraT2OU = $confXML.n.Admin.OUs.ItInfraT2.name
+        $ItInfraT2OU = $confXML.n.Admin.OUs.ItInfraT2OU.name
         #  It InfraServers Tier2 OU Distinguished Name
         $ItInfraT2OUDN = 'OU={0},{1}' -f $ItInfraT2OU, $ItInfraServersOuDn
 
