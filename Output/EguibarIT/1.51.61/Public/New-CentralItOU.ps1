@@ -223,7 +223,7 @@
         try {
             # Active Directory Domain Distinguished Name
             If(-Not (Test-Path -Path variable:AdDn)) {
-                New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
+                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
@@ -1722,13 +1722,13 @@
         #Import the Default Domain Policy
         If($confXML.n.Admin.GPOs.DefaultDomain.backupID) {
             $splat = @{
-                BackupId   = $confXML.n.Admin.GPOs.DefaultDomain.backupID 
-                TargetName = $confXML.n.Admin.GPOs.DefaultDomain.Name 
+                BackupId   = $confXML.n.Admin.GPOs.DefaultDomain.backupID
+                TargetName = $confXML.n.Admin.GPOs.DefaultDomain.Name
                 path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
             }
             Import-GPO @splat
         }
-        
+
 
         # C-ItAdmin-Baseline
 

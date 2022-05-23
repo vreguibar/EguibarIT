@@ -2030,8 +2030,14 @@
         New-DelegatedAdOU -ouName $SitesOu -ouPath $AdDn -ouDescription $confXML.n.Sites.OUs.SitesOU.Description
 
         # Create basic GPO for Users and Computers
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope 'C' -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupID $confXML.n.Sites.OUs.OuSiteComputer.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $SitesOu) -gpoScope 'U' -gpoLinkPath $SitesOuDn -GpoAdmin  $sl_GpoAdminRight.SamAccountName -gpoBackupID $confXML.n.Sites.OUs.SitesOU.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
+        $Splat = @{
+            gpoDescription = ('{0}-Baseline' -f $SitesOu)
+            gpoLinkPath    = $SitesOuDn
+            GpoAdmin       = $sl_GpoAdminRight.SamAccountName
+            gpoBackupPath  = (Join-Path $DMscripts SecTmpl)
+        }
+        New-DelegateAdGpo @Splat -gpoScope 'C' -gpoBackupID $confXML.n.Sites.OUs.OuSiteComputer.backupID
+        New-DelegateAdGpo @Splat -gpoScope 'U' -gpoBackupID $confXML.n.Sites.OUs.SitesOU.backupID
 
 
 

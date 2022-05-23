@@ -77,7 +77,7 @@ function Set-AdAclDelegateComputerAdmin
     )
     begin {
         $error.Clear()
-        
+
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -92,9 +92,8 @@ function Set-AdAclDelegateComputerAdmin
         $parameters = $null
 
         # Active Directory Domain Distinguished Name
-        If(-Not (Test-Path -Path variable:AdDn))
-        {
-            New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
+        If(-Not (Test-Path -Path variable:AdDn)) {
+            $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
         }
     }
     Process {

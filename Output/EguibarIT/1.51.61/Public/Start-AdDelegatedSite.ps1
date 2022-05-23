@@ -129,7 +129,7 @@ function Start-AdDelegateSite
         try {
             # Active Directory Domain Distinguished Name
             If(-Not (Test-Path -Path variable:AdDn)) {
-                New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
+                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.

@@ -100,7 +100,7 @@ function Set-AdAclDelegateComputerAdmin
 
         # Active Directory Domain Distinguished Name
         If(-Not (Test-Path -Path variable:AdDn)) {
-            New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
+            $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
         }
     }
     Process {

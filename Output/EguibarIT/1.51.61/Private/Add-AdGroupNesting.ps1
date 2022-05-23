@@ -57,9 +57,8 @@ function Add-AdGroupNesting
         Import-Module -name ActiveDirectory -Verbose:$false
 
         # Active Directory Domain Distinguished Name
-        If(-Not (Test-Path -Path variable:AdDn))
-        {
-            New-Variable -Name 'AdDn' -Value ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString() -Option ReadOnly -Force
+        If(-Not (Test-Path -Path variable:AdDn)) {
+            $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
         }
 
         # Define an empty array
