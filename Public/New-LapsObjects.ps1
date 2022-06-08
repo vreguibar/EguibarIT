@@ -238,16 +238,18 @@ Function New-LAPSobjects {
                 $CurrentLDAPPath = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $Item
                 Set-AdAclLaps -ResetGroup $CurrentGroup.SamAccountName -ReadGroup $CurrentGroup.SamAccountName -LDAPPath $CurrentLDAPPath
 
-                # Get group who manages Local Servers & File-Print
-                $CurrentGroup = (Get-ADGroup -Identity ('{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $confXML.n.Sites.LG.LocalServerRight.Name, ($item.Split(',')[0].Substring(3)))).SamAccountName
+                <# -- Not compliant with Tieriing model.
+                    # Get group who manages Local Servers & File-Print
+                    $CurrentGroup = (Get-ADGroup -Identity ('{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $confXML.n.Sites.LG.LocalServerRight.Name, ($item.Split(',')[0].Substring(3)))).SamAccountName
 
-                # File-Print
-                $CurrentLDAPPath = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteFilePrint.Name, $Item
-                Set-AdAclLaps -ResetGroup $CurrentGroup.SamAccountName -ReadGroup $CurrentGroup.SamAccountName -LDAPPath $CurrentLDAPPath
+                    # File-Print
+                    $CurrentLDAPPath = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteFilePrint.Name, $Item
+                    Set-AdAclLaps -ResetGroup $CurrentGroup.SamAccountName -ReadGroup $CurrentGroup.SamAccountName -LDAPPath $CurrentLDAPPath
 
-                # Local Server
-                $CurrentLDAPPath = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLocalServer.Name, $Item
-                Set-AdAclLaps -ResetGroup $CurrentGroup.SamAccountName -ReadGroup $CurrentGroup.SamAccountName -LDAPPath $CurrentLDAPPath
+                    # Local Server
+                    $CurrentLDAPPath = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLocalServer.Name, $Item
+                    Set-AdAclLaps -ResetGroup $CurrentGroup.SamAccountName -ReadGroup $CurrentGroup.SamAccountName -LDAPPath $CurrentLDAPPath
+                #>
             }
         }#end foreach
     }

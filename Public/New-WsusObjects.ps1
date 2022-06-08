@@ -130,10 +130,11 @@
 
         # Set Application Pool Maximum Private memory
         #Clear-ItemProperty IIS:\AppPools\WsusPool -Name Recycling.periodicRestart.privatememory
-        #[int32] $PrivMemMax = 4GB
-        [int32] $PrivMemMax = 8GB
-        #[int32] $PrivMemMax = 0
-        Set-ItemProperty -Path IIS:\AppPools\WsusPool -Name Recycling.periodicRestart.privateMemory -Value $PrivMemMax
+        #[int64] $PrivMemMax = 4GB
+        #[int64] $PrivMemMax = 8GB
+        #[int64] $PrivMemMax = 0
+        # Set-ItemProperty -Path IIS:\AppPools\WsusPool -Name Recycling.periodicRestart.privateMemory -Value $PrivMemMax
+        Set-ItemProperty -Path IIS:\AppPools\WsusPool -Name Recycling.periodicRestart.privateMemory -Value 4294967295
 
 		# ( C:\Program Files\Update Services\WebServices\ClientWebService\web.config ) for WSUS: Replace <httpRuntime maxRequestLength="4096" /> with <httpRuntime maxRequestLength="204800" executionTimeout="7200"/>
 
@@ -216,13 +217,15 @@
         Set-WsusServerSynchronization -SyncFromMU
 
         # Set Update Languages to English and save configuration settings
-        $wsusConfig.AllUpdateLanguagesEnabled = $false
+        $wsusConfig.AllUpdateLanguagesEnabled                = $false
         $wsusConfig.SetEnabledUpdateLanguages('en')
-        $wsusConfig.GetContentFromMU = $True
-        $wsusConfig.AutoApproveWsusInfrastructureUpdates = $True
-        $wsusConfig.AutoRefreshUpdateApprovals = $True
+        $wsusConfig.GetContentFromMU                         = $True
+        $wsusConfig.AutoApproveWsusInfrastructureUpdates     = $True
+        $wsusConfig.AutoRefreshUpdateApprovals               = $True
         $wsusConfig.AutoRefreshUpdateApprovalsDeclineExpired = $True
-        $wsusConfig.HostBinariesOnMicrosoftUpdate = $True
+        $wsusConfig.HostBinariesOnMicrosoftUpdate            = $True
+        $wsusConfig.BitsDownloadPriorityForeground           = $True
+        $wsusConfig.MaxSimultaneousFileDownloads             = 1000
         $wsusConfig.Save()
 
         # Get WSUS Subscription and perform initial synchronization to get latest categories
@@ -285,13 +288,15 @@
         write-Output 'Setting WSUS Classifications'
         Get-WsusClassification | Where-Object {
             $_.Classification.Title -in (
-            'Critical Updates',
-            'Definition Updates',
-            'Feature Packs',
-            'Security Updates',
-            'Service Packs',
-            'Update Rollups',
-            'Updates')
+                'Critical Updates',
+                'Definition Updates',
+                'Feature Packs',
+                'Security Updates',
+                'Service Packs',
+                'Tools',
+                'Update Rollups',
+                'Updates',
+                'Upgrade')
         } | Set-WsusClassification
 
 
@@ -304,10 +309,13 @@
         $class = $wsus.GetUpdateClassifications() | Where-Object {$_.Title -In (
             'Critical Updates',
             'Definition Updates',
+            'Feature Packs',
             'Security Updates',
             'Service Packs',
+            'Tools',
             'Update Rollups',
-            'Updates')
+            'Updates',
+            'Upgrade')
         }
 
         $class_coll = New-Object Microsoft.UpdateServices.Administration.UpdateClassificationCollection
