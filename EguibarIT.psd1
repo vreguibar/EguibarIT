@@ -30,7 +30,7 @@ CompanyName = 'EguibarIT'
 Copyright = 'All rights reserved (c) 2022 - EguibarIT'
 
 # Description of the functionality provided by this module
-Description = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory'
+Description = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory.'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '5.1'
