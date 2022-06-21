@@ -1,4 +1,4 @@
-Function New-CaObjects
+﻿Function New-CaObjects
 {
     <#
         .Synopsis

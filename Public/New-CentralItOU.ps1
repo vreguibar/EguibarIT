@@ -381,7 +381,7 @@
         $ItAdminGroupsOuDn = 'OU={0},{1}' -f $ItAdminGroupsOu, $ItAdminOuDn
 
         # IT Administration purposes, containing groups used to grant local server Admin access.
-        $ItAdminSrvGroupsOU = 'OU={0},{1}' -f $ItAdminGroupsOu, $ItAdminOuDn
+        $ItAdminSrvGroupsOUDn = 'OU={0},{1}' -f $ItAdminSrvGroupsOU, $ItAdminOuDn
 
         # It Privileged Groups OU Distinguished Name
         $ItPrivGroupsOUDn = 'OU={0},{1}' -f $ItPrivGroupsOU, $ItAdminOuDn
@@ -470,10 +470,15 @@
 
 
 
-        # Quarantine OU
-        New-Variable -Name 'ItQuarantineOu' -Value $confXML.n.Admin.OUs.ItNewComputersOU.name -Option ReadOnly -Force
+        # Quarantine OU for PCs
+        New-Variable -Name 'ItQuarantinePcOu' -Value $confXML.n.Admin.OUs.ItNewComputersOU.name -Option ReadOnly -Force
         # Quarantine OU Distinguished Name
-        $ItQuarantineOuDn = 'OU={0},{1}' -f $ItQuarantineOu, $AdDn
+        $ItQuarantinePcOuDn = 'OU={0},{1}' -f $ItQuarantinePcOu, $AdDn
+
+        # Quarantine OU for PCs
+        New-Variable -Name 'ItQuarantineUserOu' -Value $confXML.n.Admin.OUs.ItNewUsersOU.name -Option ReadOnly -Force
+        # Quarantine OU Distinguished Name
+        $ItQuarantineUserOuDn = 'OU={0},{1}' -f $ItQuarantineUserOu, $AdDn
 
         # parameters variable for splatting CMDlets
         $parameters = $null
@@ -541,6 +546,7 @@
         Set-AdInheritance -LDAPPath $ItServiceAccountsOuDn @Splat
         Set-AdInheritance -LDAPPath $ItHousekeepingOuDn    @Splat
         Set-AdInheritance -LDAPPath $ItInfraOuDn           @Splat
+        Set-AdInheritance -LDAPPath $ItAdminSrvGroupsOUDn  @Splat
 
         # PAW Sub-OUs
         $Splat = @{
@@ -835,7 +841,7 @@
                 RemovePreWin2000              = $True
             }
             $varparam = @{
-                Name  = "$('SL{0}{1}' -f $NC['Delim'], $Node.LocalName)"
+                Name  = "$('SL{0}{1}' -f$NC['Delim'], $Node.LocalName)"
                 Value = New-AdDelegatedGroup @parameters
                 Force = $true
             }
@@ -907,7 +913,7 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
+        New-Variable -Name "$('SL{0}{1}' -f  $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
 
         $parameters = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name
@@ -921,7 +927,7 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
+        New-Variable -Name "$('SL{0}{1}' -f  $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
 
 
 
@@ -1212,22 +1218,25 @@
 
         ###############################################################################
         #region Nest Groups - Delegate Rights through Builtin groups
+        # https://docs.microsoft.com/en-us/windows/security/identity-protection/access-control/active-directory-security-groups
         # http://blogs.technet.com/b/lrobins/archive/2011/06/23/quot-admin-free-quot-active-directory-and-windows-part-1-understanding-privileged-groups-in-ad.aspx
         # http://blogs.msmvps.com/acefekay/2012/01/06/using-group-nesting-strategy-ad-best-practices-for-group-strategy/
 
-        Add-AdGroupNesting -Identity 'Cryptographic Operators' -Members $SG_AdAdmins
+        Add-AdGroupNesting -Identity 'Cryptographic Operators'         -Members $SG_AdAdmins
+
+        Add-AdGroupNesting -Identity DnsAdmins                         -Members $SG_AdAdmins
+
+        Add-AdGroupNesting -Identity 'Event Log Readers'               -Members $SG_AdAdmins, $SG_Operations
 
         Add-AdGroupNesting -Identity 'Network Configuration Operators' -Members $SG_AdAdmins
 
-        Add-AdGroupNesting -Identity DnsAdmins -Members $SG_AdAdmins
+        Add-AdGroupNesting -Identity 'Performance Log Users'            -Members $SG_AdAdmins, $SG_Operations
 
-        Add-AdGroupNesting -Identity 'Event Log Readers' -Members $SG_AdAdmins, $SG_Operations
+        Add-AdGroupNesting -Identity 'Performance Monitor Users'        -Members $SG_AdAdmins, $SG_Operations
 
-        Add-AdGroupNesting -Identity 'Performance Log Users' -Members $SG_AdAdmins, $SG_Operations
+        Add-AdGroupNesting -Identity 'Remote Desktop Users'             -Members $SG_AdAdmins
 
-        Add-AdGroupNesting -Identity 'Performance Monitor Users' -Members $SG_AdAdmins, $SG_Operations
-
-        Add-AdGroupNesting -Identity 'Remote Desktop Users' -Members $SG_AdAdmins
+        Add-AdGroupNesting -Identity 'Remote Management Users'          -Members $SG_AdAdmins
 
         # https://technet.microsoft.com/en-us/library/dn466518(v=ws.11).aspx
         $parameters = @($AdminName,
@@ -1419,8 +1428,8 @@
         ###############################################################################
         #region redirect Users & Computers containers
 
-        New-DelegateAdOU -ouName $ItQuarantineOu                        -ouPath $AdDn -ouDescription $confXML.n.Admin.OUs.ItNewComputersOU.description -RemoveAuthenticatedUsers
-        New-DelegateAdOU -ouName $confXML.n.Admin.OUs.ItNewUsersOU.Name -ouPath $AdDn -ouDescription $confXML.n.Admin.OUs.ItNewUsersOU.description     -RemoveAuthenticatedUsers
+        New-DelegateAdOU -ouName $ItQuarantinePcOu   -ouPath $AdDn -ouDescription $confXML.n.Admin.OUs.ItNewComputersOU.description -RemoveAuthenticatedUsers
+        New-DelegateAdOU -ouName $ItQuarantineUserOu -ouPath $AdDn -ouDescription $confXML.n.Admin.OUs.ItNewUsersOU.description     -RemoveAuthenticatedUsers
 
         # START Remove Delegation to BuiltIn groups BEFORE REDIRECTION
 
@@ -1474,8 +1483,8 @@
 
         ###############################################################################
         # Redirect Default USER & COMPUTERS Containers
-        redircmp.exe ('OU={0},{1}' -f $ItQuarantineOu, $AdDn)
-        redirusr.exe ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name, $AdDn)
+        redircmp.exe ('OU={0},{1}' -f $ItQuarantinePcOu, $AdDn)
+        redirusr.exe ('OU={0},{1}' -f $ItQuarantineUserOu, $AdDn)
 
         #endregion
         ###############################################################################
@@ -1524,9 +1533,9 @@
 
         # Local Admin groups management
         # Create/Delete Groups
-        Set-AdAclCreateDeleteGroup -Group $SL_SAGM.SamAccountName -LDAPPath $ItAdminSrvGroupsOU
+        Set-AdAclCreateDeleteGroup -Group $SL_SAGM.SamAccountName -LDAPPath $ItAdminSrvGroupsOUDn
         # Change Group Properties
-        Set-AdAclChangeGroup -Group $SL_SAGM.SamAccountName -LDAPPath $ItAdminSrvGroupsOU
+        Set-AdAclChangeGroup -Group $SL_SAGM.SamAccountName -LDAPPath $ItAdminSrvGroupsOUDn
 
 
 
@@ -1534,20 +1543,20 @@
 
         # PISM - Privileged Infrastructure Services Management
         # Create/Delete Computers
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraT0OuDn      -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraT1OuDn      -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraT2OuDn      -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraStagingOuDn -QuarantineDN $ItQuarantineOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraT0OuDn      -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraT1OuDn      -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraT2OuDn      -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
 
 
 
 
 
         # PAWM - Privileged Access Workstation Management
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawT0OuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawT1OuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawT2OuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawStagingOuDn -QuarantineDN $ItQuarantineOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawT0OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawT1OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawT2OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
 
 
 
@@ -1650,9 +1659,9 @@
 
         # AD Admins
         # Domain Controllers management
-        Set-AdAclDelegateComputerAdmin -Group $SL_AdRight.SamAccountName -LDAPPath $DCsOuDn          -QuarantineDN $ItQuarantineOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_AdRight.SamAccountName -LDAPPath $DCsOuDn          -QuarantineDN $ItQuarantinePcOuDn
         # Delete computers from default container
-        Set-DeleteOnlyComputer         -Group $SL_AdRight.SamAccountName -LDAPPath $ItQuarantineOuDn
+        Set-DeleteOnlyComputer         -Group $SL_AdRight.SamAccountName -LDAPPath $ItQuarantinePcOuDn
         # Subnet Configuration Container|
         # Change Subnet
         Set-AdAclChangeSubnet           -Group $SL_AdRight.SamAccountName
@@ -2010,7 +2019,7 @@
             ###############################################################################
             # Delegation to SL_SvrAdmRight group to SERVERS area
 
-            Set-AdAclDelegateComputerAdmin -Group $SL_SvrAdmRight.SamAccountName -LDAPPath $Item -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_SvrAdmRight.SamAccountName -LDAPPath $Item -QuarantineDN $ItQuarantinePcOuDn
 
             ###############################################################################
             # Delegation to SL_SvrOpsRight group on SERVERS area

@@ -1,6 +1,5 @@
 # Group together all COMPUTER admin delegations
-function Set-AdAclDelegateComputerAdmin
-{
+function Set-AdAclDelegateComputerAdmin {
     <#
         .Synopsis
             Wrapper for all rights used for Computer object container.
@@ -46,7 +45,7 @@ function Set-AdAclDelegateComputerAdmin
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     Param
     (
         # PARAM1 STRING for the Delegated Group Name
@@ -98,10 +97,6 @@ function Set-AdAclDelegateComputerAdmin
 
         $parameters = $null
 
-        # Active Directory Domain Distinguished Name
-        If(-Not (Test-Path -Path variable:AdDn)) {
-            $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-        }
     }
     Process {
         try {
@@ -115,39 +110,40 @@ function Set-AdAclDelegateComputerAdmin
                 $parameters.Add('RemoveRule', $true)
             }
 
-            # Create/Delete Computers
-            Set-AdAclCreateDeleteComputer @parameters
+            if ($Force -or $PSCmdlet.ShouldProcess("Proceed with delegations?")) {
+                # Create/Delete Computers
+                Set-AdAclCreateDeleteComputer @parameters
 
-            # Reset Computer Password
-            Set-AdAclResetComputerPassword @parameters
+                # Reset Computer Password
+                Set-AdAclResetComputerPassword @parameters
 
-            # Change Computer Password
-            Set-AdAclChangeComputerPassword @parameters
+                # Change Computer Password
+                Set-AdAclChangeComputerPassword @parameters
 
-            # Validated write to DNS host name
-            Set-AdAclValidateWriteDnsHostName @parameters
+                # Validated write to DNS host name
+                Set-AdAclValidateWriteDnsHostName @parameters
 
-            # Validated write to SPN
-            Set-AdAclValidateWriteSPN @parameters
+                # Validated write to SPN
+                Set-AdAclValidateWriteSPN @parameters
 
-            # Change Computer Account Restriction
-            Set-AdAclComputerAccountRestriction @parameters
+                # Change Computer Account Restriction
+                Set-AdAclComputerAccountRestriction @parameters
 
-            # Change DNS Hostname Info
-            Set-AdAclDnsInfo @parameters
+                # Change DNS Hostname Info
+                Set-AdAclDnsInfo @parameters
 
-            # Change MS TerminalServices info
-            Set-AdAclMsTsGatewayInfo @parameters
+                # Change MS TerminalServices info
+                Set-AdAclMsTsGatewayInfo @parameters
 
-            # Access to BitLocker & TMP info
-            Set-AdAclBitLockerTPM @parameters
+                # Access to BitLocker & TMP info
+                Set-AdAclBitLockerTPM @parameters
 
-            # Grant the right to delete computers from default container. Move Computers
-            Set-DeleteOnlyComputer @parameters
+                # Grant the right to delete computers from default container. Move Computers
+                Set-DeleteOnlyComputer @parameters
 
-            # Set LAPS
-            Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['LDAPpath']
-
+                # Set LAPS
+                Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['LDAPpath']
+            }
         }
         catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
     }
