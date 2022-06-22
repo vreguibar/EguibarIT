@@ -204,7 +204,7 @@
                         GroupCategory = $PSBoundParameters['GroupCategory']
                         GroupScope    = $PSBoundParameters['GroupScope']
                     }
-                    if ($PSCmdlet.ShouldContinue($Path, 'Group exist. Should it be modified?')) {
+                    if ($Force -or $PSCmdlet.ShouldProcess("Group does not exist. SHould it be created?")) {
                         Set-AdGroup @parameters
                     }
 

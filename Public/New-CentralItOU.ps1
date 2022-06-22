@@ -982,6 +982,7 @@
         $ExistSA = Get-ADServiceAccount -filter { SamAccountName -like $gMSASamAccountName }
 
         If(-not $ExistSA) {
+            Write-Verbose -Message ('Creating {0} Service Account {0}.' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name)
             If ($Global:OsBuild -ge 9200) {
 
                 $Splat = @{
@@ -1046,6 +1047,7 @@
         $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -eq $PsoName }
 
         if(-not($PSOexists)) {
+            Write-Verbose -Message ('Creating {0} PSO.' -f $PsoName)
             $parameters = @{
               Name                        = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
               Precedence                  = $confXML.n.Admin.PSOs.ItAdminsPSO.Precedence
@@ -1068,6 +1070,7 @@
         } # End If PSO exists
 
 
+        Write-Verbose -Message ('Apply the {0} PSO to the corresponding accounts and groups.' -f $PsoName)
         # Apply the PSO to the corresponding accounts and groups
         $parameters = @( $AdminName,
                          $newAdminName,
@@ -1123,6 +1126,7 @@
         $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -eq $PsoName }
 
         if(-not($PSOexists)) {
+            Write-Verbose -Message ('Creating {0} PSO.' -f $PsoName)
             $parameters = @{
               Name                        = $confXML.n.Admin.PSOs.ServiceAccountsPSO.Name
               Precedence                  = $confXML.n.Admin.PSOs.ServiceAccountsPSO.Precedence
@@ -1143,6 +1147,7 @@
             $PSOexists = Get-ADFineGrainedPasswordPolicy -Identity $PsoName
         }
 
+        Write-Verbose -Message ('Apply the {0} PSO to the corresponding accounts and groups.' -f $PsoName)
         # Apply the PSO to all Tier Service Accounts
         $parameters = @( $SG_Tier0ServiceAccount,
                          $SG_Tier1ServiceAccount,
