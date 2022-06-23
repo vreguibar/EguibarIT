@@ -58,7 +58,7 @@ function Add-AdGroupNesting
 
         # Active Directory Domain Distinguished Name
         If(-Not (Test-Path -Path variable:AdDn)) {
-            $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
+           $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
         }
 
         # Define an empty array
@@ -66,19 +66,14 @@ function Add-AdGroupNesting
         $NewMembers     = @()
         $parameters     = $null
 
-        If($identity.GetType() -eq [Microsoft.ActiveDirectory.Management.AdGroup])
-        {
+        If($identity.GetType() -eq [Microsoft.ActiveDirectory.Management.AdGroup]) {
             $Group = Get-AdGroup -Identity $Identity.ObjectGUID
         }
 
-        If($identity.GetType() -eq [System.String])
-        {
-            If($identity -ccontains $AdDn)
-            {
+        If($identity.GetType() -eq [System.String]) {
+            If($identity -contains $AdDn) {
                 $Group = Get-AdGroup -Filter { distinguishedName -eq $Identity }
-            }
-            ELSE
-            {
+            } ELSE {
                 $Group = Get-AdGroup -Filter { samAccountName -eq $Identity }
             }
         }
@@ -87,22 +82,17 @@ function Add-AdGroupNesting
         # Get group members
         Get-AdGroupMember -Identity $Group.SID | Select-Object -ExpandProperty sAMAccountName | ForEach-Object { $CurrentMembers += $_ }
 
-        try
-        {
+        try {
             Write-Verbose -Message ('Adding members to group..: {0}' -f $Group.SamAccountName)
 
-            Foreach ($item in $Members)
-            {
+            Foreach ($item in $Members) {
                 If($CurrentMembers -notcontains $item) {
                     $NewMembers += $item
-                }
-                else
-                {
+                } else {
                      Write-Verbose -Message ('{0} is already member of {1} group' -f $item.SamAccountName, $Group.SamAccountName)
                 }
             }
-            If($NewMembers.Count -gt 0)
-            {
+            If($NewMembers.Count -gt 0) {
                 $parameters = @{
                     Identity = $Group
                     Members  = $NewMembers
@@ -112,8 +102,7 @@ function Add-AdGroupNesting
             #Add-AdGroupMember @parameters
 
             Write-Verbose -Message ('Member {0} was added correctly to group {1}' -f $Members, $Group.sAMAccountName)
-        }
-        catch { throw }
+        } catch { throw }
     }
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) adding members to the group."

@@ -66,7 +66,7 @@
                 ItAdminGroupsOu
                 ItRightsOu
                 SitesOu
-                ItQuarantineOu
+                ItQuarantinePcOu
 
 
                 OuSiteUser
@@ -329,9 +329,9 @@
 
 
         # Quarantine OU
-        $ItQuarantineOu = $confXML.n.Admin.OUs.ItNewComputersOU.name
+        $ItQuarantinePcOu = $confXML.n.Admin.OUs.ItNewComputersOU.name
         # Quarantine OU Distinguished Name
-        $ItQuarantineOuDn = 'OU={0},{1}' -f $ItQuarantineOu, $AdDn
+        $ItQuarantinePcOuDn = 'OU={0},{1}' -f $ItQuarantinePcOu, $AdDn
 
 
 
@@ -488,35 +488,33 @@
 
         #region NESTING Global groups into Domain Local Groups -> order Less privileged to more privileged
 
-        Add-AdGroupNesting -Identity $SL_PwdRight -Members $SG_PwdAdmins, $SG_GALAdmins, $SG_SiteAdmins
+        Add-AdGroupNesting -Identity $SL_PwdRight        -Members $SG_PwdAdmins, $SG_GALAdmins, $SG_SiteAdmins
 
-        Add-AdGroupNesting -Identity $SL_PcRight -Members $SG_ComputerAdmins, $SG_SiteAdmins
+        Add-AdGroupNesting -Identity $SL_PcRight         -Members $SG_ComputerAdmins, $SG_SiteAdmins
 
-        Add-AdGroupNesting -Identity $SL_GroupRight -Members $SG_GroupAdmins, $SG_SiteAdmins
+        Add-AdGroupNesting -Identity $SL_GroupRight      -Members $SG_GroupAdmins, $SG_SiteAdmins
 
         Add-AdGroupNesting -Identity $SL_CreateUserRight -Members $SG_UserAdmins, $SG_SiteAdmins
 
-        Add-AdGroupNesting -Identity $SL_GALRight -Members $SG_GALAdmins, $SG_SiteAdmins
+        Add-AdGroupNesting -Identity $SL_GALRight        -Members $SG_GALAdmins, $SG_SiteAdmins
 
-        <# VIOLATES Tiering model  Add-AdGroupNesting -Identity $SL_LocalServerRight -Members $SG_SiteAdmins #>
-
-        Add-AdGroupNesting -Identity $SL_SiteRight -Members $SG_SiteAdmins
+        Add-AdGroupNesting -Identity $SL_SiteRight       -Members $SG_SiteAdmins
 
         #endregion
 
         #region NESTING Global groups into Global Groups -> order Less privileged to more privileged
 
-        Add-AdGroupNesting -Identity $SG_PwdAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.ServiceDesk.Name)
+        Add-AdGroupNesting -Identity $SG_PwdAdmins      -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.ServiceDesk.Name)
 
         Add-AdGroupNesting -Identity $SG_ComputerAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalPcAdmins.Name)
 
-        Add-AdGroupNesting -Identity $SG_GroupAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalGroupAdmins.Name)
+        Add-AdGroupNesting -Identity $SG_GroupAdmins    -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalGroupAdmins.Name)
 
-        Add-AdGroupNesting -Identity $SG_UserAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalUserAdmins.Name)
+        Add-AdGroupNesting -Identity $SG_UserAdmins     -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalUserAdmins.Name)
 
-        Add-AdGroupNesting -Identity $SG_GALAdmins -Members $SG_AllGALAdmins
+        Add-AdGroupNesting -Identity $SG_GALAdmins      -Members $SG_AllGALAdmins
 
-        Add-AdGroupNesting -Identity $SG_SiteAdmins -Members $SG_AllSiteAdmins
+        Add-AdGroupNesting -Identity $SG_SiteAdmins     -Members $SG_AllSiteAdmins
 
         #endregion
 
@@ -756,7 +754,7 @@
         # --- Exchange Related
         ###############################################################################
         If($PSBoundParameters['CreateExchange']) {
-            Start-AdDelegateSite -ConfigXMLFile $ConfigXMLFile -ouName $ouName -QuarantineDN $ItQuarantineOuDn -CreateExchange
+            Start-AdDelegateSite -ConfigXMLFile $ConfigXMLFile -ouName $ouName -QuarantineDN $ItQuarantinePcOuDn -CreateExchange
 
             #create Sub-OUs
             # --- USER CLASS ---
@@ -789,7 +787,7 @@
             }
             Set-GPPermissions @splat
         } else {
-            Start-AdDelegateSite -ConfigXMLFile $ConfigXMLFile -ouName $ouName -QuarantineDN $ItQuarantineOuDn
+            Start-AdDelegateSite -ConfigXMLFile $ConfigXMLFile -ouName $ouName -QuarantineDN $ItQuarantinePcOuDn
         } # end if CreateExchange
 
         # --- LAPS Related

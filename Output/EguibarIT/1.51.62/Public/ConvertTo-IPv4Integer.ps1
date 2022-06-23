@@ -45,11 +45,11 @@ function ConvertTo-IPv4Integer {
     Process {
         Try{
             $ipAddress = [IPAddress]::Parse($IPv4Address)
-        
+
             $bytes = $ipAddress.GetAddressBytes()
 
             [Array]::Reverse($bytes)
-        
+
             [System.BitConverter]::ToUInt32($bytes,0)
 
           }Catch{

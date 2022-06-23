@@ -63,7 +63,7 @@
             Eguibar Information Technology S.L.
             http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
     [OutputType([Microsoft.ActiveDirectory.Management.AdGroup])]
     Param
     (
@@ -187,7 +187,9 @@
                     Path           = $PSBoundParameters['path']
                     Description    = $PSBoundParameters['Description']
                 }
-                New-ADGroup @parameters
+                if ($Force -or $PSCmdlet.ShouldProcess("Group does not exist. SHould it be created?")) {
+                    New-ADGroup @parameters
+                }
             }
             else {
                 Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
@@ -202,7 +204,9 @@
                         GroupCategory = $PSBoundParameters['GroupCategory']
                         GroupScope    = $PSBoundParameters['GroupScope']
                     }
-                    Set-AdGroup @parameters
+                    if ($Force -or $PSCmdlet.ShouldProcess("Group does not exist. SHould it be created?")) {
+                        Set-AdGroup @parameters
+                    }
 
                     If (-not($newGroup.DistinguishedName -ccontains $PSBoundParameters['path'])) {
                         # Move object to the corresponding OU

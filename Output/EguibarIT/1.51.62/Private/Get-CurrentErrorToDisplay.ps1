@@ -10,8 +10,6 @@ function Get-CurrentErrorToDisplay {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
         .PARAMETER CurrentError
             Is the error to be processed
-        .INPUTS
-            None
         .OUTPUTS
             Multi-line string
         .LINKS
@@ -28,8 +26,8 @@ function Get-CurrentErrorToDisplay {
     [CmdletBinding(ConfirmImpact = 'Low')]
     [OutputType([System.String])]
     Param (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-            HelpMessage = 'Current error (usually from $Error variable) which is going to be proccessed.',
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+            HelpMessage = 'Current error (usually from $Error variable) which is going to be proccessed. If no error is provided then $error[0] will be used instead.',
             Position = 0)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
@@ -37,10 +35,24 @@ function Get-CurrentErrorToDisplay {
     )
 
     Begin {
+        Write-Verbose -Message '|=> ************************************************************************ <=|'
+        Write-Verbose -Message (Get-Date).ToShortDateString()
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
+
+        #display PSBoundparameters formatted nicely for Verbose output
+        $NL   = "`n"  # New Line
+        $HTab = "`t"  # Horizontal Tab
+        [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
+        Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
+
         $Section     = '----------------------------------------'
         $Header      = '################################################################################'
         $OutputError = New-Object -TypeName "System.Text.StringBuilder"
 
+        if(-not $PSBoundParameters['CurrentError']) {
+            Write-Verbose -Message 'No error passed to the CurrentError variable. Using the last error stored on $error variable'
+            $CurrentError = $error[0]
+        }
     } # End BEGIN section
 
     Process {
@@ -114,5 +126,11 @@ function Get-CurrentErrorToDisplay {
 
     End {
         return $OutputError.ToString()
+        Write-Verbose -Message 'Cleaning the $error variable'
+        $error.Clear()
+        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
+        Write-Verbose -Message ''
+        Write-Verbose -Message '-------------------------------------------------------------------------------'
+        Write-Verbose -Message ''
     } # End END section
 } # End Function

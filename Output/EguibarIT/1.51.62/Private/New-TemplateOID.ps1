@@ -1,11 +1,11 @@
 Function New-TemplateOID {
     <#
         .Synopsis
-            
+
         .DESCRIPTION
-            
+
         .EXAMPLE
-            
+
         .PARAMETER Server
 
         .PARAMETER ConfigNC
@@ -75,7 +75,7 @@ Function New-TemplateOID {
             $OID_Forest = Get-ADObject @splat | Select-Object -ExpandProperty msPKI-Cert-Template-OID
 
             $msPKICertTemplateOID = '{0}.{1}.{2}' -f $OID_Forest, $OID_Part_1, $OID_Part_2
-            
+
             $Name = '{0}.{1}' -f $OID_Part_2, $OID_Part_3
 
         } until (IsUniqueOID -cn $Name -TemplateOID $msPKICertTemplateOID -Server $Server -ConfigNC $ConfigNC)
