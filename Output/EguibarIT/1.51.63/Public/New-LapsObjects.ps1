@@ -56,6 +56,7 @@ Function New-LAPSobjects {
         ################################################################################
         # Initialisations
         Import-Module ActiveDirectory      -Verbose:$false
+        Import-Module EguibarIT            -Verbose:$false
         Import-Module EguibarIT.Delegation -Verbose:$false
         Import-Module AdmPwd.PS            -Verbose:$false
 
@@ -79,24 +80,37 @@ Function New-LAPSobjects {
         }
         catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
-        # Naming conventions hashtable
-        $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
-                'sg'    = $confXML.n.NC.GlobalGroupPreffix;
-                'su'    = $confXML.n.NC.UniversalGroupPreffix;
-                'Delim' = $confXML.n.NC.Delimiter;
-                'T0'    = $confXML.n.NC.AdminAccSufix0;
-                'T1'    = $confXML.n.NC.AdminAccSufix1;
-                'T2'    = $confXML.n.NC.AdminAccSufix2
+        If(-Not (Test-Path -Path variable:NC)) {
+            # Naming conventions hashtable
+            $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
+                    'sg'    = $confXML.n.NC.GlobalGroupPreffix;
+                    'su'    = $confXML.n.NC.UniversalGroupPreffix;
+                    'Delim' = $confXML.n.NC.Delimiter;
+                    'T0'    = $confXML.n.NC.AdminAccSufix0;
+                    'T1'    = $confXML.n.NC.AdminAccSufix1;
+                    'T2'    = $confXML.n.NC.AdminAccSufix2
+            }
         }
-
         #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM, $NC['T0'])
         # SG_PAWM_T0
 
-        $SL_InfraRight  = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.InfraRight.Name)
-        $SL_PISM        = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PISM.Name)
-        $SL_PAWM        = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PAWM.Name)
+        If(-Not (Test-Path -Path variable:SL_InfraRight)) {
+            $SL_InfraRight  = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.InfraRight.Name)
+        }
+
+        If(-Not (Test-Path -Path variable:SL_PISM)) {
+            $SL_PISM        = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PISM.Name)
+        }
+
+        If(-Not (Test-Path -Path variable:SL_PAWM)) {
+            $SL_PAWM        = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PAWM.Name)
+        }
+
         # $SL_AdRight    = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.AdRight.Name)
-        $SL_SvrAdmRight = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name)
+
+        If(-Not (Test-Path -Path variable:SL_SvrAdmRight)) {
+            $SL_SvrAdmRight = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name)
+        }
 
         $guidmap = $null
         $guidmap = @{}
@@ -107,14 +121,22 @@ Function New-LAPSobjects {
         # Organizational Units Distinguished Names
 
         # IT Admin OU
-        $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
+        If(-Not (Test-Path -Path variable:ItAdminOu)) {
+            $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
+        }
         # IT Admin OU Distinguished Name
-        $ItAdminOuDn = 'OU={0},{1}' -f $ItAdminOu, $AdDn
+        If(-Not (Test-Path -Path variable:ItAdminOuDn)) {
+            New-Variable -Name 'ItAdminOuDn' -Value ('OU={0},{1}' -f $ItAdminOu, $AdDn) -Option ReadOnly -Force
+        }
 
         # Servers OU
-        $ServersOu = $confXML.n.Servers.OUs.ServersOU.name
+        If(-Not (Test-Path -Path variable:ServersOu)) {
+            $ServersOu = $confXML.n.Servers.OUs.ServersOU.name
+        }
         # Servers OU Distinguished Name
-        $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $AdDn
+        If(-Not (Test-Path -Path variable:ServersOuDn)) {
+            $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $AdDn
+        }
 
         # It InfraServers OU
         $ItInfraServersOu = $confXML.n.Admin.OUs.ItInfraOU.name
