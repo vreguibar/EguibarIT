@@ -23,6 +23,8 @@
             [switch] If present It will create all needed Exchange objects and containers.
         .PARAMETER CreateLAPS
             [switch] If present It will create all needed LAPS objects, containers and delegations.
+        .PARAMETER GpoBackupPath
+            [string] Full path to theGPO backup files
         .PARAMETER ConfigXMLFile
             [String] Full path to the configuration.xml file
         .NOTES
@@ -203,9 +205,16 @@
         $CreateLAPS,
 
         # PARAM10 full path to the configuration.xml file
+        [Parameter(Mandatory = $false, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+            HelpMessage='Full path to theGPO backup files',
+            Position=9)]
+        [string]
+        $GpoBackupPath,
+
+        # PARAM11 full path to the configuration.xml file
         [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
             HelpMessage='Full path to the configuration.xml file',
-            Position=9)]
+            Position=10)]
         [string]
         $ConfigXMLFile
 
@@ -575,7 +584,7 @@
             $splat = @{
                 BackupId   = $confXML.n.Sites.OUs.OuSiteUser.backupID
                 TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteUser.Scope, $ouName, $confXML.n.Sites.OUs.OuSiteUser.Name
-                path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
+                path       = $GpoBackupPath
             }
             Import-GPO @splat
         }
@@ -590,7 +599,7 @@
             $splat = @{
                 BackupId   = $confXML.n.Sites.OUs.OuSiteComputer.backupID
                 TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteComputer.Scope, $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name
-                path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
+                path       = $GpoBackupPath
             }
             Import-GPO @splat
         }
@@ -649,7 +658,7 @@
             $splat = @{
                 BackupId   = $confXML.n.Sites.OUs.OuSiteLaptop.backupID
                 TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Scope, $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name
-                path       = Join-Path -Path $DMscripts -ChildPath SecTmpl
+                path       = $GpoBackupPath
             }
             Import-GPO @splat
         }

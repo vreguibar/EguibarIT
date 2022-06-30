@@ -5,11 +5,13 @@ function Grant-NTFSPermission {
         .DESCRIPTION
             Function to Add NTFS permissions to a folder
         .EXAMPLE
-            Grant-NTFSPermissions path object permission
-        .INPUTS
-            Param1 path:......... The path to the folder
-            Param2 object:....... the identity which will get the permissions
-            Param3 permission:... the permissions to be modified
+            Grant-NTFSPermission -Path 'C:\Shares' -Object 'TheGood' -Permissions 'FullControl'
+        .PARAMETER path
+            Absolute path to the object
+        .PARAMETER object
+            Name of the Identity getting the permission.
+        .PARAMETER permission
+            Permission of the object
         .NOTES
             Version:         1.1
             DateModified:    03/Oct/2016
@@ -31,7 +33,7 @@ function Grant-NTFSPermission {
 
         # Param2 object or SecurityPrincipal
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-            HelpMessage = 'Name of the object',
+            HelpMessage = 'Name of the Identity getting the permission.',
         Position = 1)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]

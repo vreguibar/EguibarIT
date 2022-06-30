@@ -80,7 +80,7 @@ function Set-AdAclLaps
         [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
         Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
 
-        Import-Module -Name 'AdmPwd.PS' -Force -Verbose
+        Import-Module -Name 'AdmPwd.PS' -Force -Verbose:$false
 
         $guidmap = $null
         $guidmap = @{}
@@ -90,11 +90,11 @@ function Set-AdAclLaps
         if(-not($null -eq $guidmap["ms-Mcs-AdmPwdExpirationTime"])) {
             Write-Verbose -Message "LAPS is supported on this environment. We can proceed to configure it."
 
-            Set-AdmPwdComputerSelfPermission -Identity $PSBoundParameters['LDAPpath']
+            Set-AdmPwdComputerSelfPermission -Identity $LDAPpath
 
-            Set-AdmPwdReadPasswordPermission -AllowedPrincipals $PSBoundParameters['ReadGroup'] -Identity $PSBoundParameters['LDAPpath']
+            Set-AdmPwdReadPasswordPermission -AllowedPrincipals $ReadGroup -Identity $LDAPpath
 
-            Set-AdmPwdResetPasswordPermission -AllowedPrincipals $PSBoundParameters['ResetGroup'] -Identity $PSBoundParameters['LDAPpath']
+            Set-AdmPwdResetPasswordPermission -AllowedPrincipals $ResetGroup -Identity $LDAPpath
         } else {
             Write-Error -Message "Not Implemented. Schema does not contains the requiered attributes."
         }
