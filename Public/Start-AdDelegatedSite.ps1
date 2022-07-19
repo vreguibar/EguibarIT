@@ -424,7 +424,10 @@ function Start-AdDelegateSite
 
             # Change Web Info
             Set-AdAclContactWebInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefContact
-        }
+        } else {
+            # Execute the Delegation if Exchange is not to be used.
+            Start-AdDelegateSite -ConfigXMLFile $ConfigXMLFile -ouName $ouName -QuarantineDN $ItQuarantineOuDn
+        } # end if CreateExchange
         #endregion Exchange Related delegation
         ###############################################################################
     }
