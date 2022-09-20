@@ -142,9 +142,9 @@ function New-AreaShareNTFS
 
         Start-Sleep -Seconds 2
 
-        Grant-NTFSPermissions -path $FullShareName -object $PSBoundParameters['readGroup'] -permission 'ReadAndExecute, ChangePermissions'
-        Grant-NTFSPermissions -path $FullShareName -object $PSBoundParameters['changeGroup'] -permission 'Modify, ChangePermissions'
-        Grant-NTFSPermissions -path $FullShareName -object $PSBoundParameters['SG_SiteAdminsGroup'] -permission 'FullControl, ChangePermissions'
+        Grant-NTFSPermission -path $FullShareName -object $PSBoundParameters['readGroup'] -permission 'ReadAndExecute, ChangePermissions'
+        Grant-NTFSPermission -path $FullShareName -object $PSBoundParameters['changeGroup'] -permission 'Modify, ChangePermissions'
+        Grant-NTFSPermission -path $FullShareName -object $PSBoundParameters['SG_SiteAdminsGroup'] -permission 'FullControl, ChangePermissions'
 
         #& "$env:windir\system32\net.exe" share $ShareName=$FullShareName '/GRANT:Everyone,FULL'
 
