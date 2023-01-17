@@ -24,12 +24,10 @@
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
+        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-        #display PSBoundparameters formatted nicely for Verbose output
-        $NL   = "`n"  # New Line
-        $HTab = "`t"  # Horizontal Tab
-        [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
-        Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
+        ##############################
+        # Variables Definition
 
 
         ################################################################################
@@ -332,7 +330,7 @@
 
         # Set synchronization scheduled for midnight each night
         $subscription.SynchronizeAutomaticallyTimeOfDay= (New-TimeSpan -Hours 0)
-        $subscription.NumberOfSynchronizationsPerDay=1
+        $subscription.NumberOfSynchronizationsPerDay=3
         $subscription.Save()
 
         # Kick off a synchronization
