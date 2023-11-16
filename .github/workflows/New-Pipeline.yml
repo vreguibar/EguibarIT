@@ -21,7 +21,7 @@ jobs:
       - name: Setup PowerShell
         uses: PowerShell/setup-powershell@v2
         with:
-          pwsh-version: '7.1'
+          pwsh-version: '7.3'
 
       - name: Set required PowerShell modules
         id: psmodulecache
