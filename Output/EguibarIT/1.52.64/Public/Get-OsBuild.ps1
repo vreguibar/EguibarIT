@@ -26,37 +26,37 @@ Function Get-OsBuild {
 
         ##############################
         # Variables Definition
-
-  }
+  } #end Begin
   Process {
     Try {
       # http://www.gaijin.at/en/lstwinver.php
       # http://en.wikipedia.org/wiki/Windows_NT
       # Get OS Information
-      [int]$Global:OsMajorVersion    = ((Get-CimInstance -ClassName Win32_OperatingSystem).Version).split('.')[0]
-      [int]$Global:OsMinorVersion    = ((Get-CimInstance -ClassName Win32_OperatingSystem).Version).split('.')[1]
-      [int]$Global:OsBuild           = ((Get-CimInstance -ClassName Win32_OperatingSystem).Version).split('.')[2]
-      #[String]$Global:OsCaption      = (Get-CimInstance -ClassName Win32_OperatingSystem).Caption
-      [int]$Global:OsSpMajorVersion  = (Get-CimInstance -ClassName Win32_OperatingSystem).ServicePackMajorVersion
-      #[int]$Global:OsSpMinorVersion  = (Get-CimInstance -ClassName Win32_OperatingSystem).ServicePackMinorVersion
-    }
-    catch
-    {
+      # Retrieve OS Information
+      $osInfo = Get-CimInstance -ClassName Win32_OperatingSystem
+      [int]$Global:OsMajorVersion    = $osInfo.Version.Split('.')[0]
+      [int]$Global:OsMinorVersion    = $osInfo.Version.Split('.')[1]
+      [int]$Global:OsBuild           = $osInfo.Version.Split('.')[2]
+      #[String]$Global:OsCaption     = $osInfo.Caption
+      [int]$Global:OsSpMajorVersion  = $osInfo.ServicePackMajorVersion
+      #[int]$Global:OsSpMinorVersion = $osInfo.ServicePackMinorVersion
+    } catch {
       $error.clear()
 
+      # Fallback to Environment.OSVersion if Get-CimInstance fails
       [Environment]::OSVersion.Version | ForEach-Object {
         [int]$Global:OsMajorVersion = $_.Major
         [int]$Global:OsMinorVersion = $_.Minor
-        [int]$Global:OsBuild = $_.Build
+        [int]$Global:OsBuild        = $_.Build
       }
 
       $Global:OsSpMajorVersion  = [Environment]::OSVersion.ServicePack
-    }
-  }
+    } #end Try-Catch
+  } #end Process
   End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting OS build."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+  } #end End
+} #end Function

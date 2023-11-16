@@ -303,8 +303,8 @@
         # Global Groups
         Foreach($node in $confXML.n.Admin.GG.ChildNodes) {
             $param = @{
-                Name        = "$('sg{0}{1}' -f $NC['Delim'], $Node.LocalName)"
-                Value       = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Node.Name
+                Name        = "$('SG{0}{1}' -f $NC['Delim'], $Node.LocalName)"
+                Value       = 'SG{0}{1}' -f $NC['Delim'], $Node.Name
                 Description = $Node.Description
                 Option      = 'ReadOnly'
                 Force       = $true
@@ -313,8 +313,8 @@
             New-Variable @Param
         }
 
-        New-Variable -Name "SG_Operations" -Value ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.Operations.Name) -Force
-        New-Variable -Name "SG_ServerAdmins" -Value ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name) -Force
+        New-Variable -Name "SG_Operations" -Value ('SGg{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.Name) -Force
+        New-Variable -Name "SG_ServerAdmins" -Value ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name) -Force
 
 
 
@@ -323,8 +323,8 @@
         # Domain Local Groups
         Foreach($node in $confXML.n.Admin.LG.ChildNodes) {
             $param = @{
-                Name        = "$('sl{0}{1}' -f $NC['Delim'], $Node.LocalName)"
-                Value       = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Node.Name
+                Name        = "$('SL{0}{1}' -f $NC['Delim'], $Node.LocalName)"
+                Value       = 'SL{0}{1}' -f $NC['Delim'], $Node.Name
                 Description = $Node.Description
                 Option      = 'ReadOnly'
                 Force       = $true
@@ -334,8 +334,8 @@
 
         }
 
-        New-Variable -Name "SL_SvrAdmRight" -Value ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name) -Force
-        New-Variable -Name "SL_SvrOpsRight" -Value ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name) -Force
+        New-Variable -Name "SL_SvrAdmRight" -Value ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name) -Force
+        New-Variable -Name "SL_SvrOpsRight" -Value ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name) -Force
 
 
 
@@ -1940,8 +1940,8 @@
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -InteractiveLogon $SL_PAWM.SamAccountName, Administrators
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -RemoteInteractiveLogon $SL_PAWM.SamAccountName
 
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -InteractiveLogon $SL_PAWM.SamAccountName, Administrators
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -RemoteInteractiveLogon $SL_PAWM.SamAccountName
+        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -InteractiveLogon $SL_PAWM.SamAccountName, Administrators, $SG_Tier0Admins.SamAccountName, $AdminName, $newAdminName
+        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -RemoteInteractiveLogon $SL_PAWM.SamAccountName, Administrators, $SG_Tier0Admins.SamAccountName, $AdminName, $newAdminName
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -BatchLogon $SG_Tier0ServiceAccount.SamAccountName -ServiceLogon $SG_Tier0ServiceAccount.SamAccountName
 
         Set-GpoPrivilegeRights -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -InteractiveLogon $SG_Tier1Admins.SamAccountName, Administrators

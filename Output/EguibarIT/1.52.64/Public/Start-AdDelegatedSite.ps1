@@ -1,6 +1,5 @@
 # Delegate Rights to SITE groups
-function Start-AdDelegateSite
-{
+function Start-AdDelegateSite {
     <#
         .Synopsis
             The function will create the corresponding Tier2 site
@@ -65,8 +64,7 @@ function Start-AdDelegateSite
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium', DefaultParameterSetName = 'ParamOptions')]
-    param
-    (
+    param (
         # PARAM1 full path to the configuration.xml file
         [Parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True, ValueFromRemainingArguments=$false,
             HelpMessage='Full path to the configuration.xml file',
@@ -97,15 +95,7 @@ function Start-AdDelegateSite
             HelpMessage = 'If present It will create all needed Exchange objects and containers.',
             Position = 3)]
         [switch]
-        $CreateExchange,
-
-        # PARAM5 Switch indicating if local server containers has to be created. Not recommended due TIer segregation
-        [Parameter(Mandatory = $false, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
-            HelpMessage='Switch indicating if local server containers has to be created. Not recommended due TIer segregation',
-            Position=4)]
-        [switch]
-        $CreateSrvContainer
-
+        $CreateExchange
     )
     begin {
         $error.Clear()
@@ -180,11 +170,6 @@ function Start-AdDelegateSite
 
         $OuSiteDefComputer    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.name, $ouNameDN
         $OuSiteDefLaptop      = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.name, $ouNameDN
-
-        if($PSBoundParameters['CreateSrvContainer']) {
-            $OuSiteDefLocalServer = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLocalServer.name, $ouNameDN
-            $OuSiteDefFilePrint   = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteFilePrint.name, $ouNameDN
-        }
 
         $OuSiteDefMailbox   = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteMailbox.name, $ouNameDN
         $OuSiteDefDistGroup = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteDistGroup.name, $ouNameDN
@@ -270,8 +255,8 @@ function Start-AdDelegateSite
         #region COMPUTER Site Admin Delegation
 
         # Create/Delete Computers
-        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName          -LDAPPath $OuSiteDefComputer    -QuarantineDN $PSBoundParameters['QuarantineDN']
-        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName          -LDAPPath $OuSiteDefLaptop      -QuarantineDN $PSBoundParameters['QuarantineDN']
+        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName -LDAPPath $OuSiteDefComputer -QuarantineDN $PSBoundParameters['QuarantineDN']
+        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName -LDAPPath $OuSiteDefLaptop   -QuarantineDN $PSBoundParameters['QuarantineDN']
 
         # Grant the right to delete computers from default container. Move Computers
         Set-DeleteOnlyComputer -Group $SL_PcRight.SamAccountName          -LDAPPath $PSBoundParameters['QuarantineDN']
@@ -286,25 +271,6 @@ function Start-AdDelegateSite
         Set-AdAclComputerPublicInfo -Group $SL_GALRight.SamAccountName         -LDAPPath $OuSiteDefComputer
         Set-AdAclComputerPublicInfo -Group $SL_GALRight.SamAccountName         -LDAPPath $OuSiteDefLaptop
 
-
-        if($PSBoundParameters['CreateSrvContainer']) {
-            # Create/Delete Computers
-            Set-AdAclDelegateComputerAdmin -Group $SL_LocalServerRight.SamAccountName -LDAPPath $OuSiteDefFilePrint   -QuarantineDN $PSBoundParameters['QuarantineDN']
-            Set-AdAclDelegateComputerAdmin -Group $SL_LocalServerRight.SamAccountName -LDAPPath $OuSiteDefLocalServer -QuarantineDN $PSBoundParameters['QuarantineDN']
-
-            # Grant the right to delete computers from default container. Move Computers
-            Set-DeleteOnlyComputer -Group $SL_LocalServerRight.SamAccountName -LDAPPath $PSBoundParameters['QuarantineDN']
-
-            #### GAL
-
-            # Change Personal Info
-            Set-AdAclComputerPersonalInfo -Group $SL_LocalServerRight.SamAccountName -LDAPPath $OuSiteDefFilePrint
-            Set-AdAclComputerPersonalInfo -Group $SL_LocalServerRight.SamAccountName -LDAPPath $OuSiteDefLocalServer
-
-            # Change Public Info
-            Set-AdAclComputerPublicInfo -Group $SL_LocalServerRight.SamAccountName -LDAPPath $OuSiteDefFilePrint
-            Set-AdAclComputerPublicInfo -Group $SL_LocalServerRight.SamAccountName -LDAPPath $OuSiteDefLocalServer
-        }
 
 
 

@@ -58,19 +58,26 @@ Function Get-ADCSTemplate {
             $LDAPFilter = "(&(objectClass=pKICertificateTemplate)(displayName=$DisplayName))"
         } Else {
             $LDAPFilter = '(objectClass=pKICertificateTemplate)'
-        }
-    }
+        } #end If
+    } #end Begin
     Process {
         $ConfigNC     = $((Get-ADRootDSE -Server $Server).configurationNamingContext)
 
         $TemplatePath = ('CN=Certificate Templates,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC)
 
-        Get-ADObject -SearchScope Subtree -SearchBase $TemplatePath -LDAPFilter $LDAPFilter -Properties * -Server $Server
-    }
+        $result = Get-ADObject -SearchScope Subtree -SearchBase $TemplatePath -LDAPFilter $LDAPFilter -Properties * -Server $Server
+
+        # Output verbose information
+        foreach ($item in $result) {
+            Write-Verbose -Message ('Template Name: {0}' -f $item.Name)
+            Write-Verbose -Message ('Created: {0}, Modified: {1}' -f $item.Created, $item.Modified)
+        } #end ForEach
+    } #end Process
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+        return $result
+    } #end End
+} #end Function

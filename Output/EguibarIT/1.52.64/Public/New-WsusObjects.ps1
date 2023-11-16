@@ -330,7 +330,7 @@
 
         # Set synchronization scheduled for midnight each night
         $subscription.SynchronizeAutomaticallyTimeOfDay= (New-TimeSpan -Hours 0)
-        $subscription.NumberOfSynchronizationsPerDay=1
+        $subscription.NumberOfSynchronizationsPerDay=3
         $subscription.Save()
 
         # Kick off a synchronization

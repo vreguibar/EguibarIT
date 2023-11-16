@@ -1,21 +1,30 @@
 Function New-TemplateOID {
     <#
         .Synopsis
+            Generates a new OID for certificate templates.
 
         .DESCRIPTION
+            This function generates a new OID (Object Identifier) for certificate templates within Active Directory.
 
         .EXAMPLE
+            $result = New-TemplateOID -Server "DC01" -ConfigNC "DC=example,DC=com"
+            $result.TemplateOID     # Output: ForestBaseOID.12345678.87654321
+            $result.TemplateName    # Output: 87654321.0123456789ABCDEF0123456789ABCDEF
 
         .PARAMETER Server
+            FQDN of a Domain Controller.
 
         .PARAMETER ConfigNC
-
-        .INPUTS
+            Configuration Naming Context of the domain.
 
         .NOTES
             Used Functions:
                 Name                           | Module
                 -------------------------------|--------------------------
+                Get-RandomHex                  | EguibarIT
+                Test-IsUniqueOID               | EguibarIT
+                Set-FunctionDisplay            | EguibarIT
+                Get-Random                     | Microsoft.Powershell.Utility
                 New-ADObject                   | ActiveDirectory
 
         .NOTES
@@ -76,12 +85,12 @@ Function New-TemplateOID {
 
             $Name = '{0}.{1}' -f $OID_Part_2, $OID_Part_3
 
-        } until (IsUniqueOID -cn $Name -TemplateOID $msPKICertTemplateOID -Server $Server -ConfigNC $ConfigNC)
+        } until (Test-IsUniqueOID -cn $Name -TemplateOID $msPKICertTemplateOID -Server $Server -ConfigNC $ConfigNC)
 
     } # End PROCESS Section
 
     End {
-        Return @{
+        $result = @{
             TemplateOID  = $msPKICertTemplateOID
             TemplateName = $Name
         }
@@ -90,6 +99,8 @@ Function New-TemplateOID {
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'
         Write-Verbose -Message ''
+
+        Return $result
 
     } # End END Section
 } # End Function New-TemplateOID

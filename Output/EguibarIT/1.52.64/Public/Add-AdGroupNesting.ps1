@@ -29,6 +29,7 @@ function Add-AdGroupNesting
             HelpMessage = 'Group which membership is to be changed',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
+        [Alias("GroupName")]
         $Identity,
 
         # Param2 ID of New Member of the group
@@ -39,6 +40,7 @@ function Add-AdGroupNesting
             HelpMessage = 'ID of New Member of the group. Can be a single string or array.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
+        [Alias("NewMembers")]
         $Members
     )
 
@@ -48,27 +50,29 @@ function Add-AdGroupNesting
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
+        if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
+            Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
+        } #end If
+
         ##############################
         # Variables Definition
-
-
-        Import-Module -name ActiveDirectory -Verbose:$false
 
         # Active Directory Domain Distinguished Name
         If(-Not (Test-Path -Path variable:AdDn)) {
            $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
         }
 
-        # Define an empty array
-        $CurrentMembers = @()
-        $NewMembers     = @()
-        $parameters     = $null
+        # Define variables and its type
+        $CurrentMembers = [System.Collections.Generic.HashSet[String]]::New()
+        $NewMembers     = [System.Collections.Generic.HashSet[String]]::New()
+        $Splat          = [hashtable]::New()
 
-        If($identity.GetType() -eq [Microsoft.ActiveDirectory.Management.AdGroup]) {
-            $Group = Get-AdGroup -Identity $Identity.ObjectGUID
+        If($identity -is [Microsoft.ActiveDirectory.Management.AdGroup]) {
+            #$Group = Get-AdGroup -Identity $Identity.ObjectGUID
+            $Group = $Identity
         }
 
-        If($identity.GetType() -eq [System.String]) {
+        If($identity -is [System.String]) {
             If($identity -contains $AdDn) {
                 $Group = Get-AdGroup -Filter { distinguishedName -eq $Identity }
             } ELSE {
@@ -78,26 +82,31 @@ function Add-AdGroupNesting
     }
     Process {
         # Get group members
-        Get-AdGroupMember -Identity $Group.SID | Select-Object -ExpandProperty sAMAccountName | ForEach-Object { $CurrentMembers += $_ }
+        Get-AdGroupMember -Identity $Group.SID | Select-Object -ExpandProperty sAMAccountName | ForEach-Object { $CurrentMembers.Add($_) }
 
         try {
             Write-Verbose -Message ('Adding members to group..: {0}' -f $Group.SamAccountName)
 
             Foreach ($item in $Members) {
                 If($CurrentMembers -notcontains $item) {
-                    $NewMembers += $item
+                    $NewMembers.Add($item)
                 } else {
                      Write-Verbose -Message ('{0} is already member of {1} group' -f $item.SamAccountName, $Group.SamAccountName)
                 }
             }
             If($NewMembers.Count -gt 0) {
-                $parameters = @{
+                $Splat = @{
                     Identity = $Group
                     Members  = $NewMembers
                 }
-                Add-AdGroupMember @parameters
+
+                If($PSCmdlet.ShouldProcess("Add members to Group $(Group.SamAccountName)", "Confirm?")) {
+                    Add-AdGroupMember @Splat -WhatIf:$False
+                } else {
+                    Write-Verbose -Message 'Operation cancelled by User!'
+                }
             }
-            #Add-AdGroupMember @parameters
+            #Add-AdGroupMember @Splat
 
             Write-Verbose -Message ('Member {0} was added correctly to group {1}' -f $Members, $Group.sAMAccountName)
         } catch { throw }
