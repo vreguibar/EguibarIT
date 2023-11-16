@@ -16,8 +16,14 @@ function Test-IsValidDN {
 
         .NOTES
             https://pscustomobject.github.io/powershell/howto/identity%20management/PowerShell-Check-If-String-Is-A-DN/
+            Version:         1.0
+            DateModified:    08/Oct/2021
+            LasModifiedBy:   Vicente Rodriguez Eguibar
+                vicente@eguibar.com
+                Eguibar Information Technology S.L.
+                http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(ConfirmImpact = 'Low', SupportsShouldProcess = $true)]
     [OutputType([bool])]
     param
     (
@@ -29,12 +35,30 @@ function Test-IsValidDN {
         [string]
         $ObjectDN
     )
-    Begin {}
+    Begin {} #end Begin
     Process {
-        # Define DN Regex
-        [regex]$distinguishedNameRegex = '^(?:(?<cn>CN=(?<name>(?:[^,]|\,)*)),)?(?:(?<path>(?:(?:CN|OU)=(?:[^,]|\,)+,?)+),)?(?<domain>(?:DC=(?:[^,]|\,)+,?)+)$'
-    }
+        Try {
+            # Define DN Regex
+            [regex]$distinguishedNameRegex = '^(?:(?<cn>CN=(?<name>(?:[^,]|\,)*)),)?(?:(?<path>(?:(?:CN|OU)=(?:[^,]|\,)+,?)+),)?(?<domain>(?:DC=(?:[^,]|\,)+,?)+)$'
+
+            # Use ShouldProcess to confirm the operation
+            if ($PSCmdlet.ShouldProcess($ObjectDN, 'Validate DistinguishedName')) {
+                # Perform the actual validation
+                $isValid = $ObjectDN -match $distinguishedNameRegex
+
+                # Provide verbose output
+                if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
+                    Write-Verbose "DistinguishedName validation result: $isValid"
+                } #end If
+
+                $isValid
+            } #end If
+        } catch {
+            # Handle exceptions gracefully
+            Write-Error "An error occurred: $_"
+        } #end Try-Catch
+    } #end Process
     end {
-        return $ObjectDN -match $distinguishedNameRegex
-    }
-}
+        return $isValid
+    } #end End
+} #end Function

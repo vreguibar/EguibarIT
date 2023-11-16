@@ -74,7 +74,7 @@ function New-DelegateAdOU
 
         # Param3 OU Description
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-        HelpMessage = 'Full description of the OU',
+            HelpMessage = 'Full description of the OU',
             Position = 2)]
         [string]
         $ouDescription,
@@ -139,14 +139,13 @@ function New-DelegateAdOU
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
+        if (-not (Get-Module -Name 'EguibarIT.Delegation' -ListAvailable)) {
+            Import-Module -Name 'EguibarIT.Delegation' -Force -Verbose:$false
+        } #end If
+
         ##############################
         # Variables Definition
 
-
-        Import-Module -name EguibarIT.Delegation -Verbose:$false
-
-        #------------------------------------------------------------------------------
-        # Define the variables
 
         try {
           # Active Directory Domain Distinguished Name
@@ -156,55 +155,60 @@ function New-DelegateAdOU
 
           # Sites OU Distinguished Name
           $ouNameDN = 'OU={0},{1}' -f $PSBoundParameters['ouName'], $PSBoundParameters['ouPath']
-        }
-        Catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+        } Catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        } #end Try-Catch
 
-        #$Return = $null
+        $OUexists = [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]::New()
+        $Splat    = [hashtable]::New()
+    } #end Begin
 
-        # END variables
-        #------------------------------------------------------------------------------
-    }
-
-      Process {
+    Process {
         #
         if (-not $strOuDisplayName) {
-          $strOuDisplayName = $PSBoundParameters['ouName']
+            $strOuDisplayName = $PSBoundParameters['ouName']
         } # End If
 
         try {
-          # Try to get Ou
-          $OUexists = Get-AdOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $AdDn
+            # Try to get Ou
+            $OUexists = Get-AdOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $AdDn
 
-          # Check if OU exists
-          If($OUexists) {
-            # OU it does exists
-            Write-Warning -Message ('Organizational Unit {0} already exists.' -f $ouNameDN)
-          } else {
-            Write-Verbose -Message ('Creating the {0} Organizational Unit' -f $PSBoundParameters['ouName'])
-            # Create OU
-            $parameters = @{
-              Name                            = $PSBoundParameters['ouName']
-              Path                            = $PSBoundParameters['ouPath']
-              City                            = $PSBoundParameters['ouCity']
-              Country                         = $PSBoundParameters['ouCountry']
-              Description                     = $PSBoundParameters['ouDescription']
-              DisplayName                     = $PSBoundParameters['strOuDisplayName']
-              PostalCode                      = $PSBoundParameters['ouZIPCode']
-              ProtectedFromAccidentalDeletion = $true
-              StreetAddress                   = $PSBoundParameters['ouStreetAddress']
-              State                           = $PSBoundParameters['ouState']
-            }
-            $OUexists = New-ADOrganizationalUnit @parameters
-          }
-        } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+            # Check if OU exists
+            If($OUexists) {
+                # OU it does exists
+                Write-Warning -Message ('Organizational Unit {0} already exists.' -f $ouNameDN)
+            } else {
+                Write-Verbose -Message ('Creating the {0} Organizational Unit' -f $PSBoundParameters['ouName'])
+                # Create    OU
+                $Splat = @{
+                    Name                            = $PSBoundParameters['ouName']
+                    Path                            = $PSBoundParameters['ouPath']
+                    City                            = $PSBoundParameters['ouCity']
+                    Country                         = $PSBoundParameters['ouCountry']
+                    Description                     = $PSBoundParameters['ouDescription']
+                    DisplayName                     = $PSBoundParameters['strOuDisplayName']
+                    PostalCode                      = $PSBoundParameters['ouZIPCode']
+                    ProtectedFromAccidentalDeletion = $true
+                    StreetAddress                   = $PSBoundParameters['ouStreetAddress']
+                    State                           = $PSBoundParameters['ouState']
+                }
+                if ($PSCmdlet.ShouldProcess("Creating the Organizational Unit '$OuName'")) {
+                    $OUexists = New-ADOrganizationalUnit @Splat
+                }
+            } #end If-Else
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        } #end Try-Caych
 
         # Remove "Account Operators" and "Print Operators" built-in groups from OU. Any unknown/UnResolvable SID will be removed.
         Start-AdCleanOU -LDAPPath $ouNameDN -RemoveUnknownSIDs
 
         if($PSBoundParameters['CleanACL']) {
-            Remove-SpecificACLandEnableInheritance -LDAPpath $ouNameDN
-        }
-      }
+            if ($PSCmdlet.ShouldProcess("Removing specific Non-Inherited ACE and enabling inheritance for '$OuName'")) {
+                Remove-SpecificACLandEnableInheritance -LDAPpath $ouNameDN
+            }
+        } #end If
+    } #end Process
 
     End {
 
@@ -213,5 +217,5 @@ function New-DelegateAdOU
         Write-Verbose -Message '--------------------------------------------------------------------------------'
         Write-Verbose -Message ''
         return $OUexists
-    }
-}
+    } #end End
+} #end Function

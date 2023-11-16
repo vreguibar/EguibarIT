@@ -63,10 +63,9 @@
             Eguibar Information Technology S.L.
             http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([Microsoft.ActiveDirectory.Management.AdGroup])]
-    Param
-    (
+    Param (
         # Param1 Group which membership is to be changed
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Name of the group to be created. SamAccountName',
@@ -151,24 +150,21 @@
     )
 
     Begin {
-        $error.Clear()
-
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
+        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-        #display PSBoundparameters formatted nicely for Verbose output
-        $NL = "`n"  # New Line
-        $HTab = "`t"  # Horizontal Tab
-        [string]$pb = ($PSBoundParameters | Format-Table -AutoSize | Out-String).TrimEnd()
-        Write-Verbose -Message "Parameters used by the function... $NL$($pb.split($NL).Foreach({"$($HTab*4)$_"}) | Out-String) $NL"
+        if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
+            Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
+        } #end If
 
+        if (-not (Get-Module -Name 'EguibarIT.Delegation' -ListAvailable)) {
+            Import-Module -Name 'EguibarIT.Delegation' -Force -Verbose:$false
+        } #end If
 
-        Import-Module -name ActiveDirectory      -Verbose:$false -Force
-        Import-Module -name EguibarIT.Delegation -Verbose:$false -Force
-
-        $parameters = $null
-        $newGroup = $null
+        $Splat    = [Hashtable]::New()
+        $newGroup = [Microsoft.ActiveDirectory.Management.AdGroup]::New()
     } # End Begin Section
 
     Process {
@@ -178,7 +174,7 @@
 
             ### Using $PSBoundParameters['Name'] throws an Error. Using variable instead.
             If (-not($newGroup)) {
-                $parameters = @{
+                $Splat = @{
                     Name           = $PSBoundParameters['Name']
                     SamAccountName = $PSBoundParameters['Name']
                     GroupCategory  = $PSBoundParameters['GroupCategory']
@@ -188,16 +184,15 @@
                     Description    = $PSBoundParameters['Description']
                 }
                 if ($Force -or $PSCmdlet.ShouldProcess("Group does not exist. SHould it be created?")) {
-                    New-ADGroup @parameters
-                }
-            }
-            else {
+                    New-ADGroup @Splat
+                } #end If
+            } else {
                 Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
 
                 $newGroup | Set-AdObject -ProtectedFromAccidentalDeletion $False
 
                 Try {
-                    $parameters = @{
+                    $Splat = @{
                         Identity      = $PSBoundParameters['Name']
                         Description   = $PSBoundParameters['Description']
                         DisplayName   = $PSBoundParameters['DisplayName']
@@ -205,7 +200,7 @@
                         GroupScope    = $PSBoundParameters['GroupScope']
                     }
                     if ($Force -or $PSCmdlet.ShouldProcess("Group does not exist. SHould it be created?")) {
-                        Set-AdGroup @parameters
+                        Set-AdGroup @Splat
                     }
 
                     If (-not($newGroup.DistinguishedName -ccontains $PSBoundParameters['path'])) {
@@ -213,8 +208,9 @@
                         Move-ADObject -Identity $newGroup -TargetPath $PSBoundParameters['path']
                     }
 
-                }
-                catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+                } catch {
+                    Get-CurrentErrorToDisplay -CurrentError $error[0]
+                } #end Try-Catch
             } # End If
 
             # Get the group again and store it on variable.
@@ -260,5 +256,5 @@
 
         #Return the group object.
         return $newGroup
-    }
-}
+    } #end End
+} #end Function

@@ -462,7 +462,7 @@ PropertyCount                        : 45
         New-Template -DisplayName $DisplayName -TemplateOtherAttributes $TemplateOtherAttributes
 
         #Publish  Template
-        PublishCert -CertDisplayName  $DisplayName
+        Publish-CertificateTemplate -CertDisplayName  $DisplayName
 
         $DisplayName="WindowsAdminCenter"
         $TemplateOtherAttributes = @{
@@ -492,7 +492,7 @@ PropertyCount                        : 45
         New-Template -DisplayName $DisplayName -TemplateOtherAttributes $TemplateOtherAttributes
 
         #Publish  Template
-        PublishCert -CertDisplayName  $DisplayName
+        Publish-CertificateTemplate -CertDisplayName  $DisplayName
 
         $DisplayName="WinRM"
         $TemplateOtherAttributes = @{
@@ -522,7 +522,7 @@ PropertyCount                        : 45
         New-Template -DisplayName $DisplayName -TemplateOtherAttributes $TemplateOtherAttributes
 
         #Publish  Template
-        PublishCert -CertDisplayName  $DisplayName
+        Publish-CertificateTemplate -CertDisplayName  $DisplayName
 
         $DisplayName="Web Server V2"
         $TemplateOtherAttributes = @{
@@ -552,7 +552,7 @@ PropertyCount                        : 45
         New-Template -DisplayName $DisplayName -TemplateOtherAttributes $TemplateOtherAttributes
 
         #Publish  Template
-        PublishCert -CertDisplayName  $DisplayName
+        Publish-CertificateTemplate -CertDisplayName  $DisplayName
 
 <#
 

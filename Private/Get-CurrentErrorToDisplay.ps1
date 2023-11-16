@@ -10,8 +10,10 @@ function Get-CurrentErrorToDisplay {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
         .PARAMETER CurrentError
             Is the error to be processed
+        .INPUTS
+            System.Management.Automation.ErrorRecord
         .OUTPUTS
-            Multi-line string
+            System.String
         .LINKS
             http://www.eguibarit.com
 
@@ -23,7 +25,7 @@ function Get-CurrentErrorToDisplay {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low')]
     [OutputType([System.String])]
     Param (
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
@@ -55,80 +57,86 @@ function Get-CurrentErrorToDisplay {
 
     Process {
 
-        [void]$OutputError.AppendLine()
-        [void]$OutputError.AppendLine($Header)
-        [void]$OutputError.AppendLine('#         Error: {0}' -f $CurrentError.ToString())
-        [void]$OutputError.AppendLine($Header)
-        [void]$OutputError.AppendLine()
+        if ($PSCmdlet.ShouldProcess("Processing error: $($CurrentError.Exception.Message)", "Continue?")) {
+            try {
+                [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine($Header)
+                [void]$OutputError.AppendLine('#         Error: {0}' -f $CurrentError.ToString())
+                [void]$OutputError.AppendLine($Header)
+                [void]$OutputError.AppendLine()
 
-        [void]$OutputError.AppendLine('   Category Info')
-        [void]$OutputError.AppendLine($Section)
-        [void]$OutputError.AppendLine($CurrentError.CategoryInfo)
-        [void]$OutputError.AppendLine()
-        [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine('   Category Info')
+                [void]$OutputError.AppendLine($Section)
+                [void]$OutputError.AppendLine($CurrentError.CategoryInfo)
+                [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine()
 
-        [void]$OutputError.AppendLine('   PowerSell Message Details')
-        [void]$OutputError.AppendLine($Section)
-        [void]$OutputError.AppendLine($CurrentError.PSMessageDetails)
-        [void]$OutputError.AppendLine()
-        [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine('   PowerSell Message Details')
+                [void]$OutputError.AppendLine($Section)
+                [void]$OutputError.AppendLine($CurrentError.PSMessageDetails)
+                [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine()
 
-        [void]$OutputError.AppendLine('   Exception')
-        [void]$OutputError.AppendLine($Section)
-        [void]$OutputError.AppendLine($CurrentError.Exception)
-        [void]$OutputError.AppendLine()
-        [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine('   Exception')
+                [void]$OutputError.AppendLine($Section)
+                [void]$OutputError.AppendLine($CurrentError.Exception)
+                [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine()
 
-        [void]$OutputError.AppendLine('   Target Object')
-        [void]$OutputError.AppendLine($Section)
-        [void]$OutputError.AppendLine($CurrentError.TargetObject)
-        [void]$OutputError.AppendLine()
-        [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine('   Target Object')
+                [void]$OutputError.AppendLine($Section)
+                [void]$OutputError.AppendLine($CurrentError.TargetObject)
+                [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine()
 
-        [void]$OutputError.AppendLine('   Fully Qualifier Error ID')
-        [void]$OutputError.AppendLine($Section)
-        [void]$OutputError.AppendLine($CurrentError.FullyQualifiedErrorId)
-        [void]$OutputError.AppendLine()
-        [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine('   Fully Qualifier Error ID')
+                [void]$OutputError.AppendLine($Section)
+                [void]$OutputError.AppendLine($CurrentError.FullyQualifiedErrorId)
+                [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine()
 
-        [void]$OutputError.AppendLine('   Error Details')
-        [void]$OutputError.AppendLine($Section)
-        [void]$OutputError.AppendLine($CurrentError.ErrorDetails)
-        [void]$OutputError.AppendLine()
-        [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine('   Error Details')
+                [void]$OutputError.AppendLine($Section)
+                [void]$OutputError.AppendLine($CurrentError.ErrorDetails)
+                [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine()
 
-        [void]$OutputError.AppendLine('   Script Trace')
-        [void]$OutputError.AppendLine($Section)
-        [void]$OutputError.AppendLine($CurrentError.ScriptStackTrace)
-        [void]$OutputError.AppendLine()
-        [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine('   Script Trace')
+                [void]$OutputError.AppendLine($Section)
+                [void]$OutputError.AppendLine($CurrentError.ScriptStackTrace)
+                [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine()
 
-        [void]$OutputError.AppendLine('   Invocation Information')
-        [void]$OutputError.AppendLine($Section)
-        [void]$OutputError.AppendLine('MyCommand             : {0}' -f $CurrentError.InvocationInfo.MyCommand)
-        [void]$OutputError.AppendLine('ScriptLineNumber      : {0}' -f $CurrentError.InvocationInfo.ScriptLineNumber)
-        [void]$OutputError.AppendLine('OffsetInLine          : {0}' -f $CurrentError.InvocationInfo.OffsetInLine)
-        [void]$OutputError.AppendLine('ScriptName            : {0}' -f $CurrentError.InvocationInfo.ScriptName)
-        [void]$OutputError.AppendLine('Line                  : {0}' -f $CurrentError.InvocationInfo.Line)
-        [void]$OutputError.AppendLine('PositionMessage       : {0}' -f $CurrentError.InvocationInfo.PositionMessage)
-        [void]$OutputError.AppendLine('PSCommandPath         : {0}' -f $CurrentError.InvocationInfo.PSCommandPath)
-        [void]$OutputError.AppendLine('InvocationName        : {0}' -f $CurrentError.InvocationInfo.InvocationName)
-        [void]$OutputError.AppendLine()
-        [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine('   Invocation Information')
+                [void]$OutputError.AppendLine($Section)
+                [void]$OutputError.AppendLine('MyCommand             : {0}' -f $CurrentError.InvocationInfo.MyCommand)
+                [void]$OutputError.AppendLine('ScriptLineNumber      : {0}' -f $CurrentError.InvocationInfo.ScriptLineNumber)
+                [void]$OutputError.AppendLine('OffsetInLine          : {0}' -f $CurrentError.InvocationInfo.OffsetInLine)
+                [void]$OutputError.AppendLine('ScriptName            : {0}' -f $CurrentError.InvocationInfo.ScriptName)
+                [void]$OutputError.AppendLine('Line                  : {0}' -f $CurrentError.InvocationInfo.Line)
+                [void]$OutputError.AppendLine('PositionMessage       : {0}' -f $CurrentError.InvocationInfo.PositionMessage)
+                [void]$OutputError.AppendLine('PSCommandPath         : {0}' -f $CurrentError.InvocationInfo.PSCommandPath)
+                [void]$OutputError.AppendLine('InvocationName        : {0}' -f $CurrentError.InvocationInfo.InvocationName)
+                [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine()
 
-        [void]$OutputError.AppendLine($Header)
-        [void]$OutputError.AppendLine('####      END Error')
-        [void]$OutputError.AppendLine($Header)
-
+                [void]$OutputError.AppendLine($Header)
+                [void]$OutputError.AppendLine('####      END Error')
+                [void]$OutputError.AppendLine($Header)
+            } catch {
+                Write-Error "Error processing the error: $_"
+            } #end Tr-Catch
+        } #end If
     } # End PROCESS section
 
     End {
-        return $OutputError.ToString()
+        $result = $OutputError.ToString()
         Write-Verbose -Message 'Cleaning the $error variable'
         $error.Clear()
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
+        return $result
     } # End END section
 } # End Function

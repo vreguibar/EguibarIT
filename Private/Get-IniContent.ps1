@@ -58,24 +58,22 @@ function Get-IniContent
     [string]$FilePath
   )
 
-    Begin
-    {
-        Write-Verbose -Message '|=> ************************************************************************ <=|'
-        Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
+  Begin {
+    Write-Verbose -Message '|=> ************************************************************************ <=|'
+    Write-Verbose -Message (Get-Date).ToShortDateString()
+    Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
+    Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-        ##############################
-        # Variables Definition
-    }
+    ##############################
+    # Variables Definition
+  } #end Begin
 
-  Process
-  {
+  Process {
     Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Processing file: $PSBoundParameters['FilePath']"
 
+    Try {
     $ini = @{}
-    switch -regex -file $PSBoundParameters['FilePath']
-    {
+    switch -regex -file $PSBoundParameters['FilePath']     {
       '^\[(.+)\]$' # Section
       {
         $section = $matches[1]
@@ -104,16 +102,20 @@ function Get-IniContent
         $name, $value = $matches[1..2]
         $ini[$section][$name] = $value
       }
-    }
+    } #end Switch
+    } catch{
+        Write-Error -Message "An error occurred while processing the file: $_"
+        throw
+    } #end Try-Catch
     Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Finished Processing file: $PSBoundParameters['FilePath']"
-    Return $ini
-  }
 
-    End
-    {
+  } # End Process
+
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished reading content from $PSBoundParameters['FilePath'] file."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
+        Return $ini
+    } #end End
 }

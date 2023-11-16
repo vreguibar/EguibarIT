@@ -1,5 +1,4 @@
-function New-DelegateAdGpo
-{
+function New-DelegateAdGpo {
     <#
         .Synopsis
             Creates and Links new GPO
@@ -56,7 +55,7 @@ function New-DelegateAdGpo
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium', DefaultParameterSetName = 'DelegatedAdGpo')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium', DefaultParameterSetName = 'DelegatedAdGpo')]
     [OutputType([Microsoft.GroupPolicy.Gpo])]
     Param (
         # Param1 GPO description, used to generate name
@@ -122,17 +121,25 @@ function New-DelegateAdGpo
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
+        if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
+            Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
+        } #end If
+
+        if (-not (Get-Module -Name 'GroupPolicy' -ListAvailable)) {
+            Import-Module -Name 'GroupPolicy' -Force -Verbose:$false
+        } #end If
+
         ##############################
         # Variables Definition
 
+        $Splat    = [Hashtable]::New()
 
-        Import-Module -name ActiveDirectory -Verbose:$false
-        Import-Module -name GroupPolicy     -Verbose:$false
+        $gpoAlreadyExist = [Microsoft.GroupPolicy.GroupPolicyObject]::New()
 
-        $gpoAlreadyExist = $null
         $gpoName = '{0}-{1}' -f $PSBoundParameters['gpoScope'], $PSBoundParameters['gpoDescription']
         #$adGroupName = Get-ADGroup -Identity $GpoAdmin
         [system.string]$dcServer = (Get-ADDomaincontroller -Discover -Service 'PrimaryDC').HostName
+
     } # End Begin Section
 
     Process {
@@ -143,21 +150,23 @@ function New-DelegateAdGpo
 
         if (-not $gpoAlreadyExist) {
             Write-Verbose -Message ('Policy: Create policy object {0}' -f $gpoName)
-            $parameters = @{
+            $Splat = @{
                 Name        = $gpoName
                 Comment     = $gpoName
                 Server      = $dcServer
                 ErrorAction = 'SilentlyContinue'
                 Verbose     = $true
             }
-            $gpoAlreadyExist = New-GPO @parameters
+            if ($PSCmdlet.ShouldProcess("Creating GPO '$gpoName'", "Confirm creation?")) {
+                $gpoAlreadyExist = New-GPO @Splat
 
-            Write-Verbose -Message '1 second pause to give AD a chance to catch up'
-            Start-Sleep -Seconds 1
+                Write-Verbose -Message '1 second pause to give AD a chance to catch up'
+                Start-Sleep -Seconds 1
+            } #end If
 
             # Give Rights to SL_GpoAdminRight
             Write-Verbose -Message ('Add GpoAdminRight to {0}' -f $gpoAlreadyExist.Name)
-            $parameters = @{
+            $Splat = @{
                 GUID            = $gpoAlreadyExist.Id
                 PermissionLevel = 'GpoEditDeleteModifySecurity'
                 TargetName      = $GpoAdmin
@@ -166,27 +175,35 @@ function New-DelegateAdGpo
                 ErrorAction     = 'SilentlyContinue'
                 Verbose     = $true
             }
-            Set-GPPermissions @parameters
+            if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", "Confirm giving permissions?")) {
+                Set-GPPermissions @Splat
+            }  #end If
 
 
             # Disable the corresponding Settings section of the GPO
             If ($gpoScope -eq 'C') {
-                Write-Verbose -Message ('Disable Policy User Settings on GPO {0}' -f $gpoAlreadyExist.Name)
-                $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
+                if ($PSCmdlet.ShouldProcess("Disabling Users section on GPO '$gpoName'", "Confirm disabling user section?")) {
+                    Write-Verbose -Message ('Disable Policy User Settings on GPO {0}' -f $gpoAlreadyExist.Name)
+                    $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
+                } #end If
             } else {
-                Write-Verbose -Message ('Disable Policy Computer Settings on GPO {0}' -f $gpoAlreadyExist.Name)
-                $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
+                if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'", "Confirm disabling computer section?")) {
+                    Write-Verbose -Message ('Disable Policy Computer Settings on GPO {0}' -f $gpoAlreadyExist.Name)
+                    $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
+                } #end If
             }
 
             Write-Verbose -Message 'Add GPO-link to corresponding OU'
             If( Test-IsValidDN -ObjectDN $PSBoundParameters['gpoLinkPath'] ) {
-                $parameters = @{
+                $Splat = @{
                     GUID        = $gpoAlreadyExist.Id
                     Target      = $PSBoundParameters['gpoLinkPath']
                     LinkEnabled = 'Yes'
                     Server      = $dcServer
                 }
-                New-GPLink @parameters
+                if ($PSCmdlet.ShouldProcess("Linking GPO '$gpoName'", "Link GPO?")) {
+                    New-GPLink @Splat
+                } #end If
             } # End If
 
             # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -202,7 +219,7 @@ function New-DelegateAdGpo
 
             # Give Rights to SL_GpoAdminRight
             Write-Verbose -Message ('Add GpoAdminRight to {0}' -f $gpoName)
-            $parameters = @{
+            $Splat = @{
                 GUID            = $gpoAlreadyExist.Id
                 PermissionLevel = 'GpoEditDeleteModifySecurity'
                 TargetName      = $GpoAdmin
@@ -211,15 +228,21 @@ function New-DelegateAdGpo
                 ErrorAction     = 'SilentlyContinue'
                 Verbose     = $true
             }
-            Set-GPPermissions @parameters
+            if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", "Confirm giving permissions?")) {
+                Set-GPPermissions @Splat
+            }  #end If
 
             # Disable the corresponding Settings section of the GPO
             If ($gpoScope -eq 'C') {
-                Write-Verbose -Message 'Disable Policy User Settings'
-                $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
+                if ($PSCmdlet.ShouldProcess("Disabling Users section on GPO '$gpoName'", "Confirm disabling user section?")) {
+                    Write-Verbose -Message 'Disable Policy User Settings'
+                    $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
+                } #end If
             } else {
-                Write-Verbose -Message 'Disable Policy Computer Settings'
-                $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
+                if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'", "Confirm disabling computer section?")) {
+                    Write-Verbose -Message 'Disable Policy Computer Settings'
+                    $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
+                } #end If
             }
         } # End If
 
@@ -230,13 +253,15 @@ function New-DelegateAdGpo
             # Import the Backup
             Write-Verbose -Message ('Importing GPO Backup {0} from path {1} to GPO {2}' -f $PSBoundParameters['gpoBackupID'], $PSBoundParameters['gpoBackupPath'], $gpoName)
 
-            $parameters = @{
+            $Splat = @{
                 BackupId   = $PSBoundParameters['gpoBackupID']
                 TargetGuid = $gpoAlreadyExist.Id
                 path       = $PSBoundParameters['gpoBackupPath']
                 Verbose    = $true
             }
-            Import-GPO @parameters
+            if ($PSCmdlet.ShouldProcess("Importing GPO Backup '$gpoBackupID' to GPO '$gpoName'", "Confirm import")) {
+                Import-GPO @Splat
+            }
 
         } # End If
 

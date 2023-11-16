@@ -3,7 +3,7 @@
         .Synopsis
             Nice display PsBoundParameters
         .DESCRIPTION
-
+            This function formats and displays the PsBoundParameters hashtable in a visually appealing way for Verbose output.
         .EXAMPLE
             Set-FunctionDisplay $PsBoundParameters
         .EXAMPLE
@@ -40,13 +40,12 @@
             Position = 1)]
         [ValidateNotNullOrEmpty()]
         [int]
-        $TabCount
+        $TabCount = 4
     )
 
     Begin {
-        If(($null -eq $PsBoundParameters['TabCount']) -or
-            ($PsBoundParameters['TabCount'] -lt 1)
-        ) {
+        # Validate TabCount and set default if needed
+        if ($TabCount -lt 1) {
             $TabCount = 4
         }
     } # end Begin
@@ -54,21 +53,22 @@
     Process {
 
         # Display PSBoundparameters formatted nicely for Verbose output
-        # Get hashtable formated properly
-        [string]$pb = ($HashTable | Format-Table -AutoSize | Out-String).TrimEnd()
+        $display = ''
 
-        # Add a new line
-        $Display = $Constants.NL
+        # Validate if HashTable is not empty
+        if ($HashTable.Count -gt 0) {
+            # Get hashtable formatted properly
+            $pb = $HashTable | Format-Table -AutoSize | Out-String
 
-        # Add corresponding tab's and new lines to each table member
-        $Display += $($pb.split($($Constants.NL)).Foreach({"$($Constants.HTab*$TabCount)$_"}) | Out-String)
-
-        # Add a new line
-        $Display += $Constants.NL
+            # Add corresponding tabs and new lines to each table member
+            $display += $pb -split $Constants.NewLine | ForEach-Object { "$($Constants.HorizontalTab * $TabCount)$_" } | Out-String
+        } else {
+            $display = "No PsBoundParameters to display."
+        } #end If
 
     } # end Process
 
     End {
-        Return $Display
+        Return $display
     } #end END
 } #end Function
