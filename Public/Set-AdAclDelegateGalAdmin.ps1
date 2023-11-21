@@ -26,6 +26,9 @@ function Set-AdAclDelegateGalAdmin
                 Set-AdAclUserGeneralInfo               | EguibarIT.Delegation
                 Set-AdAclUserWebInfo                   | EguibarIT.Delegation
                 Set-AdAclUserEmailInfo                 | EguibarIT.Delegation
+                Get-CurrentErrorToDisplay              | EguibarIT
+                Set-FunctionDisplay                    | EguibarIT
+        .NOTES
         .NOTES
             Version:         1.1
             DateModified:    12/Feb/2018
@@ -34,9 +37,8 @@ function Set-AdAclDelegateGalAdmin
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
-    Param
-    (
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    Param (
         # PARAM1 STRING for the Delegated Group Name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
@@ -73,44 +75,49 @@ function Set-AdAclDelegateGalAdmin
         # Variables Definition
 
 
-        $parameters = $null
-    }
+        $Splat = [hashtable]::New()
+
+        $Splat = @{
+            Group    = $PSBoundParameters['Group']
+            LDAPPath = $PSBoundParameters['LDAPpath']
+        }
+
+    } #end Begin
     Process {
         try {
-            $parameters = @{
-                Group    = $PSBoundParameters['Group']
-                LDAPPath = $PSBoundParameters['LDAPpath']
-            }
             # Check if RemoveRule switch is present.
             If($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
-                $parameters.Add('RemoveRule', $true)
+                $Splat.Add('RemoveRule', $true)
             }
 
-            # Change Group Membership
-            Set-AdAclUserGroupMembership @parameters
+            if ($Force -or $PSCmdlet.ShouldProcess("Proceed with delegations?")) {
+                # Change Group Membership
+                Set-AdAclUserGroupMembership @Splat
 
-            # Change Personal Information
-            Set-AdAclUserPersonalInfo @parameters
+                # Change Personal Information
+                Set-AdAclUserPersonalInfo @Splat
 
-            # Change Public Information
-            Set-AdAclUserPublicInfo @parameters
+                # Change Public Information
+                Set-AdAclUserPublicInfo @Splat
 
-            # Change General Information
-            Set-AdAclUserGeneralInfo @parameters
+                # Change General Information
+                Set-AdAclUserGeneralInfo @Splat
 
-            # Change Web Info
-            Set-AdAclUserWebInfo @parameters
+                # Change Web Info
+                Set-AdAclUserWebInfo @Splat
 
-            # Change Email Info
-            Set-AdAclUserEmailInfo @parameters
+                # Change Email Info
+                Set-AdAclUserEmailInfo @Splat
+            } #end If
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
         }
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
-    }
+    } #end Process
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating GAL Admin."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+    } #end End
+} #end Function

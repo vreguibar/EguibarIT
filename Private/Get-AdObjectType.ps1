@@ -38,6 +38,7 @@ function Get-AdObjectType {
         HelpMessage = 'Identity of the object',
         Position = 0)]
     [ValidateNotNullOrEmpty()]
+    [Alias('ID','SamAccountName','DistinguishedName','DN','SID')]
     $Identity
   )
   Begin {
@@ -54,50 +55,69 @@ function Get-AdObjectType {
   Process
   {
     Try {
-      If($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount])
-      {
+      If($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount]) {
         Write-Verbose -Message 'AD User Object'
         return [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = $Identity
       }
 
-      If($Identity -is [Microsoft.ActiveDirectory.Management.ADComputer])
-      {
+      If($Identity -is [Microsoft.ActiveDirectory.Management.ADComputer]) {
         Write-Verbose -Message 'AD Computer Object'
         return [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = $Identity
       }
 
-      If($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup])
-      {
+      If($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup]) {
         Write-Verbose -Message 'AD Group Object'
         return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = $Identity
       }
 
+      If($Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]) {
+        Write-Verbose -Message 'Organizational Unit Object'
+        return [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]$ReturnValue = $Identity
+      }
+
       If($Identity -is [String]) {
-        Write-Verbose -Message 'Simple String'
+        Write-Verbose -Message 'Simple String... Try to identify if SamAccountNamem DistinguishedName or SID as string.'
 
         if(Test-IsValidDN -ObjectDN $Identity) {
-          $newObject = get-AdObject -filter {
-            DistinguishedName -eq $Identity
-          }
+
+          Write-Verbose -Message 'Looking for DistinguishedName'
+          $newObject = Get-ADObject -filter { DistinguishedName -eq $Identity }
+
+        } elseif (Test-IsValidSID -ObjectSID $Identity) {
+
+          Write-Verbose -Message 'Looking for ObjectSID'
+          $newObject = Get-ADObject -filter { ObjectSID -eq $Identity }
+
         } else {
-          $newObject = get-AdObject -filter {
-            SamAccountName -eq $Identity
-          }
+
+          Write-Verbose -Message 'Looking for SamAccountName'
+          $newObject = Get-ADObject -filter { SamAccountName -eq $Identity }
+
         } # End if
 
+        # once we have the object, lets get it from AD
         Switch ($newObject.ObjectClass) {
+
           'user' {
             Write-Verbose -Message 'AD User Object from STRING'
             return [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = Get-AdUser -Identity $Identity
           }
+
           'group' {
             Write-Verbose -Message 'AD Group Object from STRING'
-            return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue   = Get-ADGroup -Identity $Identity
+            return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = Get-ADGroup -Identity $Identity
           }
+
           'computer' {
             Write-Verbose -Message 'AD Computer Object from STRING'
-            return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue   = Get-AdComputer -Identity $Identity
+            return [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = Get-AdComputer -Identity $Identity
           }
+
+          'organizationalUnit' {
+            Write-Verbose -Message 'AD Organizational Unit Object from STRING'
+            return [Microsoft.ActiveDirectory.Management.organizationalUnit]$ReturnValue = Get-ADOrganizationalUnit -Identity $Identity
+          }
+
           Default {
             Write-Error -Message "Unknown object type for identity: $Identity"
           }

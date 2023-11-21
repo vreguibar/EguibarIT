@@ -20,8 +20,7 @@ function ConvertTo-IntegerIPv4 {
     #>
     [CmdletBinding(ConfirmImpact = 'Low')]
     [OutputType([System.Net.IpAddress])]
-    Param
-    (
+    Param     (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -38,7 +37,7 @@ function ConvertTo-IntegerIPv4 {
 
         ##############################
         # Variables Definition
-    }
+    } #end Begin
 
     Process {
         Try {
@@ -51,12 +50,12 @@ function ConvertTo-IntegerIPv4 {
         } Catch {
             Write-Error -Exception $_.Exception -Category $_.CategoryInfo.Category
         }
-    }
+    } #end Process
 
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+    } #end End
+} #end Function

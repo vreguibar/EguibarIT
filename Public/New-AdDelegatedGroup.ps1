@@ -163,6 +163,9 @@
             Import-Module -Name 'EguibarIT.Delegation' -Force -Verbose:$false
         } #end If
 
+        ##############################
+        # Variables Definition
+
         $Splat    = [Hashtable]::New()
         $newGroup = [Microsoft.ActiveDirectory.Management.AdGroup]::New()
     } # End Begin Section

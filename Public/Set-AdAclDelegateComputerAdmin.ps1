@@ -37,6 +37,8 @@ function Set-AdAclDelegateComputerAdmin {
                 Set-AdAclBitLockerTPM                  | EguibarIT.Delegation
                 Set-DeleteOnlyComputer                 | EguibarIT.Delegation
                 Set-AdAclLaps                          | EguibarIT
+                Get-CurrentErrorToDisplay              | EguibarIT
+                Set-FunctionDisplay                    | EguibarIT
         .NOTES
             Version:         1.0
             DateModified:    19/Oct/2016
@@ -46,8 +48,7 @@ function Set-AdAclDelegateComputerAdmin {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
-    Param
-    (
+    Param (
         # PARAM1 STRING for the Delegated Group Name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
@@ -92,63 +93,62 @@ function Set-AdAclDelegateComputerAdmin {
         ##############################
         # Variables Definition
 
-
-        $parameters = $null
-
-    }
+        $Splat = [hashtable]::New()
+    } #end Begin
     Process {
         try {
-            $parameters = @{
+            $Splat = @{
                 Group    = $PSBoundParameters['Group']
                 LDAPPath = $PSBoundParameters['LDAPpath']
             }
             # Check if RemoveRule switch is present.
             If($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
-                $parameters.Add('RemoveRule', $true)
-            }
+                $Splat.Add('RemoveRule', $true)
+            } #end If
 
             if ($Force -or $PSCmdlet.ShouldProcess("Proceed with delegations?")) {
                 # Create/Delete Computers
-                Set-AdAclCreateDeleteComputer @parameters
+                Set-AdAclCreateDeleteComputer @Splat
 
                 # Reset Computer Password
-                Set-AdAclResetComputerPassword @parameters
+                Set-AdAclResetComputerPassword @Splat
 
                 # Change Computer Password
-                Set-AdAclChangeComputerPassword @parameters
+                Set-AdAclChangeComputerPassword @Splat
 
                 # Validated write to DNS host name
-                Set-AdAclValidateWriteDnsHostName @parameters
+                Set-AdAclValidateWriteDnsHostName @Splat
 
                 # Validated write to SPN
-                Set-AdAclValidateWriteSPN @parameters
+                Set-AdAclValidateWriteSPN @Splat
 
                 # Change Computer Account Restriction
-                Set-AdAclComputerAccountRestriction @parameters
+                Set-AdAclComputerAccountRestriction @Splat
 
                 # Change DNS Hostname Info
-                Set-AdAclDnsInfo @parameters
+                Set-AdAclDnsInfo @Splat
 
                 # Change MS TerminalServices info
-                Set-AdAclMsTsGatewayInfo @parameters
+                Set-AdAclMsTsGatewayInfo @Splat
 
                 # Access to BitLocker & TMP info
-                Set-AdAclBitLockerTPM @parameters
+                Set-AdAclBitLockerTPM @Splat
 
                 # Grant the right to delete computers from default container. Move Computers
-                Set-DeleteOnlyComputer @parameters
+                Set-DeleteOnlyComputer @Splat
 
                 # Set LAPS
                 Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['LDAPpath']
-            }
-        }
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
-    }
+            } #end If
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        } #end Try-Catch
+    } #end Process
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating Computer Admin."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+    } #end End
+} #end Function
