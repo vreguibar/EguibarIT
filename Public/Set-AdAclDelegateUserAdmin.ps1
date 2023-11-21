@@ -27,6 +27,8 @@ function Set-AdAclDelegateUserAdmin
                 Set-AdAclUnlockUser                    | EguibarIT.Delegation
                 Set-AdAclUserAccountRestriction        | EguibarIT.Delegation
                 Set-AdAclUserLogonInfo                 | EguibarIT.Delegation
+                Get-CurrentErrorToDisplay              | EguibarIT
+                Set-FunctionDisplay                    | EguibarIT
         .NOTES
             Version:         1.1
             DateModified:    12/Feb/2018
@@ -51,6 +53,7 @@ function Set-AdAclDelegateUserAdmin
             HelpMessage = 'Distinguished Name of the OU where given group will fully manage a User object',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
+        [validateScript({ Test-IsValidDN -ObjectDN $_ })]
         [String]
         $LDAPpath,
 
@@ -73,47 +76,51 @@ function Set-AdAclDelegateUserAdmin
         ##############################
         # Variables Definition
 
-        $parameters = $null
-    }
+        $Splat = [hashtable]::New()
+
+        $Splat = @{
+            Group    = $PSBoundParameters['Group']
+            LDAPPath = $PSBoundParameters['LDAPpath']
+        }
+    } #end Begin
     Process {
         try {
-            $parameters = @{
-                Group    = $PSBoundParameters['Group']
-                LDAPPath = $PSBoundParameters['LDAPpath']
-            }
             # Check if RemoveRule switch is present.
             If($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
-                $parameters.Add('RemoveRule', $true)
+                $Splat.Add('RemoveRule', $true)
             }
 
-            # Create/Delete Users
-            Set-AdAclCreateDeleteUser @parameters
+            if ($Force -or $PSCmdlet.ShouldProcess("Proceed with delegations?")) {
+                # Create/Delete Users
+                Set-AdAclCreateDeleteUser @Splat
 
-            # Reset User Password
-            Set-AdAclResetUserPassword @parameters
+                # Reset User Password
+                Set-AdAclResetUserPassword @Splat
 
-            # Change User Password
-            Set-AdAclChangeUserPassword @parameters
+                # Change User Password
+                Set-AdAclChangeUserPassword @Splat
 
-            # Enable and/or Disable user right
-            Set-AdAclEnableDisableUser @parameters
+                # Enable and/or Disable user right
+                Set-AdAclEnableDisableUser @Splat
 
-            # Unlock user account
-            Set-AdAclUnlockUser @parameters
+                # Unlock user account
+                Set-AdAclUnlockUser @Splat
 
-            # Change User Restrictions
-            Set-AdAclUserAccountRestriction @parameters
+                # Change User Restrictions
+                Set-AdAclUserAccountRestriction @Splat
 
-            # Change User Account Logon Info
-            Set-AdAclUserLogonInfo @parameters
-        }
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
-    }
+                # Change User Account Logon Info
+                Set-AdAclUserLogonInfo @Splat
+            } #end Id
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        } #end Try-Catch
+    } #end Process
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating User Admin."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+    } #end End
+} #end Function

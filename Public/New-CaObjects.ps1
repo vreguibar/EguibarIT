@@ -1,5 +1,4 @@
-﻿Function New-CaObjects
-{
+﻿Function New-CaObjects {
     <#
         .Synopsis
             Create Certificate Authority Objects and Delegations
@@ -19,7 +18,7 @@
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
-    Param(
+    Param (
         # PARAM1 full path to the configuration.xml file
         [Parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True, ValueFromRemainingArguments=$false,
             HelpMessage='Full path to the configuration.xml file',
@@ -27,6 +26,7 @@
         [string]
         $ConfigXMLFile
     )
+
     Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
@@ -64,8 +64,6 @@
         }
         catch { throw }
 
-
-
         # Naming conventions hashtable
         $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
                 'sg'    = $confXML.n.NC.GlobalGroupPreffix;
@@ -100,11 +98,12 @@
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-        $parameters = $null
+        $Splat    = [Hashtable]::New()
 
         #endregion Declarations
         ################################################################################
-    }
+    } #end Begin
+
     Process {
         # Check if AD module is installed
         If(-not((Get-WindowsFeature -Name RSAT-AD-PowerShell).Installed)) {
@@ -275,7 +274,7 @@ LoadDefaultTemplates=0
 
         ###############################################################################
         # Create OU Admin groups
-        $parameters = @{
+        $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.AdminXtra.GG.PkiAdmins.Name
             GroupCategory                 = 'Security'
             GroupScope                    = 'Global'
@@ -287,9 +286,9 @@ LoadDefaultTemplates=0
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        $SG_PkiAdmins = New-AdDelegatedGroup @parameters
+        $SG_PkiAdmins = New-AdDelegatedGroup @Splat
 
-        $parameters = @{
+        $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.AdminXtra.GG.PkiTemplateAdmins.Name
             GroupCategory                 = 'Security'
             GroupScope                    = 'Global'
@@ -301,9 +300,9 @@ LoadDefaultTemplates=0
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        $SG_PkiTemplAdmins = New-AdDelegatedGroup @parameters
+        $SG_PkiTemplAdmins = New-AdDelegatedGroup @Splat
 
-        $parameters = @{
+        $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.AdminXtra.LG.PkiRight.Name
             GroupCategory                 = 'Security'
             GroupScope                    = 'DomainLocal'
@@ -315,9 +314,9 @@ LoadDefaultTemplates=0
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        $SL_PkiRight = New-AdDelegatedGroup @parameters
+        $SL_PkiRight = New-AdDelegatedGroup @Splat
 
-        $parameters = @{
+        $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.AdminXtra.LG.PkiTemplateRight.Name
             GroupCategory                 = 'Security'
             GroupScope                    = 'DomainLocal'
@@ -329,7 +328,7 @@ LoadDefaultTemplates=0
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        $SL_PkiTemplRight = New-AdDelegatedGroup @parameters
+        $SL_PkiTemplRight = New-AdDelegatedGroup @Splat
 
         # Apply the PSO to the corresponding Groups
         Add-ADFineGrainedPasswordPolicySubject -Identity $confXML.n.Admin.PSOs.ItAdminsPSO.Name -Subjects $SG_PkiAdmins, $SG_PkiTemplAdmins, $SL_PkiRight, $SL_PkiTemplRight
@@ -577,11 +576,13 @@ Invoke-Command -ComputerName $GatewayServerName -ScriptBlock {
 #>
 
 
-    }
+    } #end Process
+
     End {
         Write-Verbose -Message ('Function {0} created Certificate Authority objects and Delegations successfully.' -f $MyInvocation.InvocationName)
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+    } #end End
+
+} #end Function

@@ -1,6 +1,5 @@
 # Group together all COMPUTER admin delegations
-function Set-AdAclDelegateComputerAdmin
-{
+function Set-AdAclDelegateComputerAdmin {
     <#
         .Synopsis
             Wrapper for all rights used for Computer object container.
@@ -31,6 +30,9 @@ function Set-AdAclDelegateComputerAdmin
                 Set-AdAclBitLockerTPM                  | EguibarIT.Delegation
                 Set-DeleteOnlyComputer                 | EguibarIT.Delegation
                 Set-AdAclLaps                          | EguibarIT
+                Get-CurrentErrorToDisplay              | EguibarIT
+                Set-FunctionDisplay                    | EguibarIT
+                Test-IsValidDN -ObjectDN               | EguibarIT
         .NOTES
             Version:         1.0
             DateModified:    19/Oct/2016
@@ -40,8 +42,7 @@ function Set-AdAclDelegateComputerAdmin
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
-    Param
-    (
+    Param (
         # PARAM1 STRING for the Delegated Group Name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
@@ -55,6 +56,7 @@ function Set-AdAclDelegateComputerAdmin
             HelpMessage = 'Distinguished Name of the OU where given group will fully manage a computer object',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
+        [validateScript({ Test-IsValidDN -ObjectDN $_ })]
         [String]
         $LDAPpath,
 
@@ -63,6 +65,7 @@ function Set-AdAclDelegateComputerAdmin
             HelpMessage = 'Distinguished Name of the quarantine OU',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
+        [validateScript({ Test-IsValidDN -ObjectDN $_ })]
         [String]
         $QuarantineDN,
 
@@ -86,66 +89,66 @@ function Set-AdAclDelegateComputerAdmin
         ##############################
         # Variables Definition
 
+        $Splat = [hashtable]::New()
 
-        $parameters = $null
-
-        # Active Directory Domain Distinguished Name
-        If(-Not (Test-Path -Path variable:AdDn)) {
-            $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
+        $Splat = @{
+            Group    = $PSBoundParameters['Group']
+            LDAPPath = $PSBoundParameters['LDAPpath']
         }
-    }
+
+    } #end Begin
     Process {
         try {
-            $parameters = @{
-                Group    = $PSBoundParameters['Group']
-                LDAPPath = $PSBoundParameters['LDAPpath']
-            }
             # Check if RemoveRule switch is present.
             If($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
-                $parameters.Add('RemoveRule', $true)
+                $Splat.Add('RemoveRule', $true)
             }
 
+            if ($Force -or $PSCmdlet.ShouldProcess("Proceed with delegations?")) {
             # Create/Delete Computers
-            Set-AdAclCreateDeleteComputer @parameters
+                Set-AdAclCreateDeleteComputer @Splat
 
-            # Reset Computer Password
-            Set-AdAclResetComputerPassword @parameters
+                # Reset Computer Password
+                Set-AdAclResetComputerPassword @Splat
 
-            # Change Computer Password
-            Set-AdAclChangeComputerPassword @parameters
+                # Change Computer Password
+                Set-AdAclChangeComputerPassword @Splat
 
-            # Validated write to DNS host name
-            Set-AdAclValidateWriteDnsHostName @parameters
+                # Validated write to DNS host name
+                Set-AdAclValidateWriteDnsHostName @Splat
 
-            # Validated write to SPN
-            Set-AdAclValidateWriteSPN @parameters
+                # Validated write to SPN
+                Set-AdAclValidateWriteSPN @Splat
 
-            # Change Computer Account Restriction
-            Set-AdAclComputerAccountRestriction @parameters
+                # Change Computer Account Restriction
+                Set-AdAclComputerAccountRestriction @Splat
 
-            # Change DNS Hostname Info
-            Set-AdAclDnsInfo @parameters
+                # Change DNS Hostname Info
+                Set-AdAclDnsInfo @Splat
 
-            # Change MS TerminalServices info
-            Set-AdAclMsTsGatewayInfo @parameters
+                # Change MS TerminalServices info
+                Set-AdAclMsTsGatewayInfo @Splat
 
-            # Access to BitLocker & TMP info
-            Set-AdAclBitLockerTPM @parameters
+                # Access to BitLocker & TMP info
+                Set-AdAclBitLockerTPM @Splat
 
-            # Grant the right to delete computers from default container. Move Computers
-            Set-DeleteOnlyComputer -Group $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['QuarantineDN']
+                # Grant the right to delete computers from default container. Move Computers
+                Set-DeleteOnlyComputer -Group $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['QuarantineDN']
 
-            # Set LAPS
-            Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['LDAPpath']
+                # Set LAPS
+                Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['LDAPpath']
+            } #end If
 
-        }
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
-    }
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        } #end Try-Catch
+    } #end Process
+
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating Computer Admin."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+    } #end End
+} #end Function

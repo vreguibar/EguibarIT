@@ -1,6 +1,5 @@
 # Delegate Local Administration Password Service (LAPS)
-function Set-AdAclLaps
-{
+function Set-AdAclLaps {
     <#
         .Synopsis
             Wrapper for all rights used for LAPS on a given container.
@@ -26,6 +25,11 @@ function Set-AdAclLaps
                 Set-AdmPwdReadPasswordPermission       | EguibarIT.Delegation
                 Set-AdmPwdResetPasswordPermission      | EguibarIT.Delegation
                 Get-AttributeSchemaHashTable           | EguibarIT.Delegation
+                Get-CurrentErrorToDisplay              | EguibarIT
+                Set-FunctionDisplay                    | EguibarIT
+                Set-AdmPwdComputerSelfPermission       | AdmPwd.PS
+                Set-AdmPwdReadPasswordPermission       | AdmPwd.PS
+                Set-AdmPwdResetPasswordPermission      | AdmPwd.PS
         .NOTES
             Version:         1.0
             DateModified:    19/Oct/2016
@@ -35,8 +39,7 @@ function Set-AdAclLaps
                 http://www.eguibarit.com
     #>
     [CmdletBinding(ConfirmImpact = 'Low')]
-    Param
-    (
+    Param (
         # PARAM1 STRING for the Delegated Group Name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Identity of the group getting being able to READ the password.',
@@ -58,6 +61,7 @@ function Set-AdAclLaps
             HelpMessage = 'Distinguished Name of the OU where LAPS will apply to computer object',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
+        [validateScript({ Test-IsValidDN -ObjectDN $_ })]
         [String]
         $LDAPpath,
 
@@ -69,23 +73,25 @@ function Set-AdAclLaps
         [Switch]
         $RemoveRule
     )
+
     begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
+        Import-Module -Name 'AdmPwd.PS' -Force -Verbose:$false
+
         ##############################
         # Variables Definition
 
-        Import-Module -Name 'AdmPwd.PS' -Force -Verbose:$false
-
-        $guidmap = $null
-        $guidmap = @{}
+        $GuidMap = [Hashtable]::New()
         $guidmap = Get-AttributeSchemaHashTable
-    }
+
+    } #end Begin
+
     Process {
-        if(-not($null -eq $guidmap["ms-Mcs-AdmPwdExpirationTime"])) {
+        if($null -ne $guidmap["ms-Mcs-AdmPwdExpirationTime"]) {
             Write-Verbose -Message "LAPS is supported on this environment. We can proceed to configure it."
 
             Set-AdmPwdComputerSelfPermission -Identity $LDAPpath
@@ -96,11 +102,13 @@ function Set-AdAclLaps
         } else {
             Write-Error -Message "Not Implemented. Schema does not contains the requiered attributes."
         }
-    }
+    } #end Process
+
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating LAPS Admin."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+    } #end End
+
+} #end Function

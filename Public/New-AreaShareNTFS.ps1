@@ -1,5 +1,4 @@
-function New-AreaShareNTFS
-{
+function New-AreaShareNTFS {
     <#
         .Synopsis
             Function to create a new Area folder share
@@ -97,27 +96,20 @@ function New-AreaShareNTFS
         ##############################
         # Variables Definition
 
-
-        #------------------------------------------------------------------------------
-        # Define the variables
-
         # Create Full Share Name
         $FullShareName = '{0}\{1}\{2}' -f $PSBoundParameters['ShareLocation'], $PSBoundParameters['AreasName'], $PSBoundParameters['ShareName']
 
-        $parameters = $null
-
-        # END variables
-        #---------------------
-    }
+        $Splat    = [Hashtable]::New()
+    } #end Begin
 
     Process {
         If(-not(test-path -Path $FullShareName)) {
             # Create the new Directory
             New-Item -Path $FullShareName -ItemType Directory
-        }
+        } #end If
 
         # Create the associated READ group
-        $parameters = @{
+        $Splat = @{
             Name                          = $PSBoundParameters['readGroup']
             GroupCategory                 = 'Security'
             GroupScope                    = 'DomainLocal'
@@ -125,10 +117,10 @@ function New-AreaShareNTFS
             Path                          = $PSBoundParameters['sitePath']
             Description                   = 'Read Access to Share {0}' -f $PSBoundParameters['ShareName']
         }
-        New-AdDelegatedGroup @parameters
+        New-AdDelegatedGroup @Splat
 
         # Create the associated Modify group
-        $parameters = @{
+        $Splat = @{
             Name                          = $PSBoundParameters['changeGroup']
             GroupCategory                 = 'Security'
             GroupScope                    = 'DomainLocal'
@@ -136,7 +128,7 @@ function New-AreaShareNTFS
             Path                          = $PSBoundParameters['sitePath']
             Description                   = 'Read Access to Share {0}' -f $PSBoundParameters['ShareName']
         }
-        New-AdDelegatedGroup @parameters
+        New-AdDelegatedGroup @Splat
 
         Start-Sleep -Seconds 2
 
@@ -150,12 +142,14 @@ function New-AreaShareNTFS
 
         if ($error.count -eq 0) {
             Write-Verbose -Message ('The folder {0} was shared correctly.' -f $ShareName)
-        }
-    }
+        } #end If
+    } #end Process
+
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating the share."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+    } #end End
+
+} #end Function

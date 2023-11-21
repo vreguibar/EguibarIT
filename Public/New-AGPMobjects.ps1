@@ -1,5 +1,4 @@
-Function New-AGPMObjects
-{
+Function New-AGPMObjects {
     <#
         .Synopsis
             Create Advanced Group Policy Management Objects and Delegations
@@ -10,6 +9,13 @@ Function New-AGPMObjects
             New-AGPMObjects
         .INPUTS
 
+        .NOTES
+        Used Functions:
+            Name                                   | Module
+            ---------------------------------------|--------------------------
+            Get-CurrentErrorToDisplay              | EguibarIT
+            Set-FunctionDisplay                    | EguibarIT
+            Add-AdGroupNesting                     | EguibarIT
         .NOTES
             Version:         1.3
             DateModified:    05/Feb/2019
@@ -37,6 +43,7 @@ Function New-AGPMObjects
         [string]
         $DMscripts = "C:\PsScripts\"
     )
+
     Begin {
         $error.Clear()
 
@@ -51,8 +58,14 @@ Function New-AGPMObjects
 
         ################################################################################
         # Initialisations
-        Import-Module -name ActiveDirectory      -Verbose:$false
-        Import-Module -name EguibarIT.Delegation -Verbose:$false
+
+        if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
+            Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
+        } #end If
+
+        if (-not (Get-Module -Name 'EguibarIT.Delegation' -ListAvailable)) {
+            Import-Module -Name 'EguibarIT.Delegation' -Force -Verbose:$false
+        } #end If
 
         ################################################################################
         #region Declarations
@@ -72,8 +85,9 @@ Function New-AGPMObjects
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
-        }
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        } #end Try-Catch
 
 
 
@@ -107,7 +121,7 @@ Function New-AGPMObjects
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-        $parameters = $null
+        $Splat    = [Hashtable]::New()
 
         #endregion Declarations
         ################################################################################
@@ -118,7 +132,7 @@ Function New-AGPMObjects
 
         # Create the new Temporary Service Account with special values
         # This TEMP SA will be used for AGMP Server setup. Afterwards will be replaced by a MSA
-        $parameters = @{
+        $Splat = @{
             Path                  = $ItServiceAccountsOuDn
             Name                  = 'SA_AGPM_Temp'
             AccountPassword       = (ConvertTo-SecureString -String $confXML.n.DefaultPassword -AsPlainText -Force)
@@ -142,7 +156,7 @@ Function New-AGPMObjects
                 'msDS-SupportedEncryptionTypes' = '24'
         }
         }
-        New-AdUser @parameters
+        New-AdUser @Splat
 
         $SA_AGPM = Get-AdUser -Filter { samAccountName -eq 'SA_AGPM_Temp' }
 
@@ -218,7 +232,7 @@ Function New-AGPMObjects
 
         #New-ADGroup -Name "SG_AllSiteAdmins"      -SamAccountName SG_AllSiteAdmins      -GroupCategory Security -GroupScope Global      -DisplayName "All Sites Admins"        -Path $ItPGOuDn -Description "Members of this group are Site Administrators of all sites"
 
-        $parameters = @{
+        $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.AdminXtra.LG.GpoApproverRight.Name
             GroupCategory                 = 'Security'
             GroupScope                    = 'DomainLocal'
@@ -230,9 +244,9 @@ Function New-AGPMObjects
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        $SL_GpoApproverRight = New-AdDelegatedGroup @parameters
+        $SL_GpoApproverRight = New-AdDelegatedGroup @Splat
 
-        $parameters = @{
+        $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.AdminXtra.LG.GpoEditorRight.Name
             GroupCategory                 = 'Security'
             GroupScope                    = 'DomainLocal'
@@ -244,9 +258,9 @@ Function New-AGPMObjects
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        $SL_GpoEditorRight = New-AdDelegatedGroup @parameters
+        $SL_GpoEditorRight = New-AdDelegatedGroup @Splat
 
-        $parameters = @{
+        $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.AdminXtra.LG.GpoReviewerRight.Name
             GroupCategory                 = 'Security'
             GroupScope                    = 'DomainLocal'
@@ -258,7 +272,7 @@ Function New-AGPMObjects
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        $SL_GpoReviewerRight = New-AdDelegatedGroup @parameters
+        $SL_GpoReviewerRight = New-AdDelegatedGroup @Splat
 
         #endregion
         ###############################################################################
@@ -296,11 +310,13 @@ Function New-AGPMObjects
         #
         # 1.- Privileged groups are empty
         # 2.- AGPM will control all GPOs
-    }
+    } #end Process
+
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) created objects and Delegations successfully."
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-  }
-}
+    }#end End
+
+} #end Function

@@ -1,8 +1,7 @@
 
 # http://blogs.technet.com/b/lrobins/archive/2011/06/23/quot-admin-free-quot-active-directory-and-windows-part-1-understanding-privileged-groups-in-ad.aspx
 # http://blogs.msmvps.com/acefekay/2012/01/06/using-group-nesting-strategy-ad-best-practices-for-group-strategy/
-function Add-AdGroupNesting
-{
+function Add-AdGroupNesting {
     <#
         .SYNOPSIS
             Same as Add-AdGroupMember but with error handling and loging
@@ -19,13 +18,9 @@ function Add-AdGroupNesting
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
-    Param
-    (
+    Param (
         # Param1 Group which membership is to be changed
-        [Parameter(Mandatory = $true,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Group which membership is to be changed',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
@@ -33,10 +28,7 @@ function Add-AdGroupNesting
         $Identity,
 
         # Param2 ID of New Member of the group
-        [Parameter(Mandatory = $true,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'ID of New Member of the group. Can be a single string or array.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
@@ -57,29 +49,12 @@ function Add-AdGroupNesting
         ##############################
         # Variables Definition
 
-        # Active Directory Domain Distinguished Name
-        If(-Not (Test-Path -Path variable:AdDn)) {
-           $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-        }
-
         # Define variables and its type
         $CurrentMembers = [System.Collections.Generic.HashSet[String]]::New()
         $NewMembers     = [System.Collections.Generic.HashSet[String]]::New()
         $Splat          = [hashtable]::New()
+    } #end Begin
 
-        If($identity -is [Microsoft.ActiveDirectory.Management.AdGroup]) {
-            #$Group = Get-AdGroup -Identity $Identity.ObjectGUID
-            $Group = $Identity
-        }
-
-        If($identity -is [System.String]) {
-            If($identity -contains $AdDn) {
-                $Group = Get-AdGroup -Filter { distinguishedName -eq $Identity }
-            } ELSE {
-                $Group = Get-AdGroup -Filter { samAccountName -eq $Identity }
-            }
-        }
-    }
     Process {
         # Get group members
         Get-AdGroupMember -Identity $Group.SID | Select-Object -ExpandProperty sAMAccountName | ForEach-Object { $CurrentMembers.Add($_) }
@@ -92,8 +67,9 @@ function Add-AdGroupNesting
                     $NewMembers.Add($item)
                 } else {
                      Write-Verbose -Message ('{0} is already member of {1} group' -f $item.SamAccountName, $Group.SamAccountName)
-                }
-            }
+                } #end If-Else
+            } #end ForEach
+
             If($NewMembers.Count -gt 0) {
                 $Splat = @{
                     Identity = $Group
@@ -104,17 +80,21 @@ function Add-AdGroupNesting
                     Add-AdGroupMember @Splat -WhatIf:$False
                 } else {
                     Write-Verbose -Message 'Operation cancelled by User!'
-                }
-            }
+                } #end If-Else
+            }#end If
             #Add-AdGroupMember @Splat
 
             Write-Verbose -Message ('Member {0} was added correctly to group {1}' -f $Members, $Group.sAMAccountName)
-        } catch { throw }
-    }
+        } catch {
+            throw
+        } #end Try-Catch
+    } #end Process
+
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) adding members to the group."
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+    } #end End
+
+} #end Function

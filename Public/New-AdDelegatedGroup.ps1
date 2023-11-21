@@ -46,6 +46,7 @@
             Name                                   | Module
             ---------------------------------------|--------------------------
             Get-CurrentErrorToDisplay              | EguibarIT
+            Set-FunctionDisplay                    | EguibarIT
             Remove-AccountOperator                 | EguibarIT.Delegation
             Remove-Everyone                        | EguibarIT.Delegation
             Remove-AuthUser                        | EguibarIT.Delegation
@@ -71,7 +72,7 @@
             HelpMessage = 'Name of the group to be created. SamAccountName',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [System.String]
+        [Alias('GroupName','GroupID')]
         $Name,
 
         # Param2 Group category, either Security or Distribution
@@ -172,8 +173,10 @@
 
     Process {
         try {
-            # Get the group and store it on variable.
-            $newGroup = Get-AdGroup -Filter { SamAccountName -eq $Name }
+            If(-not ($name -is [Microsoft.ActiveDirectory.Management.AdGroup])) {
+                # Get the group and store it on variable.
+                $newGroup = Get-AdObjectType -Identity $Name
+            }
 
             ### Using $PSBoundParameters['Name'] throws an Error. Using variable instead.
             If (-not($newGroup)) {

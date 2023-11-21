@@ -52,6 +52,7 @@ function Set-AdAclDelegateGalAdmin
             HelpMessage = 'Distinguished Name of the OU where given group will manage a User GAL.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
+        [validateScript({ Test-IsValidDN -ObjectDN $_ })]
         [String]
         $LDAPpath,
 
@@ -73,7 +74,6 @@ function Set-AdAclDelegateGalAdmin
 
         ##############################
         # Variables Definition
-
 
         $Splat = [hashtable]::New()
 

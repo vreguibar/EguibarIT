@@ -1,6 +1,5 @@
 # Clean OU from default BuiltIn groups
-function Start-AdCleanOU
-{
+function Start-AdCleanOU {
     <#
         .Synopsis
             Clean default OU permissions.
@@ -38,6 +37,8 @@ function Start-AdCleanOU
                 Remove-PrintOperator                   | EguibarIT.Delegation
                 Remove-AuthUser                        | EguibarIT.Delegation
                 Remove-UnknownSID                      | EguibarIT.Delegation
+                Get-CurrentErrorToDisplay              | EguibarIT
+                Set-FunctionDisplay                    | EguibarIT
         .NOTES
             Version:         1.2
             DateModified:    19/Dec/2017
@@ -46,38 +47,32 @@ function Start-AdCleanOU
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
-    param
-    (
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    param (
         #PARAM1 Distinguished name of the OU to be cleaned
-        [Parameter(Mandatory = $true,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Distinguished name of the OU to be cleaned.',
         Position = 0)]
         [ValidateNotNullOrEmpty()]
+        [validateScript({ Test-IsValidDN -ObjectDN $_ })]
         [String]
         $LDAPpath,
 
         #PARAM2 Remove Authenticated Users
-        [Parameter(Mandatory = $false,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Remove Authenticated Users.',
         Position = 1)]
         [switch]
         $RemoveAuthenticatedUsers,
 
         #PARAM3 Remove Unknown SIDs
-        [Parameter(Mandatory = $false,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Remove Unknown SIDs.',
         Position = 2)]
         [switch]
         $RemoveUnknownSIDs
-
     )
+
     begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
@@ -87,65 +82,72 @@ function Start-AdCleanOU
         ##############################
         # Variables Definition
 
-        Write-Verbose -Message 'Removing Account Operators and Print Operators'
+        $Splat = [hashtable]::New()
 
-        $Parameters = $null
-    }
-    process {
-        $parameters = @{
+        $Splat = @{
             Group      = 'Account Operators'
-            LDAPPath   = $PSBoundParameters['LDAPPath']
+            LDAPPath   = $PSBoundParameters['LDAPpath']
             RemoveRule = $true
         }
-        # Remove the Account Operators group from ACL to Create/Delete Users
-        Set-AdAclCreateDeleteUser @parameters
+    } #end Begin
 
-        # Remove the Account Operators group from ACL to Create/Delete Computers
-        Set-AdAclCreateDeleteComputer @parameters
+    process {
+        Try {
+            if ($Force -or $PSCmdlet.ShouldProcess("Proceed with delegations?")) {
+                # Remove the Account Operators group from ACL to Create/Delete Users
+                Set-AdAclCreateDeleteUser @Splat
 
-        # Remove the Account Operators group from ACL to Create/Delete Groups
-        Set-AdAclCreateDeleteGroup @parameters
+                # Remove the Account Operators group from ACL to Create/Delete Computers
+                Set-AdAclCreateDeleteComputer @Splat
 
-        # Remove the Account Operators group from ACL to Create/Delete Contacts
-        Set-AdAclCreateDeleteContact @parameters
+                # Remove the Account Operators group from ACL to Create/Delete Groups
+                Set-AdAclCreateDeleteGroup @Splat
 
-        # Remove the Account Operators group from ACL to Create/Delete inetOrgPerson
-        Set-CreateDeleteInetOrgPerson @parameters
+                # Remove the Account Operators group from ACL to Create/Delete Contacts
+                Set-AdAclCreateDeleteContact @Splat
 
-        # Remove the Print Operators group from ACL to Create/Delete PrintQueues
-        Set-AdAclCreateDeletePrintQueue @parameters
+                # Remove the Account Operators group from ACL to Create/Delete inetOrgPerson
+                Set-CreateDeleteInetOrgPerson @Splat
 
-        # Remove Pre-Windows 2000 Compatible Access group from Admin-User
-        Remove-PreWin2000 -LDAPPath $PSBoundParameters['LDAPPath']
+                # Remove the Print Operators group from ACL to Create/Delete PrintQueues
+                Set-AdAclCreateDeletePrintQueue @Splat
 
-        # Remove Pre-Windows 2000 Access group from OU
-        Remove-PreWin2000FromOU -LDAPPath $PSBoundParameters['LDAPPath']
+                # Remove Pre-Windows 2000 Compatible Access group from Admin-User
+                Remove-PreWin2000 -LDAPPath $PSBoundParameters['LDAPPath']
 
-        # Remove ACCOUNT OPERATORS 2000 Access group from OU
-        Remove-AccountOperator -LDAPPath $PSBoundParameters['LDAPPath']
+                # Remove Pre-Windows 2000 Access group from OU
+                Remove-PreWin2000FromOU -LDAPPath $PSBoundParameters['LDAPPath']
 
-        # Remove PRINT OPERATORS 2000 Access group from OU
-        Remove-PrintOperator -LDAPPath $PSBoundParameters['LDAPPath']
+                # Remove ACCOUNT OPERATORS 2000 Access group from OU
+                Remove-AccountOperator -LDAPPath $PSBoundParameters['LDAPPath']
 
-        If($PsBoundParameters['RemoveAuthenticatedUsers']) {
-            # Remove AUTHENTICATED USERS group from OU
-            Remove-AuthUser -LDAPPath $PSBoundParameters['LDAPPath']
+                # Remove PRINT OPERATORS 2000 Access group from OU
+                Remove-PrintOperator -LDAPPath $PSBoundParameters['LDAPPath']
 
-            Write-Verbose -Message 'Removing Authenticated Users'
-        }
+                If($PsBoundParameters['RemoveAuthenticatedUsers']) {
+                    # Remove AUTHENTICATED USERS group from OU
+                    Remove-AuthUser -LDAPPath $PSBoundParameters['LDAPPath']
 
-        If($PsBoundParameters['$RemoveUnknownSIDs']) {
-            # Remove Un-Resolvable SID from a given object
-            Remove-UnknownSID -LDAPPath $PSBoundParameters['LDAPPath'] -RemoveSID
+                    Write-Verbose -Message 'Removing Authenticated Users'
+                }  #end If
 
-            Write-Verbose -Message 'Remove Un-Resolvable / Unknown SIDs'
-        }
+                If($PsBoundParameters['$RemoveUnknownSIDs']) {
+                    # Remove Un-Resolvable SID from a given object
+                    Remove-UnknownSID -LDAPPath $PSBoundParameters['LDAPPath'] -RemoveSID
 
-    }
+                    Write-Verbose -Message 'Remove Un-Resolvable / Unknown SIDs'
+                } #end If
+            } #end If
+        } catch {
+            Write-Error -Message "An error occurred: $_"
+        } #end Try-Catch
+    } #end Process
+
     end {
         Write-Verbose -Message('Builtin groups were removed correctly from object {0}.' -f $PSBoundParameters['LDAPPath'])
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+    } #end End
+
+} #end Function

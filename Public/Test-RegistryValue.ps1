@@ -1,5 +1,4 @@
-function Test-RegistryValue
-{
+function Test-RegistryValue {
     <#
         .Synopsis
             Function to Test Registry Values
@@ -14,6 +13,13 @@ function Test-RegistryValue
         .EXAMPLE
             Test-RegistryValue "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "AutoAdminLogon"
         .NOTES
+            Used Functions:
+                Name                                   | Module
+                ---------------------------------------|--------------------------
+                Get-ItemProperty                       | Microsoft.PowerShell.Management
+                Get-CurrentErrorToDisplay              | EguibarIT
+                Set-FunctionDisplay                    | EguibarIT
+        .NOTES
             Version:         1.0
             DateModified:    16/Ene/2018
             LasModifiedBy:   Vicente Rodriguez Eguibar
@@ -26,18 +32,19 @@ function Test-RegistryValue
     Param (
         [parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Registry path to be tested',
-        Position = 0)]
+            Position = 0)]
         [ValidateNotNullOrEmpty()]
         [string]
         $Path,
 
         [parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Registry value to be tested',
-        Position = 1)]
+            Position = 1)]
         [ValidateNotNullOrEmpty()]
         [string]
         $Value
     )
+
     Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
@@ -46,7 +53,8 @@ function Test-RegistryValue
 
         ##############################
         # Variables Definition
-    }
+    } #end Begin
+
     Process {
         try {
             Get-ItemProperty -Path $Path | Select-Object -ExpandProperty $Value -ErrorAction Stop | Out-Null
@@ -55,12 +63,13 @@ function Test-RegistryValue
         catch {
             return $false
         }
-    }
+    } #end Process
 
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished testing registry."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
-}
+    } #end End
+
+} #end Function

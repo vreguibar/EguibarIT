@@ -47,7 +47,7 @@ function Set-AdAclDelegateComputerAdmin {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     Param (
         # PARAM1 STRING for the Delegated Group Name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
@@ -62,6 +62,7 @@ function Set-AdAclDelegateComputerAdmin {
             HelpMessage = 'Distinguished Name of the OU where given group will fully manage a computer object',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
+        [validateScript({ Test-IsValidDN -ObjectDN $_ })]
         [String]
         $LDAPpath,
 
@@ -70,6 +71,7 @@ function Set-AdAclDelegateComputerAdmin {
             HelpMessage = 'Distinguished Name of the quarantine OU',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
+        [validateScript({ Test-IsValidDN -ObjectDN $_ })]
         [String]
         $QuarantineDN,
 
@@ -94,13 +96,15 @@ function Set-AdAclDelegateComputerAdmin {
         # Variables Definition
 
         $Splat = [hashtable]::New()
+
+        $Splat = @{
+            Group    = $PSBoundParameters['Group']
+            LDAPPath = $PSBoundParameters['LDAPpath']
+        }
     } #end Begin
     Process {
         try {
-            $Splat = @{
-                Group    = $PSBoundParameters['Group']
-                LDAPPath = $PSBoundParameters['LDAPpath']
-            }
+
             # Check if RemoveRule switch is present.
             If($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
