@@ -8,5 +8,5 @@ jobs:
     - name: Checkout
       uses: actions/checkout@main
 
-    - name: UseHelpOut
-      uses: StartAutomating/HelpOut@master
+    - name: Generate docs
+      uses: Microsoft/ps-docs@v0.1.0
