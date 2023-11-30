@@ -5,6 +5,12 @@
         "github.vscode-pull-request-github",
         "ms-vscode.powershell",
         "ms-vscode.vscode-typescript-tslint-plugin",
+        "Acrolinx.vscode-sidebar",
+        "docsmsft.docs-authoring-pack",
+        "marvhen.reflow-markdown",
+        "shuworks.vscode-table-formatter",
+        "streetsidesoftware.code-spell-checker",
+        "wmaurer.change-case",
         "davidanson.vscode-markdownlint"
     ]
 }
