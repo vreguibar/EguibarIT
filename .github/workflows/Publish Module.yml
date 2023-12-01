@@ -26,6 +26,10 @@ jobs:
         shell: pwsh
         run: |
           Install-WindowsFeature -Name RSAT-AD-PowerShell
+
+      - name: Install Group Policy Console (get GroupPolicy module)
+        shell: pwsh
+        run: |
           Install-WindowsFeature -Name GPMC
 
       - name: Register PSGallery Repository
@@ -42,11 +46,8 @@ jobs:
           Install-Module -Name PowerShellGet    -Force
           Install-Module -Name platyPS          -Force
           Install-Module -Name InvokeBuild      -Force
-          # Explicitly load the Active Directory module
-          Import-Module -Name ActiveDirectory -Force
-          Import-Module -Name GroupPolicy     -Force
 
-      - name: Install Module Dependencies
+      - name: Import Modules
         shell: pwsh
         run: |
           # Explicitly load the Active Directory module
