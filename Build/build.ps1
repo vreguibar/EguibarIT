@@ -36,19 +36,27 @@ task Test {
         Invoke-ScriptAnalyzer ".\Public" -Recurse
         Write-Verbose -Message "Running PSScriptAnalyzer on Private functions"
         Invoke-ScriptAnalyzer ".\Private" -Recurse
+        Write-Verbose -Message "Running PSScriptAnalyzer on Enums functions"
+        Invoke-ScriptAnalyzer ".\Enums" -Recurse
+        Write-Verbose -Message "Running PSScriptAnalyzer on Classes functions"
+        Invoke-ScriptAnalyzer ".\Classes" -Recurse
     }
     catch {
         throw "Couldn't run Script Analyzer"
     }
-    <#
-    Write-Verbose -Message "Running Pester Tests"
-    $config = [PesterConfiguration]::Default
-    $config.TestResult.Enabled = $true
-    $Results = Invoke-Pester -Script ".\*.Tests.ps1" -OutputFormat NUnitXml -OutputFile ".\Tests\TestResults.xml" -Configuration $config
-    if($Results.FailedCount -gt 0) {
-        throw "$($Results.FailedCount) Tests failed"
+
+    try {
+        Write-Verbose -Message "Running Pester Tests"
+        $config = [PesterConfiguration]::Default
+        $config.TestResult.Enabled = $true
+        $Results = Invoke-Pester -Script ".\Tests\*.Tests.ps1" -OutputFormat NUnitXml -OutputFile ".\Tests\TestResults.xml" -Configuration $config
+        if($Results.FailedCount -gt 0) {
+            throw "$($Results.FailedCount) Tests failed"
+        }
+    } Catch {
+        throw "Couldn't run Pester Tests"
     }
-    #>
+
 }
 
 task DebugBuild -if ($Configuration -eq "debug") {
@@ -264,25 +272,27 @@ task Build -if($Configuration -eq "Release"){
         throw "Failed importing the module: $($ModuleName)"
     }
 
+    if ($null -eq $platyPS -or ($platyPS | Sort-Object Version -Descending | Select-Object -First 1).Version -lt [version]0.12)     {
+        Write-Verbose -verbose "platyPS module not found or below required version of 0.12, installing the latest version."
+        Install-Module -Force -Name platyPS -Scope CurrentUser -Repository PSGallery
+    }
     if(!(Get-ChildItem -Path ".\Docs")){
         Write-Verbose -Message "Docs folder is empty, generating new fiiles"
         if(Get-Module -Name $($ModuleName)) {
             Write-Verbose -Message "Module: $($ModuleName) is imported into session, generating Help Files"
-            #New-MarkdownHelp -Module $ModuleName -OutputFolder ".\Docs" -ErrorAction SilentlyContinue
-            #New-MarkdownAboutHelp -OutputFolder ".\Docs" -AboutName $ModuleName -ErrorAction SilentlyContinue
-            #New-ExternalHelp ".\Docs" -OutputPath ".\Output\$($ModuleName)\$($ModuleVersion)\en-US\" -ErrorAction SilentlyContinue
-        }
-        else {
+            New-MarkdownHelp -Module $ModuleName -OutputFolder ".\Docs" -ErrorAction SilentlyContinue
+            New-MarkdownAboutHelp -OutputFolder ".\Docs" -AboutName $ModuleName -ErrorAction SilentlyContinue
+            New-ExternalHelp ".\Docs" -OutputPath ".\Output\$($ModuleName)\$($ModuleVersion)\en-US\" -ErrorAction SilentlyContinue
+        } else {
             throw "Module is not imported, cannot generate help files"
         }
-    }
-    else {
+    } else {
         Write-Verbose -Message "Removing old Help files, to generate new files."
         Remove-Item -Path ".\Docs\*.*" -Exclude "about_*"
         if(Get-Module -Name $($ModuleName)) {
             Write-Verbose -Message "Module: $($ModuleName) is imported into session, generating Help Files"
-            #New-MarkdownHelp -Module $ModuleName -OutputFolder ".\Docs" -ErrorAction SilentlyContinue
-            #New-ExternalHelp ".\Docs" -OutputPath ".\Output\$($ModuleName)\$($ModuleVersion)\en-US\" -ErrorAction SilentlyContinue
+            New-MarkdownHelp -Module $ModuleName -OutputFolder ".\Docs" -ErrorAction SilentlyContinue
+            New-ExternalHelp ".\Docs" -OutputPath ".\Output\$($ModuleName)\$($ModuleVersion)\en-US\" -ErrorAction SilentlyContinue
         }
     }
 
