@@ -32,12 +32,6 @@ jobs:
         run: |
           Install-WindowsFeature -Name GPMC
 
-      - name: Register PSGallery Repository
-        shell: pwsh
-        run: |
-          Register-PSRepository -Name PSGallery -SourceLocation https://www.powershellgallery.com/api/v2/ -InstallationPolicy Trusted -ErrorAction Stop
-          Register-PSRepository -Default
-
       - name: Install Module Dependencies
         shell: pwsh
         run: |
@@ -82,7 +76,7 @@ jobs:
           path: ./Artifact/
 
 
-  # 4th Job -- Release and Publish
+  # 2nd Job -- Release and Publish
   release_and_publish:
     needs: setup_environment
     runs-on: ubuntu-latest

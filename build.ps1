@@ -31,7 +31,7 @@ task Init {
 }
 
 # Task: Testing
-<#
+
 task Test {
     try {
         Write-Verbose -Message "Running PSScriptAnalyzer on Public functions"
@@ -47,6 +47,7 @@ task Test {
         throw "Couldn't run Script Analyzer"
     }
 
+    <#
     try {
         Write-Verbose -Message "Running Pester Tests"
         $config = [PesterConfiguration]::Default
@@ -58,9 +59,9 @@ task Test {
     } Catch {
         throw "Couldn't run Pester Tests"
     }
-
+    #>
 }
-#>
+
 
 # Task: Debug build
 task DebugBuild -if ($Configuration -eq "debug") {
