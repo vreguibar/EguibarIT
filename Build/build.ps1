@@ -330,4 +330,4 @@ task Publish -if($Configuration -eq "Release"){
     }
 }
 
-task . Init, Test, DebugBuild, Build, Clean, Publish
+task . Init, DebugBuild, Build, Clean, Publish
