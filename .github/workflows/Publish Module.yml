@@ -34,6 +34,8 @@ jobs:
           Install-Module -Name PowerShellGet    -Force
           Install-Module -Name platyPS          -Force
           Install-Module -Name InvokeBuild      -Force
+          # Explicitly load the Active Directory module
+          Import-Module ActiveDirectory
 
       - name: Run PSScriptAnalyzer on different folders
         shell: pwsh
