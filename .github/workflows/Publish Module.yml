@@ -26,6 +26,7 @@ jobs:
         shell: pwsh
         run: |
           Install-WindowsFeature -Name RSAT-AD-PowerShell
+          Install-WindowsFeature -Name GPMC
 
       - name: Install Module Dependencies
         shell: pwsh
