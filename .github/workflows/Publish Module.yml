@@ -20,27 +20,18 @@ jobs:
     steps:
       # Checkout the Repository
       - name: Checkout Repository
-        uses: actions/checkout@main
+        uses: actions/checkout@v2
 
-      - name: Set required PowerShell modules
-        id: psmodulecache
-        uses: potatoqualitee/psmodulecache@v1
-        with:
-          modules-to-cache: Pester, PSScriptAnalyzer, InvokeBuild, platyPS
+      - name: Setup PowerShell
+        uses: PowerShell/setup-powershell@v0.7.0
 
-      - name: Setup PowerShell module cache
-        id: cacher
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.psmodulecache.outputs.modulepath }}
-          key: ${{ steps.psmodulecache.outputs.keygen }}
-
-      - name: Install required PowerShell modules
-        if: steps.cacher.outputs.cache-hit != 'true'
-        shell: pwsh
+      - name: Install Module Dependencies
         run: |
-          Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module ${{ steps.psmodulecache.outputs.needed }} -ErrorAction Stop
+          Install-Module -Name Pester -Force -Scope CurrentUser
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+          Install-Module -Name PowerShellGet -Force -Scope CurrentUser
+          Install-Module -Name platyPS -Force -Scope CurrentUser
+          Install-Module -Name InvokeBuild -Force -Scope CurrentUser
 
       - name: Run PSScriptAnalyzer on different folders
         shell: pwsh
