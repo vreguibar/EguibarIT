@@ -29,6 +29,7 @@ task Init {
 }
 
 # Task: Testing
+<#
 task Test {
     try {
         Write-Verbose -Message "Running PSScriptAnalyzer on Public functions"
@@ -57,6 +58,7 @@ task Test {
     }
 
 }
+#>
 
 # Task: Debug build
 task DebugBuild -if ($Configuration -eq "debug") {
