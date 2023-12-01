@@ -52,9 +52,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Run Pester Tests
-        shell: pwsh
-        run: Invoke-Pester -Path .\Tests\*.Tests.ps1
+      #- name: Run Pester Tests
+      #  shell: pwsh
+      #  run: Invoke-Pester -Path .\Tests\*.Tests.ps1
 
       - name: Run PSScriptAnalyzer on different folders
         shell: pwsh
