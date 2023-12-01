@@ -42,7 +42,7 @@ jobs:
 
       - name: Invoke Build
         shell: pwsh
-        run: pwsh -command "Invoke-Build -File ./Build/build.ps1 -Configuration 'Release' -ExportAlias"
+        run: pwsh -command "Invoke-Build -File ./build.ps1 -Configuration 'Release' -ExportAlias"
 
       - name: Push changes to Git Repository
         run: |
