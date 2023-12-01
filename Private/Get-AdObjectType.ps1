@@ -32,6 +32,7 @@ function Get-AdObjectType {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+
   Param (
     # Param1
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
@@ -41,17 +42,24 @@ function Get-AdObjectType {
     [Alias('ID','SamAccountName','DistinguishedName','DN','SID')]
     $Identity
   )
+
   Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
+        if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
+          Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
+        } #end If
+
         ##############################
         # Variables Definition
 
         $ReturnValue = $null
+
   } # End Begin Section
+
   Process
   {
     Try {
@@ -127,10 +135,12 @@ function Get-AdObjectType {
       Write-Error -Message "Error: $_"
     }
   } # End Process Section
+
   End {
       Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD object type."
       Write-Verbose -Message ''
       Write-Verbose -Message '-------------------------------------------------------------------------------'
       Write-Verbose -Message ''
   } # End End Section
-}
+
+} #end Function

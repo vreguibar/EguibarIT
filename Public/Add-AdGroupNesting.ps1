@@ -56,27 +56,33 @@ function Add-AdGroupNesting {
     } #end Begin
 
     Process {
-        # Get group members
-        Get-AdGroupMember -Identity $Group.SID | Select-Object -ExpandProperty sAMAccountName | ForEach-Object { $CurrentMembers.Add($_) }
+
+        # Ensure Identity is an AD Group
+        If(-not ($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup])) {
+            $Identity = Get-AdObjectType -Identity $Identity
+        }
+
+        # Get current group members and store it on $CurrentMembers
+        Get-AdGroupMember -Identity $Identity | Select-Object -ExpandProperty sAMAccountName | ForEach-Object { [void]$CurrentMembers.Add($_) }
 
         try {
-            Write-Verbose -Message ('Adding members to group..: {0}' -f $Group.SamAccountName)
+            Write-Verbose -Message ('Adding members to group..: {0}' -f $Identity.SamAccountName)
 
             Foreach ($item in $Members) {
                 If($CurrentMembers -notcontains $item) {
-                    $NewMembers.Add($item)
+                    [void]$NewMembers.Add($item)
                 } else {
-                     Write-Verbose -Message ('{0} is already member of {1} group' -f $item.SamAccountName, $Group.SamAccountName)
+                     Write-Verbose -Message ('{0} is already member of {1} group' -f $item.SamAccountName, $Identity.SamAccountName)
                 } #end If-Else
             } #end ForEach
 
             If($NewMembers.Count -gt 0) {
                 $Splat = @{
-                    Identity = $Group
-                    Members  = $NewMembers
+                    Identity = $Identity
+                    Members  = $NewMembers -join ','
                 }
 
-                If($PSCmdlet.ShouldProcess("Add members to Group $(Group.SamAccountName)", "Confirm?")) {
+                If($PSCmdlet.ShouldProcess("Add members to Group $($Identity.SamAccountName)", "Confirm?")) {
                     Add-AdGroupMember @Splat -WhatIf:$False
                 } else {
                     Write-Verbose -Message 'Operation cancelled by User!'
@@ -84,7 +90,7 @@ function Add-AdGroupNesting {
             }#end If
             #Add-AdGroupMember @Splat
 
-            Write-Verbose -Message ('Member {0} was added correctly to group {1}' -f $Members, $Group.sAMAccountName)
+            Write-Verbose -Message ('Member {0} was added correctly to group {1}' -f $Members, $Identity.sAMAccountName)
         } catch {
             throw
         } #end Try-Catch
