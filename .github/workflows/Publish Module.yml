@@ -22,12 +22,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Setup PowerShell
-        uses: Microsoft/PowerShell@v7
-        with:
-          pwsh: true
 
       - name: Install Module Dependencies
+        shell: pwsh
         run: |
           Install-Module -Name Pester           -Force
           Install-Module -Name PSScriptAnalyzer -Force
