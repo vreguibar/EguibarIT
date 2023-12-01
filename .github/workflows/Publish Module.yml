@@ -42,33 +42,14 @@ jobs:
           Set-PSRepository PSGallery -InstallationPolicy Trusted
           Install-Module ${{ steps.psmodulecache.outputs.needed }} -ErrorAction Stop
 
-  # 2nd Job -- Run tests
-  run_tests:
-    needs: setup_environment
-    # The type of runner that the job will run on
-    runs-on: windows-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      #- name: Run Pester Tests
-      #  shell: pwsh
-      #  run: Invoke-Pester -Path .\Tests\*.Tests.ps1
-
       - name: Run PSScriptAnalyzer on different folders
         shell: pwsh
         run: |
-          Invoke-ScriptAnalyzer -Path .\Public  -recurse
-          Invoke-ScriptAnalyzer -Path .\Private -recurse
-          Invoke-ScriptAnalyzer -Path .\Enums   -recurse
-          Invoke-ScriptAnalyzer -Path .\Classes -recurse
+            Invoke-ScriptAnalyzer -Path .\Public  -recurse
+            Invoke-ScriptAnalyzer -Path .\Private -recurse
+            Invoke-ScriptAnalyzer -Path .\Enums   -recurse
+            Invoke-ScriptAnalyzer -Path .\Classes -recurse
 
-  # 3rd Job -- Build and Upload Artifacts
-  build_and_upload:
-    needs: run_tests
-    runs-on: windows-latest
-
-    steps:
-      # Running the InvokeBuild Module Invoke-Build command with "Release configuration"
       - name: Invoke Build
         shell: pwsh
         run: pwsh -command "Invoke-Build -File ./Build/build.ps1 -Configuration 'Release' -ExportAlias"
@@ -82,19 +63,19 @@ jobs:
           git commit -am "Pushing Artifacts"
           git push
 
-
-  # 4th Job -- Release and Publish
-  release_and_publish:
-    needs: build_and_upload
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Download build artifact
         uses: actions/download-artifact@v2
         with:
           name: module-artifact
           path: ./Artifact/
 
+
+  # 4th Job -- Release and Publish
+  release_and_publish:
+    needs: setup_environment
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Update Module Manifest
         shell: pwsh
         run: |
