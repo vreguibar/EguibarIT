@@ -31,6 +31,7 @@ jobs:
       - name: Install Module Dependencies
         shell: pwsh
         run: |
+          Register-PSRepository -Name PSGallery -SourceLocation https://www.powershellgallery.com/api/v2/ -InstallationPolicy Trusted -ErrorAction Stop
           Install-Module -Name Pester           -Force
           Install-Module -Name PSScriptAnalyzer -Force
           Install-Module -Name PowerShellGet    -Force
@@ -38,7 +39,7 @@ jobs:
           Install-Module -Name InvokeBuild      -Force
           Install-Module -Name GroupPolicy      -Force
           # Explicitly load the Active Directory module
-          Import-Module ActiveDirectory
+          Import-Module ActiveDirectory         -Force
 
       - name: Run PSScriptAnalyzer on different folders
         shell: pwsh
