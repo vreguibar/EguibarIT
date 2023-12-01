@@ -22,9 +22,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Install Active Directory tools
-        uses: wadamw/install-ADDS@v1
-
+      - name: Install Active Directory module
+        run: |
+          Install-WindowsFeature -Name RSAT-AD-PowerShell
 
       - name: Install Module Dependencies
         shell: pwsh
