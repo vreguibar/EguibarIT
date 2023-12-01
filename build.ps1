@@ -18,6 +18,8 @@ function Initialize-Modules {
         if (-not (Get-Module -Name $module -ListAvailable)) {
             Write-Warning "Module '$module' is missing or out of date. Installing module now."
             Install-Module -Name $module -Scope CurrentUser -Force
+        } else {
+            Import-Module -Name $module -Force
         }
     }
 }

@@ -35,6 +35,7 @@ jobs:
           Install-Module -Name PowerShellGet    -Force
           Install-Module -Name platyPS          -Force
           Install-Module -Name InvokeBuild      -Force
+          Install-Module -Name GroupPolicy      -Force
           # Explicitly load the Active Directory module
           Import-Module ActiveDirectory
 
