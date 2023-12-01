@@ -120,8 +120,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ newVersion }}
-          release_name: Release ${{ newVersion }}
+          tag_name: ${{ steps.release_and_publish.outputs.newVersion }}
+          release_name: Release ${{ steps.release_and_publish.outputs.newVersion }}
           draft: false
           prerelease: false
 
