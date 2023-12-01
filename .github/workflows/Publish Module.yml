@@ -25,7 +25,7 @@ jobs:
         id: psmodulecache
         uses: potatoqualitee/psmodulecache@v1
         with:
-          modules-to-cache: Pester, PSScriptAnalyzer, InvokeBuild, platyPS
+          modules-to-cache: Pester, PSScriptAnalyzer, InvokeBuild, platyPS, PSake
 
       - name: Setup PowerShell module cache
         id: cacher
@@ -75,7 +75,7 @@ jobs:
 
       - name: Invoke Build
         shell: pwsh
-        run: pwsh -command "Invoke-Build -File .\Build\build.ps1 -Configuration 'Release' -ExportAlias"
+        run: pwsh -command "Invoke-Build -File ./Build/build.ps1 -Configuration 'Release' -ExportAlias"
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v2
