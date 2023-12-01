@@ -1,5 +1,6 @@
 name: Publish Module
 
+# Controls when the workflow will run
 on:
   pull_request:
     branches: [main]
@@ -19,7 +20,7 @@ jobs:
     steps:
       # Checkout the Repository
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
 
       - name: Set required PowerShell modules
         id: psmodulecache
@@ -51,7 +52,7 @@ jobs:
     steps:
       # Checkout the Repository
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
 
       #- name: Run Pester Tests
       #  shell: pwsh
@@ -72,17 +73,12 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
 
+      # Running the InvokeBuild Module Invoke-Build command with "Release configuration"
       - name: Invoke Build
         shell: pwsh
-        run: .\Build\build.ps1 -Configuration 'Release' -ExportAlias
-
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: module-artifact
-          path: ./Output/
+        run: pwsh -command "Invoke-Build -File ./Build/build.ps1 -Configuration 'Release' -ExportAlias"
 
       - name: Push changes to Git Repository
         run: |
@@ -93,6 +89,7 @@ jobs:
           git commit -am "Pushing Artifacts"
           git push
 
+
   # 4th Job -- Release and Publish
   release_and_publish:
     needs: build_and_upload
@@ -100,7 +97,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
 
       - name: Download build artifact
         uses: actions/download-artifact@v2
