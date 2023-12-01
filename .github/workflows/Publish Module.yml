@@ -29,7 +29,6 @@ jobs:
       - name: Install Module Dependencies
         shell: pwsh
         run: |
-          Install-Module -Name ActiveDirectory  -Force
           Install-Module -Name Pester           -Force
           Install-Module -Name PSScriptAnalyzer -Force
           Install-Module -Name PowerShellGet    -Force
