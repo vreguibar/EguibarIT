@@ -28,18 +28,30 @@ jobs:
           Install-WindowsFeature -Name RSAT-AD-PowerShell
           Install-WindowsFeature -Name GPMC
 
-      - name: Install Module Dependencies
+      - name: Register PSGallery Repository
         shell: pwsh
         run: |
           Register-PSRepository -Name PSGallery -SourceLocation https://www.powershellgallery.com/api/v2/ -InstallationPolicy Trusted -ErrorAction Stop
+          Register-PSRepository -Default
+
+      - name: Install Module Dependencies
+        shell: pwsh
+        run: |
           Install-Module -Name Pester           -Force
           Install-Module -Name PSScriptAnalyzer -Force
           Install-Module -Name PowerShellGet    -Force
           Install-Module -Name platyPS          -Force
           Install-Module -Name InvokeBuild      -Force
           # Explicitly load the Active Directory module
-          Import-Module ActiveDirectory    -Force
-          Import-Module -Name GroupPolicy  -Force
+          Import-Module -Name ActiveDirectory -Force
+          Import-Module -Name GroupPolicy     -Force
+
+      - name: Install Module Dependencies
+        shell: pwsh
+        run: |
+          # Explicitly load the Active Directory module
+          Import-Module -Name ActiveDirectory -Force
+          Import-Module -Name GroupPolicy     -Force
 
       - name: Run PSScriptAnalyzer on different folders
         shell: pwsh
