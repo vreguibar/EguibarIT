@@ -43,6 +43,7 @@ jobs:
 
   # 2nd Job -- Run tests
   run_tests:
+    needs: setup_environment
     # The type of runner that the job will run on
     runs-on: windows-latest
 

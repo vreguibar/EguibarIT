@@ -4,32 +4,31 @@ param (
     [Parameter(Mandatory=$false)][Switch]$ExportAlias
 )
 
-task Init {
-    Write-Verbose -Message "Initializing Module PSScriptAnalyzer"
-    if (-not(Get-Module -Name PSScriptAnalyzer -ListAvailable)){
-        Write-Warning "Module 'PSScriptAnalyzer' is missing or out of date. Installing module now."
-        Install-Module -Name PSScriptAnalyzer -Scope CurrentUser -Force
-    }
 
-    Write-Verbose -Message "Initializing Module Pester"
-    if (-not(Get-Module -Name Pester -ListAvailable)){
-        Write-Warning "Module 'Pester' is missing or out of date. Installing module now."
-        Install-Module -Name Pester -Scope CurrentUser -Force
-    }
+# Check PowerShell version
+if ($PSVersionTable.PSVersion.Major -lt 5) {
+    throw "This script requires PowerShell version 5.0 or later."
+}
 
-    Write-Verbose -Message "Initializing platyPS"
-    if (-not(Get-Module -Name platyPS -ListAvailable)){
-        Write-Warning "Module 'platyPS' is missing or out of date. Installing module now."
-        Install-Module -Name platyPS -Scope CurrentUser -Force
-    }
+# Initialize Modules
+function Initialize-Modules {
+    $requiredModules = @("PSScriptAnalyzer", "Pester", "platyPS", "PowerShellGet")
 
-    Write-Verbose -Message "Initializing PowerShellGet"
-    if (-not(Get-Module -Name PowerShellGet -ListAvailable)){
-        Write-Warning "Module 'PowerShellGet' is missing or out of date. Installing module now."
-        Install-Module -Name PowerShellGet -Scope CurrentUser -Force
+    foreach ($module in $requiredModules) {
+        if (-not (Get-Module -Name $module -ListAvailable)) {
+            Write-Warning "Module '$module' is missing or out of date. Installing module now."
+            Install-Module -Name $module -Scope CurrentUser -Force
+        }
     }
 }
 
+# Task: Initialization
+task Init {
+    Write-Verbose -Message "Initializing Module PSScriptAnalyzer"
+    Initialize-Modules
+}
+
+# Task: Testing
 task Test {
     try {
         Write-Verbose -Message "Running PSScriptAnalyzer on Public functions"
@@ -59,6 +58,7 @@ task Test {
 
 }
 
+# Task: Debug build
 task DebugBuild -if ($Configuration -eq "debug") {
     $Script:ModuleName = (Test-ModuleManifest -Path ".\*.psd1").Name
     Write-Verbose $ModuleName
@@ -168,6 +168,7 @@ task DebugBuild -if ($Configuration -eq "debug") {
     }
 }
 
+# Task: Build
 task Build -if($Configuration -eq "Release"){
     $Script:ModuleName = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Name
     Write-Verbose $ModuleName
@@ -299,7 +300,7 @@ task Build -if($Configuration -eq "Release"){
 
 }
 
-
+# Task: Clean
 task Clean -if($Configuration -eq "Release") {
     if(Test-Path ".\Output\temp"){
         Write-Verbose -Message "Removing temp folders"
@@ -307,6 +308,7 @@ task Clean -if($Configuration -eq "Release") {
     }
 }
 
+# Task: Publish
 task Publish -if($Configuration -eq "Release"){
 
     Write-Verbose -Message "Publishing Module to PowerShell gallery"
