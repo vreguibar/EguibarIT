@@ -50,10 +50,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checkout the Repository
-      - name: Checkout Repository
-        uses: actions/checkout@main
-
       #- name: Run Pester Tests
       #  shell: pwsh
       #  run: Invoke-Pester -Path .\Tests\*.Tests.ps1
@@ -72,9 +68,6 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@main
-
       # Running the InvokeBuild Module Invoke-Build command with "Release configuration"
       - name: Invoke Build
         shell: pwsh
@@ -96,9 +89,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@main
-
       - name: Download build artifact
         uses: actions/download-artifact@v2
         with:
