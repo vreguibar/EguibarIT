@@ -23,19 +23,17 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup PowerShell
-        uses: PowerShell/setup-powershell@v0.7.0
+        uses: Microsoft/PowerShell@v7
         with:
-          pwsh-version: '7.0.0'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          pwsh: true
 
       - name: Install Module Dependencies
         run: |
-          Install-Module -Name Pester -Force -Scope CurrentUser
-          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
-          Install-Module -Name PowerShellGet -Force -Scope CurrentUser
-          Install-Module -Name platyPS -Force -Scope CurrentUser
-          Install-Module -Name InvokeBuild -Force -Scope CurrentUser
+          Install-Module -Name Pester           -Force
+          Install-Module -Name PSScriptAnalyzer -Force
+          Install-Module -Name PowerShellGet    -Force
+          Install-Module -Name platyPS          -Force
+          Install-Module -Name InvokeBuild      -Force
 
       - name: Run PSScriptAnalyzer on different folders
         shell: pwsh
