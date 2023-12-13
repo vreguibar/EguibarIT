@@ -72,7 +72,7 @@
             HelpMessage = 'Name of the group to be created. SamAccountName',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [Alias('GroupName','GroupID')]
+        [Alias('GroupName', 'GroupID')]
         $Name,
 
         # Param2 Group category, either Security or Distribution
@@ -80,6 +80,7 @@
             HelpMessage = 'Group category, either Security or Distribution',
             Position = 1)]
         [ValidateSet('Security', 'Distribution')]
+        [ValidateNotNullOrEmpty()]
         $GroupCategory,
 
         # Param3 Group Scope, either DomainLocal, Global or Universal
@@ -87,6 +88,7 @@
             HelpMessage = 'Group Scope, either DomainLocal, Global or Universal',
             Position = 2)]
         [ValidateSet('DomainLocal', 'Global', 'Universal')]
+        [ValidateNotNullOrEmpty()]
         $GroupScope,
 
         # Param4 Display Name of the group to be created
@@ -167,13 +169,13 @@
         ##############################
         # Variables Definition
 
-        $Splat    = [Hashtable]::New()
+        $Splat = [Hashtable]::New()
         $newGroup = [Microsoft.ActiveDirectory.Management.AdGroup]::New()
     } # End Begin Section
 
     Process {
         try {
-            If(-not ($name -is [Microsoft.ActiveDirectory.Management.AdGroup])) {
+            If (-not ($name -is [Microsoft.ActiveDirectory.Management.AdGroup])) {
                 # Get the group and store it on variable.
                 $newGroup = Get-AdObjectType -Identity $Name
             }
@@ -189,10 +191,11 @@
                     Path           = $PSBoundParameters['path']
                     Description    = $PSBoundParameters['Description']
                 }
-                if ($Force -or $PSCmdlet.ShouldProcess("Group does not exist. SHould it be created?")) {
+                if ($Force -or $PSCmdlet.ShouldProcess('Group does not exist. SHould it be created?')) {
                     New-ADGroup @Splat
                 } #end If
-            } else {
+            }
+            else {
                 Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
 
                 $newGroup | Set-AdObject -ProtectedFromAccidentalDeletion $False
@@ -205,7 +208,7 @@
                         GroupCategory = $PSBoundParameters['GroupCategory']
                         GroupScope    = $PSBoundParameters['GroupScope']
                     }
-                    if ($Force -or $PSCmdlet.ShouldProcess("Group does not exist. SHould it be created?")) {
+                    if ($Force -or $PSCmdlet.ShouldProcess('Group does not exist. SHould it be created?')) {
                         Set-AdGroup @Splat
                     }
 
@@ -214,7 +217,8 @@
                         Move-ADObject -Identity $newGroup -TargetPath $PSBoundParameters['path']
                     }
 
-                } catch {
+                }
+                catch {
                     Get-CurrentErrorToDisplay -CurrentError $error[0]
                 } #end Try-Catch
             } # End If

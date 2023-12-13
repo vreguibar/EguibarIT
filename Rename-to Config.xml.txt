@@ -195,99 +195,99 @@
             <IPsecKeyModule>Default</IPsecKeyModule>
         </Global>
         <Rules>
-            <Rule Name="RF-ANY-ANY-Isolation" 
-                Inbound="Require" 
-                Outbound="Require" 
-                LocalAddress="ANY" 
-                RemoteAddress="ANY" 
-                LocalPort="" 
-                RemotePort="" 
-                Protocol="ANY" 
-                GPO="C-Baseline" 
+            <Rule Name="RF-ANY-ANY-Isolation"
+                Inbound="Require"
+                Outbound="Require"
+                LocalAddress="ANY"
+                RemoteAddress="ANY"
+                LocalPort=""
+                RemotePort=""
+                Protocol="ANY"
+                GPO="C-Baseline"
                 Location="RF.EguibarIT.local"
                 Description=""
             />
-            <Rule Name="RF-WSUS-WU" 
-                Inbound="Require" 
-                Outbound="Request" 
-                LocalAddress="192.168.1.20" 
-                RemoteAddress="192.168.1.1" 
-                LocalPort="ANY" 
-                RemotePort="8080" 
-                Protocol="TCP" 
-                GPO="C-WSUS-Baseline" 
+            <Rule Name="RF-WSUS-WU"
+                Inbound="Require"
+                Outbound="Request"
+                LocalAddress="192.168.1.20"
+                RemoteAddress="192.168.1.1"
+                LocalPort="ANY"
+                RemotePort="8080"
+                Protocol="TCP"
+                GPO="C-WSUS-Baseline"
                 Location="WSUS Servers"
                 Description=""
             />
-            <Rule Name="RF-UDP-DCs-NTP" 
-                Inbound="Require" 
-                Outbound="Request" 
-                LocalAddress="ANY" 
-                RemoteAddress="192.168.1.1" 
-                LocalPort="ANY" 
-                RemotePort="123" 
-                Protocol="UDP" 
-                GPO="C-DomainControllers-Baseline" 
+            <Rule Name="RF-UDP-DCs-NTP"
+                Inbound="Require"
+                Outbound="Request"
+                LocalAddress="ANY"
+                RemoteAddress="192.168.1.1"
+                LocalPort="ANY"
+                RemotePort="123"
+                Protocol="UDP"
+                GPO="C-DomainControllers-Baseline"
                 Location="Domain Controllers"
                 Description=""
             />
-            <Rule Name="RF-Workstations-DC-DomainJoinException" 
-                Inbound="Request" 
-                Outbound="Request" 
-                LocalAddress="192.168.1.240" 
-                RemoteAddress="192.168.1.150,192.168.1.50" 
-                LocalPort="" 
-                RemotePort="" 
-                Protocol="ANY" 
-                GPO="C-Baseline" 
+            <Rule Name="RF-Workstations-DC-DomainJoinException"
+                Inbound="Request"
+                Outbound="Request"
+                LocalAddress="192.168.1.240"
+                RemoteAddress="192.168.1.150,192.168.1.50"
+                LocalPort=""
+                RemotePort=""
+                Protocol="ANY"
+                GPO="C-Baseline"
                 Location="RF.EguibarIT.local"
                 Description=""
             />
-            <Rule Name="RF-Workstations-CA-DomainJoinException" 
-                Inbound="Request" 
-                Outbound="Request" 
-                LocalAddress="192.168.1.240" 
-                RemoteAddress="192.168.1.24" 
-                LocalPort="" 
-                RemotePort="" 
-                Protocol="ANY" 
-                GPO="C-Baseline" 
+            <Rule Name="RF-Workstations-CA-DomainJoinException"
+                Inbound="Request"
+                Outbound="Request"
+                LocalAddress="192.168.1.240"
+                RemoteAddress="192.168.1.24"
+                LocalPort=""
+                RemotePort=""
+                Protocol="ANY"
+                GPO="C-Baseline"
                 Location="RF.EguibarIT.local"
                 Description=""
             />
-            <Rule Name="RF-Workstations-MDT-DomainJoinException" 
-                Inbound="Request" 
-                Outbound="Request" 
-                LocalAddress="192.168.1.240" 
-                RemoteAddress="192.168.1.234" 
-                LocalPort="" 
-                RemotePort="" 
-                Protocol="ANY" 
-                GPO="C-Baseline" 
+            <Rule Name="RF-Workstations-MDT-DomainJoinException"
+                Inbound="Request"
+                Outbound="Request"
+                LocalAddress="192.168.1.240"
+                RemoteAddress="192.168.1.234"
+                LocalPort=""
+                RemotePort=""
+                Protocol="ANY"
+                GPO="C-Baseline"
                 Location="RF.EguibarIT.local"
                 Description=""
             />
-            <Rule Name="RF-SCOM-SMTP" 
-                Inbound="Require" 
-                Outbound="Request" 
-                LocalAddress="192.168.1.94" 
-                RemoteAddress="192.168.1.1" 
-                ocalPort="ANY" 
-                RemotePort="25" 
-                Protocol="TCP" 
-                GPO="C-SCOM-Baseline" 
+            <Rule Name="RF-SCOM-SMTP"
+                Inbound="Require"
+                Outbound="Request"
+                LocalAddress="192.168.1.94"
+                RemoteAddress="192.168.1.1"
+                ocalPort="ANY"
+                RemotePort="25"
+                Protocol="TCP"
+                GPO="C-SCOM-Baseline"
                 Location="SCOM Servers"
                 Description=""
             />
-            <Rule Name="RF-SCOM-DOMAIN1-SCOMGW" 
-                Inbound="Require" 
-                Outbound="Require" 
-                LocalAddress="192.168.1.94" 
-                RemoteAddress="192.168.1.50" 
-                LocalPort="ANY" 
-                RemotePort="5723" 
-                Protocol="TCP" 
-                GPO="C-SCOM-Baseline" 
+            <Rule Name="RF-SCOM-DOMAIN1-SCOMGW"
+                Inbound="Require"
+                Outbound="Require"
+                LocalAddress="192.168.1.94"
+                RemoteAddress="192.168.1.50"
+                LocalPort="ANY"
+                RemotePort="5723"
+                Protocol="TCP"
+                GPO="C-SCOM-Baseline"
                 Location="SCOM Servers"
                 Description=""
             />
@@ -346,11 +346,11 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
         <!--
             The functional level of the forest and root domain. This defaults to 7.
 
-            Windows Server 2003    : 2 
-            Windows Server 2008    : 3 
-            Windows Server 2008 R2 : 4 
-            Windows Server 2012    : 5 
-            Windows Server 2012 R2 : 6 
+            Windows Server 2003    : 2
+            Windows Server 2008    : 3
+            Windows Server 2008 R2 : 4
+            Windows Server 2012    : 5
+            Windows Server 2012 R2 : 6
             Windows Server 2016    : 7
         -->
         <SysvolPath>C:\SYSVOL</SysvolPath>
@@ -462,18 +462,27 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
          <Users>
              <Admin>
                 <Name>TheGood</Name>
-                <description></description>
-                <department></department>
+                <description>Built-In Administrator Account</description>
+                <department>IT Operations and Architecture</department>
+                <employeeId></employeeId>
+                <Country>ES</Country>
+                <State>Zaragoza</State>
              </Admin>
              <NEWAdmin>
                 <Name>TheUgly</Name>
                 <description>New Administrator account used to replace the Built-In Administrator account, which is disabled and not used</description>
                 <department>IT Operations and Architecture</department>
+                <employeeId></employeeId>
+                <Country>MX</Country>
+                <State>Puebla</State>
              </NEWAdmin>
              <Guest>
                 <Name>TheBad</Name>
                 <description></description>
                 <department></department>
+                <employeeId></employeeId>
+                <Country></Country>
+                <State></State>
              </Guest>
          </Users>
          <gMSA>
@@ -482,12 +491,20 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <SamAccountName>msa_AGPM</SamAccountName>
                 <Description>Managed Service account used for Advanced Group Policy Management service</Description>
                 <DisplayName></DisplayName>
+                <C>CA</C>
+                <Co>Canada</Co>
+                <Department>IT Operation</Department>
+                <l>Alberta</l>
             </AGPM>
             <AdTaskScheduler>
                 <Name>gMSA_AdTskSchd</Name>
                 <SamAccountName>gMSA_AdTskSchd</SamAccountName>
                 <Description>Group Managed Service Account used by Domain Controllers to securely run scheduled tasks.</Description>
                 <DisplayName>AD Task Scheduler Group Managed Service Account</DisplayName>
+                <C>MX</C>
+                <Co>Mexico</Co>
+                <Department>IT Operation</Department>
+                <l>Puebla</l>
             </AdTaskScheduler>
          </gMSA>
          <GPOs>
@@ -621,7 +638,7 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <Name>AllGALAdmins</Name>
                 <DisplayName>All GAL Admins</DisplayName>
                 <Description>Members of this group are Global Address List (GAL) Administrators</Description>
-            </AllGALAdmins>         
+            </AllGALAdmins>
              <ServiceDesk>
                 <Name>ServiceDesk</Name>
                 <DisplayName>Service Desk</DisplayName>
@@ -1105,7 +1122,7 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
        <AdminAccSufix0>T0</AdminAccSufix0>
        <AdminAccSufix1>T1</AdminAccSufix1>
        <AdminAccSufix2>T2</AdminAccSufix2>
-       <!-- 
+       <!--
         #Open the configuration XML file
         $configXML = [xml](Get-Content (Join-Path -Path $DMscripts -ChildPath Config.xml -Resolve))
 

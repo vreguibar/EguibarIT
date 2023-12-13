@@ -25,14 +25,12 @@ function Get-CurrentErrorToDisplay {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([System.String])]
     Param (
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Current error (usually from $Error variable) which is going to be proccessed. If no error is provided then $error[0] will be used instead.',
             Position = 0)]
-        [ValidateNotNull()]
-        [ValidateNotNullOrEmpty()]
         $CurrentError
     )
 
@@ -45,11 +43,11 @@ function Get-CurrentErrorToDisplay {
         ##############################
         # Variables Definition
 
-        $Section     = '----------------------------------------'
-        $Header      = '################################################################################'
-        $OutputError = New-Object -TypeName "System.Text.StringBuilder"
+        $Section = '----------------------------------------'
+        $Header = '################################################################################'
+        $OutputError = [System.Text.StringBuilder]::new()
 
-        if(-not $PSBoundParameters['CurrentError']) {
+        if (-not $PSBoundParameters['CurrentError']) {
             Write-Verbose -Message 'No error passed to the CurrentError variable. Using the last error stored on $error variable'
             $CurrentError = $error[0]
         }
@@ -57,7 +55,7 @@ function Get-CurrentErrorToDisplay {
 
     Process {
 
-        if ($PSCmdlet.ShouldProcess("Processing error: $($CurrentError.Exception.Message)", "Continue?")) {
+        if ($PSCmdlet.ShouldProcess("Processing error: $($CurrentError.Exception.Message)", 'Continue?')) {
             try {
                 [void]$OutputError.AppendLine()
                 [void]$OutputError.AppendLine($Header)
@@ -123,9 +121,10 @@ function Get-CurrentErrorToDisplay {
                 [void]$OutputError.AppendLine($Header)
                 [void]$OutputError.AppendLine('####      END Error')
                 [void]$OutputError.AppendLine($Header)
-            } catch {
+            }
+            catch {
                 Write-Error "Error processing the error: $_"
-            } #end Tr-Catch
+            } #end Try-Catch
         } #end If
     } # End PROCESS section
 

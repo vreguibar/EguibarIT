@@ -3,12 +3,17 @@
     # subset of: Error, Warning and Information.
     # Uncomment the following line if you only want Errors and Warnings but
     # not Information diagnostic records.
-    Severity = @('Error','Warning')
+    Severity            = @(
+        'Error',
+        'Warning',
+        'Information'
+    )
 
 
     IncludeDefaultRules = $true
 
     # Use IncludeRules when you want to run only a subset of the default rule set.
+    <#
     IncludeRules = @("Align assignment statement",
                     "Changing automtic variables might have undesired side effects",
                     "Avoid Default Value For Mandatory Parameter",
@@ -75,6 +80,7 @@
                     "Use 'Using:' scope modifier in RunSpace ScriptBlocks",
                     "Use UTF8 Encoding For Help File"
                 )
+    #>
 
     # Use ExcludeRules when you want to run most of the default set of rules except
     # for a few rules you wish to "exclude".  Note: if a rule is in both IncludeRules
@@ -92,4 +98,82 @@
     #    version 6.0.0-alpha, on Linux.
     #    PSUseCompatibleCmdlets = @{Compatibility = @("core-6.0.0-alpha-linux")}
     #}
+
+    Rules               = @{
+
+        PSAlignAssignmentStatement                = @{
+            Enable         = $true
+            CheckHashtable = $true
+        }
+
+        PSAvoidLongLines                          = @{
+            Enable            = $true
+            MaximumLineLength = 120
+        }
+
+        PSAvoidUsingDoubleQuotesForConstantString = @{
+            Enable = $true
+        }
+
+        PSPlaceOpenBrace                          = @{
+            Enable             = $true
+            OnSameLine         = $true
+            NewLineAfter       = $true
+            IgnoreOneLineBlock = $true
+        }
+
+        PSPlaceCloseBrace                         = @{
+            Enable             = $true
+            NewLineAfter       = $true
+            IgnoreOneLineBlock = $true
+            NoEmptyLineBefore  = $false
+        }
+
+        PSProvideCommentHelp                      = @{
+            Enable                  = $true
+            ExportedOnly            = $false
+            BlockComment            = $true
+            VSCodeSnippetCorrection = $false
+            Placement               = 'begin'
+        }
+
+        PSUseCompatibleSyntax                     = @{
+            # This turns the rule on (setting it to false will turn it off)
+            Enable         = $true
+
+            # List the targeted versions of PowerShell here
+            TargetVersions = @(
+                '5.1',
+                '7.0',
+                '7.1',
+                '7.2',
+                '7.3',
+                '7.4'
+            )
+        }
+
+        PSUseConsistentIndentation                = @{
+            Enable              = $true
+            Kind                = 'space'
+            PipelineIndentation = 'IncreaseIndentationForFirstPipeline'
+            IndentationSize     = 4
+        }
+
+        PSUseConsistentWhitespace                 = @{
+            Enable                                  = $true
+            CheckInnerBrace                         = $true
+            CheckOpenBrace                          = $true
+            CheckOpenParen                          = $true
+            CheckOperator                           = $true
+            CheckPipe                               = $true
+            CheckPipeForRedundantWhitespace         = $true
+            CheckSeparator                          = $true
+            CheckParameter                          = $true
+            IgnoreAssignmentOperatorInsideHashTable = $true
+        }
+
+        PSUseCorrectCasing                        = @{
+            Enable = $true
+        }
+    }
 }

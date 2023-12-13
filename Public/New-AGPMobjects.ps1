@@ -154,7 +154,7 @@ Function New-AGPMObjects {
                 'employeeType'                  = 'ServiceAccount'
                 'msNpAllowDialin'               = $false
                 'msDS-SupportedEncryptionTypes' = '24'
-        }
+            }
         }
         New-AdUser @Splat
 

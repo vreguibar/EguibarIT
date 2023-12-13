@@ -226,7 +226,7 @@ function New-DelegateAdGpo {
                 TargetType      = 'group'
                 Server          = $dcServer
                 ErrorAction     = 'SilentlyContinue'
-                Verbose     = $true
+                Verbose         = $true
             }
             if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", "Confirm giving permissions?")) {
                 Set-GPPermissions @Splat
