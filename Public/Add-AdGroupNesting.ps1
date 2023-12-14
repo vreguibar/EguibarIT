@@ -24,7 +24,7 @@ function Add-AdGroupNesting {
             HelpMessage = 'Group which membership is to be changed',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [Alias("GroupName")]
+        [Alias('GroupName')]
         $Identity,
 
         # Param2 ID of New Member of the group
@@ -32,7 +32,7 @@ function Add-AdGroupNesting {
             HelpMessage = 'ID of New Member of the group. Can be a single string or array.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
-        [Alias("NewMembers")]
+        [Alias('NewMembers')]
         $Members
     )
 
@@ -51,14 +51,14 @@ function Add-AdGroupNesting {
 
         # Define variables and its type
         $CurrentMembers = [System.Collections.Generic.HashSet[String]]::New()
-        $NewMembers     = [System.Collections.Generic.HashSet[String]]::New()
-        $Splat          = [hashtable]::New()
+        $NewMembers = [System.Collections.Generic.HashSet[String]]::New()
+        $Splat = [hashtable]::New()
     } #end Begin
 
     Process {
 
         # Ensure Identity is an AD Group
-        If(-not ($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup])) {
+        If (-not ($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup])) {
             $Identity = Get-AdObjectType -Identity $Identity
         }
 
@@ -69,29 +69,32 @@ function Add-AdGroupNesting {
             Write-Verbose -Message ('Adding members to group..: {0}' -f $Identity.SamAccountName)
 
             Foreach ($item in $Members) {
-                If($CurrentMembers -notcontains $item) {
+                If ($CurrentMembers -notcontains $item) {
                     [void]$NewMembers.Add($item)
-                } else {
-                     Write-Verbose -Message ('{0} is already member of {1} group' -f $item.SamAccountName, $Identity.SamAccountName)
+                }
+                else {
+                    Write-Verbose -Message ('{0} is already member of {1} group' -f $item.SamAccountName, $Identity.SamAccountName)
                 } #end If-Else
             } #end ForEach
 
-            If($NewMembers.Count -gt 0) {
+            If ($NewMembers.Count -gt 0) {
                 $Splat = @{
                     Identity = $Identity
                     Members  = $NewMembers -join ','
                 }
 
-                If($PSCmdlet.ShouldProcess("Add members to Group $($Identity.SamAccountName)", "Confirm?")) {
+                If ($PSCmdlet.ShouldProcess("Add members to Group $($Identity.SamAccountName)", 'Confirm?')) {
                     Add-AdGroupMember @Splat -WhatIf:$False
-                } else {
+                }
+                else {
                     Write-Verbose -Message 'Operation cancelled by User!'
                 } #end If-Else
             }#end If
             #Add-AdGroupMember @Splat
 
             Write-Verbose -Message ('Member {0} was added correctly to group {1}' -f $Members, $Identity.sAMAccountName)
-        } catch {
+        }
+        catch {
             throw
         } #end Try-Catch
     } #end Process
@@ -102,5 +105,4 @@ function Add-AdGroupNesting {
         Write-Verbose -Message '--------------------------------------------------------------------------------'
         Write-Verbose -Message ''
     } #end End
-
 } #end Function

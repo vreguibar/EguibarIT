@@ -31,72 +31,73 @@ function Get-AdObjectType {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+  [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Medium')]
 
   Param (
     # Param1
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-        HelpMessage = 'Identity of the object',
-        Position = 0)]
+      HelpMessage = 'Identity of the object',
+      Position = 0)]
     [ValidateNotNullOrEmpty()]
-    [Alias('ID','SamAccountName','DistinguishedName','DN','SID')]
+    [Alias('ID', 'SamAccountName', 'DistinguishedName', 'DN', 'SID')]
     $Identity
   )
 
   Begin {
-        Write-Verbose -Message '|=> ************************************************************************ <=|'
-        Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
+    Write-Verbose -Message '|=> ************************************************************************ <=|'
+    Write-Verbose -Message (Get-Date).ToShortDateString()
+    Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
+    Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-        if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
-          Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
-        } #end If
+    if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
+      Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
+    } #end If
 
-        ##############################
-        # Variables Definition
+    ##############################
+    # Variables Definition
 
-        $ReturnValue = $null
+    $ReturnValue = $null
 
   } # End Begin Section
 
-  Process
-  {
+  Process {
     Try {
-      If($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount]) {
+      If ($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount]) {
         Write-Verbose -Message 'AD User Object'
         return [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = $Identity
       }
 
-      If($Identity -is [Microsoft.ActiveDirectory.Management.ADComputer]) {
+      If ($Identity -is [Microsoft.ActiveDirectory.Management.ADComputer]) {
         Write-Verbose -Message 'AD Computer Object'
         return [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = $Identity
       }
 
-      If($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup]) {
+      If ($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup]) {
         Write-Verbose -Message 'AD Group Object'
         return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = $Identity
       }
 
-      If($Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]) {
+      If ($Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]) {
         Write-Verbose -Message 'Organizational Unit Object'
         return [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]$ReturnValue = $Identity
       }
 
-      If($Identity -is [String]) {
+      If ($Identity -is [String]) {
         Write-Verbose -Message 'Simple String... Try to identify if SamAccountNamem DistinguishedName or SID as string.'
 
-        if(Test-IsValidDN -ObjectDN $Identity) {
+        if (Test-IsValidDN -ObjectDN $Identity) {
 
           Write-Verbose -Message 'Looking for DistinguishedName'
           $newObject = Get-ADObject -filter { DistinguishedName -eq $Identity }
 
-        } elseif (Test-IsValidSID -ObjectSID $Identity) {
+        }
+        elseif (Test-IsValidSID -ObjectSID $Identity) {
 
           Write-Verbose -Message 'Looking for ObjectSID'
           $newObject = Get-ADObject -filter { ObjectSID -eq $Identity }
 
-        } else {
+        }
+        else {
 
           Write-Verbose -Message 'Looking for SamAccountName'
           $newObject = Get-ADObject -filter { SamAccountName -eq $Identity }
@@ -131,16 +132,17 @@ function Get-AdObjectType {
           }
         } # End Switch
       } # End If
-    } catch {
+    }
+    catch {
       Write-Error -Message "Error: $_"
     }
   } # End Process Section
 
   End {
-      Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD object type."
-      Write-Verbose -Message ''
-      Write-Verbose -Message '-------------------------------------------------------------------------------'
-      Write-Verbose -Message ''
+    Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD object type."
+    Write-Verbose -Message ''
+    Write-Verbose -Message '-------------------------------------------------------------------------------'
+    Write-Verbose -Message ''
   } # End End Section
 
 } #end Function

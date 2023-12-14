@@ -63,7 +63,7 @@ Function New-TemplateOID {
         ##############################
         # Variables Definition
 
-    } # End BEGIN Section
+    } # End BEGIN
 
     Process {
         <#
@@ -71,7 +71,7 @@ Function New-TemplateOID {
             OID msPKI-Cert-Template-OID    [Forest base OID].[1000000-99999999].[10000000-99999999]  <--- second number same as first number in OID name
         #>
         do {
-            $OID_Part_1 = Get-Random -Minimum 1000000  -Maximum 99999999
+            $OID_Part_1 = Get-Random -Minimum 1000000 -Maximum 99999999
             $OID_Part_2 = Get-Random -Minimum 10000000 -Maximum 99999999
             $OID_Part_3 = Get-RandomHex -Length 32
             $Splat = @{

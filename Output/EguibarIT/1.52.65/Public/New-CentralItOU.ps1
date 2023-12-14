@@ -233,7 +233,9 @@
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
-        } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] } # End Try
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        } # End Try-Catch
 
         # Read the value from parsed SWITCH parameters.
         try {
@@ -2164,7 +2166,7 @@
                 verbose = $true
             }
 
-            New-ExchangeObjects @param
+            New-ExchangeObject @param
         }
 
         ###############################################################################
@@ -2176,19 +2178,19 @@
                 verbose = $true
             }
 
-            New-DfsObjects @param
+            New-DfsObject @param
         }
 
         ###############################################################################
         # Check if Certificate Authority (PKI) objects have to be created. Proccess if TRUE
         if($CreateCa) {
-            New-CaObjects -ConfigXMLFile $ConfXML
+            New-CaObject -ConfigXMLFile $ConfXML
         }
 
         ###############################################################################
         # Check if Advanced Group Policy Management (AGPM) objects have to be created. Proccess if TRUE
         if($CreateAGPM) {
-            New-AGPMObjects -ConfigXMLFile $ConfXML
+            New-AGPMObject -ConfigXMLFile $ConfXML
         }
 
         ###############################################################################
@@ -2196,14 +2198,14 @@
         if($CreateLAPS) {
             #To-Do
             #New-LAPSobjects -PawOuDn $ItPawOuDn -ServersOuDn $ServersOuDn -SitesOuDn $SitesOuDn
-            New-LAPSobjects -ConfigXMLFile $ConfXML
+            New-LAPSobject -ConfigXMLFile $ConfXML
         }
 
         ###############################################################################
         # Check if DHCP is to be used. Proccess if TRUE
         if($CreateDHCP) {
             #
-            New-DHCPobjects -ConfigXMLFile $ConfXML
+            New-DHCPobject -ConfigXMLFile $ConfXML
         }
 
     }

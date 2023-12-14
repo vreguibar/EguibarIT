@@ -35,7 +35,7 @@ Function New-Template {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     Param(
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
             HelpMessage = 'Display Name of the new template.',
@@ -60,12 +60,16 @@ Function New-Template {
         ##############################
         # Variables Definition
 
+        $WhatIfMessage = "Creating a new PKI template with DisplayName: '$DisplayName'"
 
         #grab DC
         $Server = (Get-ADDomainController -Discover -ForceDiscover -Writable).HostName[0]
 
         #grab Naming Context
         $ConfigNC = (Get-ADRootDSE -Server $Server).configurationNamingContext
+
+        # parameters variable for splatting CMDlets
+        $Splat = [hashtable]::New()
 
     } # End BEGIN section
 
@@ -76,25 +80,38 @@ Function New-Template {
 
             $TemplateOIDPath = 'CN=OID,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC
             $OIDOtherAttributes = @{
-                    'DisplayName'             = $DisplayName
-                    'flags'                   = [System.Int32]'1'
-                    'msPKI-Cert-Template-OID' = $OID.TemplateOID
+                'DisplayName'             = $DisplayName
+                'flags'                   = [System.Int32]'1'
+                'msPKI-Cert-Template-OID' = $OID.TemplateOID
             }
             New-ADObject -Path $TemplateOIDPath -OtherAttributes $OIDOtherAttributes -Name $OID.TemplateName -Type 'msPKI-Enterprise-Oid' -Server $Server
 
             # Ensure if msPKI-Cert-Template-OID already add it to hashtable
-            If(-not $TemplateOtherAttributes.ContainsKey('msPKI-Cert-Template-OID')) {
+            If (-not $TemplateOtherAttributes.ContainsKey('msPKI-Cert-Template-OID')) {
                 #Create Template itself
-                $TemplateOtherAttributes+= @{
+                $TemplateOtherAttributes += @{
                     'msPKI-Cert-Template-OID' = $OID.TemplateOID
                 }
             }
             $TemplatePath = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC
 
-            New-ADObject -Path $TemplatePath -OtherAttributes $TemplateOtherAttributes -Name $DisplayName -DisplayName $DisplayName -Type pKICertificateTemplate -Server $Server
-        } catch {
+
+            if ($PSCmdlet.ShouldProcess($TemplatePath, $WhatIfMessage)) {
+                $Splat = @{
+                    Path            = $TemplatePath
+                    OtherAttributes = $TemplateOtherAttributes
+                    Name            = $DisplayName
+                    DisplayName     = $DisplayName
+                    Type            = 'pKICertificateTemplate'
+                    Server          = $Server
+                }
+                New-ADObject @Splat
+            }
+
+        }
+        catch {
             # Handle errors here
-            Write-Error "Error: $_"
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
         } #end Try-Catch
     } # End PROCESS section
 

@@ -41,20 +41,22 @@ Function Test-IsUniqueOID {
         # Query Active Directory for the Certificate Template
         $Search = Get-ADObject -Server $Server `
             -SearchBase "CN=OID,CN=Public Key Services,CN=Services,$ConfigNC" `
-            -Filter {cn -eq $cn -and msPKI-Cert-Template-OID -eq $TemplateOID} -ErrorAction Stop
+            -Filter { cn -eq $cn -and msPKI-Cert-Template-OID -eq $TemplateOID } -ErrorAction Stop
 
         # If the Certificate Template is found, it's not unique
         if ($Search) {
             Write-Verbose "Certificate Template with OID '$TemplateOID' already exists."
             return $false
-        } else {
+        }
+        else {
             Write-Verbose "Certificate Template with OID '$TemplateOID' is unique."
             return $true
         } #end If
-    } catch {
+    }
+    catch {
         # Handle errors and provide verbose output
-        Write-Error "Error: $_"
-        Write-Verbose "An error occurred while checking the Certificate Template OID uniqueness."
+        Get-CurrentErrorToDisplay -CurrentError $error[0]
+        Write-Verbose 'An error occurred while checking the Certificate Template OID uniqueness.'
         return $false
     } #end Try-Catch
 } #end Function

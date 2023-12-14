@@ -13,10 +13,6 @@
         .PARAMETER TabCount
             Amount of Tabs to be used on the formatting.
         .NOTES
-            Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-        .NOTES
             Version:         1.0
             DateModified:    20/Oct/2022
             LasModifiedBy:   Vicente Rodriguez Eguibar
@@ -45,7 +41,7 @@
 
     Begin {
 
-        $NewLine       = [System.Environment]::NewLine
+        $NewLine = [System.Environment]::NewLine
         $HorizontalTab = "`t"
 
         # Validate TabCount and set default if needed
@@ -67,8 +63,9 @@
 
             # Add corresponding tabs and new lines to each table member
             $display += $pb -split $NewLine | ForEach-Object { "$($HorizontalTab * $TabCount)$_" } | Out-String
-        } else {
-            $display = "No PsBoundParameters to display."
+        }
+        else {
+            $display = 'No PsBoundParameters to display.'
         } #end If
 
     } # end Process
