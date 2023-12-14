@@ -1,5 +1,4 @@
-﻿function New-CentralItOu
-{
+﻿function New-CentralItOu {
     <#
         .Synopsis
             Create Central OU and aditional Tier 0 infrastructure OUs
