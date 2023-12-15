@@ -53,10 +53,11 @@ Function New-LAPSobject {
 
         ################################################################################
         # Initialisations
-        Import-Module ActiveDirectory -Verbose:$false
-        Import-Module EguibarIT -Verbose:$false
-        Import-Module EguibarIT.Delegation -Verbose:$false
-        Import-Module AdmPwd.PS -Verbose:$false
+        Import-Module -Name ActiveDirectory -Verbose:$false
+        Import-Module -Name EguibarIT -Verbose:$false
+        Import-Module -Name EguibarIT.Delegation -Verbose:$false
+        Import-Module -Name AdmPwd.PS -Verbose:$false
+        Import-Module -Name LAPS -Verbose:$false
 
         ################################################################################
         #region Declarations
@@ -210,6 +211,7 @@ Function New-LAPSobject {
                     try {
                         Write-Verbose -Message 'Modify the schema...!'
                         Update-AdmPwdADSchema -Verbose
+                        Update-LapsADSchema -Confirm:$false -Verbose
                     }
                     catch {
                         Get-CurrentErrorToDisplay -CurrentError $error[0]
@@ -247,7 +249,7 @@ Function New-LAPSobject {
 
         # Make Sites Modifications
         # Get the DN of 1st level OU underneath SERVERS area
-        $AllSubOu = Get-AdOrganizationalUnit -Filter * -SearchBase $SitesOuDn -SearchScope OneLevel | Select-Object -ExpandProperty DistinguishedName
+        $AllSubOu = Get-ADOrganizationalUnit -Filter * -SearchBase $SitesOuDn -SearchScope OneLevel | Select-Object -ExpandProperty DistinguishedName
 
         # Iterate through each sub OU and invoke delegation
         Foreach ($Item in $AllSubOu) {

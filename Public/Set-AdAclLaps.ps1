@@ -81,6 +81,7 @@ function Set-AdAclLaps {
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
         Import-Module -Name 'AdmPwd.PS' -Force -Verbose:$false
+        Import-Module -Name LAPS -Force -Verbose:$false
 
         ##############################
         # Variables Definition
@@ -91,16 +92,22 @@ function Set-AdAclLaps {
     } #end Begin
 
     Process {
-        if($null -ne $guidmap["ms-Mcs-AdmPwdExpirationTime"]) {
-            Write-Verbose -Message "LAPS is supported on this environment. We can proceed to configure it."
+        if ($null -ne $guidmap['ms-Mcs-AdmPwdExpirationTime']) {
+            Write-Verbose -Message 'LAPS is supported on this environment. We can proceed to configure it.'
 
+            # AdmPwd.PS CMDlets
             Set-AdmPwdComputerSelfPermission -Identity $LDAPpath
-
             Set-AdmPwdReadPasswordPermission -AllowedPrincipals $ReadGroup -Identity $LDAPpath
-
             Set-AdmPwdResetPasswordPermission -AllowedPrincipals $ResetGroup -Identity $LDAPpath
-        } else {
-            Write-Error -Message "Not Implemented. Schema does not contains the requiered attributes."
+
+            # LAPS CMDlets
+            Set-LapsADComputerSelfPermission -Identity $LDAPpath
+            Set-LapsADReadPasswordPermission -AllowedPrincipals $ReadGroup -Identity $LDAPpath
+            Set-LapsADResetPasswordPermission -AllowedPrincipals $ResetGroup -Identity $LDAPpath
+
+        }
+        else {
+            Write-Error -Message 'Not Implemented. Schema does not contains the requiered attributes.'
         }
     } #end Process
 
