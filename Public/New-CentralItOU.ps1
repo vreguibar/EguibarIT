@@ -301,46 +301,11 @@
 
 
 
-
-
-        # Global Groups
-        Foreach($node in $confXML.n.Admin.GG.ChildNodes) {
-            $param = @{
-                Name        = "$('SG{0}{1}' -f $NC['Delim'], $Node.LocalName)"
-                Value       = 'SG{0}{1}' -f $NC['Delim'], $Node.Name
-                Description = $Node.Description
-                Option      = 'ReadOnly'
-                Force       = $true
-            }
-            # Create variable for each defined ADMIN GlobalGroup name, Appending SG prefix
-            New-Variable @Param
-        }
-
         New-Variable -Name "SG_Operations" -Value ('SGg{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.Name) -Force
         New-Variable -Name "SG_ServerAdmins" -Value ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name) -Force
 
-
-
-
-
-        # Domain Local Groups
-        Foreach($node in $confXML.n.Admin.LG.ChildNodes) {
-            $param = @{
-                Name        = "$('SL{0}{1}' -f $NC['Delim'], $Node.LocalName)"
-                Value       = 'SL{0}{1}' -f $NC['Delim'], $Node.Name
-                Description = $Node.Description
-                Option      = 'ReadOnly'
-                Force       = $true
-            }
-            # Create variable for each defined ADMIN LocalGroup name using the XML name, Appending SL prefix
-            New-Variable @Param
-
-        }
-
         New-Variable -Name "SL_SvrAdmRight" -Value ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name) -Force
         New-Variable -Name "SL_SvrOpsRight" -Value ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name) -Force
-
-
 
 
 
@@ -489,7 +454,7 @@
         $Splat      = [hashtable]::New()
         $ArrayList  = [System.Collections.ArrayList]::New()
 
-        $AllGroups = [System.Collections.Generic.HashSet[String]]::New()
+        $AllGroups = [System.Collections.Generic.HashSet[object]]::New()
 
         #endregion Declarations
         ################################################################################
@@ -538,7 +503,7 @@
         New-DelegateAdOU -ouName $ItServiceAccountsOu -ouDescription $confXML.n.Admin.OUs.ItServiceAccountsOU.description @Splat
         New-DelegateAdOU -ouName $ItHousekeepingOu    -ouDescription $confXML.n.Admin.OUs.ItHousekeepingOU.description    @Splat
         New-DelegateAdOU -ouName $ItInfraOu           -ouDescription $confXML.n.Admin.OUs.ItInfraOU.description           @Splat
-        New-DelegateAdOU -ouName $ItAdminSrvGroups    -ouDescription $confXML.n.Admin.OUs.ItAdminSrvGroups.description    @Splat
+        New-DelegateAdOU -ouName $ItAdminSrvGroupsOU  -ouDescription $confXML.n.Admin.OUs.ItAdminSrvGroups.description    @Splat
 
         # Ensure inheritance is enabled for child Admin OUs
         $Splat = @{
@@ -620,7 +585,9 @@
 
         Write-Verbose -Message 'Moving objects...'
 
-        Get-ADUser -Identity $AdminName |                                 Move-ADObject -TargetPath $ItAdminAccountsOuDn
+        $AdminName = Get-ADUser -Identity $AdminName
+
+        $AdminName |                                                      Move-ADObject -TargetPath $ItAdminAccountsOuDn
         Get-ADUser -Identity $confXML.n.Admin.users.Guest.Name |          Move-ADObject -TargetPath $ItAdminAccountsOuDn
         Get-ADUser -Identity krbtgt |                                     Move-ADObject -TargetPath $ItAdminAccountsOuDn
 
@@ -741,7 +708,8 @@
                 $Splat.Replace.Add('thumbnailPhoto',$photo)
             }
 
-            Set-AdUser -Identity @Splat
+            Set-AdUser -Identity $newAdminName @Splat
+
         }  Else {
             # User was not Found! create new.
             $Splat = @{
@@ -775,29 +743,33 @@
             } #end If
 
             # Create the new Admin with special values
-            New-AdUser @Splat
-            $NewAdminExists = Get-AdUser -Identity $newAdminName
+            Try {
+                New-AdUser @Splat
+            } Catch {
+                Throw
+            }
 
             #http://blogs.msdn.com/b/openspecification/archive/2011/05/31/windows-configurations-for-kerberos-supported-encryption-type.aspx
             # 'msDS-SupportedEncryptionTypes'= Kerberos DES Encryption = 2, Kerberos AES 128 = 8, Kerberos AES 256 = 16
         } #end esle-if new user created
+        $newAdminName = Get-AdUser -Identity $confXML.n.Admin.users.NEWAdmin.name
 
         # Set the Protect against accidental deletions attribute
-        Get-AdUser -Identity $AdminName | Set-ADObject -ProtectedFromAccidentalDeletion $true
-        $NewAdminExists                 | Set-ADObject -ProtectedFromAccidentalDeletion $true
+        $AdminName                      | Set-ADObject -ProtectedFromAccidentalDeletion $true
+        $newAdminName                   | Set-ADObject -ProtectedFromAccidentalDeletion $true
 
         # Make it member of administrative groups
-        Add-AdGroupNesting -Identity 'Domain Admins'                          -Members $NewAdminExists
-        Add-AdGroupNesting -Identity 'Enterprise Admins'                      -Members $NewAdminExists
-        Add-AdGroupNesting -Identity 'Group Policy Creator Owners'            -Members $NewAdminExists
-        Add-AdGroupNesting -Identity 'Denied RODC Password Replication Group' -Members $NewAdminExists
+        Add-AdGroupNesting -Identity 'Domain Admins'                          -Members $newAdminName
+        Add-AdGroupNesting -Identity 'Enterprise Admins'                      -Members $newAdminName
+        Add-AdGroupNesting -Identity 'Group Policy Creator Owners'            -Members $newAdminName
+        Add-AdGroupNesting -Identity 'Denied RODC Password Replication Group' -Members $newAdminName
 
         # http://blogs.msdn.com/b/muaddib/archive/2013/12/30/how-to-modify-security-inheritance-on-active-directory-objects.aspx
 
         ####
         # Remove Everyone group from Admin-User & Administrator
         Remove-Everyone -LDAPPath $NewAdminExists.DistinguishedName
-        Remove-Everyone -LDAPPath ('CN={0},{1}' -f $AdminName, $ItAdminAccountsOuDn)
+        Remove-Everyone -LDAPPath $AdminName.DistinguishedName
 
         ####
         # Remove AUTHENTICATED USERS group from Admin-User & Administrator
@@ -807,7 +779,7 @@
         ####
         # Remove Pre-Windows 2000 Compatible Access group from Admin-User & Administrator
         Remove-PreWin2000 -LDAPPath $NewAdminExists.DistinguishedName
-        Remove-PreWin2000 -LDAPPath ('CN={0},{1}' -f $AdminName, $ItAdminAccountsOuDn)
+        Remove-PreWin2000 -LDAPPath $AdminName.DistinguishedName
 
         ###
         # Configure TheGood account
@@ -953,15 +925,17 @@
 
         # Move the groups to PG OU
         foreach($item in $AllGroups) {
+            # AD Object operations ONLY supports DN and GUID as identity
+
             # Remove the ProtectedFromAccidentalDeletion, otherwise throws error when moving
-            $item | Set-ADObject -ProtectedFromAccidentalDeletion $false
+            Set-ADObject -Identity $item.ObjectGUID -ProtectedFromAccidentalDeletion $false
 
             # Move objects to PG OU
-            $item | Move-ADObject -TargetPath $ItPrivGroupsOUDn
+            Move-ADObject -TargetPath $ItPrivGroupsOUDn -Identity $item.ObjectGUID
 
             # Set back again the ProtectedFromAccidentalDeletion flag.
             #The group has to be fetch again because of the previus move
-            Get-ADGroup -Identity $item.SamAccountName | Set-ADObject -ProtectedFromAccidentalDeletion $true
+            Get-ADGroup -Identity $item.ObjectGUID | Set-ADObject -ProtectedFromAccidentalDeletion $true
         }
 
         #endregion
@@ -1005,19 +979,21 @@
                     ErrorAction            = 'SilentlyContinue'
                 }
 
+                $ReplaceValues = @{
+                    'company'=$confXML.n.RegisteredOrg
+                    'department'=$confXML.n.Admin.gMSA.AdTaskScheduler.Department
+                    'employeeID'='T0'
+                    'employeeType'="ServiceAccount"
+                    'info'=$confXML.n.Admin.gMSA.AdTaskScheduler.Description
+                    'title'=$confXML.n.Admin.gMSA.AdTaskScheduler.DisplayName
+                    'userPrincipalName'='{0}@{1}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name, $env:USERDNSDOMAIN
+                }
+                If(($null -or '') -ne $confXML.n.Admin.gMSA.AdTaskScheduler.c)  { $ReplaceValues.Add('c', $confXML.n.Admin.gMSA.AdTaskScheduler.c) }
+                If(($null -or '') -ne $confXML.n.Admin.gMSA.AdTaskScheduler.Co) { $ReplaceValues.Add('Co', $confXML.n.Admin.gMSA.AdTaskScheduler.co) }
+                If(($null -or '') -ne $confXML.n.Admin.gMSA.AdTaskScheduler.l)  { $ReplaceValues.Add('l', $confXML.n.Admin.gMSA.AdTaskScheduler.l) }
+
                 $ReplaceParams = @{
-                    Replace = @{
-                        'c'=$confXML.n.Admin.gMSA.AdTaskScheduler.c
-                        'co'=$confXML.n.Admin.gMSA.AdTaskScheduler.Co
-                        'company'=$confXML.n.RegisteredOrg
-                        'department'=$confXML.n.Admin.gMSA.AdTaskScheduler.Department
-                        'employeeID'='T0'
-                        'employeeType'="ServiceAccount"
-                        'info'=$confXML.n.Admin.gMSA.AdTaskScheduler.Description
-                        'l'=$confXML.n.Admin.gMSA.AdTaskScheduler.l
-                        'title'=$confXML.n.Admin.gMSA.AdTaskScheduler.DisplayName
-                        'userPrincipalName'='{0}@{1}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name, $env:USERDNSDOMAIN
-                    }
+                    Replace = $ReplaceValues
                     ErrorAction = 'SilentlyContinue'
                 }
 
@@ -1164,9 +1140,9 @@
         Start-Sleep -Seconds 5
         # Apply the PSO to all Tier Service Accounts
         $ArrayList.Clear()
-        if($null -ne $SG_Tier0ServiceAccount) { $ArrayList.Add($SG_Tier0ServiceAccount) }
-        if($null -ne $SG_Tier1ServiceAccount) { $ArrayList.Add($SG_Tier1ServiceAccount) }
-        if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount) }
+        if($null -ne $SG_Tier0ServiceAccount) { $ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier1ServiceAccount) { $ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
 
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
 
@@ -1332,7 +1308,7 @@
 
         # InfraAdmins as member of Tier0Admins
         $Splat = @{
-            Identity = $SG_Tier0Admins
+            Identity = $SG_Tier0Admins.DistinguishedName.ToString()
             Members  = $SG_InfraAdmins
         }
         Add-AdGroupNesting @Splat
@@ -1346,7 +1322,7 @@
 
         # InfraAdmins as member of AdAdmins
         $Splat = @{
-            Identity = $SG_AdAdmins
+            Identity = $SG_AdAdmins.ObjectGUID
             Members  = $SG_InfraAdmins
         }
         Add-AdGroupNesting @Splat
@@ -1356,42 +1332,42 @@
         # AdAdmins as member of AdRight
         $Splat = @{
             Identity = $SL_AdRight
-            Members  = $SG_AdAdmins
+            Members  = $SG_AdAdmins.SamAccountName
         }
         Add-AdGroupNesting @Splat
 
         # AdAdmins as member of UM
         $Splat = @{
             Identity = $SL_UM
-            Members  = $SG_AdAdmins
+            Members  = $SG_AdAdmins.SamAccountName
         }
         Add-AdGroupNesting @Splat
 
         # AdAdmins as member of GM
         $Splat = @{
             Identity = $SL_GM
-            Members  = $SG_AdAdmins
+            Members  = $SG_AdAdmins.SamAccountName
         }
         Add-AdGroupNesting @Splat
 
         # AdAdmins as member of GpoAdmins
         $Splat = @{
             Identity = $SG_GpoAdmins
-            Members  = $SG_AdAdmins
+            Members  = $SG_AdAdmins.SamAccountName
         }
         Add-AdGroupNesting @Splat
 
         # AdAdmins as member of AllSiteAdmins
         $Splat = @{
-            Identity = $SG_AllSiteAdmins
-            Members  = $SG_AdAdmins
+            Identity = $SG_AllSiteAdmins.SamAccountName
+            Members  = $SG_AdAdmins.SamAccountName
         }
         Add-AdGroupNesting @Splat
 
         # AdAdmins as member of ServerAdmins
         $Splat = @{
             Identity = $SG_ServerAdmins
-            Members  = $SG_AdAdmins
+            Members  = $SG_AdAdmins.SamAccountName
         }
         Add-AdGroupNesting @Splat
 
@@ -1408,8 +1384,8 @@
 
         # AllSiteAdmins as member of AllGalAdmins
         $Splat = @{
-            Identity = $SG_AllGALAdmins
-            Members  = $SG_AllSiteAdmins
+            Identity = $SG_AllGALAdmins.SamAccountName
+            Members  = $SG_AllSiteAdmins.SamAccountName
         }
         Add-AdGroupNesting @Splat
 
@@ -1809,7 +1785,7 @@
         $ArrayList.Add('NT AUTHORITY\Local Account and member of administrators group')
         $Splat = @{
             GpoToModify      = 'C-Baseline'
-            DenyNetworkLogon = $ArrayList
+            DenyNetworkLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
@@ -1819,19 +1795,19 @@
         if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
         $Splat = @{
             GpoToModify          = 'C-Baseline'
-            DenyInteractiveLogon = $ArrayList
+            DenyInteractiveLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
         $ArrayList.Clear()
-        if($null -ne $AdminName) {              $ArrayList.Add($AdminName) }
-        if($null -ne $newAdminName) {           $ArrayList.Add($newAdminName) }
+        if($null -ne $AdminName) {              $ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {           $ArrayList.Add($newAdminName.SamAccountName) }
         if($null -ne $SG_Tier0ServiceAccount) { $ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
         if($null -ne $SG_Tier1ServiceAccount) { $ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
         if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
         $Splat = @{
             GpoToModify                = 'C-Baseline'
-            DenyRemoteInteractiveLogon = $ArrayList
+            DenyRemoteInteractiveLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
@@ -1847,12 +1823,12 @@
         if($null -ne $SG_Tier0Admins) { $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
         if($null -ne $SG_Tier1Admins) { $ArrayList.Add($SG_Tier1Admins.SamAccountName) }
         if($null -ne $SG_Tier2Admins) { $ArrayList.Add($SG_Tier2Admins.SamAccountName) }
-        if($null -ne $AdminName) {      $ArrayList.Add($AdminName) }
-        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName) }
+        if($null -ne $AdminName) {      $ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName.SamAccountName) }
         $Splat = @{
             GpoToModify      = 'C-Baseline'
-            DenyBatchLogon   = $ArrayList
-            DenyServiceLogon = $ArrayList
+            DenyBatchLogon   = $ArrayList.ToArray()
+            DenyServiceLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
@@ -1861,7 +1837,7 @@
         $ArrayList.Add('NT SERVICE\All Services')
         $Splat = @{
             GpoToModify  = 'C-Baseline'
-            ServiceLogon = $ArrayList
+            ServiceLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
@@ -1875,8 +1851,8 @@
         $ArrayList.Add('Backup Operators')
         $ArrayList.Add('Print Operators')
         $ArrayList.Add('Server Operators')
-        if($null -ne $AdminName) {              $ArrayList.Add($AdminName) }
-        if($null -ne $newAdminName) {           $ArrayList.Add($newAdminName) }
+        if($null -ne $AdminName) {              $ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {           $ArrayList.Add($newAdminName.SamAccountName) }
         if($null -ne $SG_Tier0Admins) {         $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
         if($null -ne $SG_Tier1Admins) {         $ArrayList.Add($SG_Tier1Admins.SamAccountName) }
         if($null -ne $SG_Tier2Admins) {         $ArrayList.Add($SG_Tier2Admins.SamAccountName) }
@@ -1884,8 +1860,8 @@
         if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
         $Splat = @{
             GpoToModify      = 'C-DomainControllers-Baseline'
-            DenyBatchLogon   = $ArrayList
-            DenyServiceLogon = $ArrayList
+            DenyBatchLogon   = $ArrayList.ToArray()
+            DenyServiceLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
@@ -1901,13 +1877,13 @@
         $ArrayList.Add('Enterprise Admins')
         $ArrayList.Add('Domain Admins')
         $ArrayList.Add('Administrators')
-        if($null -ne $AdminName) {      $ArrayList.Add($AdminName) }
-        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName) }
+        if($null -ne $AdminName) {      $ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName.SamAccountName) }
         if($null -ne $SG_Tier0Admins) { $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
         $Splat = @{
             GpoToModify            = 'C-DomainControllers-Baseline'
-            InteractiveLogon       = $ArrayList
-            RemoteInteractiveLogon = $ArrayList
+            InteractiveLogon       = $ArrayList.ToArray()
+            RemoteInteractiveLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
@@ -1921,7 +1897,7 @@
         if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
         $Splat = @{
             GpoToModify          = 'C-DomainControllers-Baseline'
-            DenyInteractiveLogon = $ArrayList
+            DenyInteractiveLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
@@ -1935,8 +1911,8 @@
         $ArrayList.Add('Backup Operators')
         $ArrayList.Add('Print Operators')
         $ArrayList.Add('Server Operators')
-        if($null -ne $AdminName) {              $ArrayList.Add($AdminName) }
-        if($null -ne $newAdminName) {           $ArrayList.Add($newAdminName) }
+        if($null -ne $AdminName) {              $ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {           $ArrayList.Add($newAdminName.SamAccountName) }
         if($null -ne $SG_Tier0Admins) {         $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
         if($null -ne $SG_Tier1Admins) {         $ArrayList.Add($SG_Tier1Admins.SamAccountName) }
         if($null -ne $SG_Tier2Admins) {         $ArrayList.Add($SG_Tier2Admins.SamAccountName) }
@@ -1944,8 +1920,8 @@
         if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
         $Splat = @{
             GpoToModify      = 'C-ItAdmin-Baseline'
-            DenyBatchLogon   = $ArrayList
-            DenyServiceLogon = $ArrayList
+            DenyBatchLogon   = $ArrayList.ToArray()
+            DenyServiceLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
@@ -1957,7 +1933,7 @@
         $Splat = @{
             GpoToModify  = 'C-ItAdmin-Baseline'
             BatchLogon   = $SG_Tier0ServiceAccount.SamAccountName
-            ServiceLogon = $ArrayList
+            ServiceLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
@@ -1969,13 +1945,13 @@
         $Splat = @{
             GpoToModify      = 'C-Housekeeping-LOCKDOWN'
             NetworkLogon     = $SG_Tier0ServiceAccount.SamAccountName
-            InteractiveLogon = $ArrayList
+            InteractiveLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
         # Admin Area = Infrastructure
         $Splat = @{
-            GpoToModify            = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name)
+            GpoToModify            = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0OU.Name)
             InteractiveLogon       = $SL_PISM.SamAccountName, 'Domain Admins', 'Administrators'
             RemoteInteractiveLogon = $SL_PISM.SamAccountName
         }
@@ -1986,14 +1962,14 @@
         $ArrayList.Add('NT SERVICE\All Services')
         if($null -ne $SG_Tier0ServiceAccount) { $ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
         $Splat = @{
-            GpoToModify  = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0.Name)
+            GpoToModify  = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0OU.Name)
             BatchLogon   = $SG_Tier0ServiceAccount.SamAccountName
-            ServiceLogon = $ArrayList
+            ServiceLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
         $Splat = @{
-            GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1.Name
+            GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1OU.Name
             InteractiveLogon       = $SG_Tier1Admins.SamAccountName, 'Administrators'
             RemoteInteractiveLogon = $SG_Tier1Admins.SamAccountName
             BatchLogon             = $SG_Tier1ServiceAccount.SamAccountName
@@ -2002,7 +1978,7 @@
         Set-GpoPrivilegeRights @Splat
 
         $Splat = @{
-            GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2.Name
+            GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2OU.Name
             InteractiveLogon       = $SG_Tier2Admins.SamAccountName, 'Administrators'
             RemoteInteractiveLogon = $SG_Tier2Admins.SamAccountName
             BatchLogon             = $SG_Tier2ServiceAccount.SamAccountName
@@ -2027,8 +2003,8 @@
 
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name
-            InteractiveLogon       = $SL_PAWM.SamAccountName, 'Administrators', $SG_Tier0Admins.SamAccountName, $AdminName, $newAdminName
-            RemoteInteractiveLogon = $SL_PAWM.SamAccountName, 'Administrators', $SG_Tier0Admins.SamAccountName, $AdminName, $newAdminName
+            InteractiveLogon       = $SL_PAWM.SamAccountName, 'Administrators', $SG_Tier0Admins.SamAccountName, $AdminName.SamAccountName, $newAdminName.SamAccountName
+            RemoteInteractiveLogon = $SL_PAWM.SamAccountName, 'Administrators', $SG_Tier0Admins.SamAccountName, $AdminName.SamAccountName, $newAdminName.SamAccountName
             BatchLogon             = $SG_Tier0ServiceAccount.SamAccountName
             ServiceLogon           = $SG_Tier0ServiceAccount.SamAccountName
         }
@@ -2112,14 +2088,14 @@
         $ArrayList.Add('Backup Operators')
         $ArrayList.Add('Print Operators')
         $ArrayList.Add('Server Operators')
-        if($null -ne $AdminName) {      $ArrayList.Add($AdminName) }
-        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName) }
+        if($null -ne $AdminName) {      $ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName.SamAccountName) }
         if($null -ne $SG_Tier0Admins) { $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
         if($null -ne $SG_Tier2Admins) { $ArrayList.Add($SG_Tier2Admins.SamAccountName) }
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $ServersOu
-            DenyInteractiveLogon       = $ArrayList
-            DenyRemoteInteractiveLogon = $ArrayList
+            DenyInteractiveLogon       = $ArrayList.ToArray()
+            DenyRemoteInteractiveLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRights @Splat
 
@@ -2200,14 +2176,14 @@
         $ArrayList.Add('Backup Operators')
         $ArrayList.Add('Print Operators')
         $ArrayList.Add('Server Operators')
-        if($null -ne $AdminName) {      $ArrayList.Add($AdminName) }
-        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName) }
+        if($null -ne $AdminName) {      $ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName.SamAccountName) }
         if($null -ne $SG_Tier0Admins) { $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
         if($null -ne $SG_Tier1Admins) { $ArrayList.Add($SG_Tier1Admins.SamAccountName) }
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $SitesOu
-            DenyInteractiveLogon       = $ArrayList
-            DenyRemoteInteractiveLogon = $ArrayList
+            DenyInteractiveLogon       = $ArrayList.ToArray()
+            DenyRemoteInteractiveLogon = $ArrayList.ToArray()
             BatchLogon                 = $SG_Tier2ServiceAccount.SamAccountName
             ServiceLogon               = $SG_Tier2ServiceAccount.SamAccountName
             InteractiveLogon           = $SG_Tier2Admins.SamAccountName
@@ -2293,7 +2269,6 @@
                 ConfigXMLFile = Join-Path -Path $DMscripts -ChildPath Config.xml -Resolve
                 verbose = $true
             }
-
             New-DfsObject @param
         }
 

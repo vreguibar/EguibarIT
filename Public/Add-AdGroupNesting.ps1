@@ -50,8 +50,9 @@ function Add-AdGroupNesting {
         # Variables Definition
 
         # Define variables and its type
-        $CurrentMembers = [System.Collections.Generic.HashSet[String]]::New()
-        $NewMembers = [System.Collections.Generic.HashSet[String]]::New()
+        $CurrentMembers = [System.Collections.Generic.HashSet[object]]::New()
+        #$NewMembers = [System.Collections.Generic.HashSet[object]]::New()
+        #[String]$NewMembers = $null
         $Splat = [hashtable]::New()
     } #end Begin
 
@@ -63,36 +64,42 @@ function Add-AdGroupNesting {
         }
 
         # Get current group members and store it on $CurrentMembers
-        Get-AdGroupMember -Identity $Identity | Select-Object -ExpandProperty sAMAccountName | ForEach-Object { [void]$CurrentMembers.Add($_) }
+        #Get-ADGroupMember -Identity $Identity | Select-Object -ExpandProperty sAMAccountName | ForEach-Object { [void]$CurrentMembers.Add($_) }
+        Get-ADGroupMember -Identity $Identity | ForEach-Object { [void]$CurrentMembers.Add($_) }
 
         try {
             Write-Verbose -Message ('Adding members to group..: {0}' -f $Identity.SamAccountName)
 
             Foreach ($item in $Members) {
-                If ($CurrentMembers -notcontains $item) {
-                    [void]$NewMembers.Add($item)
+                # Check what object kind is it (String, DN, ADGroup...)
+                if ($item -is [Microsoft.ActiveDirectory.Management.AdGroup] -or [Microsoft.ActiveDirectory.Management.AdUser]) {
+                    If ($CurrentMembers -notcontains $item) {
+                        #[void]$NewMembers.Add($item)
+                        #$NewMembers += ('"{0}",' -f $item)
+
+                        If ($PSCmdlet.ShouldProcess("Add members to Group $($Identity.SamAccountName)", 'Confirm?')) {
+                            try {
+                                Add-ADGroupMember -Identity $Identity -Members $item -WhatIf:$False
+                            }
+                            catch {
+                                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                            } #end Try-Catch
+                        }
+                        else {
+                            Write-Verbose -Message 'Operation cancelled by User!'
+                        } #end If-Else
+                    }
+                    else {
+                        Write-Verbose -Message ('{0} is already member of {1} group' -f $item.SamAccountName, $Identity.SamAccountName)
+                    } #end If-Else
                 }
                 else {
-                    Write-Verbose -Message ('{0} is already member of {1} group' -f $item.SamAccountName, $Identity.SamAccountName)
+                    $item = Get-AdObjectType -Identity $item
                 } #end If-Else
+
             } #end ForEach
 
-            If ($NewMembers.Count -gt 0) {
-                $Splat = @{
-                    Identity = $Identity
-                    Members  = $NewMembers -join ','
-                }
-
-                If ($PSCmdlet.ShouldProcess("Add members to Group $($Identity.SamAccountName)", 'Confirm?')) {
-                    Add-AdGroupMember @Splat -WhatIf:$False
-                }
-                else {
-                    Write-Verbose -Message 'Operation cancelled by User!'
-                } #end If-Else
-            }#end If
-            #Add-AdGroupMember @Splat
-
-            Write-Verbose -Message ('Member {0} was added correctly to group {1}' -f $Members, $Identity.sAMAccountName)
+            Write-Verbose -Message ('Members were added correctly to group {0}' -f $Identity.sAMAccountName)
         }
         catch {
             throw

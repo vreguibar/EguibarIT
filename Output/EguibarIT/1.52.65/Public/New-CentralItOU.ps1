@@ -302,45 +302,11 @@
 
 
 
-        # Global Groups
-        Foreach($node in $confXML.n.Admin.GG.ChildNodes) {
-            $param = @{
-                Name        = "$('SG{0}{1}' -f $NC['Delim'], $Node.LocalName)"
-                Value       = 'SG{0}{1}' -f $NC['Delim'], $Node.Name
-                Description = $Node.Description
-                Option      = 'ReadOnly'
-                Force       = $true
-            }
-            # Create variable for each defined ADMIN GlobalGroup name, Appending SG prefix
-            New-Variable @Param
-        }
-
         New-Variable -Name "SG_Operations" -Value ('SGg{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.Name) -Force
         New-Variable -Name "SG_ServerAdmins" -Value ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name) -Force
 
-
-
-
-
-        # Domain Local Groups
-        Foreach($node in $confXML.n.Admin.LG.ChildNodes) {
-            $param = @{
-                Name        = "$('SL{0}{1}' -f $NC['Delim'], $Node.LocalName)"
-                Value       = 'SL{0}{1}' -f $NC['Delim'], $Node.Name
-                Description = $Node.Description
-                Option      = 'ReadOnly'
-                Force       = $true
-            }
-            # Create variable for each defined ADMIN LocalGroup name using the XML name, Appending SL prefix
-            New-Variable @Param
-
-        }
-
         New-Variable -Name "SL_SvrAdmRight" -Value ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name) -Force
         New-Variable -Name "SL_SvrOpsRight" -Value ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name) -Force
-
-
-
 
 
         # Users
@@ -483,6 +449,7 @@
 
         # parameters variable for splatting CMDlets
         $parameters = $null
+        [hashtable]$Splat = @{}
 
 
         #endregion Declarations
@@ -532,7 +499,7 @@
         New-DelegateAdOU -ouName $ItServiceAccountsOu -ouDescription $confXML.n.Admin.OUs.ItServiceAccountsOU.description @Splat
         New-DelegateAdOU -ouName $ItHousekeepingOu    -ouDescription $confXML.n.Admin.OUs.ItHousekeepingOU.description    @Splat
         New-DelegateAdOU -ouName $ItInfraOu           -ouDescription $confXML.n.Admin.OUs.ItInfraOU.description           @Splat
-        New-DelegateAdOU -ouName $ItAdminSrvGroups    -ouDescription $confXML.n.Admin.OUs.ItAdminSrvGroups.description    @Splat
+        New-DelegateAdOU -ouName $ItAdminSrvGroupsOU  -ouDescription $confXML.n.Admin.OUs.ItAdminSrvGroups.description    @Splat
 
         # Ensure inheritance is enabled for child Admin OUs
         $Splat = @{
@@ -829,7 +796,7 @@
         # Iterate through all Admin-LocalGroups child nodes
         Foreach($Node in $confXML.n.Admin.LG.ChildNodes) {
             Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Node.Name))
-            $parameters = @{
+            $Splat = @{
                 Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Node.Name
                 GroupCategory                 = 'Security'
                 GroupScope                    = 'DomainLocal'
@@ -843,7 +810,7 @@
             }
             $varparam = @{
                 Name  = "$('SL{0}{1}' -f$NC['Delim'], $Node.LocalName)"
-                Value = New-AdDelegatedGroup @parameters
+                Value = New-AdDelegatedGroup @Splat
                 Force = $true
             }
             New-Variable @varparam

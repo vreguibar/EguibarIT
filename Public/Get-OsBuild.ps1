@@ -1,5 +1,5 @@
 Function Get-OsBuild {
-<#
+  <#
     .Synopsis
     Function to Identify OS Build number
     .DESCRIPTION
@@ -19,13 +19,13 @@ Function Get-OsBuild {
   [CmdletBinding(ConfirmImpact = 'Low')]
   Param ()
   Begin {
-        Write-Verbose -Message '|=> ************************************************************************ <=|'
-        Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
+    Write-Verbose -Message '|=> ************************************************************************ <=|'
+    Write-Verbose -Message (Get-Date).ToShortDateString()
+    Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
+    Write-Verbose -Message ('No Parameters used by this function.' )
 
-        ##############################
-        # Variables Definition
+    ##############################
+    # Variables Definition
   } #end Begin
   Process {
     Try {
@@ -34,29 +34,30 @@ Function Get-OsBuild {
       # Get OS Information
       # Retrieve OS Information
       $osInfo = Get-CimInstance -ClassName Win32_OperatingSystem
-      [int]$Global:OsMajorVersion    = $osInfo.Version.Split('.')[0]
-      [int]$Global:OsMinorVersion    = $osInfo.Version.Split('.')[1]
-      [int]$Global:OsBuild           = $osInfo.Version.Split('.')[2]
+      [int]$Global:OsMajorVersion = $osInfo.Version.Split('.')[0]
+      [int]$Global:OsMinorVersion = $osInfo.Version.Split('.')[1]
+      [int]$Global:OsBuild = $osInfo.Version.Split('.')[2]
       #[String]$Global:OsCaption     = $osInfo.Caption
-      [int]$Global:OsSpMajorVersion  = $osInfo.ServicePackMajorVersion
+      [int]$Global:OsSpMajorVersion = $osInfo.ServicePackMajorVersion
       #[int]$Global:OsSpMinorVersion = $osInfo.ServicePackMinorVersion
-    } catch {
+    }
+    catch {
       $error.clear()
 
       # Fallback to Environment.OSVersion if Get-CimInstance fails
       [Environment]::OSVersion.Version | ForEach-Object {
         [int]$Global:OsMajorVersion = $_.Major
         [int]$Global:OsMinorVersion = $_.Minor
-        [int]$Global:OsBuild        = $_.Build
+        [int]$Global:OsBuild = $_.Build
       }
 
-      $Global:OsSpMajorVersion  = [Environment]::OSVersion.ServicePack
+      $Global:OsSpMajorVersion = [Environment]::OSVersion.ServicePack
     } #end Try-Catch
   } #end Process
   End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting OS build."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+    Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting OS build."
+    Write-Verbose -Message ''
+    Write-Verbose -Message '-------------------------------------------------------------------------------'
+    Write-Verbose -Message ''
   } #end End
 } #end Function

@@ -89,6 +89,10 @@ function Set-AdAclLaps {
         $GuidMap = [Hashtable]::New()
         $guidmap = Get-AttributeSchemaHashTable
 
+        # Get the SID of the group
+        $currentResetGroup = Get-AdObjectType -Identity $PSBoundParameters['ResetGroup']
+        $currentReadGroup = Get-AdObjectType -Identity $PSBoundParameters['ReadGroup']
+
     } #end Begin
 
     Process {
@@ -102,8 +106,8 @@ function Set-AdAclLaps {
 
             # LAPS CMDlets
             Set-LapsADComputerSelfPermission -Identity $LDAPpath
-            Set-LapsADReadPasswordPermission -AllowedPrincipals $ReadGroup -Identity $LDAPpath
-            Set-LapsADResetPasswordPermission -AllowedPrincipals $ResetGroup -Identity $LDAPpath
+            Set-LapsADReadPasswordPermission -AllowedPrincipals $currentReadGroup.SID -Identity $LDAPpath
+            Set-LapsADResetPasswordPermission -AllowedPrincipals $currentResetGroup.SID -Identity $LDAPpath
 
         }
         else {

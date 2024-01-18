@@ -56,7 +56,7 @@ function New-DelegateAdGpo {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium', DefaultParameterSetName = 'DelegatedAdGpo')]
-    [OutputType([Microsoft.GroupPolicy.Gpo])]
+    #[OutputType([Microsoft.GroupPolicy.Gpo])]
     Param (
         # Param1 GPO description, used to generate name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
@@ -134,7 +134,7 @@ function New-DelegateAdGpo {
 
         $Splat    = [Hashtable]::New()
 
-        $gpoAlreadyExist = [Microsoft.GroupPolicy.GroupPolicyObject]::New()
+        #$gpoAlreadyExist = [Microsoft.GroupPolicy.GroupPolicyObject]::New()
 
         $gpoName = '{0}-{1}' -f $PSBoundParameters['gpoScope'], $PSBoundParameters['gpoDescription']
         #$adGroupName = Get-ADGroup -Identity $GpoAdmin

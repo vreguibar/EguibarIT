@@ -101,17 +101,18 @@ function Set-AdAclDelegateComputerAdmin {
             Group    = $PSBoundParameters['Group']
             LDAPPath = $PSBoundParameters['LDAPpath']
         }
+
     } #end Begin
     Process {
         try {
 
             # Check if RemoveRule switch is present.
-            If($PSBoundParameters['RemoveRule']) {
+            If ($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
                 $Splat.Add('RemoveRule', $true)
             } #end If
 
-            if ($Force -or $PSCmdlet.ShouldProcess("Proceed with delegations?")) {
+            if ($Force -or $PSCmdlet.ShouldProcess('Proceed with delegations?')) {
                 # Create/Delete Computers
                 Set-AdAclCreateDeleteComputer @Splat
 
@@ -143,9 +144,10 @@ function Set-AdAclDelegateComputerAdmin {
                 Set-DeleteOnlyComputer @Splat
 
                 # Set LAPS
-                Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['LDAPpath']
+                Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPpath $PSBoundParameters['LDAPpath']
             } #end If
-        } catch {
+        }
+        catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
         } #end Try-Catch
     } #end Process

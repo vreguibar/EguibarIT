@@ -106,7 +106,7 @@
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-        $parameters = $null
+        $Splat    = [Hashtable]::New()
 
         #endregion Declarations
         ################################################################################
@@ -122,7 +122,7 @@
 
         ###############################################################################
         # Create OU Admin groups
-        $parameters = @{
+        $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.AdminXtra.GG.DfsAdmins.Name
             GroupCategory                 = 'Security'
             GroupScope                    = 'Global'
@@ -134,9 +134,9 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        $SG_DfsAdmins = New-AdDelegatedGroup @parameters
+        $SG_DfsAdmins = New-AdDelegatedGroup @Splat
 
-        $parameters = @{
+        $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.AdminXtra.LG.DfsRight.Name
             GroupCategory                 = 'Security'
             GroupScope                    = 'DomainLocal'
@@ -148,7 +148,7 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        $SL_DfsRight = New-AdDelegatedGroup @parameters
+        $SL_DfsRight = New-AdDelegatedGroup @Splat
 
         # Apply the PSO to the SL_DfsRights and SG_DfsAdmin Group
         Add-ADFineGrainedPasswordPolicySubject -Identity $confXML.n.Admin.PSOs.ItAdminsPSO.Name -Subjects $SG_DfsAdmins, $SL_DfsRight
