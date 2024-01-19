@@ -178,7 +178,7 @@
         Remove-PreWin2000 -LDAPPath $SA_AGPM.DistinguishedName
 
 
-        If ($Global:OsBuild -ge 9200) {
+        If ([System.Environment]::OSVersion.Version.Build -ge 9200) {
             $Splat = @{
                 Name                   = $confXML.n.Admin.gMSA.AGPM.Name
                 SamAccountName         = $confXML.n.Admin.gMSA.AGPM.Name

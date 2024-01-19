@@ -611,7 +611,7 @@
         Get-ADGroup -Identity 'Denied RODC Password Replication Group' |  Move-ADObject -TargetPath $ItRightsOuDn
 
         # Following groups only exist on Win 2012
-        If ($Global:OsBuild -ge 9200) {
+        If ([System.Environment]::OSVersion.Version.Build -ge 9200) {
             Get-ADGroup -Identity 'Protected Users' |                     Move-ADObject -TargetPath $ItPrivGroupsOUDn
             Get-ADGroup -Identity 'Cloneable Domain Controllers' |        Move-ADObject -TargetPath $ItPrivGroupsOUDn
 
@@ -620,7 +620,7 @@
         }
 
         # Following groups only exist on Win 2019
-        If ($Global:OsBuild -ge 17763) {
+        If ([System.Environment]::OSVersion.Version.Build -ge 17763) {
             Get-ADGroup -Identity 'Enterprise Key Admins'               | Move-ADObject -TargetPath $ItPrivGroupsOUDn
             Get-ADGroup -Identity 'Key Admins'                          | Move-ADObject -TargetPath $ItPrivGroupsOUDn
             #Get-ADGroup -Identity 'Windows Admin Center CredSSP Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
@@ -947,7 +947,7 @@
         # Get the current OS build
         Get-OsBuild
 
-        If ($Global:OsBuild -ge 9200) {
+        If ([System.Environment]::OSVersion.Version.Build -ge 9200) {
             # Create the KDS Root Key (only once per domain).  This is used by the KDS service on DCs (along with other information) to generate passwords
             # http://blogs.technet.com/b/askpfeplat/archive/2012/12/17/windows-server-2012-group-managed-service-accounts.aspx
             # If working in a test environment with a minimal number of DCs and the ability to guarantee immediate replication, please use:
@@ -962,7 +962,7 @@
 
         If(-not $ExistSA) {
             Write-Verbose -Message ('Creating {0} Service Account {0}.' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name)
-            If ($Global:OsBuild -ge 9200) {
+            If ([System.Environment]::OSVersion.Version.Build -ge 9200) {
 
                 $Splat = @{
                     Name                   = $confXML.n.Admin.gMSA.AdTaskScheduler.Name

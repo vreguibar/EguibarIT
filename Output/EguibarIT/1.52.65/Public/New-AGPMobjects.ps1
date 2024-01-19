@@ -1,5 +1,4 @@
-Function New-AGPMObjects
-{
+Function New-AGPMObjects {
     <#
         .Synopsis
             Create Advanced Group Policy Management Objects and Delegations
@@ -21,9 +20,9 @@ Function New-AGPMObjects
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     Param(
         # PARAM1 full path to the configuration.xml file
-        [Parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True, ValueFromRemainingArguments=$false,
-            HelpMessage='Full path to the configuration.xml file',
-            Position=0)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+            HelpMessage = 'Full path to the configuration.xml file',
+            Position = 0)]
         [string]
         $ConfigXMLFile,
 
@@ -33,9 +32,9 @@ Function New-AGPMObjects
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Path to all the scripts and files needed by this function',
-        Position = 1)]
+            Position = 1)]
         [string]
-        $DMscripts = "C:\PsScripts\"
+        $DMscripts = 'C:\PsScripts\'
     )
     Begin {
         $error.Clear()
@@ -51,8 +50,8 @@ Function New-AGPMObjects
 
         ################################################################################
         # Initialisations
-        Import-Module -name ActiveDirectory      -Verbose:$false
-        Import-Module -name EguibarIT.Delegation -Verbose:$false
+        Import-Module -Name ActiveDirectory -Verbose:$false
+        Import-Module -Name EguibarIT.Delegation -Verbose:$false
 
         ################################################################################
         #region Declarations
@@ -60,31 +59,33 @@ Function New-AGPMObjects
 
         try {
             # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn)) {
+            If (-Not (Test-Path -Path variable:AdDn)) {
                 $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
             }
 
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML)) {
+            If (-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
+                If (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
         }
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+        catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        }
 
 
 
         # Naming conventions hashtable
-        $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
-                'sg'    = $confXML.n.NC.GlobalGroupPreffix;
-                'su'    = $confXML.n.NC.UniversalGroupPreffix;
-                'Delim' = $confXML.n.NC.Delimiter;
-                'T0'    = $confXML.n.NC.AdminAccSufix0;
-                'T1'    = $confXML.n.NC.AdminAccSufix1;
-                'T2'    = $confXML.n.NC.AdminAccSufix2
+        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix;
+            'sg'     = $confXML.n.NC.GlobalGroupPreffix;
+            'su'     = $confXML.n.NC.UniversalGroupPreffix;
+            'Delim'  = $confXML.n.NC.Delimiter;
+            'T0'     = $confXML.n.NC.AdminAccSufix0;
+            'T1'     = $confXML.n.NC.AdminAccSufix1;
+            'T2'     = $confXML.n.NC.AdminAccSufix2
         }
 
         #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM, $NC['T0'])
@@ -140,11 +141,11 @@ Function New-AGPMObjects
                 'employeeType'                  = 'ServiceAccount'
                 'msNpAllowDialin'               = $false
                 'msDS-SupportedEncryptionTypes' = '24'
+            }
         }
-        }
-        New-AdUser @parameters
+        New-ADUser @parameters
 
-        $SA_AGPM = Get-AdUser -Filter { samAccountName -eq 'SA_AGPM_Temp' }
+        $SA_AGPM = Get-ADUser -Filter { samAccountName -eq 'SA_AGPM_Temp' }
 
         #http://blogs.msdn.com/b/openspecification/archive/2011/05/31/windows-configurations-for-kerberos-supported-encryption-type.aspx
         # 'msDS-SupportedEncryptionTypes'= Kerberos DES Encryption = 2, Kerberos AES 128 = 8, Kerberos AES 256 = 16
@@ -164,7 +165,7 @@ Function New-AGPMObjects
         Remove-PreWin2000 -LDAPPath $SA_AGPM.DistinguishedName
 
 
-        If ($Global:OsBuild -ge 9200) {
+        If ([System.Environment]::OSVersion.Version.Build -ge 9200) {
             $Splat = @{
                 Name                   = $confXML.n.Admin.gMSA.AGPM.Name
                 SamAccountName         = $confXML.n.Admin.gMSA.AGPM.Name
@@ -180,24 +181,27 @@ Function New-AGPMObjects
 
             $ReplaceParams = @{
                 Replace = @{
-                    'c'="MX"
-                    'co'="Mexico"
-                    'company'=$confXML.n.RegisteredOrg
-                    'department'="IT"
-                    'employeeID'='T0'
-                    'employeeType'="ServiceAccount"
-                    'info'=$confXML.n.Admin.gMSA.AGPM.Description
-                    'l'="Puebla"
-                    'title'=$confXML.n.Admin.gMSA.AGPM.DisplayName
-                    'userPrincipalName'='{0}@{1}' -f $confXML.n.Admin.gMSA.AGPM.Name, $env:USERDNSDOMAIN
+                    'c'                 = 'MX'
+                    'co'                = 'Mexico'
+                    'company'           = $confXML.n.RegisteredOrg
+                    'department'        = 'IT'
+                    'employeeID'        = 'T0'
+                    'employeeType'      = 'ServiceAccount'
+                    'info'              = $confXML.n.Admin.gMSA.AGPM.Description
+                    'l'                 = 'Puebla'
+                    'title'             = $confXML.n.Admin.gMSA.AGPM.DisplayName
+                    'userPrincipalName' = '{0}@{1}' -f $confXML.n.Admin.gMSA.AGPM.Name, $env:USERDNSDOMAIN
                 }
             }
 
             try {
                 New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
             }
-            catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
-        } else {
+            catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+            }
+        }
+        else {
             $Splat = @{
                 name        = $confXML.n.Admin.gMSA.AGPM.Name
                 Description = $confXML.n.Admin.gMSA.AGPM.Description
@@ -271,7 +275,7 @@ Function New-AGPMObjects
         # Nest Groups - Security for RODC
         # Avoid having privileged or semi-privileged groups copy to RODC
 
-        Add-AdGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SL_GpoApproverRight, $SL_GpoEditorRight, $SL_GpoReviewerRight
+        Add-ADGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SL_GpoApproverRight, $SL_GpoEditorRight, $SL_GpoReviewerRight
 
 
         ###############################################################################
@@ -302,5 +306,5 @@ Function New-AGPMObjects
         Write-Verbose -Message ''
         Write-Verbose -Message '--------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-  }
+    }
 }
