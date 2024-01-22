@@ -57,85 +57,98 @@ function Get-AdObjectType {
     # Variables Definition
 
     $ReturnValue = $null
+    $newObject = $false
 
   } # End Begin Section
 
   Process {
+
+    # Known Identities OR AD Objects
+    If ($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount]) {
+      Write-Verbose -Message 'AD User Object'
+      return [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = $Identity
+    }
+
+    If ($Identity -is [Microsoft.ActiveDirectory.Management.ADComputer]) {
+      Write-Verbose -Message 'AD Computer Object'
+      return [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = $Identity
+    }
+
+    If ($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup]) {
+      Write-Verbose -Message 'AD Group Object'
+      return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = $Identity
+    }
+
+    If ($Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]) {
+      Write-Verbose -Message 'Organizational Unit Object'
+      return [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]$ReturnValue = $Identity
+    }
+
+
     Try {
-      If ($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount]) {
-        Write-Verbose -Message 'AD User Object'
-        return [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = $Identity
-      }
-
-      If ($Identity -is [Microsoft.ActiveDirectory.Management.ADComputer]) {
-        Write-Verbose -Message 'AD Computer Object'
-        return [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = $Identity
-      }
-
-      If ($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup]) {
-        Write-Verbose -Message 'AD Group Object'
-        return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = $Identity
-      }
-
-      If ($Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]) {
-        Write-Verbose -Message 'Organizational Unit Object'
-        return [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]$ReturnValue = $Identity
-      }
-
       If ($Identity -is [String]) {
         Write-Verbose -Message 'Simple String... Try to identify if SamAccountNamem DistinguishedName or SID as string.'
 
         if (Test-IsValidDN -ObjectDN $Identity) {
 
           Write-Verbose -Message 'Looking for DistinguishedName'
-          $newObject = Get-ADObject -filter { DistinguishedName -eq $Identity }
+
+          $newObject = Get-ADObject -Filter { DistinguishedName -eq $Identity }
 
         }
         elseif (Test-IsValidSID -ObjectSID $Identity) {
 
           Write-Verbose -Message 'Looking for ObjectSID'
-          $newObject = Get-ADObject -filter { ObjectSID -eq $Identity }
+          $newObject = Get-ADObject -Filter { ObjectSID -eq $Identity }
 
         }
         else {
 
           Write-Verbose -Message 'Looking for SamAccountName'
-          $newObject = Get-ADObject -filter { SamAccountName -eq $Identity }
+          $newObject = Get-ADObject -Filter { SamAccountName -eq $Identity }
 
-        } # End if
-
-        # once we have the object, lets get it from AD
-        Switch ($newObject.ObjectClass) {
-
-          'user' {
-            Write-Verbose -Message 'AD User Object from STRING'
-            return [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = Get-AdUser -Identity $Identity
-          }
-
-          'group' {
-            Write-Verbose -Message 'AD Group Object from STRING'
-            return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = Get-ADGroup -Identity $Identity
-          }
-
-          'computer' {
-            Write-Verbose -Message 'AD Computer Object from STRING'
-            return [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = Get-AdComputer -Identity $Identity
-          }
-
-          'organizationalUnit' {
-            Write-Verbose -Message 'AD Organizational Unit Object from STRING'
-            return [Microsoft.ActiveDirectory.Management.organizationalUnit]$ReturnValue = Get-ADOrganizationalUnit -Identity $Identity
-          }
-
-          Default {
-            Write-Error -Message "Unknown object type for identity: $Identity"
-          }
-        } # End Switch
-      } # End If
+        } #end if-ElseIf-Else
+      } #end If
     }
     catch {
-      Write-Error -Message "Error: $_"
+      Get-CurrentErrorToDisplay -CurrentError $error[0]
+
+      return $null
+    } #end Try-Catch
+
+    If ($newObject) {
+      # once we have the object, lets get it from AD
+      Switch ($newObject.ObjectClass) {
+
+        'user' {
+          Write-Verbose -Message 'AD User Object from STRING'
+          return [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = Get-ADUser -Identity $Identity
+        }
+
+        'group' {
+          Write-Verbose -Message 'AD Group Object from STRING'
+          return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = Get-ADGroup -Identity $Identity
+        }
+
+        'computer' {
+          Write-Verbose -Message 'AD Computer Object from STRING'
+          return [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = Get-ADComputer -Identity $Identity
+        }
+
+        'organizationalUnit' {
+          Write-Verbose -Message 'AD Organizational Unit Object from STRING'
+          return [Microsoft.ActiveDirectory.Management.organizationalUnit]$ReturnValue = Get-ADOrganizationalUnit -Identity $Identity
+        }
+
+        Default {
+          Write-Error -Message "Unknown object type for identity: $Identity"
+
+          return $null
+        }
+      } # End Switch
     }
+
+
   } # End Process Section
 
   End {
@@ -143,6 +156,8 @@ function Get-AdObjectType {
     Write-Verbose -Message ''
     Write-Verbose -Message '-------------------------------------------------------------------------------'
     Write-Verbose -Message ''
+
+    return $ReturnValue
   } # End End Section
 
 } #end Function

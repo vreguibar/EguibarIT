@@ -162,6 +162,10 @@
             Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
         } #end If
 
+        if (-not (Get-Module -Name 'EguibarIT' -ListAvailable)) {
+            Import-Module -Name 'EguibarIT' -Force -Verbose:$false
+        } #end If
+
         if (-not (Get-Module -Name 'EguibarIT.Delegation' -ListAvailable)) {
             Import-Module -Name 'EguibarIT.Delegation' -Force -Verbose:$false
         } #end If
@@ -175,7 +179,7 @@
 
     Process {
         try {
-            If (-not ($name -is [Microsoft.ActiveDirectory.Management.AdGroup])) {
+            If (-not ($name -is [String])) {
                 # Get the group and store it on variable.
                 $newGroup = Get-AdObjectType -Identity $Name
             }
@@ -198,7 +202,7 @@
             else {
                 Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
 
-                $newGroup | Set-AdObject -ProtectedFromAccidentalDeletion $False
+                $newGroup | Set-ADObject -ProtectedFromAccidentalDeletion $False
 
                 Try {
                     $Splat = @{
@@ -209,10 +213,10 @@
                         GroupScope    = $PSBoundParameters['GroupScope']
                     }
                     if ($Force -or $PSCmdlet.ShouldProcess('Group does not exist. SHould it be created?')) {
-                        Set-AdGroup @Splat
+                        Set-ADGroup @Splat
                     }
 
-                    If (-not($newGroup.DistinguishedName -ccontains $PSBoundParameters['path'])) {
+                    If (-not($newGroup.DistinguishedName -contains $PSBoundParameters['path'])) {
                         # Move object to the corresponding OU
                         Move-ADObject -Identity $newGroup -TargetPath $PSBoundParameters['path']
                     }
@@ -224,7 +228,7 @@
             } # End If
 
             # Get the group again and store it on variable.
-            $newGroup = Get-AdGroup -Filter { SamAccountName -eq $Name }
+            $newGroup = Get-ADGroup -Filter { SamAccountName -eq $Name }
 
 
             # Protect From Accidental Deletion
