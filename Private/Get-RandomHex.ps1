@@ -28,10 +28,10 @@ Function Get-RandomHex {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess=$False)]
+    [CmdletBinding(SupportsShouldProcess = $False)]
     param (
-        [parameter(Mandatory=$true,
-                   HelpMessage="Specify the length of the hexadecimal string.")]
+        [parameter(Mandatory = $true,
+            HelpMessage = 'Specify the length of the hexadecimal string.')]
         [ValidateRange(1, [int]::MaxValue)]
         [int]$Length
     )
@@ -41,7 +41,7 @@ Function Get-RandomHex {
         $Hex = '0123456789ABCDEF'
         [string]$Return = $null
 
-        for ($i=1; $i -le $Length; $i++) {
+        for ($i = 1; $i -le $Length; $i++) {
             $Return += $Hex.Substring((Get-Random -Minimum 0 -Maximum 16), 1)
         }
 
@@ -50,8 +50,9 @@ Function Get-RandomHex {
 
         # Returning the generated string
         $Return
-    } catch {
+    }
+    catch {
         # Handling exceptions
-        Write-Error "An error occurred: $_"
+        Get-CurrentErrorToDisplay -CurrentError $error[0]
     } #end Try
 } #end Function

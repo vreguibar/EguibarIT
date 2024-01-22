@@ -51,9 +51,10 @@ function Test-IsValidDN {
                     Write-Verbose "DistinguishedName validation result: $isValid"
                 } #end If
             } #end If
-        } catch {
+        }
+        catch {
             # Handle exceptions gracefully
-            Write-Error "An error occurred: $_"
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
         } #end Try-Catch
     } #end Process
     end {

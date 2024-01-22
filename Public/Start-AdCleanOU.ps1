@@ -139,7 +139,7 @@ function Start-AdCleanOU {
                 } #end If
             } #end If
         } catch {
-            Write-Error -Message "An error occurred: $_"
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
         } #end Try-Catch
     } #end Process
 

@@ -76,25 +76,26 @@ Function New-Template {
 
             $TemplateOIDPath = 'CN=OID,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC
             $OIDOtherAttributes = @{
-                    'DisplayName'             = $DisplayName
-                    'flags'                   = [System.Int32]'1'
-                    'msPKI-Cert-Template-OID' = $OID.TemplateOID
+                'DisplayName'             = $DisplayName
+                'flags'                   = [System.Int32]'1'
+                'msPKI-Cert-Template-OID' = $OID.TemplateOID
             }
             New-ADObject -Path $TemplateOIDPath -OtherAttributes $OIDOtherAttributes -Name $OID.TemplateName -Type 'msPKI-Enterprise-Oid' -Server $Server
 
             # Ensure if msPKI-Cert-Template-OID already add it to hashtable
-            If(-not $TemplateOtherAttributes.ContainsKey('msPKI-Cert-Template-OID')) {
+            If (-not $TemplateOtherAttributes.ContainsKey('msPKI-Cert-Template-OID')) {
                 #Create Template itself
-                $TemplateOtherAttributes+= @{
+                $TemplateOtherAttributes += @{
                     'msPKI-Cert-Template-OID' = $OID.TemplateOID
                 }
             }
             $TemplatePath = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC
 
             New-ADObject -Path $TemplatePath -OtherAttributes $TemplateOtherAttributes -Name $DisplayName -DisplayName $DisplayName -Type pKICertificateTemplate -Server $Server
-        } catch {
+        }
+        catch {
             # Handle errors here
-            Write-Error "Error: $_"
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
         } #end Try-Catch
     } # End PROCESS section
 

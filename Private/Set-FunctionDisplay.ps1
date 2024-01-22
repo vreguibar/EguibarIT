@@ -46,7 +46,7 @@
 
         # Validate TabCount and set default if needed
         if ($TabCount -lt 1) {
-            $TabCount = 8
+            $TabCount = 4
         }
     } # end Begin
 

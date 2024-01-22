@@ -25,7 +25,7 @@ function ConvertTo-IntegerIPv4 {
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-        Position = 0)]
+            Position = 0)]
         [uint32] $Integer
     )
 
@@ -41,14 +41,15 @@ function ConvertTo-IntegerIPv4 {
 
     Process {
         Try {
-            $bytes=[System.BitConverter]::GetBytes($Integer)
+            $bytes = [System.BitConverter]::GetBytes($Integer)
 
             [Array]::Reverse($bytes)
 
             ([IPAddress]($bytes)).ToString()
 
-        } Catch {
-            Write-Error -Exception $_.Exception -Category $_.CategoryInfo.Category
+        }
+        Catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
         }
     } #end Process
 

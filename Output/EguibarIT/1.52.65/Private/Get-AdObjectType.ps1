@@ -31,56 +31,53 @@ function Get-AdObjectType {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+  [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
   Param (
     # Param1
     [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-        HelpMessage = 'Identity of the object',
-        Position = 0)]
+      HelpMessage = 'Identity of the object',
+      Position = 0)]
     [ValidateNotNullOrEmpty()]
     $Identity
   )
   Begin {
-        Write-Verbose -Message '|=> ************************************************************************ <=|'
-        Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
+    Write-Verbose -Message '|=> ************************************************************************ <=|'
+    Write-Verbose -Message (Get-Date).ToShortDateString()
+    Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
+    Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-        ##############################
-        # Variables Definition
+    ##############################
+    # Variables Definition
 
-        $ReturnValue = $null
+    $ReturnValue = $null
   } # End Begin Section
-  Process
-  {
+  Process {
     Try {
-      If($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount])
-      {
+      If ($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount]) {
         Write-Verbose -Message 'AD User Object'
         return [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = $Identity
       }
 
-      If($Identity -is [Microsoft.ActiveDirectory.Management.ADComputer])
-      {
+      If ($Identity -is [Microsoft.ActiveDirectory.Management.ADComputer]) {
         Write-Verbose -Message 'AD Computer Object'
         return [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = $Identity
       }
 
-      If($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup])
-      {
+      If ($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup]) {
         Write-Verbose -Message 'AD Group Object'
         return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = $Identity
       }
 
-      If($Identity -is [String]) {
+      If ($Identity -is [String]) {
         Write-Verbose -Message 'Simple String'
 
-        if(Test-IsValidDN -ObjectDN $Identity) {
-          $newObject = get-AdObject -filter {
+        if (Test-IsValidDN -ObjectDN $Identity) {
+          $newObject = Get-ADObject -Filter {
             DistinguishedName -eq $Identity
           }
-        } else {
-          $newObject = get-AdObject -filter {
+        }
+        else {
+          $newObject = Get-ADObject -Filter {
             SamAccountName -eq $Identity
           }
         } # End if
@@ -88,29 +85,30 @@ function Get-AdObjectType {
         Switch ($newObject.ObjectClass) {
           'user' {
             Write-Verbose -Message 'AD User Object from STRING'
-            return [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = Get-AdUser -Identity $Identity
+            return [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = Get-ADUser -Identity $Identity
           }
           'group' {
             Write-Verbose -Message 'AD Group Object from STRING'
-            return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue   = Get-ADGroup -Identity $Identity
+            return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = Get-ADGroup -Identity $Identity
           }
           'computer' {
             Write-Verbose -Message 'AD Computer Object from STRING'
-            return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue   = Get-AdComputer -Identity $Identity
+            return [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = Get-ADComputer -Identity $Identity
           }
           Default {
             Write-Error -Message "Unknown object type for identity: $Identity"
           }
         } # End Switch
       } # End If
-    } catch {
-      Write-Error -Message "Error: $_"
+    }
+    catch {
+      Get-CurrentErrorToDisplay -CurrentError $error[0]
     }
   } # End Process Section
   End {
-      Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD object type."
-      Write-Verbose -Message ''
-      Write-Verbose -Message '-------------------------------------------------------------------------------'
-      Write-Verbose -Message ''
+    Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD object type."
+    Write-Verbose -Message ''
+    Write-Verbose -Message '-------------------------------------------------------------------------------'
+    Write-Verbose -Message ''
   } # End End Section
 }

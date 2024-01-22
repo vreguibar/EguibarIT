@@ -121,6 +121,8 @@ function Get-CurrentErrorToDisplay {
                 [void]$OutputError.AppendLine($Header)
                 [void]$OutputError.AppendLine('####      END Error')
                 [void]$OutputError.AppendLine($Header)
+                [void]$OutputError.AppendLine()
+                [void]$OutputError.AppendLine()
             }
             catch {
                 Write-Error "Error processing the error: $_"

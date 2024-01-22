@@ -746,7 +746,7 @@
             Try {
                 New-AdUser @Splat
             } Catch {
-                Throw
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
             }
 
             #http://blogs.msdn.com/b/openspecification/archive/2011/05/31/windows-configurations-for-kerberos-supported-encryption-type.aspx
