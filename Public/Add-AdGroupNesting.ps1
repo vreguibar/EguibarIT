@@ -53,7 +53,7 @@ function Add-AdGroupNesting {
         $CurrentMembers = [System.Collections.Generic.HashSet[object]]::New()
         #$NewMembers = [System.Collections.Generic.HashSet[object]]::New()
         #[String]$NewMembers = $null
-        $Splat = [hashtable]::New()
+        
     } #end Begin
 
     Process {

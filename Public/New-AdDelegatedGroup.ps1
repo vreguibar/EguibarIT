@@ -179,9 +179,17 @@
 
     Process {
         try {
-            If (-not ($name -is [String])) {
-                # Get the group and store it on variable.
-                $newGroup = Get-AdObjectType -Identity $Name
+            Switch ($name) {
+                { $name -is [String] } {
+                    #Do nothing. New group to create
+                }
+                { $name -is [Microsoft.ActiveDirectory.Management.AdGroup] } {
+                    $newGroup = Get-AdObjectType -Identity $Name
+                }
+                { $name -is [Microsoft.ActiveDirectory.Management.ADAccount] } {
+                    #AD accounts are not processed.
+                    $newGroup = $null
+                }
             }
 
             ### Using $PSBoundParameters['Name'] throws an Error. Using variable instead.

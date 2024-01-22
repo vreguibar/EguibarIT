@@ -1054,45 +1054,45 @@
         Start-Sleep -Seconds 5
         # Apply the PSO to the corresponding accounts and groups
         $ArrayList.Clear()
-        $ArrayList.Add('Domain Admins')
-        $ArrayList.Add('Enterprise Admins')
-        if($null -ne $AdminName) {                $ArrayList.Add($AdminName.SamAccountName) }
-        if($null -ne $newAdminName) {             $ArrayList.Add($newAdminName.SamAccountName) }
-        if($null -ne $SG_InfraAdmins) {           $ArrayList.Add($SG_InfraAdmins.SamAccountName) }
-        if($null -ne $SG_AdAdmins) {              $ArrayList.Add($SG_AdAdmins.SamAccountName) }
-        if($null -ne $SG_GpoAdmins) {             $ArrayList.Add($SG_GpoAdmins.SamAccountName) }
-        if($null -ne $SG_Tier0Admins) {           $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
-        if($null -ne $SG_Tier1Admins) {           $ArrayList.Add($SG_Tier1Admins.SamAccountName) }
-        if($null -ne $SG_Tier2Admins) {           $ArrayList.Add($SG_Tier2Admins.SamAccountName) }
-        if($null -ne $SG_Tier0ServiceAccount) {   $ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Tier1ServiceAccount) {   $ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Tier2ServiceAccount) {   $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Operations) {            $ArrayList.Add($SG_Operations.SamAccountName) }
-        if($null -ne $SG_ServerAdmins) {          $ArrayList.Add($SG_ServerAdmins.SamAccountName) }
-        if($null -ne $SG_AllSiteAdmins) {         $ArrayList.Add($SG_AllSiteAdmins.SamAccountName) }
-        if($null -ne $SG_AllGALAdmins) {          $ArrayList.Add($SG_AllGALAdmins.SamAccountName) }
-        if($null -ne $SG_GlobalUserAdmins) {      $ArrayList.Add($SG_GlobalUserAdmins.SamAccountName) }
-        if($null -ne $SG_GlobalPcAdmins) {        $ArrayList.Add($SG_GlobalPcAdmins.SamAccountName) }
-        if($null -ne $SG_GlobalGroupAdmins) {     $ArrayList.Add($SG_GlobalGroupAdmins.SamAccountName) }
-        if($null -ne $SG_ServiceDesk) {           $ArrayList.Add($SG_ServiceDesk.SamAccountName) }
-        if($null -ne $SL_InfraRight) {            $ArrayList.Add($SL_InfraRight.SamAccountName) }
-        if($null -ne $SL_AdRight) {               $ArrayList.Add($SL_AdRight.SamAccountName) }
-        if($null -ne $SL_UM) {                    $ArrayList.Add($SL_UM.SamAccountName) }
-        if($null -ne $SL_GM) {                    $ArrayList.Add($SL_GM.SamAccountName) }
-        if($null -ne $SL_PUM) {                   $ArrayList.Add($SL_PUM.SamAccountName) }
-        if($null -ne $SL_PGM) {                   $ArrayList.Add($SL_PGM.SamAccountName) }
-        if($null -ne $SL_GpoAdminRight) {         $ArrayList.Add($SL_GpoAdminRight.SamAccountName) }
-        if($null -ne $SL_DnsAdminRight) {         $ArrayList.Add($SL_DnsAdminRight.SamAccountName) }
-        if($null -ne $SL_DirReplRight) {          $ArrayList.Add($SL_DirReplRight.SamAccountName) }
-        if($null -ne $SL_PromoteDcRight) {        $ArrayList.Add($SL_PromoteDcRight.SamAccountName) }
-        if($null -ne $SL_TransferFSMOright) {     $ArrayList.Add($SL_TransferFSMOright.SamAccountName) }
-        if($null -ne $SL_PISM) {                  $ArrayList.Add($SL_PISM.SamAccountName) }
-        if($null -ne $SL_PAWM) {                  $ArrayList.Add($SL_PAWM.SamAccountName) }
-        if($null -ne $SL_PSAM) {                  $ArrayList.Add($SL_PSAM.SamAccountName) }
-        if($null -ne $SL_SvrAdmRight) {           $ArrayList.Add($SL_SvrAdmRight.SamAccountName) }
-        if($null -ne $SL_SvrOpsRight) {           $ArrayList.Add($SL_SvrOpsRight.SamAccountName) }
-        if($null -ne $SL_GlobalGroupRight) {      $ArrayList.Add($SL_GlobalGroupRight.SamAccountName) }
-        if($null -ne $SL_GlobalAppAccUserRight) { $ArrayList.Add($SL_GlobalAppAccUserRight.SamAccountName) }
+        [void]$ArrayList.Add('Domain Admins') | Out-Null
+        [void]$ArrayList.Add('Enterprise Admins') | Out-Null
+        if($null -ne $AdminName) {                [void]$ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {             [void]$ArrayList.Add($newAdminName.SamAccountName) }
+        if($null -ne $SG_InfraAdmins) {           [void]$ArrayList.Add($SG_InfraAdmins.SamAccountName) }
+        if($null -ne $SG_AdAdmins) {              [void]$ArrayList.Add($SG_AdAdmins.SamAccountName) }
+        if($null -ne $SG_GpoAdmins) {             [void]$ArrayList.Add($SG_GpoAdmins.SamAccountName) }
+        if($null -ne $SG_Tier0Admins) {           [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName) }
+        if($null -ne $SG_Tier1Admins) {           [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName) }
+        if($null -ne $SG_Tier2Admins) {           [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName) }
+        if($null -ne $SG_Tier0ServiceAccount) {   [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier1ServiceAccount) {   [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier2ServiceAccount) {   [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Operations) {            [void]$ArrayList.Add($SG_Operations.SamAccountName) }
+        if($null -ne $SG_ServerAdmins) {          [void]$ArrayList.Add($SG_ServerAdmins.SamAccountName) }
+        if($null -ne $SG_AllSiteAdmins) {         [void]$ArrayList.Add($SG_AllSiteAdmins.SamAccountName) }
+        if($null -ne $SG_AllGALAdmins) {          [void]$ArrayList.Add($SG_AllGALAdmins.SamAccountName) }
+        if($null -ne $SG_GlobalUserAdmins) {      [void]$ArrayList.Add($SG_GlobalUserAdmins.SamAccountName) }
+        if($null -ne $SG_GlobalPcAdmins) {        [void]$ArrayList.Add($SG_GlobalPcAdmins.SamAccountName) }
+        if($null -ne $SG_GlobalGroupAdmins) {     [void]$ArrayList.Add($SG_GlobalGroupAdmins.SamAccountName) }
+        if($null -ne $SG_ServiceDesk) {           [void]$ArrayList.Add($SG_ServiceDesk.SamAccountName) }
+        if($null -ne $SL_InfraRight) {            [void]$ArrayList.Add($SL_InfraRight.SamAccountName) }
+        if($null -ne $SL_AdRight) {               [void]$ArrayList.Add($SL_AdRight.SamAccountName) }
+        if($null -ne $SL_UM) {                    [void]$ArrayList.Add($SL_UM.SamAccountName) }
+        if($null -ne $SL_GM) {                    [void]$ArrayList.Add($SL_GM.SamAccountName) }
+        if($null -ne $SL_PUM) {                   [void]$ArrayList.Add($SL_PUM.SamAccountName)| Out-Null }
+        if($null -ne $SL_PGM) {                   [void]$ArrayList.Add($SL_PGM.SamAccountName) }
+        if($null -ne $SL_GpoAdminRight) {         [void]$ArrayList.Add($SL_GpoAdminRight.SamAccountName) }
+        if($null -ne $SL_DnsAdminRight) {         [void]$ArrayList.Add($SL_DnsAdminRight.SamAccountName) }
+        if($null -ne $SL_DirReplRight) {          [void]$ArrayList.Add($SL_DirReplRight.SamAccountName) }
+        if($null -ne $SL_PromoteDcRight) {        [void]$ArrayList.Add($SL_PromoteDcRight.SamAccountName) }
+        if($null -ne $SL_TransferFSMOright) {     [void]$ArrayList.Add($SL_TransferFSMOright.SamAccountName) }
+        if($null -ne $SL_PISM) {                  [void]$ArrayList.Add($SL_PISM.SamAccountName) }
+        if($null -ne $SL_PAWM) {                  [void]$ArrayList.Add($SL_PAWM.SamAccountName) }
+        if($null -ne $SL_PSAM) {                  [void]$ArrayList.Add($SL_PSAM.SamAccountName) }
+        if($null -ne $SL_SvrAdmRight) {           [void]$ArrayList.Add($SL_SvrAdmRight.SamAccountName) }
+        if($null -ne $SL_SvrOpsRight) {           [void]$ArrayList.Add($SL_SvrOpsRight.SamAccountName) }
+        if($null -ne $SL_GlobalGroupRight) {      [void]$ArrayList.Add($SL_GlobalGroupRight.SamAccountName) }
+        if($null -ne $SL_GlobalAppAccUserRight) { [void]$ArrayList.Add($SL_GlobalAppAccUserRight.SamAccountName) }
 
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
 
@@ -1137,9 +1137,9 @@
         Start-Sleep -Seconds 5
         # Apply the PSO to all Tier Service Accounts
         $ArrayList.Clear()
-        if($null -ne $SG_Tier0ServiceAccount) { $ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Tier1ServiceAccount) { $ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier0ServiceAccount) { [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier1ServiceAccount) { [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier2ServiceAccount) { [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
 
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
 
@@ -1154,46 +1154,46 @@
 
         $ArrayList.Clear()
 
-        $ArrayList.Add('Domain Admins')
-        $ArrayList.Add('Enterprise Admins')
+        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add('Enterprise Admins')
 
-        if($null -ne $AdminName) {                $ArrayList.Add($AdminName) }
-        if($null -ne $newAdminName) {             $ArrayList.Add($newAdminName) }
-        if($null -ne $SG_InfraAdmins) {           $ArrayList.Add($SG_InfraAdmins) }
-        if($null -ne $SG_AdAdmins) {              $ArrayList.Add($SG_AdAdmins) }
-        if($null -ne $SG_GpoAdmins) {             $ArrayList.Add($SG_GpoAdmins) }
-        if($null -ne $SG_Tier0Admins) {           $ArrayList.Add($SG_Tier0Admins) }
-        if($null -ne $SG_Tier1Admins) {           $ArrayList.Add($SG_Tier1Admins) }
-        if($null -ne $SG_Tier2Admins) {           $ArrayList.Add($SG_Tier2Admins) }
-        if($null -ne $SG_Tier0ServiceAccount) {   $ArrayList.Add($SG_Tier0ServiceAccount) }
-        if($null -ne $SG_Tier1ServiceAccount) {   $ArrayList.Add($SG_Tier1ServiceAccount) }
-        if($null -ne $SG_Tier2ServiceAccount) {   $ArrayList.Add($SG_Tier2ServiceAccount) }
-        if($null -ne $SG_Operations) {            $ArrayList.Add($SG_Operations) }
-        if($null -ne $SG_ServerAdmins) {          $ArrayList.Add($SG_ServerAdmins) }
-        if($null -ne $SG_AllSiteAdmins) {         $ArrayList.Add($SG_AllSiteAdmins) }
-        if($null -ne $SG_AllGALAdmins) {          $ArrayList.Add($SG_AllGALAdmins) }
-        if($null -ne $SG_GlobalUserAdmins) {      $ArrayList.Add($SG_GlobalUserAdmins) }
-        if($null -ne $SG_GlobalPcAdmins) {        $ArrayList.Add($SG_GlobalPcAdmins) }
-        if($null -ne $SG_GlobalGroupAdmins) {     $ArrayList.Add($SG_GlobalGroupAdmins) }
-        if($null -ne $SG_ServiceDesk) {           $ArrayList.Add($SG_ServiceDesk) }
-        if($null -ne $SL_InfraRight) {            $ArrayList.Add($SL_InfraRight) }
-        if($null -ne $SL_AdRight) {               $ArrayList.Add($SL_AdRight) }
-        if($null -ne $SL_UM) {                    $ArrayList.Add($SL_UM) }
-        if($null -ne $SL_GM) {                    $ArrayList.Add($SL_GM) }
-        if($null -ne $SL_PUM) {                   $ArrayList.Add($SL_PUM) }
-        if($null -ne $SL_PGM) {                   $ArrayList.Add($SL_PGM) }
-        if($null -ne $SL_GpoAdminRight) {         $ArrayList.Add($SL_GpoAdminRight) }
-        if($null -ne $SL_DnsAdminRight) {         $ArrayList.Add($SL_DnsAdminRight) }
-        if($null -ne $SL_DirReplRight) {          $ArrayList.Add($SL_DirReplRight) }
-        if($null -ne $SL_PromoteDcRight) {        $ArrayList.Add($SL_PromoteDcRight) }
-        if($null -ne $SL_TransferFSMOright) {     $ArrayList.Add($SL_TransferFSMOright) }
-        if($null -ne $SL_PISM) {                  $ArrayList.Add($SL_PISM) }
-        if($null -ne $SL_PAWM) {                  $ArrayList.Add($SL_PAWM) }
-        if($null -ne $SL_PSAM) {                  $ArrayList.Add($SL_PSAM) }
-        if($null -ne $SL_SvrAdmRight) {           $ArrayList.Add($SL_SvrAdmRight) }
-        if($null -ne $SL_SvrOpsRight) {           $ArrayList.Add($SL_SvrOpsRight) }
-        if($null -ne $SL_GlobalGroupRight) {      $ArrayList.Add($SL_GlobalGroupRight) }
-        if($null -ne $SL_GlobalAppAccUserRight) { $ArrayList.Add($SL_GlobalAppAccUserRight) }
+        if($null -ne $AdminName) {                [void]$ArrayList.Add($AdminName) }
+        if($null -ne $newAdminName) {             [void]$ArrayList.Add($newAdminName) }
+        if($null -ne $SG_InfraAdmins) {           [void]$ArrayList.Add($SG_InfraAdmins) }
+        if($null -ne $SG_AdAdmins) {              [void]$ArrayList.Add($SG_AdAdmins) }
+        if($null -ne $SG_GpoAdmins) {             [void]$ArrayList.Add($SG_GpoAdmins) }
+        if($null -ne $SG_Tier0Admins) {           [void]$ArrayList.Add($SG_Tier0Admins) }
+        if($null -ne $SG_Tier1Admins) {           [void]$ArrayList.Add($SG_Tier1Admins) }
+        if($null -ne $SG_Tier2Admins) {           [void]$ArrayList.Add($SG_Tier2Admins) }
+        if($null -ne $SG_Tier0ServiceAccount) {   [void]$ArrayList.Add($SG_Tier0ServiceAccount) }
+        if($null -ne $SG_Tier1ServiceAccount) {   [void]$ArrayList.Add($SG_Tier1ServiceAccount) }
+        if($null -ne $SG_Tier2ServiceAccount) {   [void]$ArrayList.Add($SG_Tier2ServiceAccount) }
+        if($null -ne $SG_Operations) {            [void]$ArrayList.Add($SG_Operations) }
+        if($null -ne $SG_ServerAdmins) {          [void]$ArrayList.Add($SG_ServerAdmins) }
+        if($null -ne $SG_AllSiteAdmins) {         [void]$ArrayList.Add($SG_AllSiteAdmins) }
+        if($null -ne $SG_AllGALAdmins) {          [void]$ArrayList.Add($SG_AllGALAdmins) }
+        if($null -ne $SG_GlobalUserAdmins) {      [void]$ArrayList.Add($SG_GlobalUserAdmins) }
+        if($null -ne $SG_GlobalPcAdmins) {        [void]$ArrayList.Add($SG_GlobalPcAdmins) }
+        if($null -ne $SG_GlobalGroupAdmins) {     [void]$ArrayList.Add($SG_GlobalGroupAdmins) }
+        if($null -ne $SG_ServiceDesk) {           [void]$ArrayList.Add($SG_ServiceDesk) }
+        if($null -ne $SL_InfraRight) {            [void]$ArrayList.Add($SL_InfraRight) }
+        if($null -ne $SL_AdRight) {               [void]$ArrayList.Add($SL_AdRight) }
+        if($null -ne $SL_UM) {                    [void]$ArrayList.Add($SL_UM) }
+        if($null -ne $SL_GM) {                    [void]$ArrayList.Add($SL_GM) }
+        if($null -ne $SL_PUM) {                   [void]$ArrayList.Add($SL_PUM) }
+        if($null -ne $SL_PGM) {                   [void]$ArrayList.Add($SL_PGM) }
+        if($null -ne $SL_GpoAdminRight) {         [void]$ArrayList.Add($SL_GpoAdminRight) }
+        if($null -ne $SL_DnsAdminRight) {         [void]$ArrayList.Add($SL_DnsAdminRight) }
+        if($null -ne $SL_DirReplRight) {          [void]$ArrayList.Add($SL_DirReplRight) }
+        if($null -ne $SL_PromoteDcRight) {        [void]$ArrayList.Add($SL_PromoteDcRight) }
+        if($null -ne $SL_TransferFSMOright) {     [void]$ArrayList.Add($SL_TransferFSMOright) }
+        if($null -ne $SL_PISM) {                  [void]$ArrayList.Add($SL_PISM) }
+        if($null -ne $SL_PAWM) {                  [void]$ArrayList.Add($SL_PAWM) }
+        if($null -ne $SL_PSAM) {                  [void]$ArrayList.Add($SL_PSAM) }
+        if($null -ne $SL_SvrAdmRight) {           [void]$ArrayList.Add($SL_SvrAdmRight) }
+        if($null -ne $SL_SvrOpsRight) {           [void]$ArrayList.Add($SL_SvrOpsRight) }
+        if($null -ne $SL_GlobalGroupRight) {      [void]$ArrayList.Add($SL_GlobalGroupRight) }
+        if($null -ne $SL_GlobalAppAccUserRight) { [void]$ArrayList.Add($SL_GlobalAppAccUserRight) }
         Add-AdGroupNesting -Identity 'Denied RODC Password Replication Group' -Members $ArrayList
 
         #endregion
@@ -1235,22 +1235,22 @@
 
         # https://technet.microsoft.com/en-us/library/dn466518(v=ws.11).aspx
         $ArrayList.Clear()
-        if($null -ne $AdminName) {            $ArrayList.Add($AdminName) }
-        if($null -ne $NewAdminName) {         $ArrayList.Add($NewAdminName) }
-        if($null -ne $SG_InfraAdmins) {       $ArrayList.Add($SG_InfraAdmins) }
-        if($null -ne $SG_AdAdmins) {          $ArrayList.Add($SG_AdAdmins) }
-        if($null -ne $SG_GpoAdmins) {         $ArrayList.Add($SG_GpoAdmins) }
-        if($null -ne $SG_Tier0Admins) {       $ArrayList.Add($SG_Tier0Admins) }
-        if($null -ne $SG_Tier1Admins) {       $ArrayList.Add($SG_Tier1Admins) }
-        if($null -ne $SG_Tier2Admins) {       $ArrayList.Add($SG_Tier2Admins) }
-        if($null -ne $SG_Operations) {        $ArrayList.Add($SG_Operations) }
-        if($null -ne $SG_ServerAdmins) {      $ArrayList.Add($SG_ServerAdmins) }
-        if($null -ne $SG_AllSiteAdmins) {     $ArrayList.Add($SG_AllSiteAdmins) }
-        if($null -ne $SG_AllGALAdmins) {      $ArrayList.Add($SG_AllGALAdmins) }
-        if($null -ne $SG_GlobalUserAdmins) {  $ArrayList.Add($SG_GlobalUserAdmins) }
-        if($null -ne $SG_GlobalPcAdmins) {    $ArrayList.Add($SG_GlobalPcAdmins) }
-        if($null -ne $SG_GlobalGroupAdmins) { $ArrayList.Add($SG_GlobalGroupAdmins) }
-        if($null -ne $SG_ServiceDesk) {       $ArrayList.Add($SG_ServiceDesk) }
+        if($null -ne $AdminName) {            [void][void]$ArrayList.Add($AdminName)}
+        if($null -ne $NewAdminName) {         [void]$ArrayList.Add($NewAdminName) }
+        if($null -ne $SG_InfraAdmins) {       [void]$ArrayList.Add($SG_InfraAdmins) }
+        if($null -ne $SG_AdAdmins) {          [void]$ArrayList.Add($SG_AdAdmins) }
+        if($null -ne $SG_GpoAdmins) {         [void]$ArrayList.Add($SG_GpoAdmins) }
+        if($null -ne $SG_Tier0Admins) {       [void]$ArrayList.Add($SG_Tier0Admins) }
+        if($null -ne $SG_Tier1Admins) {       [void]$ArrayList.Add($SG_Tier1Admins) }
+        if($null -ne $SG_Tier2Admins) {       [void]$ArrayList.Add($SG_Tier2Admins) }
+        if($null -ne $SG_Operations) {        [void]$ArrayList.Add($SG_Operations) }
+        if($null -ne $SG_ServerAdmins) {      [void]$ArrayList.Add($SG_ServerAdmins) }
+        if($null -ne $SG_AllSiteAdmins) {     [void]$ArrayList.Add($SG_AllSiteAdmins) }
+        if($null -ne $SG_AllGALAdmins) {      [void]$ArrayList.Add($SG_AllGALAdmins) }
+        if($null -ne $SG_GlobalUserAdmins) {  [void]$ArrayList.Add($SG_GlobalUserAdmins) }
+        if($null -ne $SG_GlobalPcAdmins) {    [void]$ArrayList.Add($SG_GlobalPcAdmins) }
+        if($null -ne $SG_GlobalGroupAdmins) { [void]$ArrayList.Add($SG_GlobalGroupAdmins) }
+        if($null -ne $SG_ServiceDesk) {       [void]$ArrayList.Add($SG_ServiceDesk) }
         Add-AdGroupNesting -Identity 'Protected Users' -Members $ArrayList
 
 
@@ -1776,10 +1776,10 @@
 
         # Domain
         $ArrayList.Clear()
-        $ArrayList.Add('NT SERVICE\All Services')
-        $ArrayList.Add('ANONYMOUS LOGON')
-        $ArrayList.Add('NT AUTHORITY\Local Account')
-        $ArrayList.Add('NT AUTHORITY\Local Account and member of administrators group')
+        [void]$ArrayList.Add('NT SERVICE\All Services')
+        [void]$ArrayList.Add('ANONYMOUS LOGON')
+        [void]$ArrayList.Add('NT AUTHORITY\Local Account')
+        [void]$ArrayList.Add('NT AUTHORITY\Local Account and member of administrators group')
         $Splat = @{
             GpoToModify      = 'C-Baseline'
             DenyNetworkLogon = $ArrayList.ToArray()
@@ -1787,9 +1787,9 @@
         Set-GpoPrivilegeRights @Splat
 
         $ArrayList.Clear()
-        if($null -ne $SG_Tier0ServiceAccount) { $ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Tier1ServiceAccount) { $ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier0ServiceAccount) { [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier1ServiceAccount) { [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier2ServiceAccount) { [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
         $Splat = @{
             GpoToModify          = 'C-Baseline'
             DenyInteractiveLogon = $ArrayList.ToArray()
@@ -1797,11 +1797,11 @@
         Set-GpoPrivilegeRights @Splat
 
         $ArrayList.Clear()
-        if($null -ne $AdminName) {              $ArrayList.Add($AdminName.SamAccountName) }
-        if($null -ne $newAdminName) {           $ArrayList.Add($newAdminName.SamAccountName) }
-        if($null -ne $SG_Tier0ServiceAccount) { $ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Tier1ServiceAccount) { $ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
+        if($null -ne $AdminName) {              [void]$ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {           [void]$ArrayList.Add($newAdminName.SamAccountName) }
+        if($null -ne $SG_Tier0ServiceAccount) { [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier1ServiceAccount) { [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier2ServiceAccount) { [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
         $Splat = @{
             GpoToModify                = 'C-Baseline'
             DenyRemoteInteractiveLogon = $ArrayList.ToArray()
@@ -1809,19 +1809,19 @@
         Set-GpoPrivilegeRights @Splat
 
         $ArrayList.Clear()
-        $ArrayList.Add('Schema Admins')
-        $ArrayList.Add('Enterprise Admins')
-        $ArrayList.Add('Domain Admins')
-        $ArrayList.Add('Administrators')
-        $ArrayList.Add('Account Operators')
-        $ArrayList.Add('Backup Operators')
-        $ArrayList.Add('Print Operators')
-        $ArrayList.Add('Server Operators')
-        if($null -ne $SG_Tier0Admins) { $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
-        if($null -ne $SG_Tier1Admins) { $ArrayList.Add($SG_Tier1Admins.SamAccountName) }
-        if($null -ne $SG_Tier2Admins) { $ArrayList.Add($SG_Tier2Admins.SamAccountName) }
-        if($null -ne $AdminName) {      $ArrayList.Add($AdminName.SamAccountName) }
-        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName.SamAccountName) }
+        [void]$ArrayList.Add('Schema Admins')
+        [void]$ArrayList.Add('Enterprise Admins')
+        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add('Administrators')
+        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add('Backup Operators')
+        [void]$ArrayList.Add('Print Operators')
+        [void]$ArrayList.Add('Server Operators')
+        if($null -ne $SG_Tier0Admins) { [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName) }
+        if($null -ne $SG_Tier1Admins) { [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName) }
+        if($null -ne $SG_Tier2Admins) { [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName) }
+        if($null -ne $AdminName)      { [void]$ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName)   { [void]$ArrayList.Add($newAdminName.SamAccountName) }
         $Splat = @{
             GpoToModify      = 'C-Baseline'
             DenyBatchLogon   = $ArrayList.ToArray()
@@ -1830,8 +1830,8 @@
         Set-GpoPrivilegeRights @Splat
 
         $ArrayList.Clear()
-        $ArrayList.Add('Network Service')
-        $ArrayList.Add('NT SERVICE\All Services')
+        [void]$ArrayList.Add('Network Service')
+        [void]$ArrayList.Add('NT SERVICE\All Services')
         $Splat = @{
             GpoToModify  = 'C-Baseline'
             ServiceLogon = $ArrayList.ToArray()
@@ -1840,21 +1840,21 @@
 
         # Domain Controllers
         $ArrayList.Clear()
-        $ArrayList.Add('Schema Admins')
-        $ArrayList.Add('Enterprise Admins')
-        $ArrayList.Add('Domain Admins')
-        $ArrayList.Add('Administrators')
-        $ArrayList.Add('Account Operators')
-        $ArrayList.Add('Backup Operators')
-        $ArrayList.Add('Print Operators')
-        $ArrayList.Add('Server Operators')
-        if($null -ne $AdminName) {              $ArrayList.Add($AdminName.SamAccountName) }
-        if($null -ne $newAdminName) {           $ArrayList.Add($newAdminName.SamAccountName) }
-        if($null -ne $SG_Tier0Admins) {         $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
-        if($null -ne $SG_Tier1Admins) {         $ArrayList.Add($SG_Tier1Admins.SamAccountName) }
-        if($null -ne $SG_Tier2Admins) {         $ArrayList.Add($SG_Tier2Admins.SamAccountName) }
-        if($null -ne $SG_Tier1ServiceAccount) { $ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
+        [void]$ArrayList.Add('Schema Admins')
+        [void]$ArrayList.Add('Enterprise Admins')
+        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add('Administrators')
+        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add('Backup Operators')
+        [void]$ArrayList.Add('Print Operators')
+        [void]$ArrayList.Add('Server Operators')
+        if($null -ne $AdminName) {              [void]$ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {           [void]$ArrayList.Add($newAdminName.SamAccountName) }
+        if($null -ne $SG_Tier0Admins) {         [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName) }
+        if($null -ne $SG_Tier1Admins) {         [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName) }
+        if($null -ne $SG_Tier2Admins) {         [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName) }
+        if($null -ne $SG_Tier1ServiceAccount) { [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier2ServiceAccount) { [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
         $Splat = @{
             GpoToModify      = 'C-DomainControllers-Baseline'
             DenyBatchLogon   = $ArrayList.ToArray()
@@ -1870,13 +1870,13 @@
         Set-GpoPrivilegeRights @splat
 
         $ArrayList.Clear()
-        $ArrayList.Add('Schema Admins')
-        $ArrayList.Add('Enterprise Admins')
-        $ArrayList.Add('Domain Admins')
-        $ArrayList.Add('Administrators')
-        if($null -ne $AdminName) {      $ArrayList.Add($AdminName.SamAccountName) }
-        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName.SamAccountName) }
-        if($null -ne $SG_Tier0Admins) { $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
+        [void]$ArrayList.Add('Schema Admins')
+        [void]$ArrayList.Add('Enterprise Admins')
+        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add('Administrators')
+        if($null -ne $AdminName) {      [void]$ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {   [void]$ArrayList.Add($newAdminName.SamAccountName) }
+        if($null -ne $SG_Tier0Admins) { [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName) }
         $Splat = @{
             GpoToModify            = 'C-DomainControllers-Baseline'
             InteractiveLogon       = $ArrayList.ToArray()
@@ -1885,13 +1885,13 @@
         Set-GpoPrivilegeRights @Splat
 
         $ArrayList.Clear()
-        $ArrayList.Add('Account Operators')
-        $ArrayList.Add('Backup Operators')
-        $ArrayList.Add('Print Operators')
-        if($null -ne $SG_Tier1Admins) {         $ArrayList.Add($SG_Tier1Admins.SamAccountName) }
-        if($null -ne $SG_Tier2Admins) {         $ArrayList.Add($SG_Tier2Admins.SamAccountName) }
-        if($null -ne $SG_Tier1ServiceAccount) { $ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
+        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add('Backup Operators')
+        [void]$ArrayList.Add('Print Operators')
+        if($null -ne $SG_Tier1Admins) {         [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName) }
+        if($null -ne $SG_Tier2Admins) {         [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName) }
+        if($null -ne $SG_Tier1ServiceAccount) { [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier2ServiceAccount) { [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
         $Splat = @{
             GpoToModify          = 'C-DomainControllers-Baseline'
             DenyInteractiveLogon = $ArrayList.ToArray()
@@ -1900,21 +1900,21 @@
 
         # Admin Area
         $ArrayList.Clear()
-        $ArrayList.Add('Schema Admins')
-        $ArrayList.Add('Enterprise Admins')
-        $ArrayList.Add('Domain Admins')
-        $ArrayList.Add('Administrators')
-        $ArrayList.Add('Account Operators')
-        $ArrayList.Add('Backup Operators')
-        $ArrayList.Add('Print Operators')
-        $ArrayList.Add('Server Operators')
-        if($null -ne $AdminName) {              $ArrayList.Add($AdminName.SamAccountName) }
-        if($null -ne $newAdminName) {           $ArrayList.Add($newAdminName.SamAccountName) }
-        if($null -ne $SG_Tier0Admins) {         $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
-        if($null -ne $SG_Tier1Admins) {         $ArrayList.Add($SG_Tier1Admins.SamAccountName) }
-        if($null -ne $SG_Tier2Admins) {         $ArrayList.Add($SG_Tier2Admins.SamAccountName) }
-        if($null -ne $SG_Tier1ServiceAccount) { $ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
-        if($null -ne $SG_Tier2ServiceAccount) { $ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
+        [void]$ArrayList.Add('Schema Admins')
+        [void]$ArrayList.Add('Enterprise Admins')
+        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add('Administrators')
+        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add('Backup Operators')
+        [void]$ArrayList.Add('Print Operators')
+        [void]$ArrayList.Add('Server Operators')
+        if($null -ne $AdminName) {              [void]$ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {           [void]$ArrayList.Add($newAdminName.SamAccountName) }
+        if($null -ne $SG_Tier0Admins) {         [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName) }
+        if($null -ne $SG_Tier1Admins) {         [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName) }
+        if($null -ne $SG_Tier2Admins) {         [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName) }
+        if($null -ne $SG_Tier1ServiceAccount) { [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName) }
+        if($null -ne $SG_Tier2ServiceAccount) { [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName) }
         $Splat = @{
             GpoToModify      = 'C-ItAdmin-Baseline'
             DenyBatchLogon   = $ArrayList.ToArray()
@@ -1923,10 +1923,10 @@
         Set-GpoPrivilegeRights @Splat
 
         $ArrayList.Clear()
-        $ArrayList.Add('Domain Admins')
-        $ArrayList.Add('Administrators')
-        $ArrayList.Add('Network Service')
-        $ArrayList.Add('NT SERVICE\All Services')
+        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add('Administrators')
+        [void]$ArrayList.Add('Network Service')
+        [void]$ArrayList.Add('NT SERVICE\All Services')
         $Splat = @{
             GpoToModify  = 'C-ItAdmin-Baseline'
             BatchLogon   = $SG_Tier0ServiceAccount.SamAccountName
@@ -1936,9 +1936,9 @@
 
         # Admin Area = HOUSEKEEPING
         $ArrayList.Clear()
-        $ArrayList.Add('Domain Admins')
-        $ArrayList.Add('Administrators')
-        if($null -ne $SG_Tier0Admins) { $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
+        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add('Administrators')
+        if($null -ne $SG_Tier0Admins) { [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName) }
         $Splat = @{
             GpoToModify      = 'C-Housekeeping-LOCKDOWN'
             NetworkLogon     = $SG_Tier0ServiceAccount.SamAccountName
@@ -1955,9 +1955,9 @@
         Set-GpoPrivilegeRights @Splat
 
         $ArrayList.Clear()
-        $ArrayList.Add('Network Service')
-        $ArrayList.Add('NT SERVICE\All Services')
-        if($null -ne $SG_Tier0ServiceAccount) { $ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
+        [void]$ArrayList.Add('Network Service')
+        [void]$ArrayList.Add('NT SERVICE\All Services')
+        if($null -ne $SG_Tier0ServiceAccount) { [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName) }
         $Splat = @{
             GpoToModify  = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0OU.Name)
             BatchLogon   = $SG_Tier0ServiceAccount.SamAccountName
@@ -2077,18 +2077,18 @@
 
         # Tier Restrictions
         $ArrayList.Clear()
-        $ArrayList.Add('Schema Admins')
-        $ArrayList.Add('Enterprise Admins')
-        $ArrayList.Add('Domain Admins')
-        $ArrayList.Add('Administrators')
-        $ArrayList.Add('Account Operators')
-        $ArrayList.Add('Backup Operators')
-        $ArrayList.Add('Print Operators')
-        $ArrayList.Add('Server Operators')
-        if($null -ne $AdminName) {      $ArrayList.Add($AdminName.SamAccountName) }
-        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName.SamAccountName) }
-        if($null -ne $SG_Tier0Admins) { $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
-        if($null -ne $SG_Tier2Admins) { $ArrayList.Add($SG_Tier2Admins.SamAccountName) }
+        [void]$ArrayList.Add('Schema Admins')
+        [void]$ArrayList.Add('Enterprise Admins')
+        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add('Administrators')
+        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add('Backup Operators')
+        [void]$ArrayList.Add('Print Operators')
+        [void]$ArrayList.Add('Server Operators')
+        if($null -ne $AdminName) {      [void]$ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {   [void]$ArrayList.Add($newAdminName.SamAccountName) }
+        if($null -ne $SG_Tier0Admins) { [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName) }
+        if($null -ne $SG_Tier2Admins) { [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName) }
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $ServersOu
             DenyInteractiveLogon       = $ArrayList.ToArray()
@@ -2165,18 +2165,18 @@
 
         # Tier Restrictions
         $ArrayList.Clear()
-        $ArrayList.Add('Schema Admins')
-        $ArrayList.Add('Enterprise Admins')
-        $ArrayList.Add('Domain Admins')
-        $ArrayList.Add('Administrators')
-        $ArrayList.Add('Account Operators')
-        $ArrayList.Add('Backup Operators')
-        $ArrayList.Add('Print Operators')
-        $ArrayList.Add('Server Operators')
-        if($null -ne $AdminName) {      $ArrayList.Add($AdminName.SamAccountName) }
-        if($null -ne $newAdminName) {   $ArrayList.Add($newAdminName.SamAccountName) }
-        if($null -ne $SG_Tier0Admins) { $ArrayList.Add($SG_Tier0Admins.SamAccountName) }
-        if($null -ne $SG_Tier1Admins) { $ArrayList.Add($SG_Tier1Admins.SamAccountName) }
+        [void]$ArrayList.Add('Schema Admins')
+        [void]$ArrayList.Add('Enterprise Admins')
+        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add('Administrators')
+        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add('Backup Operators')
+        [void]$ArrayList.Add('Print Operators')
+        [void]$ArrayList.Add('Server Operators')
+        if($null -ne $AdminName) {      [void]$ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {   [void]$ArrayList.Add($newAdminName.SamAccountName) }
+        if($null -ne $SG_Tier0Admins) { [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName) }
+        if($null -ne $SG_Tier1Admins) { [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName) }
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $SitesOu
             DenyInteractiveLogon       = $ArrayList.ToArray()
