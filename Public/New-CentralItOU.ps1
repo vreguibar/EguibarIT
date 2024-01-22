@@ -949,7 +949,6 @@
             # Create the KDS Root Key (only once per domain).  This is used by the KDS service on DCs (along with other information) to generate passwords
             # http://blogs.technet.com/b/askpfeplat/archive/2012/12/17/windows-server-2012-group-managed-service-accounts.aspx
             # If working in a test environment with a minimal number of DCs and the ability to guarantee immediate replication, please use:
-            #    Add-KdsRootKey â€“EffectiveTime ((get-date).addhours(-10))
             Add-KdsRootKey -EffectiveTime ((get-date).addhours(-10))
         }
 
@@ -1057,8 +1056,8 @@
         $ArrayList.Clear()
         $ArrayList.Add('Domain Admins')
         $ArrayList.Add('Enterprise Admins')
-        if($null -ne $AdminName) {                $ArrayList.Add($AdminName) }
-        if($null -ne $newAdminName) {             $ArrayList.Add($newAdminName) }
+        if($null -ne $AdminName) {                $ArrayList.Add($AdminName.SamAccountName) }
+        if($null -ne $newAdminName) {             $ArrayList.Add($newAdminName.SamAccountName) }
         if($null -ne $SG_InfraAdmins) {           $ArrayList.Add($SG_InfraAdmins.SamAccountName) }
         if($null -ne $SG_AdAdmins) {              $ArrayList.Add($SG_AdAdmins.SamAccountName) }
         if($null -ne $SG_GpoAdmins) {             $ArrayList.Add($SG_GpoAdmins.SamAccountName) }
