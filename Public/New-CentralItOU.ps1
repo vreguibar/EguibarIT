@@ -945,8 +945,6 @@
         #region Create Group Managed Service Account
 
         # Get the current OS build
-        Get-OsBuild
-
         If ([System.Environment]::OSVersion.Version.Build -ge 9200) {
             # Create the KDS Root Key (only once per domain).  This is used by the KDS service on DCs (along with other information) to generate passwords
             # http://blogs.technet.com/b/askpfeplat/archive/2012/12/17/windows-server-2012-group-managed-service-accounts.aspx
