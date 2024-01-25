@@ -672,7 +672,10 @@
                 # Read the path and file name of JPG picture
                 $PhotoFile = '{0}\Pic\Default.jpg' -f $DMscripts
                 # Get the content of the JPG file
-                $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
+                #$photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte) - NOT WORKING since PS 6
+                # Alternative
+                # [byte[]]$photo = [System.IO.File]::ReadAllBytes($image_path)
+                $photo = [byte[]](Get-Content -Path $PhotoFile -AsByteStream -Raw)
             } else {
                 $photo = $null
             } #end If-Else
@@ -755,8 +758,9 @@
         $newAdminName = Get-AdUser -Identity $confXML.n.Admin.users.NEWAdmin.name
 
         # Set the Protect against accidental deletions attribute
-        $AdminName                      | Set-ADObject -ProtectedFromAccidentalDeletion $true
-        $newAdminName                   | Set-ADObject -ProtectedFromAccidentalDeletion $true
+        # Identity ONLY accepts DistinguishedName or SID
+        $AdminName.SID                      | Set-ADObject -ProtectedFromAccidentalDeletion $true
+        $newAdminName.SID                   | Set-ADObject -ProtectedFromAccidentalDeletion $true
 
         # Make it member of administrative groups
         Add-AdGroupNesting -Identity 'Domain Admins'                          -Members $newAdminName
@@ -2239,7 +2243,7 @@
         #endregion GROUP Site Delegation
         ###############################################################################
 
-        Write-Verbose 'Sites area was delegated correctly to the corresponding groups.'
+        Write-Verbose -Message 'Sites area was delegated correctly to the corresponding groups.'
 
         #endregion
         ###############################################################################
@@ -2248,6 +2252,8 @@
         ###############################################################################
         # Check if Exchange objects have to be created. Proccess if TRUE
         if($CreateExchange) {
+
+            Write-Verbose -Message 'Creating Exchange On-Prem objects and delegations'
 
             # Get the Config.xml file
             $param = @{
@@ -2261,6 +2267,8 @@
         ###############################################################################
         # Check if DFS objects have to be created. Proccess if TRUE
         if($CreateDfs) {
+
+            Write-Verbose -Message 'Creating DFS objects and delegations'
             # Get the Config.xml file
             $param = @{
                 ConfigXMLFile = Join-Path -Path $DMscripts -ChildPath Config.xml -Resolve
@@ -2272,18 +2280,26 @@
         ###############################################################################
         # Check if Certificate Authority (PKI) objects have to be created. Proccess if TRUE
         if($CreateCa) {
+
+            Write-Verbose -Message 'Creating CA Services, objects and delegations'
+
             New-CaObject -ConfigXMLFile $ConfXML
         }
 
         ###############################################################################
         # Check if Advanced Group Policy Management (AGPM) objects have to be created. Proccess if TRUE
         if($CreateAGPM) {
+
+            Write-Verbose -Message 'Creating AGPM objects and delegations'
+
             New-AGPMObject -ConfigXMLFile $ConfXML
         }
 
         ###############################################################################
         # Check if MS Local Administrator Password Service (LAPS) is to be used. Proccess if TRUE
         if($CreateLAPS) {
+
+            Write-Verbose -Message 'Creating LAPS objects and delegations'
             #To-Do
             #New-LAPSobjects -PawOuDn $ItPawOuDn -ServersOuDn $ServersOuDn -SitesOuDn $SitesOuDn
             New-LAPSobject -ConfigXMLFile $ConfXML
@@ -2292,6 +2308,9 @@
         ###############################################################################
         # Check if DHCP is to be used. Proccess if TRUE
         if($CreateDHCP) {
+
+            Write-Verbose -Message 'Creating DHCP objects and delegations'
+
             #
             New-DHCPobject -ConfigXMLFile $ConfXML
         }
