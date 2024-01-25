@@ -1058,8 +1058,8 @@
         Start-Sleep -Seconds 5
         # Apply the PSO to the corresponding accounts and groups
         $ArrayList.Clear()
-        [void]$ArrayList.Add('Domain Admins') | Out-Null
-        [void]$ArrayList.Add('Enterprise Admins') | Out-Null
+        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add('Enterprise Admins')
         if($null -ne $AdminName) {                [void]$ArrayList.Add($AdminName.SamAccountName) }
         if($null -ne $newAdminName) {             [void]$ArrayList.Add($newAdminName.SamAccountName) }
         if($null -ne $SG_InfraAdmins) {           [void]$ArrayList.Add($SG_InfraAdmins.SamAccountName) }
@@ -1083,7 +1083,7 @@
         if($null -ne $SL_AdRight) {               [void]$ArrayList.Add($SL_AdRight.SamAccountName) }
         if($null -ne $SL_UM) {                    [void]$ArrayList.Add($SL_UM.SamAccountName) }
         if($null -ne $SL_GM) {                    [void]$ArrayList.Add($SL_GM.SamAccountName) }
-        if($null -ne $SL_PUM) {                   [void]$ArrayList.Add($SL_PUM.SamAccountName)| Out-Null }
+        if($null -ne $SL_PUM) {                   [void]$ArrayList.Add($SL_PUM.SamAccountName) }
         if($null -ne $SL_PGM) {                   [void]$ArrayList.Add($SL_PGM.SamAccountName) }
         if($null -ne $SL_GpoAdminRight) {         [void]$ArrayList.Add($SL_GpoAdminRight.SamAccountName) }
         if($null -ne $SL_DnsAdminRight) {         [void]$ArrayList.Add($SL_DnsAdminRight.SamAccountName) }

@@ -6,31 +6,49 @@
   "powershell.codeFormatting.useCorrectCasing": true,
   "powershell.codeFormatting.openBraceOnSameLine": true,
   "powershell.codeFormatting.newLineAfterOpenBrace": true,
-  "powershell.codeFormatting.newLineAfterCloseBrace": true,
+  "powershell.codeFormatting.newLineAfterCloseBrace": false,
   "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
   "powershell.codeFormatting.whitespaceBeforeOpenParen": true,
   "powershell.codeFormatting.whitespaceAroundOperator": true,
   "powershell.codeFormatting.whitespaceAfterSeparator": true,
   "powershell.codeFormatting.ignoreOneLineBlock": false,
   "powershell.codeFormatting.alignPropertyValuePairs": true,
-  "editor.tabSize": 4,
+  "editor.autoIndent": "full",
+  "editor.autoClosingBrackets": "always",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+  "editor.codeLens": true,
+  "editor.detectIndentation": true,
+  "editor.folding": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "editor.formatOnType": true,
+  "editor.guides.bracketPairs": true,
+  "editor.guides.highlightActiveBracketPair": true,
+  "editor.indentSize": "tabSize",
   "editor.insertSpaces": true,
-  "files.trimTrailingWhitespace": true,
-  "files.insertFinalNewline": true,
+  "editor.matchBrackets": "always",
+  "editor.showDeprecated": true,
+  "editor.tabCompletion": "on",
+  "editor.tabSize": 4,
+  "editor.unusualLineTerminators": "auto",
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 20000,
-  "files.hotExit": "onExit",
-  "editor.formatOnSave": true,
-  "editor.formatOnPaste": true,
   "files.encoding": "utf8bom",
   "files.exclude": {
     "**/.git": true,
     "**/.svn": true,
     "**/.hg": true,
-    "**/.DS_Store": true,
+    "**/CVS": true,
+    "**/Thumbs.db": true,
     "node_modules": true,
     "markdownissues.txt": true
   },
+  "files.hotExit": "onExit",
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": false,
+  "files.trimTrailingWhitespace": true,
   // Add a visual ruler for the typescript linting line length
   "editor.rulers": [
     120
@@ -46,7 +64,5 @@
   // Ignore the MD rule:
   "markdownlint.config": {
     "MD024": false // no-duplicate-header
-  },
-  "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
-  "editor.guides.bracketPairs": true
+  }
 }
