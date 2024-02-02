@@ -179,9 +179,13 @@
 
     Process {
 
+        #Check if group exist
         $groupExists = Get-ADGroup -Filter "SamAccountName -eq '$Name'" -ErrorAction SilentlyContinue
 
         if (-not $groupExists) {
+
+            Write-Verbose -Message ('Group {0} does not exists. Creating it!' -f $PSBoundParameters['Name'])
+
             if ($PSCmdlet.ShouldProcess("$Name", 'Group does not exist. SHould it be created?')) {
 
                 Try {
@@ -196,6 +200,7 @@
                     }
                     $newGroup = New-ADGroup @Splat
                     Write-Verbose -Message ('Group {0} created successfully.' -f $name)
+
                 } catch {
                     Get-CurrentErrorToDisplay -CurrentError $error[0]
                     Write-Warning -Message ('An unhandeled error was thrown when creating Groups {0}' -f $PSBoundParameters['Name'])
