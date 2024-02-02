@@ -301,7 +301,7 @@
 
 
 
-        New-Variable -Name "SG_Operations" -Value ('SGg{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.Name) -Force
+        New-Variable -Name "SG_Operations" -Value ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.Name) -Force
         New-Variable -Name "SG_ServerAdmins" -Value ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name) -Force
 
         New-Variable -Name "SL_SvrAdmRight" -Value ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name) -Force
@@ -591,7 +591,7 @@
             Rename-ADObject -Identity $AdminName.DistinguishedName -NewName $confXML.n.Admin.users.Admin.Name
             Set-ADUser $AdminName -SamAccountName $confXML.n.Admin.users.Admin.Name -DisplayName $confXML.n.Admin.users.Admin.Name
         }
-        $AdminName = get-aduser -Filter * | Where-Object { $_.SID -like "S-1-5-21-*-500" }
+
 
         $AdminName |                                                      Move-ADObject -TargetPath $ItAdminAccountsOuDn
         Get-ADUser -Identity $confXML.n.Admin.users.Guest.Name |          Move-ADObject -TargetPath $ItAdminAccountsOuDn
@@ -653,6 +653,9 @@
         # Get-ADGroup "Terminal Server License Servers" |         Move-ADObject -TargetPath $ItRightsOuDn
         # Get-ADGroup "Users" |                                   Move-ADObject -TargetPath $ItRightsOuDn
         # Get-ADGroup "Windows Authorization Access Group" |      Move-ADObject -TargetPath $ItRightsOuDn
+
+        #Get the object after moving it.
+        $AdminName = get-aduser -Filter * | Where-Object { $_.SID -like "S-1-5-21-*-500" }
 
         #endregion
         ###############################################################################
@@ -764,12 +767,9 @@
         $newAdminName = Get-AdUser -Identity $confXML.n.Admin.users.NEWAdmin.name
 
         # Set the Protect against accidental deletions attribute
-        # Identity ONLY accepts DistinguishedName or SID
-        #Set-ADObject -Identity $AdminName.DistinguishedName -ProtectedFromAccidentalDeletion $true
-        #Set-ADObject -Identity $newAdminName.DistinguishedName -ProtectedFromAccidentalDeletion $true
-
-        Set-ADObject -Identity $AdminName -ProtectedFromAccidentalDeletion $true
-        Set-ADObject -Identity $newAdminName -ProtectedFromAccidentalDeletion $true
+        # Identity ONLY accepts DistinguishedName or GUID -- DN fails I don't know why
+        Set-ADObject -Identity $AdminName.ObjectGUID -ProtectedFromAccidentalDeletion $true
+        Set-ADObject -Identity $newAdminName.ObjectGUID -ProtectedFromAccidentalDeletion $true
 
         # Make it member of administrative groups
         Add-AdGroupNesting -Identity 'Domain Admins'                          -Members $newAdminName
@@ -835,7 +835,7 @@
             $createdGroup = New-AdDelegatedGroup @Splat
 
             $varparam = @{
-                Name  = "$('SG{0}{1}' -f  $NC['Delim'], $Node.Name)"
+                Name  = "$('SL{0}{1}' -f  $NC['Delim'], $Node.Name)"
                 Value = $createdGroup
                 Force = $true
             }
@@ -960,14 +960,14 @@
             # AD Object operations ONLY supports DN and GUID as identity
 
             # Remove the ProtectedFromAccidentalDeletion, otherwise throws error when moving
-            Set-ADObject -Identity $item -ProtectedFromAccidentalDeletion $false
+            Set-ADObject -Identity $item.ObjectGUID -ProtectedFromAccidentalDeletion $false
 
             # Move objects to PG OU
-            Move-ADObject -TargetPath $ItPrivGroupsOUDn -Identity $item
+            Move-ADObject -TargetPath $ItPrivGroupsOUDn -Identity $item.ObjectGUID
 
             # Set back again the ProtectedFromAccidentalDeletion flag.
             #The group has to be fetch again because of the previus move
-            Get-ADGroup -Identity $item | Set-ADObject -ProtectedFromAccidentalDeletion $true
+            Set-ADObject -Identity $item.ObjectGUID -ProtectedFromAccidentalDeletion $true
         }
 
         #endregion
