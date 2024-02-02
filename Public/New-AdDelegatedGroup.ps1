@@ -178,93 +178,93 @@
     } # End Begin Section
 
     Process {
-        try {
-            Switch ($name) {
-                { $name -is [String] } {
-                    #Do nothing. New group to create
-                }
-                { $name -is [Microsoft.ActiveDirectory.Management.AdGroup] } {
-                    $newGroup = Get-AdObjectType -Identity $Name
-                }
-                { $name -is [Microsoft.ActiveDirectory.Management.ADAccount] } {
-                    #AD accounts are not processed.
-                    $newGroup = $null
-                }
-            }
 
-            ### Using $PSBoundParameters['Name'] throws an Error. Using variable instead.
-            If (-not($newGroup)) {
-                $Splat = @{
-                    Name           = $PSBoundParameters['Name']
-                    SamAccountName = $PSBoundParameters['Name']
-                    GroupCategory  = $PSBoundParameters['GroupCategory']
-                    GroupScope     = $PSBoundParameters['GroupScope']
-                    DisplayName    = $PSBoundParameters['DisplayName']
-                    Path           = $PSBoundParameters['path']
-                    Description    = $PSBoundParameters['Description']
-                }
-                if ($Force -or $PSCmdlet.ShouldProcess('Group does not exist. SHould it be created?')) {
-                    New-ADGroup @Splat
-                } #end If
-            } else {
-                Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
+        $groupExists = Get-ADGroup -Filter "SamAccountName -eq '$Name'" -ErrorAction SilentlyContinue
 
-                Set-ADObject -Identity $newGroup.DistinguishedName -ProtectedFromAccidentalDeletion $False
+        if (-not $groupExists) {
+            if ($PSCmdlet.ShouldProcess("$Name", 'Group does not exist. SHould it be created?')) {
 
                 Try {
                     $Splat = @{
-                        Identity      = $PSBoundParameters['Name']
-                        Description   = $PSBoundParameters['Description']
-                        DisplayName   = $PSBoundParameters['DisplayName']
-                        GroupCategory = $PSBoundParameters['GroupCategory']
-                        GroupScope    = $PSBoundParameters['GroupScope']
+                        Name           = $PSBoundParameters['Name']
+                        SamAccountName = $PSBoundParameters['Name']
+                        GroupCategory  = $PSBoundParameters['GroupCategory']
+                        GroupScope     = $PSBoundParameters['GroupScope']
+                        DisplayName    = $PSBoundParameters['DisplayName']
+                        Path           = $PSBoundParameters['path']
+                        Description    = $PSBoundParameters['Description']
                     }
-                    if ($Force -or $PSCmdlet.ShouldProcess('Group does not exist. SHould it be created?')) {
-                        Set-ADGroup @Splat
-                    }
-
-                    If (-not($newGroup.DistinguishedName -contains $PSBoundParameters['path'])) {
-                        # Move object to the corresponding OU
-                        Move-ADObject -Identity $newGroup.DistinguishedName -TargetPath $PSBoundParameters['path']
-                    }
-
+                    $newGroup = New-ADGroup @Splat
+                    Write-Verbose -Message ('Group {0} created successfully.' -f $name)
                 } catch {
                     Get-CurrentErrorToDisplay -CurrentError $error[0]
+                    Write-Warning -Message ('An unhandeled error was thrown when creating Groups {0}' -f $PSBoundParameters['Name'])
                 } #end Try-Catch
-            } # End If
 
-            # Get the group again and store it on variable.
-            $newGroup = Get-ADGroup -Filter { SamAccountName -eq $Name }
+            } #end If
+
+        } else {
+            Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
+
+            # Remove ProtectedFromAccidentalDeletion flag
+            Set-ADObject -Identity $groupExists.DistinguishedName -ProtectedFromAccidentalDeletion $False
+
+            # Modify existing group
+            Try {
+                $Splat = @{
+                    Identity      = $PSBoundParameters['Name']
+                    Description   = $PSBoundParameters['Description']
+                    DisplayName   = $PSBoundParameters['DisplayName']
+                    GroupCategory = $PSBoundParameters['GroupCategory']
+                    GroupScope    = $PSBoundParameters['GroupScope']
+                }
+                if ($Force -or $PSCmdlet.ShouldProcess('Existing group. Should it be Modified?')) {
+                    $newGroup = Set-ADGroup @Splat
+                }
+
+                If (-not($newGroup.DistinguishedName -contains $PSBoundParameters['path'])) {
+                    # Move object to the corresponding OU
+                    Move-ADObject -Identity $newGroup.DistinguishedName -TargetPath $PSBoundParameters['path']
+                }
+
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                Write-Warning -Message ('An unhandeled error was thrown when modifying Groups {0}' -f $PSBoundParameters['Name'])
+            } #end Try-Catch
+
+        } #end If-Else
 
 
-            # Protect From Accidental Deletion
-            If ($PSBoundParameters['ProtectFromAccidentalDeletion']) {
-                Set-ADObject -Identity $newGroup.DistinguishedName -ProtectedFromAccidentalDeletion $true
-            }
 
-            # Remove Account Operators Built-In group
-            If ($PSBoundParameters['RemoveAccountOperators']) {
-                Remove-AccountOperator -LDAPPath $newGroup.DistinguishedName
-            }
+        # Get the group again and store it on variable.
+        $newGroup = Get-ADGroup -Filter { SamAccountName -eq $Name }
 
-            # Remove Everyone Built-In group
-            If ($PSBoundParameters['RemoveEveryone']) {
-                Remove-Everyone -LDAPPath $newGroup.DistinguishedName
-            }
 
-            # Remove Authenticated Users Built-In group
-            If ($PSBoundParameters['RemoveAuthUsers']) {
-                Remove-AuthUser -LDAPPath $newGroup.DistinguishedName
-            }
-
-            # Remove Pre-Windows 2000 Built-In group
-            If ($PSBoundParameters['RemovePreWin2000']) {
-                Remove-PreWin2000 -LDAPPath $newGroup.DistinguishedName
-            }
-        } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
-            Write-Warning -Message ('An unhandeled error was thrown when creating Groups {0}' -f $PSBoundParameters['Name'])
+        # Protect From Accidental Deletion
+        If ($PSBoundParameters['ProtectFromAccidentalDeletion']) {
+            Set-ADObject -Identity $newGroup.DistinguishedName -ProtectedFromAccidentalDeletion $true
         }
+
+        # Remove Account Operators Built-In group
+        If ($PSBoundParameters['RemoveAccountOperators']) {
+            Remove-AccountOperator -LDAPPath $newGroup.DistinguishedName
+        }
+
+        # Remove Everyone Built-In group
+        If ($PSBoundParameters['RemoveEveryone']) {
+            Remove-Everyone -LDAPPath $newGroup.DistinguishedName
+        }
+
+        # Remove Authenticated Users Built-In group
+        If ($PSBoundParameters['RemoveAuthUsers']) {
+            Remove-AuthUser -LDAPPath $newGroup.DistinguishedName
+        }
+
+        # Remove Pre-Windows 2000 Built-In group
+        If ($PSBoundParameters['RemovePreWin2000']) {
+            Remove-PreWin2000 -LDAPPath $newGroup.DistinguishedName
+        }
+
     } # End Process section
 
     End {

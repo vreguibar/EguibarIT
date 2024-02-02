@@ -765,8 +765,8 @@
 
         # Set the Protect against accidental deletions attribute
         # Identity ONLY accepts DistinguishedName or SID
-        $AdminName.DistinguishedName                      | Set-ADObject -ProtectedFromAccidentalDeletion $true
-        $newAdminName.DistinguishedName                   | Set-ADObject -ProtectedFromAccidentalDeletion $true
+        Set-ADObject -Identity $AdminName.DistinguishedName -ProtectedFromAccidentalDeletion $true
+        Set-ADObject -Identity $newAdminName.DistinguishedName -ProtectedFromAccidentalDeletion $true
 
         # Make it member of administrative groups
         Add-AdGroupNesting -Identity 'Domain Admins'                          -Members $newAdminName
