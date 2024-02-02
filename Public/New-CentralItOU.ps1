@@ -765,8 +765,11 @@
 
         # Set the Protect against accidental deletions attribute
         # Identity ONLY accepts DistinguishedName or SID
-        Set-ADObject -Identity $AdminName.DistinguishedName -ProtectedFromAccidentalDeletion $true
-        Set-ADObject -Identity $newAdminName.DistinguishedName -ProtectedFromAccidentalDeletion $true
+        #Set-ADObject -Identity $AdminName.DistinguishedName -ProtectedFromAccidentalDeletion $true
+        #Set-ADObject -Identity $newAdminName.DistinguishedName -ProtectedFromAccidentalDeletion $true
+
+        Set-ADObject -Identity $AdminName -ProtectedFromAccidentalDeletion $true
+        Set-ADObject -Identity $newAdminName -ProtectedFromAccidentalDeletion $true
 
         # Make it member of administrative groups
         Add-AdGroupNesting -Identity 'Domain Admins'                          -Members $newAdminName
@@ -957,14 +960,14 @@
             # AD Object operations ONLY supports DN and GUID as identity
 
             # Remove the ProtectedFromAccidentalDeletion, otherwise throws error when moving
-            Set-ADObject -Identity $item.DistinguishedName -ProtectedFromAccidentalDeletion $false
+            Set-ADObject -Identity $item -ProtectedFromAccidentalDeletion $false
 
             # Move objects to PG OU
-            Move-ADObject -TargetPath $ItPrivGroupsOUDn -Identity $item.DistinguishedName
+            Move-ADObject -TargetPath $ItPrivGroupsOUDn -Identity $item
 
             # Set back again the ProtectedFromAccidentalDeletion flag.
             #The group has to be fetch again because of the previus move
-            Get-ADGroup -Identity $item.DistinguishedName | Set-ADObject -ProtectedFromAccidentalDeletion $true
+            Get-ADGroup -Identity $item | Set-ADObject -ProtectedFromAccidentalDeletion $true
         }
 
         #endregion
