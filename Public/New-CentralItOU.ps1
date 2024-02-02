@@ -585,7 +585,12 @@
 
         Write-Verbose -Message 'Moving objects...'
 
-        $AdminName = Get-ADUser -Identity $AdminName
+        # Get the Administrator by Well-Known SID and if not named as per the XML file, proceed to rename it
+        $AdminName = get-aduser -Filter * | Where-Object { $_.SID -like "S-1-5-21-*-500" }
+        If($AdminName.SamAccountName -ne $confXML.n.Admin.users.Admin.Name) {
+            Rename-ADObject -Identity $AdminName.DistinguishedName -NewName $confXML.n.Admin.users.Admin.Name
+        }
+        $AdminName = get-aduser -Filter * | Where-Object { $_.SID -like "S-1-5-21-*-500" }
 
         $AdminName |                                                      Move-ADObject -TargetPath $ItAdminAccountsOuDn
         Get-ADUser -Identity $confXML.n.Admin.users.Guest.Name |          Move-ADObject -TargetPath $ItAdminAccountsOuDn
@@ -666,7 +671,7 @@
             # Read the path and file name of JPG picture
             $PhotoFile = '{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName
             # Get the content of the JPG file
-            $photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte)
+            $photo = [byte[]](Get-Content -Path $PhotoFile -AsByteStream -Raw )
         } else {
             If(Test-Path -Path ('{0}\Pic\Default.jpg' -f $DMscripts)) {
                 # Read the path and file name of JPG picture
@@ -759,8 +764,8 @@
 
         # Set the Protect against accidental deletions attribute
         # Identity ONLY accepts DistinguishedName or SID
-        $AdminName.SID                      | Set-ADObject -ProtectedFromAccidentalDeletion $true
-        $newAdminName.SID                   | Set-ADObject -ProtectedFromAccidentalDeletion $true
+        $AdminName.DistinguishedName                      | Set-ADObject -ProtectedFromAccidentalDeletion $true
+        $newAdminName.DistinguishedName                   | Set-ADObject -ProtectedFromAccidentalDeletion $true
 
         # Make it member of administrative groups
         Add-AdGroupNesting -Identity 'Domain Admins'                          -Members $newAdminName
@@ -772,17 +777,17 @@
 
         ####
         # Remove Everyone group from Admin-User & Administrator
-        Remove-Everyone -LDAPPath $NewAdminExists.DistinguishedName
+        Remove-Everyone -LDAPPath $newAdminName.DistinguishedName
         Remove-Everyone -LDAPPath $AdminName.DistinguishedName
 
         ####
         # Remove AUTHENTICATED USERS group from Admin-User & Administrator
-        #Remove-AuthUser -LDAPPath $NewAdminExists.DistinguishedName
+        #Remove-AuthUser -LDAPPath $newAdminName.DistinguishedName
         #Remove-AuthUser -LDAPPath ('CN={0},{1}' -f $AdminName, $ItAdminAccountsOuDn)
 
         ####
         # Remove Pre-Windows 2000 Compatible Access group from Admin-User & Administrator
-        Remove-PreWin2000 -LDAPPath $NewAdminExists.DistinguishedName
+        Remove-PreWin2000 -LDAPPath $newAdminName.DistinguishedName
         Remove-PreWin2000 -LDAPPath $AdminName.DistinguishedName
 
         ###
@@ -823,12 +828,17 @@
                 RemoveEveryone                = $True
                 RemovePreWin2000              = $True
             }
+            $createdGroup = New-AdDelegatedGroup @Splat
+
             $varparam = @{
-                Name  = "$('SL{0}{1}' -f$NC['Delim'], $Node.LocalName)"
-                Value = New-AdDelegatedGroup @Splat
+                Name  = "$('SG{0}{1}' -f  $NC['Delim'], $Node.Name)"
+                Value = $createdGroup
                 Force = $true
             }
             New-Variable @varparam
+
+            #Clear variable for next use
+            $createdGroup = $null
         } # End ForEach
 
         # Iterate through all Admin-GlobalGroups child nodes
@@ -846,12 +856,18 @@
                 RemoveEveryone                = $True
                 RemovePreWin2000              = $True
             }
+            $createdGroup = New-AdDelegatedGroup @Splat
+
             $varparam = @{
                 Name  = "$('SG{0}{1}' -f $NC['Delim'], $Node.LocalName)"
-                Value = New-AdDelegatedGroup @Splat
+                Value = $createdGroup
                 Force = $true
             }
             New-Variable @varparam
+
+
+            #Clear variable for next use
+            $createdGroup = $null
         } # End ForEach
 
 
@@ -868,7 +884,9 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.LocalName)" -Value (New-AdDelegatedGroup @Splat) -Force
+        $createdGroup = New-AdDelegatedGroup @Splat
+        New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.LocalName)" -Value $createdGroup -Force
+        $createdGroup = $null
 
         $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name
@@ -882,7 +900,9 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.LocalName)" -Value (New-AdDelegatedGroup @Splat) -Force
+        $createdGroup = New-AdDelegatedGroup @Splat
+        New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.LocalName)" -Value $createdGroup -Force
+        $createdGroup = $null
 
         $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name
@@ -896,7 +916,9 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('SL{0}{1}' -f  $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.LocalName)" -Value (New-AdDelegatedGroup @Splat) -Force
+        $createdGroup = New-AdDelegatedGroup @Splat
+        New-Variable -Name "$('SL{0}{1}' -f  $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.LocalName)" -Value $createdGroup -Force
+        $createdGroup = $null
 
         $Splat = @{
             Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name
@@ -910,36 +932,38 @@
             RemoveEveryone                = $True
             RemovePreWin2000              = $True
         }
-        New-Variable -Name "$('SL{0}{1}' -f  $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.LocalName)" -Value (New-AdDelegatedGroup @Splat) -Force
+        $createdGroup = New-AdDelegatedGroup @Splat
+        New-Variable -Name "$('SL{0}{1}' -f  $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.LocalName)" -Value $createdGroup -Force
+        $createdGroup = $null
 
 
 
         # Get all Privileged groups into an array $AllGroups
-        If($null -ne $SG_InfraAdmins) {         $AllGroups.Add($SG_InfraAdmins) }
-        If($null -ne $SG_AdAdmins) {            $AllGroups.Add($SG_AdAdmins) }
-        If($null -ne $SG_Tier0ServiceAccount) { $AllGroups.Add($SG_Tier0ServiceAccount) }
-        If($null -ne $SG_Tier1ServiceAccount) { $AllGroups.Add($SG_Tier1ServiceAccount) }
-        If($null -ne $SG_Tier2ServiceAccount) { $AllGroups.Add($SG_Tier2ServiceAccount) }
-        If($null -ne $SG_GpoAdmins) {           $AllGroups.Add($SG_GpoAdmins) }
-        If($null -ne $SG_Tier0Admins) {         $AllGroups.Add($SG_Tier0Admins) }
-        If($null -ne $SG_Tier1Admins) {         $AllGroups.Add($SG_Tier1Admins) }
-        If($null -ne $SG_Tier2Admins) {         $AllGroups.Add($SG_Tier2Admins) }
-        If($null -ne $SG_AllSiteAdmins) {       $AllGroups.Add($SG_AllSiteAdmins) }
-        If($null -ne $SG_AllGALAdmins) {        $AllGroups.Add($SG_AllGALAdmins) }
+        If($null -ne $SG_InfraAdmins) {         [Void]$AllGroups.Add($SG_InfraAdmins) }
+        If($null -ne $SG_AdAdmins) {            [Void]$AllGroups.Add($SG_AdAdmins) }
+        If($null -ne $SG_Tier0ServiceAccount) { [Void]$AllGroups.Add($SG_Tier0ServiceAccount) }
+        If($null -ne $SG_Tier1ServiceAccount) { [Void]$AllGroups.Add($SG_Tier1ServiceAccount) }
+        If($null -ne $SG_Tier2ServiceAccount) { [Void]$AllGroups.Add($SG_Tier2ServiceAccount) }
+        If($null -ne $SG_GpoAdmins) {           [Void]$AllGroups.Add($SG_GpoAdmins) }
+        If($null -ne $SG_Tier0Admins) {         [Void]$AllGroups.Add($SG_Tier0Admins) }
+        If($null -ne $SG_Tier1Admins) {         [Void]$AllGroups.Add($SG_Tier1Admins) }
+        If($null -ne $SG_Tier2Admins) {         [Void]$AllGroups.Add($SG_Tier2Admins) }
+        If($null -ne $SG_AllSiteAdmins) {       [Void]$AllGroups.Add($SG_AllSiteAdmins) }
+        If($null -ne $SG_AllGALAdmins) {        [Void]$AllGroups.Add($SG_AllGALAdmins) }
 
         # Move the groups to PG OU
         foreach($item in $AllGroups) {
             # AD Object operations ONLY supports DN and GUID as identity
 
             # Remove the ProtectedFromAccidentalDeletion, otherwise throws error when moving
-            Set-ADObject -Identity $item.ObjectGUID -ProtectedFromAccidentalDeletion $false
+            Set-ADObject -Identity $item.DistinguishedName -ProtectedFromAccidentalDeletion $false
 
             # Move objects to PG OU
-            Move-ADObject -TargetPath $ItPrivGroupsOUDn -Identity $item.ObjectGUID
+            Move-ADObject -TargetPath $ItPrivGroupsOUDn -Identity $item.DistinguishedName
 
             # Set back again the ProtectedFromAccidentalDeletion flag.
             #The group has to be fetch again because of the previus move
-            Get-ADGroup -Identity $item.ObjectGUID | Set-ADObject -ProtectedFromAccidentalDeletion $true
+            Get-ADGroup -Identity $item.DistinguishedName | Set-ADObject -ProtectedFromAccidentalDeletion $true
         }
 
         #endregion

@@ -206,11 +206,10 @@
                 if ($Force -or $PSCmdlet.ShouldProcess('Group does not exist. SHould it be created?')) {
                     New-ADGroup @Splat
                 } #end If
-            }
-            else {
+            } else {
                 Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
 
-                $newGroup | Set-ADObject -ProtectedFromAccidentalDeletion $False
+                Set-ADObject -Identity $newGroup.DistinguishedName -ProtectedFromAccidentalDeletion $False
 
                 Try {
                     $Splat = @{
@@ -226,11 +225,10 @@
 
                     If (-not($newGroup.DistinguishedName -contains $PSBoundParameters['path'])) {
                         # Move object to the corresponding OU
-                        Move-ADObject -Identity $newGroup -TargetPath $PSBoundParameters['path']
+                        Move-ADObject -Identity $newGroup.DistinguishedName -TargetPath $PSBoundParameters['path']
                     }
 
-                }
-                catch {
+                } catch {
                     Get-CurrentErrorToDisplay -CurrentError $error[0]
                 } #end Try-Catch
             } # End If
@@ -241,7 +239,7 @@
 
             # Protect From Accidental Deletion
             If ($PSBoundParameters['ProtectFromAccidentalDeletion']) {
-                $newGroup | Set-ADObject -ProtectedFromAccidentalDeletion $true
+                Set-ADObject -Identity $newGroup.DistinguishedName -ProtectedFromAccidentalDeletion $true
             }
 
             # Remove Account Operators Built-In group
@@ -263,8 +261,7 @@
             If ($PSBoundParameters['RemovePreWin2000']) {
                 Remove-PreWin2000 -LDAPPath $newGroup.DistinguishedName
             }
-        }
-        catch {
+        } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
             Write-Warning -Message ('An unhandeled error was thrown when creating Groups {0}' -f $PSBoundParameters['Name'])
         }

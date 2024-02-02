@@ -145,10 +145,12 @@ function New-DelegateAdGpo {
     Process {
         # Check if the GPO already exist
         $gpoAlreadyExist = Get-GPO -Name $gpoName -ErrorAction SilentlyContinue
+
         # Clean the error if object does not exist. No need to log.
         $error.clear()
 
         if (-not $gpoAlreadyExist) {
+
             Write-Verbose -Message ('Policy: Create policy object {0}' -f $gpoName)
             $Splat = @{
                 Name        = $gpoName
@@ -164,6 +166,7 @@ function New-DelegateAdGpo {
                 Start-Sleep -Seconds 1
             } #end If
 
+            # https://learn.microsoft.com/en-us/previous-versions/windows/desktop/wmi_v2/class-library/gppermissiontype-enumeration-microsoft-grouppolicy
             # Give Rights to SL_GpoAdminRight
             Write-Verbose -Message ('Add GpoAdminRight to {0}' -f $gpoAlreadyExist.Name)
             $Splat = @{

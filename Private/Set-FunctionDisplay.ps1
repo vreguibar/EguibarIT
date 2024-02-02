@@ -63,10 +63,10 @@
 
             # Add corresponding tabs and new lines to each table member
             $display += $pb -split $NewLine | ForEach-Object { "$($HorizontalTab * $TabCount)$_" } | Out-String
-        }
-        else {
+        } else {
             $display = 'No PsBoundParameters to display.'
         } #end If
+        $display += $NewLine
 
     } # end Process
 

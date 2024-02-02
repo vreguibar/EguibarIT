@@ -69,26 +69,22 @@ function Get-AdObjectType {
       Write-Verbose -Message 'AD User Object'
       [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = $Identity
 
-    }
-    ElseIf ($Identity -is [Microsoft.ActiveDirectory.Management.ADComputer]) {
+    } ElseIf ($Identity -is [Microsoft.ActiveDirectory.Management.ADComputer]) {
 
       Write-Verbose -Message 'AD Computer Object'
       [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = $Identity
 
-    }
-    ElseIf ($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup]) {
+    } ElseIf ($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup]) {
 
       Write-Verbose -Message 'AD Group Object'
       [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = $Identity
 
-    }
-    ElseIf ($Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]) {
+    } ElseIf ($Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]) {
 
       Write-Verbose -Message 'Organizational Unit Object'
       [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]$ReturnValue = $Identity
 
-    }
-    else {
+    } else {
       Try {
         If ($Identity -is [String]) {
           Write-Verbose -Message 'Simple String... Try to identify if SamAccountNamem DistinguishedName or SID as string.'
@@ -99,22 +95,19 @@ function Get-AdObjectType {
 
             $newObject = Get-ADObject -Filter { DistinguishedName -eq $Identity }
 
-          }
-          elseif (Test-IsValidSID -ObjectSID $Identity) {
+          } elseif (Test-IsValidSID -ObjectSID $Identity) {
 
             Write-Verbose -Message 'Looking for ObjectSID'
             $newObject = Get-ADObject -Filter { ObjectSID -eq $Identity }
 
-          }
-          else {
+          } else {
 
             Write-Verbose -Message 'Looking for SamAccountName'
             $newObject = Get-ADObject -Filter { SamAccountName -eq $Identity }
 
           } #end if-ElseIf-Else
         } #end If
-      }
-      catch {
+      } catch {
         Get-CurrentErrorToDisplay -CurrentError $error[0]
 
         return $null
