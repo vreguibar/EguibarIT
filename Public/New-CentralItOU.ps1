@@ -589,6 +589,7 @@
         $AdminName = get-aduser -Filter * | Where-Object { $_.SID -like "S-1-5-21-*-500" }
         If($AdminName.SamAccountName -ne $confXML.n.Admin.users.Admin.Name) {
             Rename-ADObject -Identity $AdminName.DistinguishedName -NewName $confXML.n.Admin.users.Admin.Name
+            Set-ADUser $AdminName -SamAccountName $confXML.n.Admin.users.Admin.Name -DisplayName $confXML.n.Admin.users.Admin.Name
         }
         $AdminName = get-aduser -Filter * | Where-Object { $_.SID -like "S-1-5-21-*-500" }
 
