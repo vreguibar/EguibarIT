@@ -44,7 +44,7 @@ jobs:
         shell: pwsh
         run: |
             Set-PSRepository PSGallery -InstallationPolicy Trusted
-            Install-Module ${{ steps.psmodulecache.outputs.needed }} -ErrorAction Stop
+            Install-Module ${{ steps.psmodulecache.outputs.needed }}
 
         # Running the InvokeBuild Module Invoke-Build command with "Release configuration"
       - name: Invoke Build
