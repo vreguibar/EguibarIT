@@ -123,27 +123,27 @@ function Get-AdObjectType {
       Switch ($newObject.ObjectClass) {
 
         'user' {
-          Write-Verbose -Message 'AD User Object from STRING'
+          Write-Verbose -Message '#|-----> AD User Object from STRING'
           [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = Get-ADUser -Identity $newObject
         }
 
         'group' {
-          Write-Verbose -Message 'AD Group Object from STRING'
+          Write-Verbose -Message '#|-----> AD Group Object from STRING'
           [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = Get-ADGroup -Identity $newObject
         }
 
         'computer' {
-          Write-Verbose -Message 'AD Computer Object from STRING'
+          Write-Verbose -Message '#|-----> AD Computer Object from STRING'
           [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = Get-ADComputer -Identity $newObject
         }
 
         'organizationalUnit' {
-          Write-Verbose -Message 'AD Organizational Unit Object from STRING'
+          Write-Verbose -Message '#|-----> AD Organizational Unit Object from STRING'
           [Microsoft.ActiveDirectory.Management.organizationalUnit]$ReturnValue = Get-ADOrganizationalUnit -Identity $newObject
         }
 
         Default {
-          Write-Error -Message "Unknown object type for identity: $Identity"
+          Write-Error -Message "#|-----> Unknown object type for identity: $Identity"
 
           return $null
         }

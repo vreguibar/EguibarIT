@@ -57,13 +57,24 @@ function Add-AdGroupNesting {
 
         # Check if Identity is a group. Retrive the object if not Microsoft.ActiveDirectory.Management.AdGroup.
         If (-not ($identity.GetType() -eq [Microsoft.ActiveDirectory.Management.AdGroup])) {
-            $Identity = Get-AdObjectType -Identity $Identity
+            Try {
+                $Identity = Get-AdObjectType -Identity $Identity
+            } Catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+            } #end Try-Catch
+
         } #end If
     } #end Begin
 
     Process {
         # Get group members
-        Get-ADGroupMember -Identity $Identity | ForEach-Object { [void]$CurrentMembers.Add($_) }
+        Try {
+            Get-ADGroupMember -Identity $Identity | ForEach-Object { [void]$CurrentMembers.Add($_) }
+
+        } Catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        } #end Try-Catch
+
 
         try {
             Write-Verbose -Message ('Adding members to group..: {0}' -f $Identity.SamAccountName)
@@ -74,6 +85,7 @@ function Add-AdGroupNesting {
                 If ($CurrentMembers -notcontains $item) {
 
                     Write-Verbose -Message ('Adding: {0}' -f $Item)
+
                     If ($PSCmdlet.ShouldProcess($Identity.DistinguishedName, $confirmMessage)) {
                         $Splat = @{
                             Identity = $Identity
@@ -81,15 +93,13 @@ function Add-AdGroupNesting {
                         }
                         Add-ADGroupMember @Splat
                     } #end If
-                }
-                else {
+                } else {
                     Write-Verbose -Message ('{0} is already a member of {1} group' -f $item.SamAccountName, $Identity.SamAccountName)
                 } #end If-Else
             }
 
             Write-Verbose -Message ('Members were added correctly to group {0}' -f $Identity.sAMAccountName)
-        }
-        catch {
+        } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
         } #end Try-Catch
     } #end Process
