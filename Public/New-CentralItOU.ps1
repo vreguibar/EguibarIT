@@ -968,6 +968,9 @@
             # Set back again the ProtectedFromAccidentalDeletion flag.
             #The group has to be fetch again because of the previus move
             Set-ADObject -Identity $item.ObjectGUID -ProtectedFromAccidentalDeletion $true
+
+            #refresh the variable because DistinguishedName changed
+            Set-Variable -Name $item.SamAccountName -Value (Get-ADGroup -Identity $item.SID) -Force
         }
 
         #endregion
@@ -1337,7 +1340,7 @@
 
         # InfraAdmins as member of Tier0Admins
         $Splat = @{
-            Identity = $SG_Tier0Admins.DistinguishedName.ToString()
+            Identity = $SG_Tier0Admins
             Members  = $SG_InfraAdmins
         }
         Add-AdGroupNesting @Splat
@@ -1351,7 +1354,7 @@
 
         # InfraAdmins as member of AdAdmins
         $Splat = @{
-            Identity = $SG_AdAdmins.ObjectGUID
+            Identity = $SG_AdAdmins
             Members  = $SG_InfraAdmins
         }
         Add-AdGroupNesting @Splat
@@ -1361,42 +1364,42 @@
         # AdAdmins as member of AdRight
         $Splat = @{
             Identity = $SL_AdRight
-            Members  = $SG_AdAdmins.SamAccountName
+            Members  = $SG_AdAdmins
         }
         Add-AdGroupNesting @Splat
 
         # AdAdmins as member of UM
         $Splat = @{
             Identity = $SL_UM
-            Members  = $SG_AdAdmins.SamAccountName
+            Members  = $SG_AdAdmins
         }
         Add-AdGroupNesting @Splat
 
         # AdAdmins as member of GM
         $Splat = @{
             Identity = $SL_GM
-            Members  = $SG_AdAdmins.SamAccountName
+            Members  = $SG_AdAdmins
         }
         Add-AdGroupNesting @Splat
 
         # AdAdmins as member of GpoAdmins
         $Splat = @{
             Identity = $SG_GpoAdmins
-            Members  = $SG_AdAdmins.SamAccountName
+            Members  = $SG_AdAdmins
         }
         Add-AdGroupNesting @Splat
 
         # AdAdmins as member of AllSiteAdmins
         $Splat = @{
-            Identity = $SG_AllSiteAdmins.SamAccountName
-            Members  = $SG_AdAdmins.SamAccountName
+            Identity = $SG_AllSiteAdmins
+            Members  = $SG_AdAdmins
         }
         Add-AdGroupNesting @Splat
 
         # AdAdmins as member of ServerAdmins
         $Splat = @{
             Identity = $SG_ServerAdmins
-            Members  = $SG_AdAdmins.SamAccountName
+            Members  = $SG_AdAdmins
         }
         Add-AdGroupNesting @Splat
 
@@ -1413,8 +1416,8 @@
 
         # AllSiteAdmins as member of AllGalAdmins
         $Splat = @{
-            Identity = $SG_AllGALAdmins.SamAccountName
-            Members  = $SG_AllSiteAdmins.SamAccountName
+            Identity = $SG_AllGALAdmins
+            Members  = $SG_AllSiteAdmins
         }
         Add-AdGroupNesting @Splat
 
