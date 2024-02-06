@@ -14,33 +14,30 @@ on:
 jobs:
   # 1st Job -- Building the module
   build:
+    name: Run PSScriptAnalyzer on Windows
     runs-on: windows-latest
     steps:
         # Checkout the main branch
-      - uses: actions/checkout@main 
+      - uses: actions/checkout@v4
         
-        # Setting up required powershell modules
-      - name: Set required PowerShell modules
-        id: psmodulecache
-        uses: potatoqualitee/psmodulecache@v1
-        with:
-          modules-to-cache: Pester, PSScriptAnalyzer, InvokeBuild, platyPS
-      
-        # Setting up the powershell module cache
-      - name: Setup PowerShell module cache
-        id: cacher
-        uses: actions/cache@v2
-        with:
-            path: ${{ steps.psmodulecache.outputs.modulepath }}
-            key: ${{ steps.psmodulecache.outputs.keygen }}
-        
-        # Installing the required powershell module, if not cached
-      - name: Install required PowerShell modules
-        if: steps.cacher.outputs.cache-hit != 'true'
+      - name: Install PSScriptAnalyzer module
         shell: pwsh
         run: |
-            Set-PSRepository PSGallery -InstallationPolicy Trusted
-            Install-Module ${{ steps.psmodulecache.outputs.needed }} -ErrorAction Stop
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -ErrorAction Stop
+
+          
+      - name: Lint with PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Invoke-ScriptAnalyzer -Path *.ps1 -Recurse -Outvariable issues
+          $errors   = $issues.Where({$_.Severity -eq 'Error'})
+          $warnings = $issues.Where({$_.Severity -eq 'Warning'})
+          if ($errors) {
+              Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
+          } else {
+              Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
+          }
         
         # Running the InvokeBuild Module Invoke-Build command with "Release configuration"
       - name: Invoke Build
