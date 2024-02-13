@@ -26,13 +26,13 @@ function Initialize-Modules {
 }
 
 # Task: Initialization
-Function Init {
+task Init {
     Write-Verbose -Message 'Initializing Module PSScriptAnalyzer'
     Initialize-Modules
 }
 
 # Task: Testing
-Function Test {
+task Test {
     try {
         Write-Verbose -Message 'Running PSScriptAnalyzer on Public functions'
         Invoke-ScriptAnalyzer '.\Public' -Recurse
@@ -67,7 +67,7 @@ Function Test {
 
 
 # Task: Debug build
-Function DebugBuild {
+task DebugBuild -if ($Configuration -eq 'debug') {
     $Script:ModuleName = (Test-ModuleManifest -Path '.\*.psd1').Name
     Write-Verbose $ModuleName
     if (Test-Path ".\Output\temp\$($ModuleName)") {
@@ -170,7 +170,7 @@ Function DebugBuild {
 }
 
 # Task: Build
-task Build {
+task Build -if($Configuration -eq 'Release') {
 
     $Script:ModuleName = (Test-ModuleManifest -Path '.\EguibarIT.psd1').Name
     Write-Verbose $ModuleName
@@ -317,7 +317,7 @@ task Build {
 } #end Function
 
 # Task: Clean
-Function Clean {
+task Clean -if($Configuration -eq 'Release') {
     if (Test-Path '.\Output\temp') {
         Write-Verbose -Message 'Removing temp folders'
         Remove-Item '.\Output\temp' -Recurse -Force
@@ -325,7 +325,7 @@ Function Clean {
 } #end Function
 
 # Task: Publish
-Function Publish {
+task Publish -if($Configuration -eq 'Release') {
 
     Write-Verbose -Message 'Publishing Module to PowerShell gallery'
     Write-Verbose -Message "Importing Module .\Output\$($ModuleName)\$ModuleVersion\$($ModuleName).psm1"
@@ -345,19 +345,15 @@ Function Publish {
 } #end Function
 
 # Call tasks based on configuration
-switch ($Configuration) {
-    'debug' {
-        Write-Verbose -Message "Debuging Module: $($ModuleName)"
-        Init
-        Test
-        DebugBuild
-        Clean
-    }
-    'Release' {
-        Write-Verbose -Message "Releasing Module: $($ModuleName)"
-        Init
-        ReleaseBuild
-        Clean
-        Publish
-    }
-} #end Switch
+task . Init, DebugBuild, Build, Clean, Publish
+# Run the tasks based on configuration
+if ($Configuration -eq 'debug') {
+    Init
+    DebugBuild
+    Clean
+} elseif ($Configuration -eq 'Release') {
+    Init
+    Build
+    Clean
+    Publish
+}
