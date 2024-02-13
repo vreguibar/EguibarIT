@@ -110,7 +110,7 @@ jobs:
         # Publishing the module to powershell gallery
       - name: Publish to Powershell Gallery
         # You may pin to the exact commit or the version.
-        uses: dfinke/PowerShellGalleryPublish@v0.1
+        uses: dfinke/PowerShellGalleryPublish@v1.2.0
         with:
-          Path: ./Output/EguibarIT.psd1
-          NuGetApiKey: ${{ secrets.NUGET_API_KEY }}
+          modulePath: ./Output/${{ env.MODULE_NAME }} # Using the environment variable to find the module name
+          NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }} # Using the NugetAPI key set in GitHub Secrets
