@@ -22,19 +22,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Install Active Directory module
+      - name: Install Required Windows Features and Modules
         shell: pwsh
         run: |
           Install-WindowsFeature -Name RSAT-AD-PowerShell
-
-      - name: Install Group Policy Console (get GroupPolicy module)
-        shell: pwsh
-        run: |
           Install-WindowsFeature -Name GPMC
-
-      - name: Install Module Dependencies
-        shell: pwsh
-        run: |
           Install-Module -Name Pester           -Force
           Install-Module -Name PSScriptAnalyzer -Force
           Install-Module -Name PowerShellGet    -Force
@@ -58,7 +50,8 @@ jobs:
 
       - name: Invoke Build
         shell: pwsh
-        run: pwsh -command "Invoke-Build -File ./build.ps1 -Configuration 'Release' -ExportAlias"
+        run: |
+          Invoke-Build -File ./build.ps1 -Configuration 'Release' -ExportAlias
 
       - name: Push changes to Git Repository
         run: |
@@ -69,8 +62,8 @@ jobs:
           git commit -am "Pushing Artifacts"
           git push
 
-      - name: Download build artifact
-        uses: actions/download-artifact@v2
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
         with:
           name: module-artifact
           path: ./Artifact/
@@ -82,6 +75,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: module-artifact
+          path: ./Artifact
+
+      - name: Check if Release Exists
+        id: check_release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: "v${{ steps.release_and_publish.outputs.newVersion }}"
+
+
       - name: Update Module Manifest
         shell: pwsh
         run: |
@@ -89,9 +96,11 @@ jobs:
           $manifestPath = '.\EguibarIT.psd1'
           (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
 
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
+        if: steps.check_release.outputs.exists == 'false'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
