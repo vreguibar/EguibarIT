@@ -48,10 +48,6 @@ jobs:
             Invoke-ScriptAnalyzer -Path .\Enums   -recurse
             Invoke-ScriptAnalyzer -Path .\Classes -recurse
 
-      - name: Invoke Build
-        shell: pwsh
-        run: |
-          Invoke-Build -File ./build.ps1 -Configuration 'Release' -ExportAlias
 
       - name: Push changes to Git Repository
         run: |
