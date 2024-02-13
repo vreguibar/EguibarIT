@@ -170,7 +170,7 @@ Function DebugBuild {
 }
 
 # Task: Build
-Function ReleaseBuild {
+task Build {
 
     $Script:ModuleName = (Test-ModuleManifest -Path '.\EguibarIT.psd1').Name
     Write-Verbose $ModuleName
