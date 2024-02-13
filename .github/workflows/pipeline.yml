@@ -94,25 +94,29 @@ jobs:
             console.log(`Release ${tagName} exists: ${releaseExists}`);
             console.log(`::set-output name=exists::${releaseExists}`);
 
+      - name: Update Module Manifest
+        shell: pwsh
+        run: |
+          $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
+          $manifestPath = '.\EguibarIT.psd1'
+          (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
 
+
+        # Publishing the module to powershell gallery
       - name: Create Release
         if: steps.check_release.outputs.exists != 'true'
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.MODULE_VERSION }}
-          release_name: Release ${{ env.MODULE_VERSION }}
+          tag_name: ${{ steps.release_and_publish.outputs.newVersion }}
+          release_name: Release ${{ steps.release_and_publish.outputs.newVersion }}
           draft: false
           prerelease: false
 
-
-        # Publishing the module to powershell gallery
-      - name: Publish to Powershell Gallery
-        # You may pin to the exact commit or the version.
+      - name: Publish to PowerShell Gallery
         uses: pcgeek86/publish-powershell-module-action@v20
         with:
-          # Using the environment variable to find the module name
-          modulePath: ./Output/${{ env.MODULE_NAME }}
-          # Using the NugetAPI key set in GitHub Secrets
+          modulePath: ./Artifact/
           NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
