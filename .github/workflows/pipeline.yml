@@ -1,6 +1,6 @@
 #https://scriptingchris.tech/2021/05/16/how-to-setup-a-github-actions-pipeline-for-publishing-your-powershell-module/
 
-name: Build Module
+name: Build and Release Module
 on:
   pull_request: # Only trigger the workflow if there is a pull request to the main branch
     branches: [ main ]
@@ -14,11 +14,12 @@ on:
 jobs:
   # 1st Job -- Building the module
   build:
-    name: Run PSScriptAnalyzer on Windows
+    name: Build Module
     runs-on: windows-latest
     steps:
         # Checkout the main branch
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
       - name: Install PSScriptAnalyzer module
         shell: pwsh
@@ -40,9 +41,9 @@ jobs:
           }
 
         # Running the InvokeBuild Module Invoke-Build command with "Release configuration"
-      - name: Invoke Build
+      - name: Invoke Build script
         shell: pwsh
-        run: pwsh -command "./build.ps1 -Configuration 'Release' -ExportAlias"
+        run: .\build.ps1 -Configuration 'Release' -ExportAlias
 
         # Pushing the changes from InvokeBuild to the main branch
       - name: Push changes to Git Repository
@@ -51,36 +52,51 @@ jobs:
           git config --global user.email 'vicente@eguibarIT.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git add .
-          git commit -am "Pushing Artifacts"
+          git commit -m "Build Module"
           git push
 
         # Uploads the build powershell module as an artifact
       - name: Upload Build Artifact
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2
         with:
           name: module-artifact # Naming the powershell module artifact
           path: ./Output/ # Saving the powershell module artifact to the path ./Output/
 
   # 2nd Job -- Releasing the module
   release:
+    name: Release Module
     needs: build
     runs-on: ubuntu-latest
     steps:
-        # Check out the main branch
-      - uses: actions/checkout@master
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
-      - name: Get tag
-        id: tag
+      - name: Get Module Version
+        id: get_version
         shell: pwsh
         run: |
-            # $ModuleName = (Get-ChildItem -Path .\Output).Name
-            # $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\$($ModuleName).psd1").Version)
-            $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
-            write-host $PS_Module_Version
-            echo "name=MODULE_VERSION::$PS_Module_Version"
-            echo "MODULE_VERSION=$PS_Module_Version"  >> $Env:GITHUB_ENV
+          $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
+          echo "MODULE_VERSION=$PS_Module_Version" >> $GITHUB_ENV
+          echo "Module version is $PS_Module_Version"
+
+      - name: Check if Release Exists
+        id: check_release
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const tagName = process.env.MODULE_VERSION;
+            const { data: releases } = await github.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const releaseExists = releases.some(release => release.tag_name === tagName);
+            console.log(`Release ${tagName} exists: ${releaseExists}`);
+            console.log(`::set-output name=exists::${releaseExists}`);
+
+
       - name: Create Release
-        id: create_release
+        if: steps.check_release.outputs.exists != 'true'
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
@@ -90,30 +106,11 @@ jobs:
           draft: false
           prerelease: false
 
-       # Check out the main branch
-      - uses: actions/checkout@main
-
-        # Downloads the powershell module build artifact made in the build step
-      - name: Download build artifact
-        uses: aochmann/actions-download-artifact@1.0.4
-        with:
-          repo: ${{github.repository}}
-          name: module-artifact # Name of the powershell module artifact
-          path: Artifact/ # Downloads the module to the path ./Artifact/
-
-        # Running a powershell command to save the module name as an Environment Variable
-      - name: Get Module Name
-        run: |
-          Write-Host $Env:GITHUB_REF
-          $ModuleName = (Get-ChildItem -Path ./Output/).Name
-          echo "MODULE_NAME=$ModuleName" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-        shell: pwsh
 
         # Publishing the module to powershell gallery
       - name: Publish to Powershell Gallery
         # You may pin to the exact commit or the version.
-        # uses: pcgeek86/publish-powershell-module-action@2a7837ce0746ea58c40574d8d6cbc6c44238edb7
-        uses: pcgeek86/publish-powershell-module-action@v20
+        uses: dfinke/PowerShellGalleryPublish@v0.1
         with:
-          modulePath: ./Output/${{ env.MODULE_NAME }} # Using the environment variable to find the module name
-          NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }} # Using the NugetAPI key set in GitHub Secrets
+          Path: ./Output/EguibarIT.psd1
+          NuGetApiKey: ${{ secrets.NUGET_API_KEY }}
