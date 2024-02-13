@@ -15,7 +15,8 @@ Create New delegated Site OU
 ```
 New-DelegateSiteOU [-ouName] <String> [[-ouDescription] <String>] [[-ouCity] <String>] [[-ouCountry] <String>]
  [[-ouStreetAddress] <String>] [[-ouState] <String>] [[-ouZIPCode] <String>] [-CreateExchange] [-CreateLAPS]
- [-ConfigXMLFile] <String> [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [[-GpoBackupPath] <String>] [-ConfigXMLFile] <String> [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -168,6 +169,21 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
+### -GpoBackupPath
+\[string\] Full path to theGPO backup files
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 10
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
 ### -ConfigXMLFile
 \[String\] Full path to the configuration.xml file
 
@@ -177,7 +193,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: True
-Position: 10
+Position: 11
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False

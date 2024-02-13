@@ -5,36 +5,43 @@ online version:
 schema: 2.0.0
 ---
 
-# New-CaObjects
+# Set-FunctionDisplay
 
 ## SYNOPSIS
-Create Certificate Authority Objects and Delegations
+Formats and displays the PsBoundParameters in a visually appealing way.
 
 ## SYNTAX
 
 ```
-New-CaObjects [-ConfigXMLFile] <String> [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+Set-FunctionDisplay [-HashTable] <Hashtable> [[-TabCount] <Int32>] [-ProgressAction <ActionPreference>]
  [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Create the Certificate Authority Objects used to manage
-this organization by following the defined Delegation Model.
+This advanced function formats and displays the contents of a hashtable, typically PsBoundParameters,
+making it easier to read and understand in verbose output.
+It supports customization of indentation.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-New-CaObjects
+Set-FunctionDisplay $PsBoundParameters
+```
+
+### EXAMPLE 2
+```
+Set-FunctionDisplay -HashTable $PsBoundParameters
 ```
 
 ## PARAMETERS
 
-### -ConfigXMLFile
-Full path to the configuration.xml file
+### -HashTable
+The hashtable to format and display.
+This is usually the $PsBoundParameters variable.
 
 ```yaml
-Type: String
+Type: Hashtable
 Parameter Sets: (All)
 Aliases:
 
@@ -45,34 +52,19 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
-### -WhatIf
-Shows what would happen if the cmdlet runs.
-The cmdlet is not run.
+### -TabCount
+The number of tabs to prepend to each line of output for indentation.
+Defaults to 2 if not specified or less than 2.
 
 ```yaml
-Type: SwitchParameter
+Type: Int32
 Parameter Sets: (All)
-Aliases: wi
+Aliases:
 
 Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
+Position: 2
+Default value: 0
+Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
@@ -98,12 +90,13 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
+### System.Collections.Hashtable
 ## NOTES
-Version:         1.3
-DateModified:    01/Feb/2018
+Version:         1.1
+DateModified:    13/Feb/2024
 LasModifiedBy:   Vicente Rodriguez Eguibar
     vicente@eguibar.com
-    Eguibar Information Technology S.L.
+    Eguibar IT
     http://www.eguibarit.com
 
 ## RELATED LINKS

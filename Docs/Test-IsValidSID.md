@@ -5,76 +5,43 @@ online version:
 schema: 2.0.0
 ---
 
-# Set-AdAclDelegateGalAdmin
+# Test-IsValidSID
 
 ## SYNOPSIS
-Wrapper for all rights used for GAL admin.
+Cmdlet will check if the input string is a valid SID.
 
 ## SYNTAX
 
 ```
-Set-AdAclDelegateGalAdmin [-Group] <String> [-LDAPpath] <String> [-RemoveRule]
- [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Test-IsValidSID [-ObjectSID] <String> [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The function will consolidate all rights used for GAL admin.
+Cmdlet will check if the input string is a valid SID.
+
+Cmdlet is intended as a dignostic tool for input validation
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
-```
-
-### EXAMPLE 2
-```
-Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
+Test-IsValidDN -ObjectSID 'S-1-5-21-2562450185-1914323539-512974444-1234'
 ```
 
 ## PARAMETERS
 
-### -Group
-Delegated Group Name
+### -ObjectSID
+A string representing the object Security Identifier (SID).
 
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: SID, SecurityIdentifier
 
 Required: True
 Position: 1
 Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -LDAPpath
-Distinguished Name of the OU where given group will manage a User GAL.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 2
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -RemoveRule
-If present, the access rule will be removed
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 3
-Default value: False
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
@@ -132,9 +99,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
+### System.Boolean
 ## NOTES
-Version:         1.1
-DateModified:    12/Feb/2018
+https://pscustomobject.github.io/powershell/howto/identity%20management/PowerShell-Check-If-String-Is-A-DN/
+Version:         1.0
+DateModified:    08/Oct/2021
 LasModifiedBy:   Vicente Rodriguez Eguibar
     vicente@eguibar.com
     Eguibar Information Technology S.L.

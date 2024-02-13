@@ -5,32 +5,34 @@ online version:
 schema: 2.0.0
 ---
 
-# Grant-NTFSPermission
+# New-TemplateOID
 
 ## SYNOPSIS
-Function to Add NTFS permissions to a folder
+Generates a new OID for certificate templates.
 
 ## SYNTAX
 
 ```
-Grant-NTFSPermission [-path] <String> [-object] <String> [-permission] <String>
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+New-TemplateOID [-Server] <String> [-ConfigNC] <String> [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Function to Add NTFS permissions to a folder
+This function generates a new OID (Object Identifier) for certificate templates within Active Directory.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Grant-NTFSPermission -Path 'C:\Shares' -Object 'TheGood' -Permissions 'FullControl'
+$result = New-TemplateOID -Server "DC01" -ConfigNC "DC=example,DC=com"
+$result.TemplateOID     # Output: ForestBaseOID.12345678.87654321
+$result.TemplateName    # Output: 87654321.0123456789ABCDEF0123456789ABCDEF
 ```
 
 ## PARAMETERS
 
-### -path
-Absolute path to the object
+### -Server
+FQDN of a Domain Controller.
 
 ```yaml
 Type: String
@@ -44,8 +46,8 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
-### -object
-Name of the Identity getting the permission.
+### -ConfigNC
+Configuration Naming Context of the domain.
 
 ```yaml
 Type: String
@@ -54,21 +56,6 @@ Aliases:
 
 Required: True
 Position: 2
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -permission
-Permission of the object
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 3
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
@@ -96,9 +83,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
+### System.Collections.Hashtable
 ## NOTES
-Version:         1.1
-DateModified:    03/Oct/2016
+Version:         1.4
+DateModified:    08/Oct/2021
 LasModifiedBy:   Vicente Rodriguez Eguibar
     vicente@eguibar.com
     Eguibar Information Technology S.L.

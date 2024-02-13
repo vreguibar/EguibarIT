@@ -5,32 +5,36 @@ online version:
 schema: 2.0.0
 ---
 
-# Grant-NTFSPermission
+# Test-IsUniqueOID
 
 ## SYNOPSIS
-Function to Add NTFS permissions to a folder
+Checks if a given Certificate Template OID is unique within the specified context.
 
 ## SYNTAX
 
 ```
-Grant-NTFSPermission [-path] <String> [-object] <String> [-permission] <String>
+Test-IsUniqueOID [-cn] <String> [-TemplateOID] <String> [-Server] <String> [-ConfigNC] <String>
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Function to Add NTFS permissions to a folder
+This function queries Active Directory to determine if a given Certificate Template OID
+is already in use within the specified configuration context.
+It returns $True if the OID
+is unique and $False if it already exists.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Grant-NTFSPermission -Path 'C:\Shares' -Object 'TheGood' -Permissions 'FullControl'
+Test-IsUniqueOID -cn "MyTemplate" -TemplateOID "1.2.3.4" -Server "ADServer01" -ConfigNC "DC=example,DC=com"
+Checks if the Certificate Template with the specified OID is unique in the given context.
 ```
 
 ## PARAMETERS
 
-### -path
-Absolute path to the object
+### -cn
+Specifies the Common Name (CN) of the Certificate Template.
 
 ```yaml
 Type: String
@@ -40,12 +44,12 @@ Aliases:
 Required: True
 Position: 1
 Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -object
-Name of the Identity getting the permission.
+### -TemplateOID
+Specifies the OID (Object Identifier) of the Certificate Template.
 
 ```yaml
 Type: String
@@ -55,12 +59,12 @@ Aliases:
 Required: True
 Position: 2
 Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -permission
-Permission of the object
+### -Server
+Specifies the Active Directory server to query.
 
 ```yaml
 Type: String
@@ -70,7 +74,22 @@ Aliases:
 Required: True
 Position: 3
 Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ConfigNC
+Specifies the Configuration Naming Context (ConfigNC) to search for the Certificate Template.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 4
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -96,12 +115,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
+### System.Boolean
+### Returns $True if the Certificate Template OID is unique, and $False if it already exists.
 ## NOTES
-Version:         1.1
-DateModified:    03/Oct/2016
-LasModifiedBy:   Vicente Rodriguez Eguibar
-    vicente@eguibar.com
-    Eguibar Information Technology S.L.
-    http://www.eguibarit.com
 
 ## RELATED LINKS

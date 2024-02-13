@@ -5,40 +5,35 @@ online version:
 schema: 2.0.0
 ---
 
-# Set-AdAclDelegateGalAdmin
+# Add-AdGroupNesting
 
 ## SYNOPSIS
-Wrapper for all rights used for GAL admin.
+Same as Add-AdGroupMember but with error handling and logging
 
 ## SYNTAX
 
 ```
-Set-AdAclDelegateGalAdmin [-Group] <String> [-LDAPpath] <String> [-RemoveRule]
- [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Add-AdGroupNesting [-Identity] <Object> [-Members] <Object> [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The function will consolidate all rights used for GAL admin.
+Same as Add-AdGroupMember but with error handling and logging
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
-```
-
-### EXAMPLE 2
-```
-Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
+Add-AdGroupNesting -Identity "Domain Admins" -Members TheUgly
 ```
 
 ## PARAMETERS
 
-### -Group
-Delegated Group Name
+### -Identity
+Param1 Group which membership is to be changed
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: (All)
 Aliases:
 
@@ -49,32 +44,17 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
-### -LDAPpath
-Distinguished Name of the OU where given group will manage a User GAL.
+### -Members
+Param2 ID of New Member of the group
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: (All)
 Aliases:
 
 Required: True
 Position: 2
 Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -RemoveRule
-If present, the access rule will be removed
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 3
-Default value: False
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
@@ -133,11 +113,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ## NOTES
-Version:         1.1
-DateModified:    12/Feb/2018
-LasModifiedBy:   Vicente Rodriguez Eguibar
-    vicente@eguibar.com
-    Eguibar Information Technology S.L.
-    http://www.eguibarit.com
+Version:         1.3
+DateModified:    24/Jan/2024
+LastModifiedBy:   Vicente Rodriguez Eguibar
+vicente@eguibar.com
+Eguibar Information Technology S.L.
+http://www.eguibarit.com
 
 ## RELATED LINKS

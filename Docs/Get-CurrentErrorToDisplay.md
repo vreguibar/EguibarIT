@@ -5,57 +5,59 @@ online version:
 schema: 2.0.0
 ---
 
-# New-ExchangeObjects
+# Get-CurrentErrorToDisplay
 
 ## SYNOPSIS
-Create Exchange Objects and Containers
+{{ Fill in the Synopsis }}
 
 ## SYNTAX
 
 ```
-New-ExchangeObjects [-ConfigXMLFile] <String> [[-DMscripts] <String>] [-ProgressAction <ActionPreference>]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+Get-CurrentErrorToDisplay [[-CurrentError] <Object>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Create the Exchange OU structure and objects used to manage
-this organization by following the defined Delegation Model.
+{{ Fill in the Description }}
 
 ## EXAMPLES
 
-### EXAMPLE 1
+### Example 1
+```powershell
+PS C:\> {{ Add example code here }}
 ```
-New-ExchangeObjects
-```
+
+{{ Add example description here }}
 
 ## PARAMETERS
 
-### -ConfigXMLFile
-PARAM1 full path to the configuration.xml file
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
 
 ```yaml
-Type: String
+Type: SwitchParameter
 Parameter Sets: (All)
-Aliases:
+Aliases: cf
 
-Required: True
-Position: 1
+Required: False
+Position: Named
 Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -DMscripts
-Param2 Location of all scripts & files
+### -CurrentError
+Current error (usually from $Error variable) which is going to be proccessed.
+If no error is provided then $error\[0\] will be used instead.
 
 ```yaml
-Type: String
+Type: Object
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 2
-Default value: C:\PsScripts\
+Position: 0
+Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
@@ -68,21 +70,6 @@ The cmdlet is not run.
 Type: SwitchParameter
 Parameter Sets: (All)
 Aliases: wi
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Confirm
-Prompts you for confirmation before running the cmdlet.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: cf
 
 Required: False
 Position: Named
@@ -111,14 +98,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
+### System.Object
+
 ## OUTPUTS
 
+### System.String
+
 ## NOTES
-Version:         1.0
-DateModified:    19/Apr/2016
-LasModifiedBy:   Vicente Rodriguez Eguibar
-vicente@eguibar.com
-Eguibar Information Technology S.L.
-http://www.eguibarit.com
 
 ## RELATED LINKS

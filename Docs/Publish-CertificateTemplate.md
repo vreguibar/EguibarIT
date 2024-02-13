@@ -5,37 +5,32 @@ online version:
 schema: 2.0.0
 ---
 
-# Set-AdAclDelegateGalAdmin
+# Publish-CertificateTemplate
 
 ## SYNOPSIS
-Wrapper for all rights used for GAL admin.
+Publishes a certificate template to all available Certification Authorities (CAs) in the Active Directory environment.
 
 ## SYNTAX
 
 ```
-Set-AdAclDelegateGalAdmin [-Group] <String> [-LDAPpath] <String> [-RemoveRule]
- [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Publish-CertificateTemplate [-CertDisplayName] <String> [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The function will consolidate all rights used for GAL admin.
+This function publishes a specified certificate template to all Certification Authorities in the Active Directory.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
-```
-
-### EXAMPLE 2
-```
-Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
+Publish-CertificateTemplate -CertDisplayName "MyCertificateTemplate"
 ```
 
 ## PARAMETERS
 
-### -Group
-Delegated Group Name
+### -CertDisplayName
+Specifies the display name of the certificate template to be published.
 
 ```yaml
 Type: String
@@ -45,37 +40,7 @@ Aliases:
 Required: True
 Position: 1
 Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -LDAPpath
-Distinguished Name of the OU where given group will manage a User GAL.
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: 2
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -RemoveRule
-If present, the access rule will be removed
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 3
-Default value: False
-Accept pipeline input: True (ByPropertyName, ByValue)
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -133,9 +98,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ## NOTES
-Version:         1.1
-DateModified:    12/Feb/2018
-LasModifiedBy:   Vicente Rodriguez Eguibar
+Version:         1.0
+    DateModified:    22/Jun/2016
+    LasModifiedBy:   Vicente Rodriguez Eguibar
     vicente@eguibar.com
     Eguibar Information Technology S.L.
     http://www.eguibarit.com

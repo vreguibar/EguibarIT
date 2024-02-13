@@ -5,33 +5,35 @@ online version:
 schema: 2.0.0
 ---
 
-# New-DfsObjects
+# New-Template
 
 ## SYNOPSIS
-Create DFS Objects and Delegations
+Creates a new PKI template.
 
 ## SYNTAX
 
 ```
-New-DfsObjects [-ConfigXMLFile] <String> [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+New-Template [-DisplayName] <String> [-TemplateOtherAttributes] <Hashtable>
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Create the DFS Objects used to manage
-this organization by following the defined Delegation Model.
+This function creates a new PKI template in Active Directory Certificate Services.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-New-DfsObjects -ConfigXMLFile 'C:\PsScripts\Config.xml'
+New-Template -DisplayName "CustomTemplate" -TemplateOtherAttributes @{
+    'KeyType' = 'ExchangeSignature'
+    'KeyUsage' = 'DigitalSignature'
+}
 ```
 
 ## PARAMETERS
 
-### -ConfigXMLFile
-\[String\] Full path to the configuration.xml file
+### -DisplayName
+Display Name of the new template.
 
 ```yaml
 Type: String
@@ -40,6 +42,21 @@ Aliases:
 
 Required: True
 Position: 1
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -TemplateOtherAttributes
+attributes in the form of a Hashtable for the new template.
+
+```yaml
+Type: Hashtable
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 2
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
@@ -99,8 +116,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ## NOTES
-Version:         1.3
-DateModified:    01/Feb/2018
+Version:         1.4
+DateModified:    08/Oct/2021
 LasModifiedBy:   Vicente Rodriguez Eguibar
     vicente@eguibar.com
     Eguibar Information Technology S.L.

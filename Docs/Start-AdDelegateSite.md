@@ -5,38 +5,46 @@ online version:
 schema: 2.0.0
 ---
 
-# New-DHCPobjects
+# Start-AdDelegateSite
 
 ## SYNOPSIS
-Create DHCP Objects and Delegations
+The function will create the corresponding Tier2 site
 
 ## SYNTAX
 
 ```
-New-DHCPobjects [-ConfigXMLFile] <String> [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+Start-AdDelegateSite [-ConfigXMLFile] <String> [-ouName] <String> [-QuarantineDN] <String> [-CreateExchange]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Create the DHCP Objects used to manage
-this organization by following the defined Delegation Model.
+This function will create all needed objects and related delegations for the
+given site.
+This Tier2 site is intended to hold all related Tier2 objects, as Users, Computers, Groups, etc.
+and provide all delegated rights and permissions according to the delegation model.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-New-DHCPobjects
+Start-AdDelegateSite -ConfigXMLFile "C:\PsScripts\Config.xml" -ouName "GOOD" -QuarantineDN "Quarantine" -CreateExchange
 ```
 
 ### EXAMPLE 2
 ```
-New-DfsObjects -ConfigXMLFile 'C:\PsScripts\Config.xml'
+$Splat = @{
+    ConfigXMLFile  = "C:\PsScripts\Config.xml"
+    ouName         = "GOOD"
+    QuarantineDN   = "Quarantine"
+    CreateExchange = $true
+}
+Start-AdDelegateSite @Splat
 ```
 
 ## PARAMETERS
 
 ### -ConfigXMLFile
-\[String\] Full path to the configuration.xml file
+Full path to the Configuration.XML file
 
 ```yaml
 Type: String
@@ -46,6 +54,51 @@ Aliases:
 Required: True
 Position: 1
 Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -ouName
+Name of the Site OU
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 2
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -QuarantineDN
+Name new redirected OU for computers
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 3
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -CreateExchange
+If present It will create all needed Exchange objects and containers.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 4
+Default value: False
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
@@ -104,8 +157,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ## NOTES
-Version:         1.0
-DateModified:    29/Oct/2019
+Version:         1.3
+DateModified:    12/Feb/2019
 LasModifiedBy:   Vicente Rodriguez Eguibar
     vicente@eguibar.com
     Eguibar Information Technology S.L.

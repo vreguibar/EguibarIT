@@ -5,37 +5,33 @@ online version:
 schema: 2.0.0
 ---
 
-# Set-AdAclDelegateGalAdmin
+# New-ExchangeObject
 
 ## SYNOPSIS
-Wrapper for all rights used for GAL admin.
+Create Exchange Objects and Containers
 
 ## SYNTAX
 
 ```
-Set-AdAclDelegateGalAdmin [-Group] <String> [-LDAPpath] <String> [-RemoveRule]
- [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+New-ExchangeObject [-ConfigXMLFile] <String> [[-DMscripts] <String>] [-ProgressAction <ActionPreference>]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The function will consolidate all rights used for GAL admin.
+Create the Exchange OU structure and objects used to manage
+this organization by following the defined Delegation Model.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
-```
-
-### EXAMPLE 2
-```
-Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
+New-ExchangeObjects
 ```
 
 ## PARAMETERS
 
-### -Group
-Delegated Group Name
+### -ConfigXMLFile
+PARAM1 full path to the configuration.xml file
 
 ```yaml
 Type: String
@@ -49,32 +45,17 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
-### -LDAPpath
-Distinguished Name of the OU where given group will manage a User GAL.
+### -DMscripts
+Param2 Location of all scripts & files
 
 ```yaml
 Type: String
 Parameter Sets: (All)
 Aliases:
 
-Required: True
-Position: 2
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -RemoveRule
-If present, the access rule will be removed
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
 Required: False
-Position: 3
-Default value: False
+Position: 2
+Default value: C:\PsScripts\
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
@@ -133,11 +114,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## OUTPUTS
 
 ## NOTES
-Version:         1.1
-DateModified:    12/Feb/2018
+Version:         1.0
+DateModified:    19/Apr/2016
 LasModifiedBy:   Vicente Rodriguez Eguibar
-    vicente@eguibar.com
-    Eguibar Information Technology S.L.
-    http://www.eguibarit.com
+vicente@eguibar.com
+Eguibar Information Technology S.L.
+http://www.eguibarit.com
 
 ## RELATED LINKS
