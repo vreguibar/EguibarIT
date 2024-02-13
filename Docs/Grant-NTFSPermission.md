@@ -24,13 +24,13 @@ Function to Add NTFS permissions to a folder
 
 ### EXAMPLE 1
 ```
-Grant-NTFSPermission -Path 'C:\Shares' -Object 'TheGood' -Permissions 'FullControl'
+Grant-NTFSPermissions path object permission
 ```
 
 ## PARAMETERS
 
 ### -path
-Absolute path to the object
+Param1 path to the resource|folder
 
 ```yaml
 Type: String
@@ -45,7 +45,7 @@ Accept wildcard characters: False
 ```
 
 ### -object
-Name of the Identity getting the permission.
+Param2 object or SecurityPrincipal
 
 ```yaml
 Type: String
@@ -60,7 +60,7 @@ Accept wildcard characters: False
 ```
 
 ### -permission
-Permission of the object
+Param3 permission
 
 ```yaml
 Type: String
@@ -94,6 +94,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
+### Param1 path:......... The path to the folder
+### Param2 object:....... the identity which will get the permissions
+### Param3 permission:... the permissions to be modified
 ## OUTPUTS
 
 ## NOTES

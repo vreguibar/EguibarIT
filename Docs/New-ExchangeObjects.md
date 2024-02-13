@@ -5,41 +5,58 @@ online version:
 schema: 2.0.0
 ---
 
-# ConvertTo-WmiFilter
+# New-ExchangeObjects
 
 ## SYNOPSIS
+Create Exchange Objects and Containers
 
 ## SYNTAX
 
 ```
-ConvertTo-WmiFilter [[-ADObject] <ADObject[]>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+New-ExchangeObjects [-ConfigXMLFile] <String> [[-DMscripts] <String>] [-ProgressAction <ActionPreference>]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{ Fill in the Description }}
+Create the Exchange OU structure and objects used to manage
+this organization by following the defined Delegation Model.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-ConvertTo-WmiFilter
+New-ExchangeObjects
 ```
 
 ## PARAMETERS
 
-### -ADObject
-{{ Fill ADObject Description }}
+### -ConfigXMLFile
+PARAM1 full path to the configuration.xml file
 
 ```yaml
-Type: ADObject[]
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -DMscripts
+Param2 Location of all scripts & files
+
+```yaml
+Type: String
 Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 1
-Default value: None
-Accept pipeline input: False
+Position: 2
+Default value: C:\PsScripts\
+Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
@@ -98,10 +115,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## NOTES
 Version:         1.0
-DateModified:    25/Mar/2014
+DateModified:    19/Apr/2016
 LasModifiedBy:   Vicente Rodriguez Eguibar
-    vicente@eguibar.com
-    Eguibar Information Technology S.L.
-    http://www.eguibarit.com
+vicente@eguibar.com
+Eguibar Information Technology S.L.
+http://www.eguibarit.com
 
 ## RELATED LINKS
