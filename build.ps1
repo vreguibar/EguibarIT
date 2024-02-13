@@ -246,6 +246,22 @@ Function ReleaseBuild {
         throw "Failed copying Private functions from: .\$($ModuleName)\Private\ to .\Output\$($ModuleName)\$ModuleVersion\Private\"
     }
 
+    Write-Verbose -Message 'Copying Classes .ps1 functions'
+    try {
+        New-Item -Path ".\Output\$($ModuleName)\$($ModuleVersion)\Classes" -ItemType Directory -ErrorAction Continue
+        Copy-Item -Path '.\Classes\*.ps1' -Destination ".\Output\$($ModuleName)\$ModuleVersion\Classes\"
+    } catch {
+        throw "Failed copying Classes functions from: .\$($ModuleName)\Classes\ to .\Output\$($ModuleName)\$ModuleVersion\Classes\"
+    }
+
+    Write-Verbose -Message 'Copying Enums .ps1 functions'
+    try {
+        New-Item -Path ".\Output\$($ModuleName)\$($ModuleVersion)\Enums" -ItemType Directory -ErrorAction Continue
+        Copy-Item -Path '.\Enums\*.ps1' -Destination ".\Output\$($ModuleName)\$ModuleVersion\Enums\"
+    } catch {
+        throw "Failed copying Enums functions from: .\$($ModuleName)\Enums\ to .\Output\$($ModuleName)\$ModuleVersion\Enums\"
+    }
+
     Write-Verbose -Message 'Updating Module Manifest with root module'
     try {
         Write-Verbose -Message 'Updating the Module Manifest'
@@ -263,6 +279,7 @@ Function ReleaseBuild {
         throw "Failed importing the module: $($ModuleName)"
     }
 
+    <#
     if ($null -eq $platyPS -or ($platyPS | Sort-Object Version -Descending | Select-Object -First 1).Version -lt [version]0.12) {
         Write-Verbose -Verbose 'platyPS module not found or below required version of 0.12, installing the latest version.'
         Install-Module -Force -Name platyPS -Scope CurrentUser -Repository PSGallery
@@ -286,6 +303,7 @@ Function ReleaseBuild {
             New-ExternalHelp '.\Docs' -OutputPath ".\Output\$($ModuleName)\$($ModuleVersion)\en-US\" -ErrorAction SilentlyContinue
         }
     }
+    #>
 
 
 }
