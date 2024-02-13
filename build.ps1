@@ -347,7 +347,7 @@ task Publish -if($Configuration -eq 'Release') {
 # Call tasks based on configuration
 #task . Init, DebugBuild, Build, Clean, Publish
 
-task . DebugBuild, Build, Clean, Publish
+#task . DebugBuild, Build, Clean, Publish
 
 # Run the tasks based on configuration
 if ($Configuration -eq 'debug') {
