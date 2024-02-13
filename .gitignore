@@ -1,5 +1,6 @@
 ﻿To-Do.txt
 *.html
+*.old
 Publish.ps1
 build.ps1
 Ignore/*
@@ -28,3 +29,4 @@ Lib/Core/*
 # Ignore all local history of files
 .history
 .ionide
+Output/*

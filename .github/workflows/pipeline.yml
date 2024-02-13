@@ -40,10 +40,6 @@ jobs:
               Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
           }
 
-        # Running the InvokeBuild Module Invoke-Build command with "Release configuration"
-      - name: Invoke Build script
-        shell: pwsh
-        run: .\build.ps1 -Configuration 'Release' -ExportAlias
 
         # Pushing the changes from InvokeBuild to the main branch
       - name: Push changes to Git Repository
