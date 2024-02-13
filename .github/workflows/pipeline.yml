@@ -98,12 +98,11 @@ jobs:
           (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
 
 
-        # Publishing the module to powershell gallery
+        # Create a release to github
       - name: Create Release
         if: steps.check_release.outputs.exists != 'true'
         uses: actions/create-release@v1
         env:
-          # This token is provided by Actions, you do not need to create your own token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.release_and_publish.outputs.newVersion }}
@@ -111,6 +110,7 @@ jobs:
           draft: false
           prerelease: false
 
+      # Publishing the module to powershell gallery
       - name: Publish to PowerShell Gallery
         uses: pcgeek86/publish-powershell-module-action@v20
         with:
