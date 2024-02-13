@@ -25,20 +25,10 @@ jobs:
       - name: Install Required Windows Features and Modules
         shell: pwsh
         run: |
-          #Install-WindowsFeature -Name RSAT-AD-PowerShell
-          #Install-WindowsFeature -Name GPMC
           Install-Module -Name Pester           -Force
           Install-Module -Name PSScriptAnalyzer -Force
           Install-Module -Name PowerShellGet    -Force
-          #Install-Module -Name platyPS          -Force
           Install-Module -Name InvokeBuild      -Force
-
-      - name: Import Modules
-        shell: pwsh
-        run: |
-          # Explicitly load the Active Directory module
-          #Import-Module -Name ActiveDirectory -Force
-          #Import-Module -Name GroupPolicy     -Force
 
       - name: Run PSScriptAnalyzer on different folders
         shell: pwsh
@@ -74,8 +64,9 @@ jobs:
       - name: Download Artifact
         uses: actions/download-artifact@v2
         with:
-          name: module-artifact
-          path: ./Artifact
+          name: module-artifact # Make sure this matches the name used in the Upload Artifact step
+          path: ./Artifact      # Make sure this path matches the path where the artifact was uploaded
+
 
       - name: Check if Release Exists
         id: check_release
