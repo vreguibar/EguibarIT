@@ -110,7 +110,9 @@ jobs:
         # Publishing the module to powershell gallery
       - name: Publish to Powershell Gallery
         # You may pin to the exact commit or the version.
-        uses: plaster/Publish-ModuleToPSGallery@v1
+        uses: pcgeek86/publish-powershell-module-action@v20
         with:
-          Path: ./Output/${{ env.MODULE_NAME }} # Using the environment variable to find the module name
-          NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }} # Using the NugetAPI key set in GitHub Secrets
+          # Using the environment variable to find the module name
+          modulePath: ./Output/${{ env.MODULE_NAME }}
+          # Using the NugetAPI key set in GitHub Secrets
+          NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
