@@ -25,20 +25,20 @@ jobs:
       - name: Install Required Windows Features and Modules
         shell: pwsh
         run: |
-          Install-WindowsFeature -Name RSAT-AD-PowerShell
-          Install-WindowsFeature -Name GPMC
+          #Install-WindowsFeature -Name RSAT-AD-PowerShell
+          #Install-WindowsFeature -Name GPMC
           Install-Module -Name Pester           -Force
           Install-Module -Name PSScriptAnalyzer -Force
           Install-Module -Name PowerShellGet    -Force
-          Install-Module -Name platyPS          -Force
+          #Install-Module -Name platyPS          -Force
           Install-Module -Name InvokeBuild      -Force
 
       - name: Import Modules
         shell: pwsh
         run: |
           # Explicitly load the Active Directory module
-          Import-Module -Name ActiveDirectory -Force
-          Import-Module -Name GroupPolicy     -Force
+          #Import-Module -Name ActiveDirectory -Force
+          #Import-Module -Name GroupPolicy     -Force
 
       - name: Run PSScriptAnalyzer on different folders
         shell: pwsh
