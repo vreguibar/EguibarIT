@@ -12,7 +12,8 @@ if ($PSVersionTable.PSVersion.Major -lt 5) {
 
 # Initialize Modules
 function Initialize-Modules {
-    $requiredModules = @('PSScriptAnalyzer', 'Pester', 'platyPS', 'PowerShellGet', 'ActiveDirectory', 'GroupPolicy')
+    #$requiredModules = @('PSScriptAnalyzer', 'Pester', 'platyPS', 'PowerShellGet', 'ActiveDirectory', 'GroupPolicy')
+    $requiredModules = @('PSScriptAnalyzer', 'Pester', 'platyPS', 'PowerShellGet')
 
     foreach ($module in $requiredModules) {
         if (-not (Get-Module -Name $module -ListAvailable)) {
