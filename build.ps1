@@ -345,14 +345,17 @@ task Publish -if($Configuration -eq 'Release') {
 } #end Function
 
 # Call tasks based on configuration
-task . Init, DebugBuild, Build, Clean, Publish
+#task . Init, DebugBuild, Build, Clean, Publish
+
+task . DebugBuild, Build, Clean, Publish
+
 # Run the tasks based on configuration
 if ($Configuration -eq 'debug') {
-    Init
+    #Init
     DebugBuild
     Clean
 } elseif ($Configuration -eq 'Release') {
-    Init
+    #Init
     Build
     Clean
     Publish
