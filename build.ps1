@@ -166,7 +166,7 @@ Function DebugBuild {
 }
 
 # Task: Build
-Function Build {
+Function ReleaseBuild {
     $Script:ModuleName = (Test-ModuleManifest -Path '.\EguibarIT.psd1').Name
     Write-Verbose $ModuleName
     if (Test-Path ".\Output\$($ModuleName)") {
@@ -315,14 +315,18 @@ Function Publish {
     }
 }
 
-# Run the tasks based on configuration
-if ($Configuration -eq 'debug') {
-    Init
-    DebugBuild
-    Clean
-} elseif ($Configuration -eq 'Release') {
-    Init
-    Build
-    Clean
-    Publish
+# Call tasks based on configuration
+switch ($Configuration) {
+    'debug' {
+        Init
+        Test
+        DebugBuild
+        Clean
+    }
+    'Release' {
+        Init
+        ReleaseBuild
+        Clean
+        Publish
+    }
 }
