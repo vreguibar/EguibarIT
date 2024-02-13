@@ -26,13 +26,15 @@ function Initialize-Modules {
 }
 
 # Task: Initialization
-task Init {
+#task Init {
+Function Init {
     Write-Verbose -Message 'Initializing Module PSScriptAnalyzer'
     Initialize-Modules
 }
 
 # Task: Testing
-task Test {
+#task Test {
+Function Test {
     try {
         Write-Verbose -Message 'Running PSScriptAnalyzer on Public functions'
         Invoke-ScriptAnalyzer '.\Public' -Recurse
@@ -67,7 +69,8 @@ task Test {
 
 
 # Task: Debug build
-task DebugBuild -if ($Configuration -eq 'debug') {
+#task DebugBuild -if ($Configuration -eq 'debug') {
+Function DebugBuild {
     $Script:ModuleName = (Test-ModuleManifest -Path '.\*.psd1').Name
     Write-Verbose $ModuleName
     if (Test-Path ".\Output\temp\$($ModuleName)") {
@@ -170,7 +173,8 @@ task DebugBuild -if ($Configuration -eq 'debug') {
 }
 
 # Task: Build
-task Build -if($Configuration -eq 'Release') {
+#task Build -if($Configuration -eq 'Release') {
+Function Build {
 
     $Script:ModuleName = (Test-ModuleManifest -Path '.\EguibarIT.psd1').Name
     Write-Verbose $ModuleName
@@ -317,7 +321,8 @@ task Build -if($Configuration -eq 'Release') {
 } #end Function
 
 # Task: Clean
-task Clean -if($Configuration -eq 'Release') {
+#task Clean -if($Configuration -eq 'Release') {
+Function Clean {
     if (Test-Path '.\Output\temp') {
         Write-Verbose -Message 'Removing temp folders'
         Remove-Item '.\Output\temp' -Recurse -Force
@@ -325,7 +330,8 @@ task Clean -if($Configuration -eq 'Release') {
 } #end Function
 
 # Task: Publish
-task Publish -if($Configuration -eq 'Release') {
+#task Publish -if($Configuration -eq 'Release') {
+Function Publish {
 
     Write-Verbose -Message 'Publishing Module to PowerShell gallery'
     Write-Verbose -Message "Importing Module .\Output\$($ModuleName)\$ModuleVersion\$($ModuleName).psm1"
@@ -344,10 +350,9 @@ task Publish -if($Configuration -eq 'Release') {
     } #end If-Else
 } #end Function
 
+<#
 # Call tasks based on configuration
 #task . Init, DebugBuild, Build, Clean, Publish
-
-#task . DebugBuild, Build, Clean, Publish
 
 # Run the tasks based on configuration
 if ($Configuration -eq 'debug') {
@@ -359,4 +364,21 @@ if ($Configuration -eq 'debug') {
     Build
     Clean
     Publish
+}
+#>
+
+# Call tasks based on configuration
+switch ($Configuration) {
+    'debug' {
+        Init
+        Test
+        DebugBuild
+        Clean
+    }
+    'Release' {
+        Init
+        Build
+        Clean
+        Publish
+    }
 }
