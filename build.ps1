@@ -32,17 +32,20 @@ Function Init {
 }
 
 # Task: Testing
-
 Function Test {
     try {
         Write-Verbose -Message 'Running PSScriptAnalyzer on Public functions'
         Invoke-ScriptAnalyzer '.\Public' -Recurse
+
         Write-Verbose -Message 'Running PSScriptAnalyzer on Private functions'
         Invoke-ScriptAnalyzer '.\Private' -Recurse
+
         Write-Verbose -Message 'Running PSScriptAnalyzer on Enums functions'
         Invoke-ScriptAnalyzer '.\Enums' -Recurse
+
         Write-Verbose -Message 'Running PSScriptAnalyzer on Classes functions'
         Invoke-ScriptAnalyzer '.\Classes' -Recurse
+
     } catch {
         throw "Couldn't run Script Analyzer"
     }
@@ -168,14 +171,16 @@ Function DebugBuild {
 
 # Task: Build
 Function ReleaseBuild {
+
     $Script:ModuleName = (Test-ModuleManifest -Path '.\EguibarIT.psd1').Name
     Write-Verbose $ModuleName
+
     if (Test-Path ".\Output\$($ModuleName)") {
         Write-Verbose -Message 'Output folder does exist, continuing build.'
     } else {
         Write-Verbose -Message 'Output folder does not exist. Creating it now'
         New-Item -Path ".\Output\$($ModuleName)" -ItemType Directory -Force
-    }
+    } #end If-Else
 
     if (!($ModuleVersion)) {
         Write-Verbose -Message 'No new ModuleVersion was provided, locating existing version from psd file.'
@@ -183,30 +188,33 @@ Function ReleaseBuild {
 
         $publicFunctions = Get-ChildItem -Path '.\Public\*.ps1'
         $privateFunctions = Get-ChildItem -Path '.\Private\*.ps1'
-        $totalFunctions = $publicFunctions.count + $privateFunctions.count
+        $ClassesFunctions = Get-ChildItem -Path '.\Classes\*.ps1'
+        $EnumsFunctions = Get-ChildItem -Path '.\Enums\*.ps1'
+        $totalFunctions = $publicFunctions.count + $privateFunctions.count + $ClassesFunctions.count + $EnumsFunctions.count
         $ModuleBuildNumber = $oldModuleVersion.Build + 1
         Write-Verbose -Message 'Updating the Moduleversion'
+
         $Script:ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
         Write-Verbose "Mew ModuleVersion: $ModuleVersion"
         Update-ModuleManifest -Path ".\$($ModuleName).psd1" -ModuleVersion $ModuleVersion
-    }
+    } #end If
 
     if (Test-Path ".\Output\$($ModuleName)\$($ModuleVersion)") {
         Write-Warning -Message "Version: $($ModuleVersion) - folder was detected in .\Output\$($ModuleName). Removing old temp folder."
         Remove-Item ".\Output\$($ModuleName)\$($ModuleVersion)" -Recurse -Force
-    }
+    } #end If
 
     Write-Verbose -Message "Creating new temp module version folder: .\Output\$($ModuleName)\$($ModuleVersion)."
     if (Test-Path ".\Output\$($ModuleName)") {
         Write-Verbose -Message 'Detected old folder, removing it from output folder'
         Remove-Item -Path ".\Output\$($ModuleName)" -Recurse -Force
-    }
-    try {
+    } #end If
 
+    try {
         New-Item -Path ".\Output\$($ModuleName)\$($ModuleVersion)" -ItemType Directory
     } catch {
         throw "Failed creating the new temp module folder: .\Output\$($ModuleName)\$($ModuleVersion)"
-    }
+    } #end Try-Catch
 
     Write-Verbose -Message 'Generating the Module Manifest for temp build and generating new Module File'
     try {
@@ -214,7 +222,7 @@ Function ReleaseBuild {
         New-Item -Path ".\Output\$($ModuleName)\$ModuleVersion\$($ModuleName).psm1" -ItemType File
     } catch {
         throw "Failed copying Module Manifest from: .\$($ModuleName).psd1 to .\Output\$($ModuleName)\$ModuleVersion\ or Generating the new psm file."
-    }
+    } #end Try-Catch
 
     Write-Verbose -Message 'Updating Module Manifest with Public Functions'
     try {
@@ -227,7 +235,7 @@ Function ReleaseBuild {
         Update-ModuleManifest -Path ".\Output\$($ModuleName)\$($ModuleVersion)\$($ModuleName).psd1" -FunctionsToExport $functionsToExport
     } catch {
         throw 'Failed updating Module manifest with public functions'
-    }
+    } #end Try-Catch
 
     Write-Verbose -Message 'Copying Public .ps1 files'
     try {
@@ -236,7 +244,7 @@ Function ReleaseBuild {
         Copy-Item -Path '.\Public\*.ps1' -Destination ".\Output\$($ModuleName)\$ModuleVersion\Public\"
     } catch {
         throw "Failed copying Public functions from: .\$($ModuleName)\Public\ to .\Output\$($ModuleName)\$ModuleVersion\Public\"
-    }
+    } #end Try-Catch
 
     Write-Verbose -Message 'Copying Private .ps1 functions'
     try {
@@ -244,7 +252,7 @@ Function ReleaseBuild {
         Copy-Item -Path '.\Private\*.ps1' -Destination ".\Output\$($ModuleName)\$ModuleVersion\Private\"
     } catch {
         throw "Failed copying Private functions from: .\$($ModuleName)\Private\ to .\Output\$($ModuleName)\$ModuleVersion\Private\"
-    }
+    } #end Try-Catch
 
     Write-Verbose -Message 'Copying Classes .ps1 functions'
     try {
@@ -252,7 +260,7 @@ Function ReleaseBuild {
         Copy-Item -Path '.\Classes\*.ps1' -Destination ".\Output\$($ModuleName)\$ModuleVersion\Classes\"
     } catch {
         throw "Failed copying Classes functions from: .\$($ModuleName)\Classes\ to .\Output\$($ModuleName)\$ModuleVersion\Classes\"
-    }
+    } #end Try-Catch
 
     Write-Verbose -Message 'Copying Enums .ps1 functions'
     try {
@@ -260,7 +268,7 @@ Function ReleaseBuild {
         Copy-Item -Path '.\Enums\*.ps1' -Destination ".\Output\$($ModuleName)\$ModuleVersion\Enums\"
     } catch {
         throw "Failed copying Enums functions from: .\$($ModuleName)\Enums\ to .\Output\$($ModuleName)\$ModuleVersion\Enums\"
-    }
+    } #end Try-Catch
 
     Write-Verbose -Message 'Updating Module Manifest with root module'
     try {
@@ -306,46 +314,50 @@ Function ReleaseBuild {
     #>
 
 
-}
+} #end Function
 
 # Task: Clean
 Function Clean {
     if (Test-Path '.\Output\temp') {
         Write-Verbose -Message 'Removing temp folders'
         Remove-Item '.\Output\temp' -Recurse -Force
-    }
-}
+    } #end If
+} #end Function
 
 # Task: Publish
 Function Publish {
 
     Write-Verbose -Message 'Publishing Module to PowerShell gallery'
     Write-Verbose -Message "Importing Module .\Output\$($ModuleName)\$ModuleVersion\$($ModuleName).psm1"
+
     Import-Module ".\Output\$($ModuleName)\$ModuleVersion\$($ModuleName).psm1"
+
     If ((Get-Module -Name $ModuleName) -and ($NugetAPIKey)) {
         try {
             Write-Verbose -Message "Publishing Module: $($ModuleName)"
             Publish-Module -Name $ModuleName -NuGetApiKey $NugetAPIKey
         } catch {
             throw 'Failed publishing module to PowerShell Gallery'
-        }
+        } #end Try-Catch
     } else {
         Write-Warning -Message "Something went wrong, couldn't publish module to PSGallery. Did you provide a NugetKey?."
-    }
-}
+    } #end If-Else
+} #end Function
 
 # Call tasks based on configuration
 switch ($Configuration) {
     'debug' {
+        Write-Verbose -Message "Debuging Module: $($ModuleName)"
         Init
         Test
         DebugBuild
         Clean
     }
     'Release' {
+        Write-Verbose -Message "Releasing Module: $($ModuleName)"
         Init
         ReleaseBuild
         Clean
         Publish
     }
-}
+} #end Switch
