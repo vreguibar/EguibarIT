@@ -11,6 +11,8 @@ on:
       tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
+  env:
+    BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
 
 jobs:
   # 1st Job -- Building the module
@@ -28,7 +30,7 @@ jobs:
 
       - name: Read exported variable
         run: |
-          echo "${{ env.BUILD_NUMBER}}"
+          echo "${{ env.BUILD_NUMBER }}"
 
   # 2nd Job -- Releasing the module
   release:
@@ -40,4 +42,4 @@ jobs:
       - name: Read exported variable
         run: |
           echo "Second Job"
-          echo "${{ env.BUILD_NUMBER}}"
+          echo "${{ env.BUILD_NUMBER }}"
