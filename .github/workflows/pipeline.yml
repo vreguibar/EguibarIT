@@ -52,11 +52,12 @@ jobs:
           git push
 
         # Uploads the build powershell module as an artifact
-      - name: Upload Build Artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
           name: module-artifact # Naming the powershell module artifact
-          path: ./Output/ # Saving the powershell module artifact to the path ./Output/
+          path: ./Artifact/ # Saving the powershell module artifact to the path ./Artifact/
+
 
   # 2nd Job -- Releasing the module
   release:
@@ -92,7 +93,11 @@ jobs:
             console.log(`Release ${tagName} exists: ${releaseExists}`);
             console.log(`::set-output name=exists::${releaseExists}`);
 
-
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: module-artifact # Make sure this matches the name used in the Upload Artifact step
+          path: ./Artifact      # Make sure this path matches the path where the artifact was uploaded
 
         # Create a release to github
       - name: Create Release
