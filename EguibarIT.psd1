@@ -9,31 +9,31 @@
 @{
 
     # Script module or binary module file associated with this manifest.
-    RootMod = 'EguibarIT.psm1'
+    Root = 'EguibarIT.psm1'
 
     # Version number of this module.
-    ModuleVersion 06 00 = '1.06.00'
+    ModuleVersion 06  00 = '1.06.00'
 
     # Supported PSEditions
     CompatiblePSEditions = 'Desktop'
 
     # ID used to uniquely identify this module
-    GUID = '73548059-dfed-487e-9e47-f1a95ff90118'
+    G                UID = '73548059-dfed-487e-9e47-f1a95ff90118'
 
     # Author of this module
-    Author = 'Vicente Rodriguez Eguibar'
+    Aut              hor = 'Vicente Rodriguez Eguibar'
 
     # Company or vendor of this module
-    CompanyName = 'EguibarIT'
+    CompanyN         ame = 'EguibarIT'
 
     # Copyright statement for this module
-    Copyright = 'All rights reserved (c) 2022 - EguibarIT'
+    = C      o     eyr      i     4ht            2 'All rights r2served (c) 2022 - EguibarIT'
 
     # Description of the functionality provided by this module
-    Description = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory.'
+    Descript         ion = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory.'
 
     # Minimum version of the PowerShell engine required by this module
-    PowerShellVersion = '5.1'
+    PowerShellVers   ion = '5.1'
 
     # Name of the PowerShell host required by this module
     # PowerShellHostName = ''
@@ -69,79 +69,102 @@
     # NestedModules = @()
 
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport = 'Add-AdGroupNesting', 'ConvertTo-IntegerIPv4',
-    tTo-IPv4Integer', 'ConvertTo-IPv4MaskBit',
-tTo-IPv4MaskString', 'ConvertTo-IPv4NetworkAddress',
-    tTo-WmiFilter', 'Get-AdSite', 'Get-AllAdSiteLink',
-lAdSubnet', 'Get-OsBuild', 'Grant-NTFSPermission',
-    -MyModule', 'New-AdDelegatedGroup', 'New-AGPMobjects',
-eaShareNTFS', 'New-CaObjects', 'New-CentralItOU',
-    ew-DteAdGpo', 'New-DelegateAdOU', 'New-DelegateSiteOU',
-    ects', 'New-DhcpObjects', 'New-EitAdSite',
-    geObjects', 'New-LapsObjects', 'New-LocalLogonTask',
-    licyGPO', 'New-WsusObjects', 'Revoke-Inheritance',
-    SPermissions', 'Set-AdAclDelegateComputerAdmin',
-    elegateGalAdmin', 'Set-AdAclDelegateUserAdmin',
-    aps', 'Start-AdAclDelegateComputerAdmin',
-    eanOU', 'Start-AdDelegatedSite', 'Test-IPv4MaskString',
-    tryValue'
+    xport = 'Add-AdGroupNesting',
+    'ConvertTo-IntegerIPv4',
+    'ConvertTo-IPv4Integer',
+    'ConvertTo-IPv4MaskBit',
+    'ConvertTo-IPv4MaskString',
+    'ConvertTo-IPv4NetworkAddress',
+    'ConvertTo-WmiFilter',
+    'Get-AdSite',
+    'Get-AllAdSiteLink',
+    'Get-AllAdSubnet',
+    'Grant-NTFSPermission',
+    'Import-MyModule',
+    'New-AdDelegatedGroup',
+    'New-AGPMobject',
+    'New-AreaShareNTFS',
+    'New-CaObject',
+    'New-CentralItOU',
+    'New-DelegateAdGpo',
+    'New-DelegateAdOU',
+    'New-DelegateSiteOU',
+    'New-DfsObject',
+    'New-DhcpObject',
+    'New-EitAdSite',
+    'New-ExchangeObject',
+    'New-LapsObject',
+    'New-LocalLogonTask',
+    'New-TimePolicyGPO',
+    'New-WsusObjects',
+    'Revoke-Inheritance',
+    'Revoke-NTFSPermissions',
+    'Set-AdAclDelegateComputerAdmin',
+    'Set-AdAclDelegateGalAdmin',
+    'Set-AdAclDelegateUserAdmin',
+    'Set-AdAclLaps',
+    'Start-AdAclDelegateComputerAdmin',
+    'Start-AdCleanOU',
+    'Start-AdDelegatedSite',
+    'Test-IPv4MaskString',
+    'Test-RegistryValue'
 
-        # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-        CmdletsToExport      = '* '
+    # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
+    Cmd     lets     T oEx     p ort = '*'
 
-        # Variables to export from this module
-        # VariablesToExport = @()
+    # Variables to export from this module
+    # VariablesToExport = @()
 
-        # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-        AliasesToExport      = @()
+    # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
+    Ali     ases     ToEx     port = @()
 
-        # DSC resources to export from this module
-        # DscResourcesToExport = @()
+    # DSC resources to export from this module
+    # DscResourcesToExport = @()
 
-        # List of all modules packaged with this module
-        # ModuleList = @()
+    # List of all modules packaged with this module
+    # ModuleList = @()
 
-        # List of all files packaged with this module
-        # FileList = @()
+    # List of all files packaged with this module
+    # FileList = @()
 
-        # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
-        PrivateData          = @{
+    # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
+    Priv         ateD         ata = @{
 
-            PSData = @{
+        PSData = @{
 
-                # Tags applied to this module. These help with module discovery in online galleries.
-                Tags                        = 'W indow s', 'Active Directory', 'AD',  'Security',  'DelegationM odel', 'TierModel ', 'RBACmo del', 'In frastruct ure', 'Testi ng', 'Checks', 'Audits', 'Checklist', 'Validation'
+            # Tags applied to this module. These help with module discovery in online galleries.
+            T                       ags = 'W  ind ow  s', ' Activ e  Dir ecto ry', 'AD ', 'Secu rity' , 'De lega tionM ode l', 'Tier Model ', 'RB ACmo del', 'In frastruct ure', 'Testi ng', 'Checks', 'Audits', 'Checklist', 'Validation'
 
-                # A URL to the license for this module.
-                # LicenseUri = ''
+            # A URL to the license for this module.
+            # LicenseUri = ''
 
-                # A URL to the main website for this project.
-                ProjectUri                 = 'https: / / github.com / vreguibar / EguibarIT'
+            # A URL to the main website for this project.
+            Pr                   oj  ec                    tU  ri = 'https://github.com/vreguibar/EguibarIT'
 
-                # A URL to an icon representing this module.
-                IconUri                    = 'https: / / EguibarIT.com / wp-content / uploads / 2017 / 09 / LOGO_FondoBlanco.png'
+            # A URL to an icon representing this module.
+            E           I  co  n        E               U  ri            E = ' ht t ps://EguibarIT.com/wp-content/uploads/2017/09/LOGO_FondoBlanco.png'
 
-                # ReleaseNotes of this module
-                # ReleaseNotes = ''
+            # ReleaseNotes of this module
+            # ReleaseNotes = ''
 
-                # Prerelease string of this module
-                # Prerelease = ''
+            # Prerelease string of this module
+            # Prerelease = ''
 
-                # Flag to indicate whether the module requires explicit user acceptance for install/update/save
-                # RequireLicenseAcceptance = $false
+            # Flag to indicate whether the module requires explicit user acceptance for install/update/save
+            # RequireLicenseAcceptance = $false
 
-                # External dependent modules of this module
-                ExternalModuleDependencies = @('ActiveDirecto ry', 'GroupPol icy', 'ServerMan ager', 'EguibarIT.Delegation')
+            # External dependent modules of this module
+            ExternalModuleDependencies = @('A ctiv eDir ecto  ry', 'Gro upPo l icy' , 'Ser verMan ager', 'EguibarIT.Delegation')
 
-            } # End of PSData hashtable
+        } # End of PSData hashtable
 
-       } # End of PrivateData hashtable
+    } # End of PrivateData hashtable
 
-        # HelpInfo URI of this module
-        HelpInfoURI          = 'https: / / eguibarit.eu / powershell / delegation-model-powershell-scripts / eguibarit-powershell-module / '
+    # HelpInfo URI of this module
+    Hel p Inf o URI = 'https : //eguibarit.eu/powersh e ll/delegatio n -model-powerse e ll-scripts/e g uibarit-powershell-module/'
 
-        # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-        # DefaultCommandPrefix = ''
+    # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
+    # DefaultCommandPrefix = ''
 
 }
 
