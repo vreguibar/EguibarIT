@@ -67,6 +67,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Update Module Manifest
+        shell: pwsh
+        run: |
+          $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
+          $manifestPath = '.\EguibarIT.psd1'
+          (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
+
       - name: Get Module Version
         id: get_version
         shell: pwsh
@@ -74,6 +81,8 @@ jobs:
           $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
           echo "MODULE_VERSION=$PS_Module_Version" >> $GITHUB_ENV
           echo "Module version is $PS_Module_Version"
+          # Example: Set the new version number as output
+          echo "::set-output name=newVersion::$PS_Module_Version"
 
       - name: Check if Release Exists
         id: check_release
@@ -90,12 +99,7 @@ jobs:
             console.log(`Release ${tagName} exists: ${releaseExists}`);
             console.log(`::set-output name=exists::${releaseExists}`);
 
-      - name: Update Module Manifest
-        shell: pwsh
-        run: |
-          $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
-          $manifestPath = '.\EguibarIT.psd1'
-          (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
+
 
 
         # Create a release to github
@@ -105,8 +109,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ process.env.MODULE_VERSION }}
-          release_name: Release ${{ process.env.MODULE_VERSION }}
+          tag_name: ${{ steps.release_and_publish.outputs.newVersion }}
+          release_name: Release ${{ steps.release_and_publish.outputs.newVersion }}
           draft: false
           prerelease: false
 
