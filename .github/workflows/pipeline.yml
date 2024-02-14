@@ -73,15 +73,7 @@ jobs:
           $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
           $manifestPath = '.\EguibarIT.psd1'
           (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
-
-      - name: Get Module Version
-        id: get_version
-        shell: pwsh
-        run: |
-          $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
           echo "MODULE_VERSION=$PS_Module_Version" >> $GITHUB_ENV
-          echo "Module version is $PS_Module_Version"
-          # Example: Set the new version number as output
           echo "::set-output name=newVersion::$PS_Module_Version"
 
       - name: Check if Release Exists
@@ -98,7 +90,6 @@ jobs:
             const releaseExists = releases.some(release => release.tag_name === tagName);
             console.log(`Release ${tagName} exists: ${releaseExists}`);
             console.log(`::set-output name=exists::${releaseExists}`);
-
 
 
 
