@@ -70,11 +70,18 @@ jobs:
       - name: Update Module Manifest
         shell: pwsh
         run: |
-          $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
-          $manifestPath = '.\EguibarIT.psd1'
-          (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
-          echo "MODULE_VERSION=$PS_Module_Version" >> $GITHUB_ENV
-          echo "::set-output name=newVersion::$PS_Module_Version"
+          $ModuleManifestContent = Get-Content -Path "./EguibarIT.psd1" -Raw
+          $VersionPattern = '\b\d+\.\d+\.\d+\b'  # Regular expression pattern for semantic versioning
+          $ModuleVersion = $ModuleManifestContent -match $VersionPattern
+          if ($ModuleVersion) {
+            $PS_Module_Version = $Matches[0]
+            echo "MODULE_VERSION=$PS_Module_Version" >> $GITHUB_ENV
+            echo "Module version is $PS_Module_Version"
+            echo "::set-output name=newVersion::$PS_Module_Version"
+          } else {
+            echo "Failed to extract module version from manifest file."
+            exit 1
+          }
 
       - name: Check if Release Exists
         id: check_release
