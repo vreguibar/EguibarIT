@@ -55,11 +55,11 @@ jobs:
           $ModuleBuildNumber = $oldModuleVersion.Build + 1
           Write-Verbose -Message 'Updating the Moduleversion'
           $:ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
-          Write-Verbose "Mew ModuleVersion: $ModuleVersion"
+          Write-Verbose "New ModuleVersion: $ModuleVersion"
           Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
           echo "::set-output name=MODULE_VERSION::$ModuleVersion"
-          echo "MODULE_VERSION=$ModuleVersion" >> $GITHUB_ENV
-          echo "The new version is ${{ env.MODULE_VERSION }}"
+          echo "MODULE_VERSION=$ModuleVersion" >> $GITHUB_OUTPUT
+          echo "The new version is ${{ steps.update_manifest.outputs.MODULE_VERSION }}"
 
 
         # Pushing the changes from InvokeBuild to the main branch
@@ -77,7 +77,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: module-artifact # Naming the powershell module artifact
-          path: ./Output/EguibarIT/${{ env.MODULE_VERSION }}/ # Saving the powershell module artifact to the path ./Artifact/
+          path: ./Output/EguibarIT/${{ steps.update_manifest.outputs.MODULE_VERSION }}/ # Saving the powershell module artifact to the path ./Artifact/
 
 
 
@@ -112,7 +112,7 @@ jobs:
         with:
           repo: ${{github.repository}}
           name: module-artifact # Name of the PowerShell module artifact
-          path: ./Output/EguibarIT/${{ env.MODULE_VERSION }}/ # Downloads the module to the path ./Output/
+          path: ./Output/EguibarIT/${{ steps.update_manifest.outputs.MODULE_VERSION }}/ # Downloads the module to the path ./Output/
 
 
 
@@ -123,8 +123,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ env.MODULE_VERSION }}
-          release_name: Release ${{ env.MODULE_VERSION }}
+          tag_name: v${{ steps.update_manifest.outputs.MODULE_VERSION }}
+          release_name: Release ${{ steps.update_manifest.outputs.MODULE_VERSION }}
           draft: false
           prerelease: false
 
@@ -133,5 +133,5 @@ jobs:
       - name: Publish to PowerShell Gallery
         uses: pcgeek86/publish-powershell-module-action@v20
         with:
-          modulePath: ./Output/EguibarIT/${{ env.MODULE_VERSION }}/
+          modulePath: ./Output/EguibarIT/${{ steps.update_manifest.outputs.MODULE_VERSION }}/
           NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
