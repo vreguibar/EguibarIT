@@ -13,7 +13,7 @@ on:
 
 env:
   # Setting an environment variable with the value of a configuration variable
-  MODULE_VERSION: ${{ env.MODULE_VERSION }}
+  MODULE_VERSION: ${{ vars.MODULE_VERSION }}
   MODULE_NAME: ${{ vars.MODULE_NAME }}
 
 jobs:
