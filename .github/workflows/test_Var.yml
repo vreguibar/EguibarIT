@@ -24,7 +24,7 @@ jobs:
         run: |
           echo "echo_VERSION=$PS_Module_Version" >> "$Env:GITHUB_ENV"
 
-          echo ${{ env.echo_VERSION }}"
+          echo ${{ env.echo_VERSION }}
           write-Host $env:echo_VERSION
 
       - name: Get tag
