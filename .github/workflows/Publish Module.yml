@@ -68,6 +68,14 @@ jobs:
           path: ./Artifact      # Make sure this path matches the path where the artifact was uploaded
 
 
+      - name: Update Module Manifest
+        shell: pwsh
+        run: |
+          $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
+          $manifestPath = '.\EguibarIT.psd1'
+          (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
+          echo "::set-output name=newVersion::$PS_Module_Version"
+
       - name: Check if Release Exists
         id: check_release
         uses: "marvinpinto/action-automatic-releases@latest"
@@ -75,13 +83,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: "v${{ steps.release_and_publish.outputs.newVersion }}"
 
-
-      - name: Update Module Manifest
-        shell: pwsh
-        run: |
-          $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
-          $manifestPath = '.\EguibarIT.psd1'
-          (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
 
 
       - name: Create Release
