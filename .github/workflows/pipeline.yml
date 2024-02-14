@@ -45,11 +45,22 @@ jobs:
         id: update_manifest
         shell: pwsh
         run: |
-          $newVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
-          $manifestPath = '.\EguibarIT.psd1'
-          (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
-          echo "::set-output name=MODULE_VERSION::$newVersion"
-          echo "MODULE_VERSION=$newVersion" >> $GITHUB_ENV
+          Write-Verbose -Message 'No new ModuleVersion was provided, locating existing version from psd file.'
+          $oldModuleVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
+
+          $publicFunctions = Get-ChildItem -Path '.\Public\*.ps1'
+          $privateFunctions = Get-ChildItem -Path '.\Private\*.ps1'
+          $ClassesFunctions = Get-ChildItem -Path '.\Classes\*.ps1'
+          $EnumsFunctions = Get-ChildItem -Path '.\Enums\*.ps1'
+          $totalFunctions = $publicFunctions.count + $privateFunctions.count + $ClassesFunctions.count + $EnumsFunctions.count
+          $ModuleBuildNumber = $oldModuleVersion.Build + 1
+          Write-Verbose -Message 'Updating the Moduleversion'
+
+          $:ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
+          Write-Verbose "Mew ModuleVersion: $ModuleVersion"
+          Update-ModuleManifest -Path ".\$($ModuleName).psd1" -ModuleVersion $ModuleVersion
+          echo "::set-output name=MODULE_VERSION::$ModuleVersion"
+          echo "MODULE_VERSION=$ModuleVersion" >> $GITHUB_ENV
           echo "The new version is ${{ env.MODULE_VERSION }}"
 
 
