@@ -59,6 +59,7 @@ jobs:
           path: ./Artifact/ # Saving the powershell module artifact to the path ./Artifact/
 
 
+
   # 2nd Job -- Releasing the module
   release:
     name: Release Module
@@ -67,6 +68,7 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+
 
       - name: Update Module Manifest
         shell: pwsh
@@ -77,6 +79,7 @@ jobs:
           echo "MODULE_VERSION=$newVersion" >> $GITHUB_ENV
           echo "Module version is $newVersion"
           echo "::set-output name=newVersion::$newVersion"
+
 
       - name: Check if Release Exists
         id: check_release
@@ -93,11 +96,13 @@ jobs:
             console.log(`Release ${tagName} exists: ${releaseExists}`);
             console.log(`::set-output name=exists::${releaseExists}`);
 
+
       - name: Download Artifact
         uses: actions/download-artifact@v2
         with:
           name: module-artifact # Make sure this matches the name used in the Upload Artifact step
           path: ./Artifact      # Make sure this path matches the path where the artifact was uploaded
+
 
         # Create a release to github
       - name: Create Release
@@ -110,6 +115,7 @@ jobs:
           release_name: Release $newVersion
           draft: false
           prerelease: false
+
 
       # Publishing the module to powershell gallery
       - name: Publish to PowerShell Gallery
