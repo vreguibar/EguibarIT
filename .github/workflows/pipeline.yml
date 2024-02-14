@@ -61,7 +61,7 @@ jobs:
           Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
           echo "MODULE_VERSION=$ModuleVersion" >> $GITHUB_ENV
           echo "Old version was $oldModuleVersion and New is $ModuleVersion"
-          echo The new version is $MODULE_VERSION
+          echo "The new version is $MODULE_VERSION"
 
 
         # Pushing the changes from InvokeBuild to the main branch
@@ -79,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: module-artifact # Naming the powershell module artifact
-          path: ./Output/EguibarIT/${{ env.MODULE_VERSION }}/ # Saving the powershell module artifact to the path ./Artifact/
+          path: ./Output/EguibarIT/$ModuleVersion/ # Saving the powershell module artifact to the path ./Artifact/
 
 
 
@@ -114,7 +114,7 @@ jobs:
         with:
           repo: ${{github.repository}}
           name: module-artifact # Name of the PowerShell module artifact
-          path: ./Output/EguibarIT/${{ env.MODULE_VERSION }}/ # Downloads the module to the path ./Output/
+          path: ./Output/EguibarIT/$ModuleVersion/ # Downloads the module to the path ./Output/
 
 
 
@@ -125,8 +125,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ env.MODULE_VERSION }}
-          release_name: Release ${{ env.MODULE_VERSION }}
+          tag_name: v$ModuleVersion
+          release_name: Release $ModuleVersion
           draft: false
           prerelease: false
 
@@ -135,5 +135,5 @@ jobs:
       - name: Publish to PowerShell Gallery
         uses: pcgeek86/publish-powershell-module-action@v20
         with:
-          modulePath: ./Output/EguibarIT/${{ env.MODULE_VERSION }}/
+          modulePath: ./Output/EguibarIT/$ModuleVersion/
           NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
