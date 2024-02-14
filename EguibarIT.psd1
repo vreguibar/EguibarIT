@@ -10,9 +10,9 @@
     RootModule           = 'EguibarIT.psm1'
 
     # Version number of this module.
-    ModuleVersion        = '1.6.0'
+    ModuleVersion        = '1.52.65'
 
-    # Supported PSEd2t65ons
+    # Supported PSEditions
     CompatiblePSEditions = 'Desktop'
     # ID used to uniquely identify this module
     GUID                 = '73548059-dfed-487e-9e47-f1a95ff90118'
@@ -21,7 +21,7 @@
     # Company or vendor of this module
     CompanyName          = 'EguibarIT'
     # Copyright statement for this module
-    Copyright            = 'All rights reserved (c) 2024 - EguibarIT'
+    Copyright            = 'All rights reserved (c) 2022 - EguibarIT'
     # Description of the functionality provided by this module
     Description          = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory.'
     # Minimum version of the PowerShell engine required by this module
@@ -49,49 +49,26 @@
     # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
     # NestedModules = @()
     # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-    FunctionsToExport    = 'Add-AdGroupNesting',
-    'ConvertTo-IntegerIPv4',
-    'ConvertTo-IPv4Integer',
-    'ConvertTo-IPv4MaskBit',
-    'ConvertTo-IPv4MaskString',
-    'ConvertTo-IPv4NetworkAddress',
-    'ConvertTo-WmiFilter',
-    'Get-AdSite',
-    'Get-AllAdSiteLink',
-    'Get-AllAdSubnet',
-    'Grant-NTFSPermission',
-    'Import-MyModule',
-    'New-AdDelegatedGroup',
-    'New-AGPMobject',
-    'New-AreaShareNTFS',
-    'New-CaObject',
-    'New-CentralItOU',
-    'New-DelegateAdGpo',
-    'New-DelegateAdOU',
-    'New-DelegateSiteOU',
-    'New-DfsObject',
-    'New-DhcpObject',
-    'New-EitAdSite',
-    'New-ExchangeObject',
-    'New-LapsObject',
-    'New-LocalLogonTask',
-    'New-TimePolicyGPO',
-    'New-WsusObjects',
-    'Revoke-Inheritance',
-    'Revoke-NTFSPermissions',
-    'Set-AdAclDelegateComputerAdmin',
-    'Set-AdAclDelegateGalAdmin',
-    'Set-AdAclDelegateUserAdmin',
-    'Set-AdAclLaps',
-    'Start-AdAclDelegateComputerAdmin',
-    'Start-AdCleanOU',
-    'Start-AdDelegatedSite',
-    'Test-IPv4MaskString',
+    FunctionsToExport    = 'Add-AdGroupNesting', 'ConvertTo-IntegerIPv4',
+    'ConvertTo-IPv4Integer', 'ConvertTo-IPv4MaskBit',
+    'ConvertTo-IPv4MaskString', 'ConvertTo-IPv4NetworkAddress',
+    'ConvertTo-WmiFilter', 'Get-AdSite', 'Get-AllAdSiteLink',
+    'Get-AllAdSubnet', 'Get-OsBuild', 'Grant-NTFSPermission',
+    'Import-MyModule', 'New-AdDelegatedGroup', 'New-AGPMobjects',
+    'New-AreaShareNTFS', 'New-CaObjects', 'New-CentralItOU',
+    'New-DelegateAdGpo', 'New-DelegateAdOU', 'New-DelegateSiteOU',
+    'New-DfsObjects', 'New-DhcpObjects', 'New-EitAdSite',
+    'New-ExchangeObjects', 'New-LapsObjects', 'New-LocalLogonTask',
+    'New-TimePolicyGPO', 'New-WsusObjects', 'Revoke-Inheritance',
+    'Revoke-NTFSPermissions', 'Set-AdAclDelegateComputerAdmin',
+    'Set-AdAclDelegateGalAdmin', 'Set-AdAclDelegateUserAdmin',
+    'Set-AdAclLaps', 'Start-AdAclDelegateComputerAdmin',
+    'Start-AdCleanOU', 'Start-AdDelegatedSite', 'Test-IPv4MaskString',
     'Test-RegistryValue'
     # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
     CmdletsToExport      = '*'
     # Variables to export from this module
-    VariablesToExport    = '*'
+    # VariablesToExport = @()
     # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
     AliasesToExport      = @()
     # DSC resources to export from this module
@@ -126,22 +103,3 @@
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
     # DefaultCommandPrefix = ''
 }
-        # Flag to indicate whether the module requires explicit user acceptance for install/update/save
-        # RequireLicenseAcceptance = $false
-
-        # External dependent modules of this module
-        ExternalModuleDependencies = @('ActiveDirectory','GroupPolicy','ServerManager','EguibarIT.Delegation')
-
-    } # End of PSData hashtable
-
- } # End of PrivateData hashtable
-
-# HelpInfo URI of this module
-HelpInfoURI = 'https://eguibarit.eu/powershell/delegation-model-powershell-scripts/eguibarit-powershell-module/'
-
-# Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-# DefaultCommandPrefix = ''
-
-}
-
-
