@@ -31,6 +31,7 @@ jobs:
 
             write-host "Module is: $PS_Module_Version"
 
-            echo "MODULE_VERSION=$PS_Module_Version"  >> $Env:GITHUB_ENV
+            #echo "MODULE_VERSION=$PS_Module_Version"  >> $Env:GITHUB_ENV
+            write-output ::set-output name=MODULE_VERSION::$PS_Module_Version
 
             echo "Version ${{ env.MODULE_VERSION }}"
