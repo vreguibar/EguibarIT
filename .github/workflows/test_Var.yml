@@ -23,7 +23,16 @@ jobs:
     steps:
         # Checkout the main branch
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
+      # Environment Variable
+      - name: Get Module Name
+        shell: pwsh
+        run: |
+          Write-Host $Env:GITHUB_REF
+          $ModuleName = (Get-ChildItem -Path ./Output/).Name
+          echo "MODULE_NAME=$ModuleName" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+          echo "Module name var. ${{ env.MODULE_NAME }}"
 
       - name: Update Module Manifest
         id: update_manifest
