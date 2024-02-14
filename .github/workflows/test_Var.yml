@@ -48,8 +48,9 @@ jobs:
           $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
           Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion -verbose
 
-          Add-Content -Path $Env:GITHUB_ENV -Value "MODULE_VERSION=$ModuleVersion" -Encoding utf8 -verbose
+          #Add-Content -Path $Env:GITHUB_ENV -Value "MODULE_VERSION=$ModuleVersion" -Encoding utf8 -verbose
           #echo "MODULE_VERSION=$ModuleVersion" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+          echo "::set-output name=MODULE_VERSION::$ModuleVersion"
 
           echo "Old version was $oldModuleVersion and New is $ModuleVersion"
           Write-Host "Old version was $oldModuleVersion and New is $ModuleVersion"
