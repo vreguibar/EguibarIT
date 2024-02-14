@@ -2,13 +2,14 @@ name: Publish Module
 
 # Controls when the workflow will run
 on:
-  pull_request:
-    branches: [main]
+  pull_request: # Only trigger the workflow if there is a pull request to the main branch
+    branches: [ main ]
 
-  workflow_dispatch:
+  workflow_dispatch: # Enables the possibility to trigger the workflow manually
+
   push:
-    tags:
-      - 'v*' # Push events to matching v*, i.e., v1.0, v20.15.10
+      tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
   # 1st Job -- Setup environment
@@ -61,6 +62,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+
       - name: Download Artifact
         uses: actions/download-artifact@v2
         with:
@@ -77,6 +83,7 @@ jobs:
           echo "MODULE_VERSION=$newVersion" >> $GITHUB_ENV
           echo "Module version is $newVersion"
           echo "::set-output name=newVersion::$newVersion"
+
 
       - name: Check if Release Exists
         id: check_release

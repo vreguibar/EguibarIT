@@ -16,6 +16,7 @@ jobs:
   build:
     name: Build Module
     runs-on: windows-latest
+
     steps:
         # Checkout the main branch
       - name: Checkout Repository
@@ -101,7 +102,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: module-artifact # Make sure this matches the name used in the Upload Artifact step
-          path: ./Artifact      # Make sure this path matches the path where the artifact was uploaded
+          path: ./Artifact/      # Make sure this path matches the path where the artifact was uploaded
 
 
         # Create a release to github
