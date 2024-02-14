@@ -55,7 +55,7 @@ jobs:
           $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
           Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
           echo "::set-output name=MODULE_VERSION::$ModuleVersion"
-          echo "MODULE_VERSION=$ModuleVersion" >> $GITHUB_OUTPUT
+          echo "MODULE_VERSION=$ModuleVersion" >> $env:GITHUB_OUTPUT
           echo "Old version was $oldModuleVersion"
           echo "The new version is ${{ steps.update_manifest.outputs.MODULE_VERSION }}"
 
