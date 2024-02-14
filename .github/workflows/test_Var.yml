@@ -23,9 +23,8 @@ jobs:
       - name: OTHER TEST
         shell: pwsh
         run: |
-          $color = "Yellow"
-          #echo "BUILD_NUMBER=$color.ToString()" >> $GITHUB_ENV
-          Write-Output "BUILD_NUMBER=$color" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\$($ModuleName).psd1").Version)
+          Write-Output "BUILD_NUMBER=$PS_Module_Version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Read exported variable
         run: |
