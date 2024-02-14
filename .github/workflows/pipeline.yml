@@ -105,7 +105,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.release_and_publish.outputs.newVersion }}
+          tag_name: ${{ env.MODULE_VERSION }}
           release_name: Release ${{ steps.release_and_publish.outputs.newVersion }}
           draft: false
           prerelease: false
