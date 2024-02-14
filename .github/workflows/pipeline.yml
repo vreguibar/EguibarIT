@@ -13,7 +13,7 @@ on:
 
 env:
   # Setting an environment variable with the value of a configuration variable
-  MODULE_VERSION:
+  MODULE_VERSION: ''
   MODULE_NAME: ${{ vars.MODULE_NAME }}
 
 jobs:
@@ -59,9 +59,11 @@ jobs:
           $ModuleBuildNumber = $oldModuleVersion.Build + 1
           $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
           Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
+          echo "MODULE_VERSION=$ModuleVersion"
           echo "MODULE_VERSION=$ModuleVersion" >> $GITHUB_ENV
           echo "Old version was $oldModuleVersion and New is $ModuleVersion"
           echo "The new version is $MODULE_VERSION"
+          echo "Github Repository ${{github.repository}}"
 
 
         # Pushing the changes from InvokeBuild to the main branch
