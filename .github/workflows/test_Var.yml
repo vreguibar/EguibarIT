@@ -46,7 +46,7 @@ jobs:
             echo "OutFile Version ${{ env.OutFile_VERSION }}"
             echo "WriteOutput Version ${{ env.WriteOutput_VERSION }}"
 
-            write-Host $env:echo_VERSION
+            write-Host ${{ env.echo_VERSION }}
 
             echo "${{ env.echo_VERSION }}"
             echo "${{ env.AddContent_VERSION }}"
@@ -58,5 +58,10 @@ jobs:
             echo "AddContent Version $AddContent_VERSION"
             echo "OutFile Version $OutFile_VERSION"
             echo "WriteOutput Version $WriteOutput_VERSION"
+
+            echo "$echo_VERSION"
+            echo "$AddContent_VERSION"
+            echo "$OutFile_VERSION"
+            echo "$WriteOutput_VERSION"
 
             echo "${{ steps.tag.outputs.Step_Version }}"
