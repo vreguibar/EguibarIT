@@ -48,8 +48,9 @@ jobs:
           $newVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
           $manifestPath = '.\EguibarIT.psd1'
           (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
+          echo "::set-output name=MODULE_VERSION::$newVersion"
           echo "MODULE_VERSION=$newVersion" >> $GITHUB_ENV
-          echo "The new version is ${{ env.MODULE_VERSION }}
+          echo "The new version is ${{ env.MODULE_VERSION }}"
 
 
         # Pushing the changes from InvokeBuild to the main branch
