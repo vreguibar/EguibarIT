@@ -45,7 +45,6 @@ jobs:
         id: update_manifest
         shell: pwsh
         run: |
-          Write-Verbose -Message 'No new ModuleVersion was provided, locating existing version from psd file.'
           $oldModuleVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
           $publicFunctions = Get-ChildItem -Path '.\Public\*.ps1'
           $privateFunctions = Get-ChildItem -Path '.\Private\*.ps1'
@@ -53,12 +52,11 @@ jobs:
           $EnumsFunctions = Get-ChildItem -Path '.\Enums\*.ps1'
           $totalFunctions = $publicFunctions.count + $privateFunctions.count + $ClassesFunctions.count + $EnumsFunctions.count
           $ModuleBuildNumber = $oldModuleVersion.Build + 1
-          Write-Verbose -Message 'Updating the Moduleversion'
-          $:ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
-          Write-Verbose "New ModuleVersion: $ModuleVersion"
+          $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
           Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
           echo "::set-output name=MODULE_VERSION::$ModuleVersion"
           echo "MODULE_VERSION=$ModuleVersion" >> $GITHUB_OUTPUT
+          echo "Old version was $oldModuleVersion"
           echo "The new version is ${{ steps.update_manifest.outputs.MODULE_VERSION }}"
 
 
