@@ -25,7 +25,7 @@ jobs:
           echo "echo_VERSION=$PS_Module_Version" >> "$Env:GITHUB_ENV"
 
           echo ${{ env.echo_VERSION }}
-          write-Host $env:echo_VERSION
+
 
       - name: Get tag
         id: tag
@@ -45,6 +45,8 @@ jobs:
             echo "AddContent Version ${{ env.AddContent_VERSION }}"
             echo "OutFile Version ${{ env.OutFile_VERSION }}"
             echo "WriteOutput Version ${{ env.WriteOutput_VERSION }}"
+
+            write-Host $env:echo_VERSION
 
             echo "${{ env.echo_VERSION }}"
             echo "${{ env.AddContent_VERSION }}"
