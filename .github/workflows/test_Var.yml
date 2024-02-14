@@ -29,3 +29,15 @@ jobs:
       - name: Read exported variable
         run: |
           echo "${{ env.BUILD_NUMBER}}"
+
+  # 2nd Job -- Releasing the module
+  release:
+    name: Release Module
+    needs: build
+    runs-on: windows-latest
+
+    steps:
+      - name: Read exported variable
+        run: |
+          echo "Second Job"
+          echo "${{ env.BUILD_NUMBER}}"
