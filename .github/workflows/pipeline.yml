@@ -13,7 +13,7 @@ on:
 
 env:
   # Setting an environment variable with the value of a configuration variable
-  MODULE_VERSION:
+  MODULE_VERSION: ${{ env.MODULE_VERSION }}
   MODULE_NAME: ${{ vars.MODULE_NAME }}
 
 jobs:
@@ -60,7 +60,7 @@ jobs:
           $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
           Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
           echo "MODULE_VERSION=$ModuleVersion" >> $GITHUB_ENV
-          echo "Old version was $oldModuleVersion"
+          echo "Old version was $oldModuleVersion and New is $ModuleVersion"
           echo "The new version is ${{ env.MODULE_VERSION }}"
 
 
