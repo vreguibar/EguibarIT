@@ -44,9 +44,9 @@ jobs:
 
           echo "Old version was $oldModuleVersion and New is $ModuleVersion"
 
-          echo "With env. ${{env.MODULE_VERSION}}"
+          echo "With env. ${{ env.MODULE_VERSION }}"
 
-          echo "With vars. ${{vars.MODULE_VERSION}}"
+          echo "With vars. ${{ vars.MODULE_VERSION }}"
 
           echo "Just variable $env.MODULE_VERSION"
           echo "Just variable $vars.MODULE_VERSION"
