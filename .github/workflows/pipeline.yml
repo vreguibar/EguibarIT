@@ -72,15 +72,17 @@ jobs:
 
 
       - name: Update Module Manifest
+        id: update_manifest
         shell: pwsh
         run: |
           $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
           $manifestPath = '.\EguibarIT.psd1'
           (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
           echo "MODULE_VERSION=$newVersion" >> $GITHUB_ENV
-          echo "Module version is $newVersion"
-          echo "::set-output name=newVersion::$newVersion"
           echo "::set-output name=MODULE_VERSION::$newVersion"
+          echo "::set-output name=newVersion::$newVersion"
+          echo "The new version is ${{ steps.update_manifest.outputs.newVersion }}"
+
 
 
       - name: Check if Release Exists
@@ -115,8 +117,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ env.MODULE_VERSION }}
-          release_name: Release ${{ env.MODULE_VERSION }}
+          tag_name: ${{ steps.update_manifest.outputs.newVersion }}
+          release_name: Release ${{ steps.update_manifest.outputs.newVersion }}
           draft: false
           prerelease: false
 
