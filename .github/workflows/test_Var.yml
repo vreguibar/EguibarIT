@@ -46,7 +46,7 @@ jobs:
           echo ${{env.MODULE_VERSION}}
 
           echo "Just variable $env.MODULE_VERSION"
-          echo $env.MODULE_VERSION
+          echo "$env.MODULE_VERSION"
 
           echo "Just variable $MODULE_VERSION"
-          echo $MODULE_VERSION
+          echo "$MODULE_VERSION"
