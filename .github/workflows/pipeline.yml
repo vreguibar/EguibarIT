@@ -60,10 +60,10 @@ jobs:
           $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
           Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
           echo "MODULE_VERSION=$ModuleVersion"
-          echo "MODULE_VERSION=$ModuleVersion" >> $GITHUB_ENV
+          echo "MODULE_VERSION=$ModuleVersion" >> "$GITHUB_ENV"
           echo "Old version was $oldModuleVersion and New is $ModuleVersion"
           echo "The new version is ${{env.MODULE_VERSION}}"
-          echo "Github Repository ${{github.repository.name}}"
+          echo "Github Repository ${{github.repository}}"
 
 
         # Pushing the changes from InvokeBuild to the main branch
