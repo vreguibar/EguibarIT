@@ -24,7 +24,8 @@ jobs:
         shell: pwsh
         run: |
           $color = "Yellow"
-          echo "BUILD_NUMBER=$color.ToString()" >> $GITHUB_ENV
+          #echo "BUILD_NUMBER=$color.ToString()" >> $GITHUB_ENV
+          Write-Output "::set-env name=BUILD_NUMBER::$color"
 
       - name: Read exported variable
         run: |
