@@ -23,10 +23,9 @@ jobs:
       - name: OTHER TEST
         shell: pwsh
         run: |
-          $buildNumber = "12345"
-          Write-Output "::set-env name=BUILD_NUMBER::$buildNumber"
-          Write-Output "Doing something else..."
-          Write-Output "The build number is $env:BUILD_NUMBER"
+          echo "BUILD_NUMBER=yellow" >> $GITHUB_ENV
+          Write-Host $env:BUILD_NUMBER
+          echo "${{ env.BUILD_NUMBER}}"
 
 
       - name: Get tag
