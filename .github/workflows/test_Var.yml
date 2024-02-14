@@ -48,10 +48,10 @@ jobs:
 
             write-Host ${{ env.echo_VERSION }}
 
-            echo ${{ env.echo_VERSION }}
-            echo ${{ env.AddContent_VERSION }}
-            echo ${{ env.OutFile_VERSION }}
-            echo ${{ env.WriteOutput_VERSION }}
+            ${{ env.echo_VERSION }}
+            ${{ env.AddContent_VERSION }}
+            ${{ env.OutFile_VERSION }}
+            ${{ env.WriteOutput_VERSION }}
 
 
             echo "echo Version $echo_VERSION"
@@ -64,4 +64,4 @@ jobs:
             echo "$OutFile_VERSION"
             echo "$WriteOutput_VERSION"
 
-            echo ${{ steps.tag.outputs.Step_Version }}
+            ${{ steps.tag.outputs.Step_Version }}
