@@ -100,10 +100,12 @@ jobs:
 
 
       - name: Download Artifact
-        uses: actions/download-artifact@v2
+        uses: aochmann/actions-download-artifact@1.0.4
         with:
-          name: module-artifact # Make sure this matches the name used in the Upload Artifact step
-          path: ./Artifact/      # Make sure this path matches the path where the artifact was uploaded
+          repo: ${{github.repository}}
+          name: module-artifact # Name of the PowerShell module artifact
+          path: Artifact/ # Downloads the module to the path ./Artifact/
+
 
 
         # Create a release to github
