@@ -29,9 +29,9 @@ jobs:
             $ModuleName = (Get-ChildItem -Path ./Output/).Name
             $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\$($ModuleName).psd1").Version)
 
-            write-host "Module is: $PS_Module_Version"
-
             #echo "MODULE_VERSION=$PS_Module_Version"  >> $Env:GITHUB_ENV
-            write-output ::set-output MODULE_VERSION=$PS_Module_Version
+            #Add-Content -Path "$env:GITHUB_ENV" -Value "MODULE_VERSION=$ModuleVersion" -Encoding utf8
+            #echo "MODULE_VERSION=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+            write-output "MODULE_VERSION=$PS_Module_Version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
             echo "Version ${{ env.MODULE_VERSION }}"
