@@ -71,7 +71,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: module-artifact # Make sure this matches the name used in the Upload Artifact step
-          path: ./Artifact      # Make sure this path matches the path where the artifact was uploaded
+          path: ./Artifact/      # Make sure this path matches the path where the artifact was uploaded
 
 
       - name: Update Module Manifest
@@ -83,6 +83,8 @@ jobs:
           echo "MODULE_VERSION=$newVersion" >> $GITHUB_ENV
           echo "Module version is $newVersion"
           echo "::set-output name=newVersion::$newVersion"
+          echo "::set-output name=MODULE_VERSION::$newVersion"
+
 
 
       - name: Check if Release Exists
@@ -90,7 +92,7 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: $newVersion
+          tag_name: ${{ env.MODULE_VERSION }}
 
 
 
@@ -101,8 +103,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: $newVersion
-          release_name: Release $newVersion
+          tag_name: ${{ env.MODULE_VERSION }}
+          release_name: Release ${{ env.MODULE_VERSION }}
           draft: false
           prerelease: false
 

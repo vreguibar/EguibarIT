@@ -80,6 +80,7 @@ jobs:
           echo "MODULE_VERSION=$newVersion" >> $GITHUB_ENV
           echo "Module version is $newVersion"
           echo "::set-output name=newVersion::$newVersion"
+          echo "::set-output name=MODULE_VERSION::$newVersion"
 
 
       - name: Check if Release Exists
