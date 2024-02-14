@@ -20,11 +20,12 @@ jobs:
         # Check out the main branch
       - uses: actions/checkout@master
 
-      - name: Is variable exported?
+      - name: OTHER TEST
         run: |
-          echo "echo_VERSION=$PS_Module_Version" >> "$Env:GITHUB_ENV"
-
-          echo ${{ env.echo_VERSION }}
+          $buildNumber = "12345"
+          Write-Output "::set-env name=BUILD_NUMBER::$buildNumber"
+          Write-Output "Doing something else..."
+          Write-Output "The build number is $env:BUILD_NUMBER"
 
 
       - name: Get tag
