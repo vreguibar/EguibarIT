@@ -1,0 +1,49 @@
+#https://scriptingchris.tech/2021/05/16/how-to-setup-a-github-actions-pipeline-for-publishing-your-powershell-module/
+
+name: Build and Release Module
+on:
+  pull_request: # Only trigger the workflow if there is a pull request to the main branch
+    branches: [ main ]
+
+  workflow_dispatch: # Enables the possibility to trigger the workflow manually
+
+  push:
+      tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+env:
+  # Setting an environment variable with the value of a configuration variable
+  MODULE_VERSION: ''
+  MODULE_NAME: ${{ vars.MODULE_NAME }}
+
+jobs:
+  # 1st Job -- Building the module
+  build:
+    name: Build Module
+    runs-on: windows-latest
+
+    steps:
+        # Checkout the main branch
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Update Module Manifest
+        id: update_manifest
+        shell: pwsh
+        run: |
+          $oldModuleVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
+          $publicFunctions = Get-ChildItem -Path '.\Public\*.ps1'
+          $privateFunctions = Get-ChildItem -Path '.\Private\*.ps1'
+          $ClassesFunctions = Get-ChildItem -Path '.\Classes\*.ps1'
+          $EnumsFunctions = Get-ChildItem -Path '.\Enums\*.ps1'
+          $totalFunctions = $publicFunctions.count + $privateFunctions.count + $ClassesFunctions.count + $EnumsFunctions.count
+          $ModuleBuildNumber = $oldModuleVersion.Build + 1
+          $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
+          Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
+
+          Add-Content -Path "$env:GITHUB_ENV" -Value "MODULE_VERSION=$ModuleVersion" -Encoding utf8
+          #echo "MODULE_VERSION=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+          echo "Old version was $oldModuleVersion and New is $ModuleVersion"
+          echo "With env. ${{env.MODULE_VERSION}}"
+          echo "Just variable $env.MODULE_VERSION"
