@@ -45,7 +45,7 @@ jobs:
         id: update_manifest
         shell: pwsh
         run: |
-          $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
+          $newVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
           $manifestPath = '.\EguibarIT.psd1'
           (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
           echo "MODULE_VERSION=$newVersion" >> $GITHUB_OUTPUT
