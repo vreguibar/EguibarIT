@@ -74,14 +74,16 @@ jobs:
           $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
           $manifestPath = '.\EguibarIT.psd1'
           (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
-          echo "::set-output name=newVersion::$PS_Module_Version"
+          echo "MODULE_VERSION=$newVersion" >> $GITHUB_ENV
+          echo "Module version is $newVersion"
+          echo "::set-output name=newVersion::$newVersion"
 
       - name: Check if Release Exists
         id: check_release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: "v${{ steps.release_and_publish.outputs.newVersion }}"
+          tag_name: $newVersion
 
 
 
@@ -92,8 +94,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.release_and_publish.outputs.newVersion }}
-          release_name: Release ${{ steps.release_and_publish.outputs.newVersion }}
+          tag_name: $newVersion
+          release_name: Release $newVersion
           draft: false
           prerelease: false
 
