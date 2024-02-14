@@ -11,10 +11,10 @@ on:
       tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
-  env:
-    # Setting an environment variable with the value of a configuration variable
-    env_var: ${{ vars.MODULE_VERSION }}
-    env_var: ${{ vars.MODULE_NAME }}
+env:
+  # Setting an environment variable with the value of a configuration variable
+  MODULE_VERSION: ${{ vars.MODULE_VERSION }}
+  MODULE_NAME: ${{ vars.MODULE_NAME }}
 
 jobs:
   # 1st Job -- Building the module
@@ -60,7 +60,7 @@ jobs:
           $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
           Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
           echo "::set-output name=var.MODULE_VERSION::$ModuleVersion"
-          echo "var.MODULE_VERSION=$ModuleVersion" >> $env:GITHUB_ENV
+          echo "MODULE_VERSION=$ModuleVersion" >> $env:GITHUB_ENV
           echo "Old version was $oldModuleVersion"
           echo "The new version is ${{ vars.MODULE_VERSION }}"
 
