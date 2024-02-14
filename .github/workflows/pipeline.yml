@@ -41,6 +41,18 @@ jobs:
               Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
           }
 
+      - name: Update Module Manifest
+        id: update_manifest
+        shell: pwsh
+        run: |
+          $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
+          $manifestPath = '.\EguibarIT.psd1'
+          (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
+          echo "MODULE_VERSION=$newVersion" >> $GITHUB_ENV
+          echo "::set-output name=MODULE_VERSION::$newVersion"
+          echo "::set-output name=newVersion::$newVersion"
+          echo "The new version is ${{ steps.update_manifest.outputs.newVersion }}"
+
 
         # Pushing the changes from InvokeBuild to the main branch
       - name: Push changes to Git Repository
@@ -57,7 +69,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: module-artifact # Naming the powershell module artifact
-          path: ./Output/ # Saving the powershell module artifact to the path ./Artifact/
+          path: ./Output/EguibarIT/${{ steps.update_manifest.outputs.newVersion }}/ # Saving the powershell module artifact to the path ./Artifact/
 
 
 
@@ -69,20 +81,6 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-
-
-      - name: Update Module Manifest
-        id: update_manifest
-        shell: pwsh
-        run: |
-          $newVersion = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
-          $manifestPath = '.\EguibarIT.psd1'
-          (Get-Content -Path $manifestPath -Raw) -replace 'Version = ''\d+\.\d+\.\d+''', "Version = '$newVersion'" | Set-Content -Path $manifestPath
-          echo "MODULE_VERSION=$newVersion" >> $GITHUB_ENV
-          echo "::set-output name=MODULE_VERSION::$newVersion"
-          echo "::set-output name=newVersion::$newVersion"
-          echo "The new version is ${{ steps.update_manifest.outputs.newVersion }}"
-
 
 
       - name: Check if Release Exists
@@ -106,7 +104,7 @@ jobs:
         with:
           repo: ${{github.repository}}
           name: module-artifact # Name of the PowerShell module artifact
-          path: ./Output/ # Downloads the module to the path ./Output/
+          path: ./Output/EguibarIT/${{ steps.update_manifest.outputs.newVersion }}/ # Downloads the module to the path ./Output/
 
 
 
@@ -127,5 +125,5 @@ jobs:
       - name: Publish to PowerShell Gallery
         uses: pcgeek86/publish-powershell-module-action@v20
         with:
-          modulePath: ./Output/
+          modulePath: ./Output/EguibarIT/${{ steps.update_manifest.outputs.newVersion }}/
           NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
