@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: module-artifact # Naming the powershell module artifact
-          path: ./Artifact/ # Saving the powershell module artifact to the path ./Artifact/
+          path: ./Output/ # Saving the powershell module artifact to the path ./Artifact/
 
 
 
@@ -104,7 +104,7 @@ jobs:
         with:
           repo: ${{github.repository}}
           name: module-artifact # Name of the PowerShell module artifact
-          path: Artifact/ # Downloads the module to the path ./Artifact/
+          path: ./Output/ # Downloads the module to the path ./Output/
 
 
 
