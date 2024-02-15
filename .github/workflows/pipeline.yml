@@ -89,8 +89,8 @@ jobs:
 
       - name: Read exported variable
         run: |
-          $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
           $ModuleVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
+          $PS_Module_Version = ('v{0}' -f $ModuleVersion)
 
           Write-Output "BUILD_NUMBER=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Output "VERSION_NUMBER=$PS_Module_Version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
