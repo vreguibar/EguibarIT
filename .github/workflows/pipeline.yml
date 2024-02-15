@@ -84,7 +84,7 @@ jobs:
         run: |
           $ModuleName = "${{ env.MODULE_NAME }}"
           $ModuleVersion = "${{ env.BUILD_NUMBER }}"
-          pwsh -command ".\Build\CopyArtifact.ps1 -ModuleName $ModuleName -ModuleVersion $ModuleVersion"
+          pwsh -command ".\Build\CopyArtifact.ps1 -ModuleName $ModuleName -ModuleVersion $ModuleVersion -Verbose"
 
 
         # Pushing the changes from InvokeBuild to the main branch
@@ -103,6 +103,9 @@ jobs:
         with:
           name: module-artifact # Naming the powershell module artifact
           path: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/ # Saving the powershell module artifact to the path ./Artifact/
+
+      - name: List Module Directory
+        run: ls -R ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/
 
 
 
@@ -133,9 +136,11 @@ jobs:
 
       - name: show variable
         run: |
-          echo "${{ env.BUILD_NUMBER }}"
-          echo "${{ env.VERSION_NUMBER }}"
-          echo "${{ env.MODULE_NAME }}"
+          echo "Module Name: ${{ env.MODULE_NAME }}"
+          echo "Build Number: ${{ env.BUILD_NUMBER }}"
+          echo "Version Number: ${{ env.VERSION_NUMBER }}"
+          echo "Current Working Directory: $(pwd)"
+          echo "Expected Module Path: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/"
 
       - name: Check if Release Exists
         id: check_release
@@ -160,7 +165,8 @@ jobs:
           name: module-artifact # Name of the PowerShell module artifact
           path: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/ # Downloads the module to the path ./Output/
 
-
+      - name: List Module Directory
+        run: ls -R ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/
 
         # Create a release to github
       - name: Create Release
