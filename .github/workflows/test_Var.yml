@@ -27,11 +27,24 @@ jobs:
         shell: pwsh
         run: |
           $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
-          Write-Output "BUILD_NUMBER=$PS_Module_Version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+          $oldModuleVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
+          $publicFunctions = Get-ChildItem -Path '.\Public\*.ps1'
+          $privateFunctions = Get-ChildItem -Path '.\Private\*.ps1'
+          $ClassesFunctions = Get-ChildItem -Path '.\Classes\*.ps1'
+          $EnumsFunctions = Get-ChildItem -Path '.\Enums\*.ps1'
+          $totalFunctions = $publicFunctions.count + $privateFunctions.count + $ClassesFunctions.count + $EnumsFunctions.count
+          $ModuleBuildNumber = $oldModuleVersion.Build + 1
+          $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
+          Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
+
+          Write-Output "BUILD_NUMBER=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Output "OLD_NUMBER=$oldModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Read exported variable
         run: |
           echo "${{ env.BUILD_NUMBER }}"
+          echo "${{ env.OLD_NUMBER }}"
 
   # 2nd Job -- Releasing the module
   release:
@@ -42,9 +55,13 @@ jobs:
     steps:
       - name: Read exported variable
         run: |
-          echo "env."
+          $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
+          $ModuleVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
+
+          Write-Output "BUILD_NUMBER=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Output "VERSION_NUMBER=$PS_Module_Version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: show variable
+        run: |
           echo "${{ env.BUILD_NUMBER }}"
-          echo "steps."
-          echo "${{ steps.tag.outputs.BUILD_NUMBER }}"
-          echo "..."
-          echo "$BUILD_NUMBER"
+          echo "${{ env.VERSION_NUMBER }}"
