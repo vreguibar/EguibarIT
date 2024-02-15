@@ -166,7 +166,7 @@ jobs:
           #path: ./Artifact/ # Downloads the module to the path ./Artifact/
 
       - name: List Module Directory
-        run: ls -R ./Artifact/ || true
+        run: ls -R ./ || true
 
         # Create a release to github
       - name: Create Release
