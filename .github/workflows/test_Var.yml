@@ -49,7 +49,7 @@ jobs:
           echo "${{ env.OLD_NUMBER }}"
 
       - name: List Module Directory
-        run: ls -R ./Output/ || true
+        run: ls -R . || true
 
 
   # 2nd Job -- Releasing the module
