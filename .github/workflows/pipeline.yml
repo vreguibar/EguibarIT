@@ -187,15 +187,20 @@ jobs:
           $PublishParams = @{
             NuGetApiKey = $NugetAPIKey
             Path = '.'
-            ProjectUri = 'https://github.com/vreguibar/EguibarIT'
+            ProjectUri = 'https://www.delegationmodel.com/'
             Tags = @(
               'Windows',
               'ActiveDirectory',
+              'Active Directory',
+              'Active Directory Security',
               'AD Security',
               'Seccurity',
               'DelegationModel',
               'TierModel',
               'RBACmodel',
+              'Delegation Model',
+              'Tier Model',
+              'RBAC model',
               'Infrastructure',
               'Testing',
               'Checks',
@@ -203,9 +208,11 @@ jobs:
               'Checklist',
               'Validation',
               'Credential Theaf',
-              'Golden Ticket'
+              'Pass-the-Hash',
+              'Pass-the-Ticket',
+              'Golden Ticket',
+              'Silver Ticket'
             )
             Verbose = $true
           }
-
           Publish-Module @PublishParams
