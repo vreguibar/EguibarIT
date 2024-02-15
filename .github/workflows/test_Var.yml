@@ -12,7 +12,7 @@ on:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 env:
-  BUILD_NUMBER:
+  BUILD_NUMBER: ${{ vars.BUILD_NUMBER }}
 
 jobs:
   # 1st Job -- Building the module
