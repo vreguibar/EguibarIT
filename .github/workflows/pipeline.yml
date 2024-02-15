@@ -56,12 +56,7 @@ jobs:
           $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
           Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
 
-          Add-Content -Path "$env:GITHUB_ENV" -Value "MODULE_VERSION=$ModuleVersion" -Encoding utf8
-          #echo "MODULE_VERSION=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-          echo "Old version was $oldModuleVersion and New is $ModuleVersion"
-          echo "With env. ${{env.MODULE_VERSION}}"
-          echo "Just variable $env.MODULE_VERSION"
+          Write-Output "BUILD_NUMBER=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
 
         # Pushing the changes from InvokeBuild to the main branch
@@ -79,7 +74,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: module-artifact # Naming the powershell module artifact
-          path: ./Output/EguibarIT/${{env.MODULE_VERSION}}/ # Saving the powershell module artifact to the path ./Artifact/
+          path: ./Output/EguibarIT/${{ env.BUILD_NUMBER }}/ # Saving the powershell module artifact to the path ./Artifact/
 
 
 
@@ -92,6 +87,18 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Read exported variable
+        run: |
+          $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
+          $ModuleVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
+
+          Write-Output "BUILD_NUMBER=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Output "VERSION_NUMBER=$PS_Module_Version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: show variable
+        run: |
+          echo "${{ env.BUILD_NUMBER }}"
+          echo "${{ env.VERSION_NUMBER }}"
 
       - name: Check if Release Exists
         id: check_release
@@ -114,7 +121,7 @@ jobs:
         with:
           repo: ${{github.repository}}
           name: module-artifact # Name of the PowerShell module artifact
-          path: ./Output/EguibarIT/${{env.MODULE_VERSION}}/ # Downloads the module to the path ./Output/
+          path: ./Output/EguibarIT/${{ env.BUILD_NUMBER }}/ # Downloads the module to the path ./Output/
 
 
 
@@ -125,8 +132,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{env.MODULE_VERSION}}
-          release_name: Release ${{env.MODULE_VERSION}}
+          tag_name: ${{ env.VERSION_NUMBER }}
+          release_name: Release ${{ env.BUILD_NUMBER }}
           draft: false
           prerelease: false
 
@@ -135,5 +142,5 @@ jobs:
       - name: Publish to PowerShell Gallery
         uses: pcgeek86/publish-powershell-module-action@v20
         with:
-          modulePath: ./Output/EguibarIT/${{env.MODULE_VERSION}}/
+          modulePath: ./Output/EguibarIT/${{ env.BUILD_NUMBER }}/
           NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
