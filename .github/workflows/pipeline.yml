@@ -163,10 +163,10 @@ jobs:
         with:
           repo: ${{github.repository}}
           name: module-artifact # Name of the PowerShell module artifact
-          path: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/ # Downloads the module to the path ./Output/
+          path: ./Artifact/ # Downloads the module to the path ./Artifact/
 
       - name: List Module Directory
-        run: ls -R ./Output/ || true
+        run: ls -R ./Artifact/ || true
 
         # Create a release to github
       - name: Create Release
@@ -185,5 +185,5 @@ jobs:
       - name: Publish to PowerShell Gallery
         uses: pcgeek86/publish-powershell-module-action@v20
         with:
-          modulePath: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/
+          modulePath: ./Artifact/${{ env.MODULE_NAME }}/
           NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
