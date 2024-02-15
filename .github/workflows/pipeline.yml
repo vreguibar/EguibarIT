@@ -105,7 +105,7 @@ jobs:
           path: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/ # Saving the powershell module artifact to the path
 
       - name: List Module Directory
-        run: ls -R ./Output/ || true
+        run: ls -R . || true
 
 
 
@@ -166,7 +166,7 @@ jobs:
           #path: ./Artifact/ # Downloads the module to the path ./Artifact/
 
       - name: List Module Directory
-        run: ls -R ./ || true
+        run: ls -R . || true
 
         # Create a release to github
       - name: Create Release
