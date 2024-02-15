@@ -186,4 +186,28 @@ jobs:
 
           Import-Module -Name $ModuleName
 
-          Publish-Module -Name $ModuleName -NuGetApiKey $NugetAPIKey -Verbose
+          $PublishParams = @{
+            NuGetApiKey = $NugetAPIKey
+            Path = '.'
+            ProjectUri = 'https://github.com/vreguibar/EguibarIT'
+            Tags = @(
+              'Windows',
+              'ActiveDirectory',
+              'AD Security',
+              'Seccurity',
+              'DelegationModel',
+              'TierModel',
+              'RBACmodel',
+              'Infrastructure',
+              'Testing',
+              'Checks',
+              'Audits',
+              'Checklist',
+              'Validation',
+              'Credential Theaf',
+              'Golden Ticket'
+            )
+            Verbose = $true
+          }
+
+          Publish-Module @PublishParams
