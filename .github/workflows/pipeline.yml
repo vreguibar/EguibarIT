@@ -162,7 +162,7 @@ jobs:
         uses: aochmann/actions-download-artifact@1.0.4
         with:
           repo: ${{github.repository}}
-          name: module-artifact # Name of the PowerShell module artifact
+          name: ${{ env.MODULE_NAME }} # Name of the PowerShell module artifact
           path: ./Artifact/ # Downloads the module to the path ./Artifact/
 
       - name: List Module Directory
