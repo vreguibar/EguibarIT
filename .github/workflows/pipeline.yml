@@ -34,6 +34,8 @@ jobs:
         run: |
           $ModuleName = (Test-ModuleManifest -Path '.\*.psd1').Name
           Write-Output "MODULE_NAME=$ModuleName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        env:
+          MODULE_NAME: ${{ env.MODULE_NAME }}
 
 
       - name: Install PSScriptAnalyzer module
@@ -71,6 +73,9 @@ jobs:
           Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
 
           Write-Output "BUILD_NUMBER=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+        env:
+          BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
 
 
       - name: Copy Artifact
@@ -116,9 +121,15 @@ jobs:
         run: |
           $ModuleVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
           $PS_Module_Version = ('v{0}' -f $ModuleVersion)
+          $ModuleName = (Test-ModuleManifest -Path '.\*.psd1').Name
 
+          Write-Output "MODULE_NAME=$ModuleName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Output "BUILD_NUMBER=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Output "VERSION_NUMBER=$PS_Module_Version" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        env:
+          MODULE_NAME: ${{ env.MODULE_NAME }}
+          BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
+          VERSION_NUMBER: ${{ env.VERSION_NUMBER }}
 
       - name: show variable
         run: |
