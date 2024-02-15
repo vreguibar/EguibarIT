@@ -69,3 +69,19 @@ jobs:
         run: |
           echo "${{ env.BUILD_NUMBER }}"
           echo "${{ env.VERSION_NUMBER }}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

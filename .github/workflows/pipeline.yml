@@ -11,6 +11,11 @@ on:
       tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
+env:
+  BUILD_NUMBER: ${{ vars.BUILD_NUMBER }}
+  MODULE_NAME: ${{ vars.MODULE_NAME }}
+  VERSION_NUMBER: ${{ vars.VERSION_NUMBER }}
+
 
 jobs:
   # 1st Job -- Building the module
@@ -22,6 +27,14 @@ jobs:
         # Checkout the main branch
       - name: Checkout Repository
         uses: actions/checkout@v2
+
+
+      - name: Get Module Name
+        shell: pwsh
+        run: |
+          $ModuleName = (Test-ModuleManifest -Path '.\*.psd1').Name
+          Write-Output "MODULE_NAME=$ModuleName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
 
       - name: Install PSScriptAnalyzer module
         shell: pwsh
@@ -42,6 +55,7 @@ jobs:
               Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
           }
 
+
       - name: Update Module Manifest
         id: update_manifest
         shell: pwsh
@@ -59,6 +73,97 @@ jobs:
           Write-Output "BUILD_NUMBER=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
 
+      - name: Copy Artifact
+        id: Copy_Artifact
+        shell: pwsh
+        run: |
+          if (Test-Path ".\Output\${{ env.MODULE_NAME }}\${{ env.BUILD_NUMBER }}") {
+              Write-Warning -Message "Version: ${{ env.BUILD_NUMBER }} - folder was detected in .\Output\${{ env.MODULE_NAME }}. Removing old temp folder."
+              Remove-Item ".\Output\${{ env.MODULE_NAME }}\${{ env.BUILD_NUMBER }}" -Recurse -Force
+          } #end If
+
+          Write-Verbose -Message "Creating new temp module version folder: .\Output\${{ env.MODULE_NAME }}\${{ env.BUILD_NUMBER }}."
+          if (Test-Path ".\Output\${{ env.MODULE_NAME }}") {
+              Write-Verbose -Message 'Detected old folder, removing it from output folder'
+              Remove-Item -Path ".\Output\${{ env.MODULE_NAME }}" -Recurse -Force
+          } #end If
+
+          try {
+              New-Item -Path ".\Output\${{ env.MODULE_NAME }}\${{ env.BUILD_NUMBER }}" -ItemType Directory
+          } catch {
+              throw "Failed creating the new temp module folder: .\Output\${{ env.MODULE_NAME }}\${{ env.BUILD_NUMBER }}"
+          } #end Try-Catch
+
+          Write-Verbose -Message 'Generating the Module Manifest for temp build and generating new Module File'
+          try {
+              Copy-Item -Path ".\${{ env.MODULE_NAME }}.psd1" -Destination ".\Output\${{ env.MODULE_NAME }}\$ModuleVersion\"
+              New-Item -Path ".\Output\${{ env.MODULE_NAME }}\$ModuleVersion\${{ env.MODULE_NAME }}.psm1" -ItemType File
+          } catch {
+              throw "Failed copying Module Manifest from: .\${{ env.MODULE_NAME }}.psd1 to .\Output\${{ env.MODULE_NAME }}\$ModuleVersion\ or Generating the new psm file."
+          } #end Try-Catch
+
+          Write-Verbose -Message 'Updating Module Manifest with Public Functions'
+          try {
+              Write-Verbose -Message 'Appending Public functions to the psm file'
+              $functionsToExport = New-Object -TypeName System.Collections.ArrayList
+              foreach ($function in $publicFunctions.Name) {
+                  Write-Verbose -Message "Exporting function: $(($function.split('.')[0]).ToString())"
+                  $functionsToExport.Add(($function.split('.')[0]).ToString())
+              }
+              Update-ModuleManifest -Path ".\Output\${{ env.MODULE_NAME }}\${{ env.BUILD_NUMBER }}\${{ env.MODULE_NAME }}.psd1" -FunctionsToExport $functionsToExport
+          } catch {
+              throw 'Failed updating Module manifest with public functions'
+          } #end Try-Catch
+
+          Write-Verbose -Message 'Copying Public .ps1 files'
+          try {
+              New-Item -Path ".\Output\${{ env.MODULE_NAME }}\${{ env.BUILD_NUMBER }}\Public" -ItemType Directory -ErrorAction Continue
+              Copy-Item -Path ".\${{ env.MODULE_NAME }}.psm1" -Destination ".\Output\${{ env.MODULE_NAME }}\$ModuleVersion\"
+              Copy-Item -Path '.\Public\*.ps1' -Destination ".\Output\${{ env.MODULE_NAME }}\$ModuleVersion\Public\"
+          } catch {
+              throw "Failed copying Public functions from: .\${{ env.MODULE_NAME }}\Public\ to .\Output\${{ env.MODULE_NAME }}\$ModuleVersion\Public\"
+          } #end Try-Catch
+
+          Write-Verbose -Message 'Copying Private .ps1 functions'
+          try {
+              New-Item -Path ".\Output\${{ env.MODULE_NAME }}\${{ env.BUILD_NUMBER }}\Private" -ItemType Directory -ErrorAction Continue
+              Copy-Item -Path '.\Private\*.ps1' -Destination ".\Output\${{ env.MODULE_NAME }}\$ModuleVersion\Private\"
+          } catch {
+              throw "Failed copying Private functions from: .\${{ env.MODULE_NAME }}\Private\ to .\Output\${{ env.MODULE_NAME }}\$ModuleVersion\Private\"
+          } #end Try-Catch
+
+          Write-Verbose -Message 'Copying Classes .ps1 functions'
+          try {
+              New-Item -Path ".\Output\${{ env.MODULE_NAME }}\${{ env.BUILD_NUMBER }}\Classes" -ItemType Directory -ErrorAction Continue
+              Copy-Item -Path '.\Classes\*.ps1' -Destination ".\Output\${{ env.MODULE_NAME }}\$ModuleVersion\Classes\"
+          } catch {
+              throw "Failed copying Classes functions from: .\${{ env.MODULE_NAME }}\Classes\ to .\Output\${{ env.MODULE_NAME }}\$ModuleVersion\Classes\"
+          } #end Try-Catch
+
+          Write-Verbose -Message 'Copying Enums .ps1 functions'
+          try {
+              New-Item -Path ".\Output\${{ env.MODULE_NAME }}\${{ env.BUILD_NUMBER }}\Enums" -ItemType Directory -ErrorAction Continue
+              Copy-Item -Path '.\Enums\*.ps1' -Destination ".\Output\${{ env.MODULE_NAME }}\$ModuleVersion\Enums\"
+          } catch {
+              throw "Failed copying Enums functions from: .\${{ env.MODULE_NAME }}\Enums\ to .\Output\${{ env.MODULE_NAME }}\$ModuleVersion\Enums\"
+          } #end Try-Catch
+
+          Write-Verbose -Message 'Updating Module Manifest with root module'
+          try {
+              Write-Verbose -Message 'Updating the Module Manifest'
+              Update-ModuleManifest -Path ".\Output\${{ env.MODULE_NAME }}\${{ env.BUILD_NUMBER }}\${{ env.MODULE_NAME }}.psd1" -RootModule "${{ env.MODULE_NAME }}.psm1"
+          } catch {
+              Write-Warning -Message 'Failed appinding the rootmodule to the Module Manifest'
+          }
+
+          Write-Verbose -Message 'Compiling Help files'
+          Write-Verbose -Message 'Importing the module to be able to output documentation'
+          Try {
+              Write-Verbose -Message 'Importing the module to be able to output documentation'
+              Import-Module ".\Output\${{ env.MODULE_NAME }}\$ModuleVersion\${{ env.MODULE_NAME }}.psm1"
+          } catch {
+              throw "Failed importing the module: ${{ env.MODULE_NAME }}"
+          }
 
 
 
@@ -77,7 +182,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: module-artifact # Naming the powershell module artifact
-          path: ./Output/EguibarIT/${{ env.BUILD_NUMBER }}/ # Saving the powershell module artifact to the path ./Artifact/
+          path: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/ # Saving the powershell module artifact to the path ./Artifact/
 
 
 
@@ -104,7 +209,7 @@ jobs:
         run: |
           echo "${{ env.BUILD_NUMBER }}"
           echo "${{ env.VERSION_NUMBER }}"
-          echo "${{github.repository}}"
+          echo "${{ env.MODULE_NAME }}"
 
       - name: Check if Release Exists
         id: check_release
@@ -127,7 +232,7 @@ jobs:
         with:
           repo: ${{github.repository}}
           name: module-artifact # Name of the PowerShell module artifact
-          path: ./Output/EguibarIT/${{ env.BUILD_NUMBER }}/ # Downloads the module to the path ./Output/
+          path: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/ # Downloads the module to the path ./Output/
 
 
 
@@ -148,5 +253,5 @@ jobs:
       - name: Publish to PowerShell Gallery
         uses: pcgeek86/publish-powershell-module-action@v20
         with:
-          modulePath: ./Output/EguibarIT/${{ env.BUILD_NUMBER }}/
+          modulePath: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/
           NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
