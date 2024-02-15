@@ -53,6 +53,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
       - name: Read exported variable
         run: |
           $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
