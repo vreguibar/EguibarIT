@@ -77,8 +77,9 @@ jobs:
         id: Copy_Artifact
         shell: pwsh
         run: |
-          #$script = [scriptblock]::Create(".\Build\CopyArtifact.ps1 ${{ env.MODULE_NAME }}, ${{ env.BUILD_NUMBER }}")
-          pwsh -command ".\Build\CopyArtifact.ps1 ${{ env.MODULE_NAME }}, ${{ env.BUILD_NUMBER }}"
+          $ModuleName = "${{ env.MODULE_NAME }}"
+          $ModuleVersion = "${{ env.BUILD_NUMBER }}"
+          pwsh -command ".\Build\CopyArtifact.ps1 -ModuleName $ModuleName -ModuleVersion $ModuleVersion"
 
 
         # Pushing the changes from InvokeBuild to the main branch
