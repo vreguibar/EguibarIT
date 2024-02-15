@@ -1,15 +1,32 @@
-﻿To-Do.txt
-*.html
+﻿*.html
 *.old
-Publish.ps1
+.gitignore
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+# Built Visual Studio Code Extensions
+*.vsix
 build.ps1
-Ignore/*
+GPO-Archive_V1.0.zip
+Publish.ps1
+Rename-to Config.xml.txt
+To-Do.txt
+.github/*
+# Local History for Visual Studio Code
+.history/
 .vs/*
 .vscode/*
+Artefacts/*
+Build/*
 Examples/Output/*
 Examples/Logs/*
+Ignore/*
+Lib/Default/*
+Lib/Standard/*
+Lib/Core/*
+Output/*
 Releases/*
-Artefacts/*
 ReleasedUnpacked/*
 Sources/.vs
 Sources/*/.vs
@@ -18,14 +35,3 @@ Sources/*/bin
 Sources/*/*/obj
 Sources/*/*/bin
 Sources/packages/*
-Lib/Default/*
-Lib/Standard/*
-Lib/Core/*
-# Local History for Visual Studio Code
-.history/
-# Built Visual Studio Code Extensions
-*.vsix
-### VisualStudioCode Patch ###
-# Ignore all local history of files
-.history
-.ionide
