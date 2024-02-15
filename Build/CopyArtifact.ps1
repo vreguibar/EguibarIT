@@ -1,7 +1,9 @@
 ﻿#
 param (
-    [Parameter(Mandatory = $true)]$ModuleName,
-    [Parameter(Mandatory = $true)]$ModuleVersion
+    [Parameter(Mandatory = $true)]
+    $ModuleName,
+    [Parameter(Mandatory = $true)]
+    $ModuleVersion
 )
 
 Function CopyArtifacts {
@@ -26,17 +28,19 @@ Function CopyArtifacts {
 
     param (
 
-        [parameter(Mandatory = $true, , ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Name of the module being processed.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [String]$ModuleName,
+        [String]
+        $ModuleName,
 
-        [parameter(Mandatory = $true, , ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Name of the module being processed.',
-            Position = 0)]
+            Position = 1)]
         [ValidateNotNullOrEmpty()]
-        [String]$ModuleVersion
+        [String]
+        $ModuleVersion
 
     )
 
