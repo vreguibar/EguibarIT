@@ -77,7 +77,7 @@ jobs:
         id: Copy_Artifact
         shell: pwsh
         run: |
-          Invoke-Command -Script "".\Build\CopyArtifact.ps1" -Args ${{ env.MODULE_NAME }}, ${{ env.BUILD_NUMBER }}
+          Invoke-Command -Script "".\Build\CopyArtifact.ps1" -Args "${{ env.MODULE_NAME }}", "${{ env.BUILD_NUMBER }}"
 
 
         # Pushing the changes from InvokeBuild to the main branch
