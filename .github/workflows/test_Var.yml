@@ -23,6 +23,7 @@ jobs:
       - uses: actions/checkout@master
 
       - name: OTHER TEST
+        id: tag
         shell: pwsh
         run: |
           $PS_Module_Version = ('v{0}' -f (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version)
@@ -43,7 +44,7 @@ jobs:
         run: |
           echo "env."
           echo "${{ env.BUILD_NUMBER }}"
-          echo "vars."
-          echo "${{ vars.BUILD_NUMBER }}"
+          echo "steps."
+          echo "${{ steps.tag.outputs.BUILD_NUMBER }}"
           echo "..."
           echo "$BUILD_NUMBER"
