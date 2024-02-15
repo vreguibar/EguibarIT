@@ -184,8 +184,6 @@ jobs:
           $ModuleName = "${{ env.MODULE_NAME }}"
           $NugetAPIKey = "${{ secrets.PS_GALLERY_KEY }}"
 
-          Import-Module -Name $ModuleName
-
           $PublishParams = @{
             NuGetApiKey = $NugetAPIKey
             Path = '.'
