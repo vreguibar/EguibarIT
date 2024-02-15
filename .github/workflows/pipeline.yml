@@ -101,8 +101,8 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: module-artifact # Naming the powershell module artifact
-          path: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/ # Saving the powershell module artifact to the path ./Artifact/
+          name: ${{ env.MODULE_NAME }} # Naming the powershell module artifact
+          path: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/ # Saving the powershell module artifact to the path
 
       - name: List Module Directory
         run: ls -R ./Output/ || true
@@ -163,7 +163,7 @@ jobs:
         with:
           repo: ${{github.repository}}
           name: ${{ env.MODULE_NAME }} # Name of the PowerShell module artifact
-          path: ./Artifact/ # Downloads the module to the path ./Artifact/
+          #path: ./Artifact/ # Downloads the module to the path ./Artifact/
 
       - name: List Module Directory
         run: ls -R ./Artifact/ || true
@@ -185,5 +185,5 @@ jobs:
       - name: Publish to PowerShell Gallery
         uses: pcgeek86/publish-powershell-module-action@v20
         with:
-          modulePath: ./Artifact/${{ env.MODULE_NAME }}/
+          #modulePath: ./Artifact/${{ env.MODULE_NAME }}/
           NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
