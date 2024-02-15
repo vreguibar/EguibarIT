@@ -88,6 +88,8 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Read exported variable
+        id: Read_Var
+        shell: pwsh
         run: |
           $ModuleVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
           $PS_Module_Version = ('v{0}' -f $ModuleVersion)
