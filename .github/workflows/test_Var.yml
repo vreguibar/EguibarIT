@@ -77,4 +77,4 @@ jobs:
           echo "${{ env.VERSION_NUMBER }}"
 
       - name: List Module Directory
-        run: ls -R . || true
+        run: Get-ChildItem | tree /f

@@ -163,7 +163,7 @@ jobs:
         with:
           repo: ${{github.repository}}
           name: ${{ env.MODULE_NAME }} # Name of the PowerShell module artifact
-          #path: ./Artifact/ # Downloads the module to the path ./Artifact/
+          path: . # Downloads the module to the path ./Artifact/
 
       - name: List Module Directory
         run: ls -R . || true
@@ -181,9 +181,13 @@ jobs:
           prerelease: false
 
 
-      # Publishing the module to powershell gallery
-      - name: Publish to PowerShell Gallery
-        uses: pcgeek86/publish-powershell-module-action@v20
-        with:
-          modulePath: ./${{ env.MODULE_NAME }}.psd1
-          NuGetApiKey: ${{ secrets.PS_GALLERY_KEY }}
+      - name: Publish module to PowerShell Gallery
+        id: Publish_Module
+        shell: pwsh
+        run: |
+          $ModuleName = ${{ env.MODULE_NAME }}
+          $NugetAPIKey = ${{ secrets.PS_GALLERY_KEY }}
+
+          Import-Module -Name $ModuleName
+
+          Publish-Module -Name $ModuleName -NuGetApiKey $NugetAPIKey -Verbose
