@@ -41,5 +41,9 @@ jobs:
     steps:
       - name: Read exported variable
         run: |
-          echo "Second Job"
+          echo "env."
           echo "${{ env.BUILD_NUMBER }}"
+          echo "vars."
+          echo "${{ vars.BUILD_NUMBER }}"
+          echo "..."
+          echo "$BUILD_NUMBER"
