@@ -2,7 +2,7 @@
 ####################################################################################################
 
 $NameTargetOU = "CN=Partitions,CN=Configuration," + $DomainRootDN
-    
+
         $ACLTargetOU = Get-Acl -Path "AD:/$NameTargetOU"
         $ACLTargetOU.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SidDelegate, "ReadProperty,WriteProperty", "Allow", $guidmap["uPNSuffixes"], "All"))
         Set-Acl -AclObject $ACLTargetOU -Path "AD:/$NameTargetOU"
@@ -19,7 +19,7 @@ $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("$Zo
 
         [string]$Path = "\\$ZoneDNSName\SYSVOL\$ZoneDNSName\Policies\PolicyDefinitions"
         $ACLTargetOU = Get-Acl $Path
-        
+
         $ACLTargetOU.SetAccessRule($AccessRule)
         $ACLTargetOU | Set-Acl $Path
 
@@ -28,11 +28,11 @@ $AccessRule = New-Object System.Security.AccessControl.FileSystemAccessRule("$Zo
 ####################################################################################################
 
 $NameDelegate = "DL_Tier0_TombstoneManagement"
-$SidDelegate = New-Object System.Security.Principal.SecurityIdentifier (Get-ADGroup $NameDelegate).SID 
+$SidDelegate = New-Object System.Security.Principal.SecurityIdentifier (Get-ADGroup $NameDelegate).SID
 
 Try {
         $NameTargetOU = $OURootDN
-    
+
         $ACLTargetOU = Get-Acl -Path "AD:/$NameTargetOU"
         $ACLTargetOU.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SidDelegate, "ReadProperty", "Allow", "All", $nullGUID))
         $ACLTargetOU.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SidDelegate, "ExtendedRight", "Allow", $extendedrightsmap["Reanimate tombstones"], "All"))
@@ -70,13 +70,13 @@ $ACLTargetOU.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryA
 ####################################################################################################
     Try {
         $NameTargetOU = "CN=MicrosoftDNS,DC=DomainDnsZones,$DomainRootDN"
-    
+
         $ACLTargetOU = Get-Acl -Path "AD:/$NameTargetOU"
         Foreach ($ace in $ACLTargetOU.Access) {
             if ($ace.IdentityReference -match 'dnsAdmins') {
                 $ACLTargetOU.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SidDelegate, $ace.ActiveDirectoryRights, $ace.AccessControlType , $ace.ObjectType, "All"))
             }
-        } 
+        }
         Set-Acl -AclObject $ACLTargetOU -Path "AD:/$NameTargetOU"
         write-log "Permission to create Domain DNS Zones - ACE updated for: $NameDelegate on $NameTargetOU"
     }
@@ -94,13 +94,13 @@ $ACLTargetOU.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryA
             Write-Log "    Zone=$($zone.name)" -information
             $NameTargetOU = $zone.distinguishedName
             $NameTargetOU | Remove-Delegation
-        
+
             $ACLTargetOU = Get-Acl -Path "AD:/$NameTargetOU"
             Foreach ($ace in $ACLTargetOU.Access) {
                 if ($ace.IdentityReference -match 'dnsAdmins') {
                     $ACLTargetOU.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SidDelegate, $ace.ActiveDirectoryRights, $ace.AccessControlType , $ace.ObjectType, "All"))
                 }
-            } 
+            }
             Set-Acl -AclObject $ACLTargetOU -Path "AD:/$NameTargetOU"
         }
     }
@@ -114,7 +114,7 @@ $ACLTargetOU.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryA
 ####################################################################################################
 
 $ACLTargetOU = Get-Acl -Path "AD:/$NameTargetOU"
-        
+
         $ACLTargetOU.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SidDelegate, "ReadProperty,WriteProperty", "Allow", $extendedRightsMap["Terminal Server License server"], "Descendents", $guidmap["user"]))
         Set-Acl -AclObject $ACLTargetOU -Path "AD:/$NameTargetOU"
 
@@ -128,7 +128,7 @@ $ACLTargetOU = Get-Acl -Path "AD:/$NameTargetOU"
 ####################################################################################################
 
  $ACLTargetOU = Get-Acl -Path "AD:/$NameTargetOU"
-        
+
         $ACLTargetOU.AddAccessRule((New-Object System.DirectoryServices.ActiveDirectoryAccessRule $SidDelegate, "WriteOwner", "Deny", "Descendents", $nullGUID))
         Set-Acl -AclObject $ACLTargetOU -Path "AD:/$NameTargetOU"
 
@@ -149,7 +149,7 @@ function FixAdminSDHolder
     if ($dsHeuristics)
     {
         Write-Output -InputObject "`nCurrent dsHeuristics value: $dsHeuristics`n"
-        
+
         # Remove permissions for all operator groups
         if ($dsHeuristics.Length -lt 16)
         {
@@ -189,22 +189,22 @@ Function Invoke-ADSDPropagation{
         Name of the task to use.
             - FixUpInheritance for legacy OS
             - RunProtectAdminGroupsTask for recent OS
-    
+
     #>
         [CmdletBinding()]
         Param(
             [ValidateSet('RunProtectAdminGroupsTask','FixUpInheritance')]
             [String]$TaskName = 'RunProtectAdminGroupsTask'
         )
-    
+
         try{
             $DomainName = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().Name
             $DomainContext = New-Object System.DirectoryServices.ActiveDirectory.DirectoryContext('domain',$DomainName)
             $DomainObject = [System.DirectoryServices.ActiveDirectory.Domain]::GetDomain($DomainContext)
-        
+
             Write-Verbose -Message "Detected PDCe is $($DomainObject.PdcRoleOwner.Name)."
-            $RootDSE = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$($DomainObject.PdcRoleOwner.Name)/RootDSE") 
-            $RootDSE.UsePropertyCache = $false 
+            $RootDSE = New-Object System.DirectoryServices.DirectoryEntry("LDAP://$($DomainObject.PdcRoleOwner.Name)/RootDSE")
+            $RootDSE.UsePropertyCache = $false
             $RootDSE.Put($TaskName, "1") # RunProtectAdminGroupsTask & fixupinheritance
             $RootDSE.SetInfo()
         }
@@ -212,3 +212,14 @@ Function Invoke-ADSDPropagation{
             throw "Can't invoke SDProp on $($DomainObject.PdcRoleOwner.Name) !"
         }
     }
+
+
+
+####################################################################################################################
+
+|-> Fix Set-AdDirectoryReplication
+    Access Denied
+
+
+|-> Fix Set-AdAclFSMOtransfer
+    Access Denied

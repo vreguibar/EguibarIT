@@ -1,35 +1,44 @@
-Function Import-MyModule
-{
+Function Import-MyModule {
     <#
-        .Synopsis
-            Function to Import Modules with error handling
+        .SYNOPSIS
+            Imports a PowerShell module with enhanced error handling.
+
         .DESCRIPTION
-            Function to Import Modules as with Import-Module Cmdlet but
-            with error handling on it.
-        .INPUTS
-            Param1 name:........String representing Module Name
+            This function imports a specified PowerShell module with additional
+            error handling and verbose output. It checks if the module is available
+            and not already imported before attempting to import it.
+
+        .PARAMETER Name
+            The name of the module to import.
+
         .EXAMPLE
-            Import-MyModule ActiveDirectory
+            Import-MyModule -Name ActiveDirectory
+
+            Tries to import the ActiveDirectory module, providing verbose output
+            and handling errors if the module is not available.
+
         .NOTES
             Version:         1.0
-            DateModified:    19/Feb/2015
+            DateModified:    16/Feb/2024
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
-    Param
-    (
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Medium')]
+
+    Param (
+
         # Param1 STRING for the Module Name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Name of the module to be imported',
-        Position = 0)]
+            Position = 0)]
         [ValidateNotNullOrEmpty()]
         [string]
         $name
     )
-    Begin{
+
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -37,28 +46,38 @@ Function Import-MyModule
 
         ##############################
         # Variables Definition
-    }
-    Process
-    {
-        if(-not(Get-Module -Name $PSBoundParameters['name']))
-        {
-            if(Get-Module -ListAvailable -Name $PSBoundParameters['name'])
-            {
-                Import-Module -Name $PSBoundParameters['name'] -Force
+    } #end Begin
 
-                Write-Verbose -Message ('Imported module {0}' -f $PSBoundParameters['name'])
-            }
-            else
-            {
-                Throw ('Module {0} is not installed. Exiting...' -f $PSBoundParameters['name'])
-                Write-Verbose -Message ('The module {0} is not installed.' -f $PSBoundParameters['name'])
-            }
-        }
-    }
+    Process {
+
+        try {
+            $module = Get-Module -Name $PSBoundParameters['name'] -ErrorAction Stop
+
+            if (-not $module) {
+                $availableModule = Get-Module -ListAvailable -Name $PSBoundParameters['name'] -ErrorAction Stop
+
+                if ($availableModule) {
+
+                    Import-Module -Name $PSBoundParameters['name'] -Force -ErrorAction Stop
+                    Write-Verbose -Message ('Successfully imported module {0}' -f $PSBoundParameters['name'])
+
+                } else {
+                    Write-Error "Module '$Name' is not installed. Please install the module before importing."
+                } #end If-Else
+
+            } else {
+                Write-Verbose ('Module {0} is already imported.' -f $PSBoundParameters['name'])
+            } #end If-Else
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+        } #end Try-Catch
+
+    } #end Process
+
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished importing module."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-    }
+    } #end End
 }

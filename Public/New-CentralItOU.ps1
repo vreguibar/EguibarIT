@@ -1268,6 +1268,9 @@
 
         Add-AdGroupNesting -Identity 'Remote Management Users'          -Members $SG_AdAdmins
 
+        $RemoteWMI = Get-ADGroup -Filter { SamAccountName -like "WinRMRemoteWMIUsers*" }
+        Add-AdGroupNesting -Identity $RemoteWMI                         -Members $SG_AdAdmins
+
         # https://technet.microsoft.com/en-us/library/dn466518(v=ws.11).aspx
         $ArrayList.Clear()
         if($null -ne $AdminName) {            [void][void]$ArrayList.Add($AdminName)}
