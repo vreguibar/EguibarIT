@@ -93,17 +93,17 @@ function Get-AdObjectType {
 
             Write-Verbose -Message 'Looking for DistinguishedName'
 
-            $newObject = Get-ADObject -Filter { DistinguishedName -eq $Identity }
+            $newObject = Get-ADObject -Filter { DistinguishedName -eq $Identity } -ErrorAction SilentlyContinue
 
           } elseif (Test-IsValidSID -ObjectSID $Identity) {
 
             Write-Verbose -Message 'Looking for ObjectSID'
-            $newObject = Get-ADObject -Filter { ObjectSID -eq $Identity }
+            $newObject = Get-ADObject -Filter { ObjectSID -eq $Identity } -ErrorAction SilentlyContinue
 
           } else {
 
             Write-Verbose -Message 'Looking for SamAccountName'
-            $newObject = Get-ADObject -Filter { SamAccountName -eq $Identity }
+            $newObject = Get-ADObject -Filter { SamAccountName -eq $Identity } -ErrorAction SilentlyContinue
 
           } #end if-ElseIf-Else
         } #end If

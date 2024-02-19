@@ -1,5 +1,4 @@
-function New-DelegateAdOU
-{
+function New-DelegateAdOU {
     <#
         .Synopsis
             Create New custom delegated AD OU
@@ -60,7 +59,7 @@ function New-DelegateAdOU
             Position = 0)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
-        [ValidateLength(2,50)]
+        [ValidateLength(2, 50)]
         [string]
         $ouName,
 
@@ -111,25 +110,25 @@ function New-DelegateAdOU
 
         # Param9 OU Display Name
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-        Position = 8)]
+            Position = 8)]
         [string]
         $strOuDisplayName,
 
         #PARAM10 Remove Authenticated Users
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Remove Authenticated Users. CAUTION! This might affect applying GPO to objects.',
-        Position = 9)]
+            Position = 9)]
         [switch]
         $RemoveAuthenticatedUsers,
 
         #PARAM11 Remove Specific Non-Inherited ACE and enable inheritance
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Remove Specific Non-Inherited ACE and enable inheritance.',
-        Position = 10)]
+            Position = 10)]
         [switch]
         $CleanACL
 
-  )
+    )
 
     Begin {
         $error.Clear()
@@ -148,19 +147,19 @@ function New-DelegateAdOU
 
 
         try {
-          # Active Directory Domain Distinguished Name
-          If(-not (Test-Path -Path variable:AdDn)) {
-            $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-          }
+            # Active Directory Domain Distinguished Name
+            If (-not (Test-Path -Path variable:AdDn)) {
+                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
+            }
 
-          # Sites OU Distinguished Name
-          $ouNameDN = 'OU={0},{1}' -f $PSBoundParameters['ouName'], $PSBoundParameters['ouPath']
+            # Sites OU Distinguished Name
+            $ouNameDN = 'OU={0},{1}' -f $PSBoundParameters['ouName'], $PSBoundParameters['ouPath']
         } Catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
         } #end Try-Catch
 
         $OUexists = [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]::New()
-        $Splat    = [hashtable]::New()
+        $Splat = [hashtable]::New()
     } #end Begin
 
     Process {
@@ -171,10 +170,10 @@ function New-DelegateAdOU
 
         try {
             # Try to get Ou
-            $OUexists = Get-AdOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $AdDn
+            $OUexists = Get-ADOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $AdDn -ErrorAction SilentlyContinue
 
             # Check if OU exists
-            If($OUexists) {
+            If ($OUexists) {
                 # OU it does exists
                 Write-Warning -Message ('Organizational Unit {0} already exists.' -f $ouNameDN)
             } else {
@@ -201,9 +200,9 @@ function New-DelegateAdOU
         } #end Try-Caych
 
         # Remove "Account Operators" and "Print Operators" built-in groups from OU. Any unknown/UnResolvable SID will be removed.
-        Start-AdCleanOU -LDAPPath $ouNameDN -RemoveUnknownSIDs
+        Start-AdCleanOU -LDAPpath $ouNameDN -RemoveUnknownSIDs
 
-        if($PSBoundParameters['CleanACL']) {
+        if ($PSBoundParameters['CleanACL']) {
             if ($PSCmdlet.ShouldProcess("Removing specific Non-Inherited ACE and enabling inheritance for '$OuName'")) {
                 Remove-SpecificACLandEnableInheritance -LDAPpath $ouNameDN
             }

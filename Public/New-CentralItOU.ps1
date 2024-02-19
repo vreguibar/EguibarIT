@@ -296,7 +296,7 @@
                 'T2'    = $confXML.n.NC.AdminAccSufix2
         }
 
-        #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM, $NC['T0'])
+        #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM.name, $NC['T0'])
         # SG_PAWM_T0
 
 
@@ -593,42 +593,42 @@
         }
 
 
-        $AdminName |                                                      Move-ADObject -TargetPath $ItAdminAccountsOuDn
-        Get-ADUser -Identity $confXML.n.Admin.users.Guest.Name |          Move-ADObject -TargetPath $ItAdminAccountsOuDn
-        Get-ADUser -Identity krbtgt |                                     Move-ADObject -TargetPath $ItAdminAccountsOuDn
+        $AdminName |                                                      Move-ADObject -TargetPath $ItAdminAccountsOuDn -server $env:COMPUTERNAME
+        Get-ADUser -Identity $confXML.n.Admin.users.Guest.Name |          Move-ADObject -TargetPath $ItAdminAccountsOuDn -server $env:COMPUTERNAME
+        Get-ADUser -Identity krbtgt |                                     Move-ADObject -TargetPath $ItAdminAccountsOuDn -server $env:COMPUTERNAME
 
-        Get-ADGroup -Identity 'Domain Admins' |                           Move-ADObject -TargetPath $ItPrivGroupsOUDn
-        Get-ADGroup -Identity 'Enterprise Admins' |                       Move-ADObject -TargetPath $ItPrivGroupsOUDn
-        Get-ADGroup -Identity 'Schema Admins' |                           Move-ADObject -TargetPath $ItPrivGroupsOUDn
-        Get-ADGroup -Identity 'Domain Controllers' |                      Move-ADObject -TargetPath $ItPrivGroupsOUDn
-        Get-ADGroup -Identity 'Group Policy Creator Owners' |             Move-ADObject -TargetPath $ItPrivGroupsOUDn
-        Get-ADGroup -Identity 'Read-only Domain Controllers' |            Move-ADObject -TargetPath $ItPrivGroupsOUDn
-        Get-ADGroup -Identity 'Enterprise Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
+        Get-ADGroup -Identity 'Domain Admins' |                           Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Enterprise Admins' |                       Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Schema Admins' |                           Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Domain Controllers' |                      Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Group Policy Creator Owners' |             Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Read-only Domain Controllers' |            Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Enterprise Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
 
-        Get-ADGroup -Identity 'DnsUpdateProxy' |                          Move-ADObject -TargetPath $ItAdminGroupsOuDn
-        Get-ADGroup -Identity 'Domain Users' |                            Move-ADObject -TargetPath $ItAdminGroupsOuDn
-        Get-ADGroup -Identity 'Domain Computers' |                        Move-ADObject -TargetPath $ItAdminGroupsOuDn
-        Get-ADGroup -Identity 'Domain Guests' |                           Move-ADObject -TargetPath $ItAdminGroupsOuDn
+        Get-ADGroup -Identity 'DnsUpdateProxy' |                          Move-ADObject -TargetPath $ItAdminGroupsOuDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Domain Users' |                            Move-ADObject -TargetPath $ItAdminGroupsOuDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Domain Computers' |                        Move-ADObject -TargetPath $ItAdminGroupsOuDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Domain Guests' |                           Move-ADObject -TargetPath $ItAdminGroupsOuDn -server $env:COMPUTERNAME
 
-        Get-ADGroup -Identity 'Allowed RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn
-        Get-ADGroup -Identity 'RAS and IAS Servers' |                     Move-ADObject -TargetPath $ItRightsOuDn
-        Get-ADGroup -Identity 'DNSAdmins' |                               Move-ADObject -TargetPath $ItRightsOuDn
-        Get-ADGroup -Identity 'Cert Publishers' |                         Move-ADObject -TargetPath $ItRightsOuDn
-        Get-ADGroup -Identity 'Denied RODC Password Replication Group' |  Move-ADObject -TargetPath $ItRightsOuDn
+        Get-ADGroup -Identity 'Allowed RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'RAS and IAS Servers' |                     Move-ADObject -TargetPath $ItRightsOuDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'DNSAdmins' |                               Move-ADObject -TargetPath $ItRightsOuDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Cert Publishers' |                         Move-ADObject -TargetPath $ItRightsOuDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Denied RODC Password Replication Group' |  Move-ADObject -TargetPath $ItRightsOuDn -server $env:COMPUTERNAME
 
         # Following groups only exist on Win 2012
         If ([System.Environment]::OSVersion.Version.Build -ge 9200) {
-            Get-ADGroup -Identity 'Protected Users' |                     Move-ADObject -TargetPath $ItPrivGroupsOUDn
-            Get-ADGroup -Identity 'Cloneable Domain Controllers' |        Move-ADObject -TargetPath $ItPrivGroupsOUDn
+            Get-ADGroup -Identity 'Protected Users' |                     Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+            Get-ADGroup -Identity 'Cloneable Domain Controllers' |        Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
 
-            Get-ADGroup -Identity 'Access-Denied Assistance Users' |      Move-ADObject -TargetPath $ItPrivGroupsOUDn
-            Get-ADGroup -Filter { SamAccountName -like "WinRMRemoteWMIUsers*" } | Move-ADObject -TargetPath $ItPrivGroupsOUDn
+            Get-ADGroup -Identity 'Access-Denied Assistance Users' |      Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+            Get-ADGroup -Filter { SamAccountName -like "WinRMRemoteWMIUsers*" } | Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
         }
 
         # Following groups only exist on Win 2019
         If ([System.Environment]::OSVersion.Version.Build -ge 17763) {
-            Get-ADGroup -Identity 'Enterprise Key Admins'               | Move-ADObject -TargetPath $ItPrivGroupsOUDn
-            Get-ADGroup -Identity 'Key Admins'                          | Move-ADObject -TargetPath $ItPrivGroupsOUDn
+            Get-ADGroup -Identity 'Enterprise Key Admins'               | Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+            Get-ADGroup -Identity 'Key Admins'                          | Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
             #Get-ADGroup -Identity 'Windows Admin Center CredSSP Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
         }
 
@@ -668,7 +668,7 @@
         #try {
 
         # Try to get the new Admin
-        $NewAdminExists = Get-AdUser -Filter { SamAccountName -eq $newAdminName }
+        $NewAdminExists = Get-AdUser -Filter { SamAccountName -eq $newAdminName } -ErrorAction SilentlyContinue
 
         # Get picture if exist. Use default if not.
         If(Test-Path -Path ('{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName)) {
@@ -807,7 +807,7 @@
             $params.Add('thumbnailPhoto',$photo)
         }
 
-        Set-AdUser -Identity $AdminName -TrustedForDelegation $false -AccountNotDelegated $true -Add $params
+        Set-AdUser -Identity $AdminName -TrustedForDelegation $false -AccountNotDelegated $true -Add $params -Server $env:COMPUTERNAME
 
         Write-Verbose -Message 'Admin accounts created and secured.'
 
