@@ -675,7 +675,8 @@
             # Read the path and file name of JPG picture
             $PhotoFile = '{0}\Pic\{1}.jpg' -f $DMscripts, $newAdminName
             # Get the content of the JPG file
-            $photo = [byte[]](Get-Content -Path $PhotoFile -AsByteStream -Raw )
+            #$photo = [byte[]](Get-Content -Path $PhotoFile -AsByteStream -Raw )
+            [byte[]]$photo = [System.IO.File]::ReadAllBytes($PhotoFile)
         } else {
             If(Test-Path -Path ('{0}\Pic\Default.jpg' -f $DMscripts)) {
                 # Read the path and file name of JPG picture
@@ -683,8 +684,8 @@
                 # Get the content of the JPG file
                 #$photo = [byte[]](Get-Content -Path $PhotoFile -Encoding byte) - NOT WORKING since PS 6
                 # Alternative
-                # [byte[]]$photo = [System.IO.File]::ReadAllBytes($image_path)
-                $photo = [byte[]](Get-Content -Path $PhotoFile -AsByteStream -Raw)
+                [byte[]]$photo = [System.IO.File]::ReadAllBytes($PhotoFile)
+                #$photo = [byte[]](Get-Content -Path $PhotoFile -AsByteStream -Raw)
             } else {
                 $photo = $null
             } #end If-Else
