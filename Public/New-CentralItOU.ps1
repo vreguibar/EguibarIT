@@ -1145,6 +1145,7 @@
         if($null -ne $SL_DirReplRight) {          [void]$ArrayList.Add($SL_DirReplRight.SamAccountName) }
         if($null -ne $SL_PromoteDcRight) {        [void]$ArrayList.Add($SL_PromoteDcRight.SamAccountName) }
         if($null -ne $SL_TransferFSMOright) {     [void]$ArrayList.Add($SL_TransferFSMOright.SamAccountName) }
+        if($null -ne $SL_DcManagement) {          [void]$ArrayList.Add($SL_DcManagement.SamAccountName) }
         if($null -ne $SL_PISM) {                  [void]$ArrayList.Add($SL_PISM.SamAccountName) }
         if($null -ne $SL_PAWM) {                  [void]$ArrayList.Add($SL_PAWM.SamAccountName) }
         if($null -ne $SL_PSAM) {                  [void]$ArrayList.Add($SL_PSAM.SamAccountName) }
@@ -1246,6 +1247,7 @@
         if($null -ne $SL_DirReplRight) {          [void]$ArrayList.Add($SL_DirReplRight) }
         if($null -ne $SL_PromoteDcRight) {        [void]$ArrayList.Add($SL_PromoteDcRight) }
         if($null -ne $SL_TransferFSMOright) {     [void]$ArrayList.Add($SL_TransferFSMOright) }
+        if($null -ne $SL_DcManagement) {          [void]$ArrayList.Add($SL_DcManagement) }
         if($null -ne $SL_PISM) {                  [void]$ArrayList.Add($SL_PISM) }
         if($null -ne $SL_PAWM) {                  [void]$ArrayList.Add($SL_PAWM) }
         if($null -ne $SL_PSAM) {                  [void]$ArrayList.Add($SL_PSAM) }
@@ -1278,22 +1280,26 @@
 
         Add-AdGroupNesting -Identity 'Cryptographic Operators'         -Members $SG_AdAdmins
 
-        Add-AdGroupNesting -Identity DnsAdmins                         -Members $SG_AdAdmins
+        Add-AdGroupNesting -Identity DnsAdmins                         -Members $SG_AdAdmins, $SG_Tier0Admins
 
         Add-AdGroupNesting -Identity 'Event Log Readers'               -Members $SG_AdAdmins, $SG_Operations
 
-        Add-AdGroupNesting -Identity 'Network Configuration Operators' -Members $SG_AdAdmins
+        Add-AdGroupNesting -Identity 'Network Configuration Operators' -Members $SG_AdAdmins, $SG_Tier0Admins
 
-        Add-AdGroupNesting -Identity 'Performance Log Users'            -Members $SG_AdAdmins, $SG_Operations
+        Add-AdGroupNesting -Identity 'Performance Log Users'            -Members $SG_AdAdmins, $SG_Operations, $SG_Tier0Admins
 
-        Add-AdGroupNesting -Identity 'Performance Monitor Users'        -Members $SG_AdAdmins, $SG_Operations
+        Add-AdGroupNesting -Identity 'Performance Monitor Users'        -Members $SG_AdAdmins, $SG_Operations, $SG_Tier0Admins
 
         Add-AdGroupNesting -Identity 'Remote Desktop Users'             -Members $SG_AdAdmins
 
-        Add-AdGroupNesting -Identity 'Remote Management Users'          -Members $SG_AdAdmins
+        Add-AdGroupNesting -Identity 'Remote Management Users'          -Members $SG_AdAdmins, $SG_Tier0Admins
 
         $RemoteWMI = Get-ADGroup -Filter { SamAccountName -like "WinRMRemoteWMIUsers*" }
-        Add-AdGroupNesting -Identity $RemoteWMI                         -Members $SG_AdAdmins
+        If(-not $RemoteWMI) {
+
+            $RemoteWMI = New-AdGroup -GroupScope DomainLocal -GroupCategory Security -Name 'WinRMRemoteWMIUsers__' -Path $ItRightsOuDn
+        }
+        Add-AdGroupNesting -Identity $RemoteWMI                         -Members $SG_AdAdmins, $SG_Tier0Admins
 
         # https://technet.microsoft.com/en-us/library/dn466518(v=ws.11).aspx
         $ArrayList.Clear()
@@ -1427,6 +1433,29 @@
         $Splat = @{
             Identity = $SG_ServerAdmins
             Members  = $SG_AdAdmins
+        }
+        Add-AdGroupNesting @Splat
+
+        # AdAdmins as member of DcManagement
+        $Splat = @{
+            Identity = $SL_DcManagement
+            Members  = $SG_AdAdmins
+        }
+        Add-AdGroupNesting @Splat
+
+        # AdAdmins as member of Tier0Admins
+        $Splat = @{
+            Identity = $SG_Tier0Admins
+            Members  = $SG_AdAdmins
+        }
+        Add-AdGroupNesting @Splat
+
+
+
+        # Tier0Admins as member of DcManagement
+        $Splat = @{
+            Identity = $SL_DcManagement
+            Members  = $SG_Tier0Admins
         }
         Add-AdGroupNesting @Splat
 
@@ -1615,6 +1644,13 @@
         Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawT2OuDn -QuarantineDN $ItQuarantinePcOuDn
         Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
 
+
+
+
+
+
+        # DC_Management - Domain Controllers Management
+        Set-AdAclDelegateComputerAdmin -Group $SL_DcManagement.SamAccountName -LDAPPath $DCsOuDn -QuarantineDN $ItQuarantinePcOuDn
 
 
 
