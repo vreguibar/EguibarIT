@@ -1292,6 +1292,8 @@
 
         Add-AdGroupNesting -Identity 'Remote Desktop Users'             -Members $SG_AdAdmins
 
+        Add-AdGroupNesting -Identity 'Server Operators'                 -Members $SG_AdAdmins
+
         Add-AdGroupNesting -Identity 'Remote Management Users'          -Members $SG_AdAdmins, $SG_Tier0Admins
 
         $RemoteWMI = Get-ADGroup -Filter { SamAccountName -like "WinRMRemoteWMIUsers*" }
