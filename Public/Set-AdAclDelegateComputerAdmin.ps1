@@ -38,7 +38,7 @@ function Set-AdAclDelegateComputerAdmin {
                 Set-DeleteOnlyComputer                 | EguibarIT.Delegation
                 Set-AdAclLaps                          | EguibarIT
                 Get-CurrentErrorToDisplay              | EguibarIT
-                Set-FunctionDisplay                    | EguibarIT
+                Get-FunctionDisplay                    | EguibarIT
         .NOTES
             Version:         1.0
             DateModified:    19/Oct/2016
@@ -90,7 +90,7 @@ function Set-AdAclDelegateComputerAdmin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
         ##############################
         # Variables Definition

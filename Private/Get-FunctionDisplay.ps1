@@ -1,4 +1,4 @@
-﻿Function Set-FunctionDisplay {
+﻿Function Get-FunctionDisplay {
     <#
         .SYNOPSIS
             Formats and displays the PsBoundParameters in a visually appealing way.
@@ -8,10 +8,10 @@
             making it easier to read and understand in verbose output. It supports customization of indentation.
 
         .EXAMPLE
-            Set-FunctionDisplay $PsBoundParameters
+            Get-FunctionDisplay $PsBoundParameters
 
         .EXAMPLE
-            Set-FunctionDisplay -HashTable $PsBoundParameters
+            Get-FunctionDisplay -HashTable $PsBoundParameters
 
         .PARAMETER HashTable
             The hashtable to format and display. This is usually the $PsBoundParameters variable.

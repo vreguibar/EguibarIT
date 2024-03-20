@@ -46,7 +46,7 @@
             Name                                   | Module
             ---------------------------------------|--------------------------
             Get-CurrentErrorToDisplay              | EguibarIT
-            Set-FunctionDisplay                    | EguibarIT
+            Get-FunctionDisplay                    | EguibarIT
             Remove-AccountOperator                 | EguibarIT.Delegation
             Remove-Everyone                        | EguibarIT.Delegation
             Remove-AuthUser                        | EguibarIT.Delegation
@@ -156,7 +156,7 @@
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
         if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
             Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false

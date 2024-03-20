@@ -14,7 +14,7 @@
             Name                                   | Module
             ---------------------------------------|--------------------------
             Get-CurrentErrorToDisplay              | EguibarIT
-            Set-FunctionDisplay                    | EguibarIT
+            Get-FunctionDisplay                    | EguibarIT
             Add-AdGroupNesting                     | EguibarIT
         .NOTES
             Version:         1.3
@@ -50,7 +50,7 @@
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
         ##############################
         # Variables Definition

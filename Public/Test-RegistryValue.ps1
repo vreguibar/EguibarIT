@@ -18,7 +18,7 @@ function Test-RegistryValue {
                 ---------------------------------------|--------------------------
                 Get-ItemProperty                       | Microsoft.PowerShell.Management
                 Get-CurrentErrorToDisplay              | EguibarIT
-                Set-FunctionDisplay                    | EguibarIT
+                Get-FunctionDisplay                    | EguibarIT
         .NOTES
             Version:         1.0
             DateModified:    16/Ene/2018
@@ -49,7 +49,7 @@ function Test-RegistryValue {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
         ##############################
         # Variables Definition

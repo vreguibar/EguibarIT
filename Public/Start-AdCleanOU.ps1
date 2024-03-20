@@ -38,7 +38,7 @@ function Start-AdCleanOU {
                 Remove-AuthUser                        | EguibarIT.Delegation
                 Remove-UnknownSID                      | EguibarIT.Delegation
                 Get-CurrentErrorToDisplay              | EguibarIT
-                Set-FunctionDisplay                    | EguibarIT
+                Get-FunctionDisplay                    | EguibarIT
         .NOTES
             Version:         1.2
             DateModified:    19/Dec/2017
@@ -77,7 +77,7 @@ function Start-AdCleanOU {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
         ##############################
         # Variables Definition

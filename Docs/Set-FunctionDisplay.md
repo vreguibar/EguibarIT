@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Set-FunctionDisplay
+# Get-FunctionDisplay
 
 ## SYNOPSIS
 Formats and displays the PsBoundParameters in a visually appealing way.
@@ -13,7 +13,7 @@ Formats and displays the PsBoundParameters in a visually appealing way.
 ## SYNTAX
 
 ```
-Set-FunctionDisplay [-HashTable] <Hashtable> [[-TabCount] <Int32>] [-ProgressAction <ActionPreference>]
+Get-FunctionDisplay [-HashTable] <Hashtable> [[-TabCount] <Int32>] [-ProgressAction <ActionPreference>]
  [<CommonParameters>]
 ```
 
@@ -26,12 +26,12 @@ It supports customization of indentation.
 
 ### EXAMPLE 1
 ```
-Set-FunctionDisplay $PsBoundParameters
+Get-FunctionDisplay $PsBoundParameters
 ```
 
 ### EXAMPLE 2
 ```
-Set-FunctionDisplay -HashTable $PsBoundParameters
+Get-FunctionDisplay -HashTable $PsBoundParameters
 ```
 
 ## PARAMETERS

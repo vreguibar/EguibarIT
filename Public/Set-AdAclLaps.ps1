@@ -26,7 +26,7 @@ function Set-AdAclLaps {
                 Set-AdmPwdResetPasswordPermission      | EguibarIT.Delegation
                 Get-AttributeSchemaHashTable           | EguibarIT.Delegation
                 Get-CurrentErrorToDisplay              | EguibarIT
-                Set-FunctionDisplay                    | EguibarIT
+                Get-FunctionDisplay                    | EguibarIT
                 Set-AdmPwdComputerSelfPermission       | AdmPwd.PS
                 Set-AdmPwdReadPasswordPermission       | AdmPwd.PS
                 Set-AdmPwdResetPasswordPermission      | AdmPwd.PS
@@ -78,7 +78,7 @@ function Set-AdAclLaps {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
         Import-Module -Name 'AdmPwd.PS' -Force -Verbose:$false
         Import-Module -Name LAPS -Force -Verbose:$false

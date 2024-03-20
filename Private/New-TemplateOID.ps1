@@ -23,7 +23,7 @@ Function New-TemplateOID {
                 -------------------------------|--------------------------
                 Get-RandomHex                  | EguibarIT
                 Test-IsUniqueOID               | EguibarIT
-                Set-FunctionDisplay            | EguibarIT
+                Get-FunctionDisplay            | EguibarIT
                 Get-Random                     | Microsoft.Powershell.Utility
                 New-ADObject                   | ActiveDirectory
 
@@ -58,7 +58,7 @@ Function New-TemplateOID {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Set-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
         ##############################
         # Variables Definition
