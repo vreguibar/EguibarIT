@@ -639,15 +639,11 @@
         Get-ADGroup -Identity 'DNSAdmins' |                               Move-ADObject -TargetPath $ItRightsOuDn -server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Cert Publishers' |                         Move-ADObject -TargetPath $ItRightsOuDn -server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Denied RODC Password Replication Group' |  Move-ADObject -TargetPath $ItRightsOuDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Protected Users' |                         Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Cloneable Domain Controllers' |            Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Access-Denied Assistance Users' |          Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
+        Get-ADGroup -Filter { SamAccountName -like "WinRMRemoteWMIUsers*" } | Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
 
-        # Following groups only exist on Win 2012
-        If ([System.Environment]::OSVersion.Version.Build -ge 9200) {
-            Get-ADGroup -Identity 'Protected Users' |                     Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
-            Get-ADGroup -Identity 'Cloneable Domain Controllers' |        Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
-
-            Get-ADGroup -Identity 'Access-Denied Assistance Users' |      Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
-            Get-ADGroup -Filter { SamAccountName -like "WinRMRemoteWMIUsers*" } | Move-ADObject -TargetPath $ItPrivGroupsOUDn -server $env:COMPUTERNAME
-        }
 
         # Following groups only exist on Win 2019
         If ([System.Environment]::OSVersion.Version.Build -ge 17763) {
