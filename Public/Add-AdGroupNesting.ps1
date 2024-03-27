@@ -56,14 +56,8 @@ function Add-AdGroupNesting {
         $Splat = [Hashtable]::New()
 
         # Check if Identity is a group. Retrive the object if not Microsoft.ActiveDirectory.Management.AdGroup.
-        If (-not ($identity.GetType() -eq [Microsoft.ActiveDirectory.Management.AdGroup])) {
-            Try {
-                $Identity = Get-AdObjectType -Identity $Identity
-            } Catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
-            } #end Try-Catch
+        $Identity = Get-AdObjectType -Identity $Identity
 
-        } #end If
     } #end Begin
 
     Process {
