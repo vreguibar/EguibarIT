@@ -138,9 +138,9 @@ function New-DelegateAdOU {
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-        if (-not (Get-Module -Name 'EguibarIT.Delegation' -ListAvailable)) {
-            Import-Module -Name 'EguibarIT.Delegation' -Force -Verbose:$false
-        } #end If
+
+        Import-MyModule -name 'EguibarIT.Delegation' -Verbose:$false
+
 
         ##############################
         # Variables Definition
@@ -204,7 +204,8 @@ function New-DelegateAdOU {
 
         if ($PSBoundParameters['CleanACL']) {
             if ($PSCmdlet.ShouldProcess("Removing specific Non-Inherited ACE and enabling inheritance for '$OuName'")) {
-                Remove-SpecificACLandEnableInheritance -LDAPpath $ouNameDN
+                #Remove-SpecificACLandEnableInheritance -LDAPpath $ouNameDN
+                Revoke-Inheritance -LDAPpath $ouNameDN -RemoveInheritance -KeepPermissions
             }
         } #end If
     } #end Process
