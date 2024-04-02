@@ -5,18 +5,39 @@ function Get-AdObjectType {
 
     .DESCRIPTION
         The Get-AdObjectType function determines the type of an Active Directory object based on the given identity.
-        It supports various object types, including AD users, computers, and groups. The function provides verbose output
-        and implements the -WhatIf parameter to simulate actions.
+        It supports various object types, including AD users, computers, and groups. The function provides verbose output.
 
     .PARAMETER Identity
         Specifies the identity of the Active Directory object. This parameter is mandatory.
+
+        Possible values are:
+          ADAccount object
+          ADComputer object
+          ADGroup object
+          ADOrganizationalUnit object
+          String representing DistinguishedName
+          String representing SID
+          String representing samAccountName
+
 
     .EXAMPLE
         Get-AdObjectType -Identity "davader"
         Retrieves the type of the Active Directory object with the SamAccountName "davader".
 
-    .INPUTS
-        String: Accepts a string representing the identity of the Active Directory object.
+    .EXAMPLE
+        Get-AdObjectType -Identity "CN=davade,OU=Users,OU=BAAD,OU=Sites,DC=EguibarIT,DC=local"
+        Retrieves the type of the Active Directory object with the
+        DistinguishedName "CN=davade,OU=Users,OU=BAAD,OU=Sites,DC=EguibarIT,DC=local".
+
+    .EXAMPLE
+        Get-AdObjectType -Identity "S-1-5-21-3484526001-1877030748-1169500100-1646"
+        Retrieves the type of the Active Directory object with the
+        SID "S-1-5-21-3484526001-1877030748-1169500100-1646".
+
+    .EXAMPLE
+        Get-AdObjectType -Identity "35b764b7-06df-4509-a54f-8fd4c26a0805"
+        Retrieves the type of the Active Directory object with the GUID
+        "35b764b7-06df-4509-a54f-8fd4c26a0805".
 
     .OUTPUTS
         Microsoft.ActiveDirectory.Management.ADAccount or
@@ -31,7 +52,7 @@ function Get-AdObjectType {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-  [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Medium')]
+  [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'low')]
 
   Param (
     # Param1
@@ -49,9 +70,9 @@ function Get-AdObjectType {
     Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
     Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-    if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
-      Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
-    } #end If
+
+    Import-MyModule -name 'ActiveDirectory' -Verbose:$false
+
 
     ##############################
     # Variables Definition
@@ -93,17 +114,22 @@ function Get-AdObjectType {
 
             Write-Verbose -Message 'Looking for DistinguishedName'
 
-            $newObject = Get-ADObject -Filter { DistinguishedName -eq $Identity } -ErrorAction SilentlyContinue
+            $newObject = Get-ADObject -Filter { DistinguishedName -eq $Identity }
 
           } elseif (Test-IsValidSID -ObjectSID $Identity) {
 
             Write-Verbose -Message 'Looking for ObjectSID'
-            $newObject = Get-ADObject -Filter { ObjectSID -eq $Identity } -ErrorAction SilentlyContinue
+            $newObject = Get-ADObject -Filter { ObjectSID -eq $Identity }
+
+          } elseif (Test-IsValidGUID -ObjectGUID $Identity) {
+
+            Write-Verbose -Message 'Looking for ObjectGUID'
+            $newObject = Get-ADObject -Filter { ObjectGUID -eq $Identity }
 
           } else {
 
             Write-Verbose -Message 'Looking for SamAccountName'
-            $newObject = Get-ADObject -Filter { SamAccountName -eq $Identity } -ErrorAction SilentlyContinue
+            $newObject = Get-ADObject -Filter { SamAccountName -eq $Identity }
 
           } #end if-ElseIf-Else
         } #end If
