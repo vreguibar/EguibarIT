@@ -10,4 +10,14 @@
     # New Line
     NL       = [System.Environment]::NewLine
 }
-New-Variable -Name Constants -Value $Constants -Scope Global -Force
+
+$Splat = @{
+    Name        = 'Constants'
+    Value       = $Constants
+    Description = 'Contains the Constant values used on this module, like GUIDnull, Horizontal Tab or NewLine.'
+    Scope       = 'Global'
+    Option      = 'Constant'
+    Force       = $true
+}
+
+New-Variable @Splat
