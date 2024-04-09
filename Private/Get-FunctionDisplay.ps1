@@ -1,38 +1,29 @@
 ﻿Function Get-FunctionDisplay {
     <#
-        .SYNOPSIS
-            Formats and displays the PsBoundParameters in a visually appealing way.
-
+        .Synopsis
+            Nice display PsBoundParameters
         .DESCRIPTION
-            This advanced function formats and displays the contents of a hashtable, typically PsBoundParameters,
-            making it easier to read and understand in verbose output. It supports customization of indentation.
-
+            This function formats and displays the PsBoundParameters hashtable in a visually appealing way for Verbose output.
         .EXAMPLE
             Get-FunctionDisplay $PsBoundParameters
-
         .EXAMPLE
             Get-FunctionDisplay -HashTable $PsBoundParameters
-
         .PARAMETER HashTable
-            The hashtable to format and display. This is usually the $PsBoundParameters variable.
-
+            Hashtable variable from calling function containing PsBoundParameters to format accordingly
         .PARAMETER TabCount
-            The number of tabs to prepend to each line of output for indentation.
-            Defaults to 2 if not specified or less than 2.
-
+            Amount of Tabs to be used on the formatting.
         .NOTES
-            Version:         1.1
-            DateModified:    13/Feb/2024
+            Version:         1.0
+            DateModified:    20/Oct/2022
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
                 Eguibar IT
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
-    [OutputType([Hashtable])]
+    [OutputType([String])]
 
     Param (
-
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Hashtable variable from calling function containing PsBoundParameters to format accordingly',
             Position = 0)]
@@ -43,7 +34,7 @@
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Amount of Tabs to be used on the formatting.',
             Position = 1)]
-        [ValidateRange(2, [int]::MaxValue)]
+        [ValidateNotNullOrEmpty()]
         [int]
         $TabCount
     )
@@ -55,51 +46,29 @@
             $TabCount = 2
         }
 
-        $NewLine = [System.Environment]::NewLine
-        $HorizontalTab = "`t"
-
-        $tab = $HorizontalTab * $TabCount
-
-        $objectList = [System.Collections.ArrayList]::New()
-
     } # end Begin
 
     Process {
 
+        # Display PSBoundparameters formatted nicely for Verbose output
+
+        $display = $Constants.NL
+
         # Validate if HashTable is not empty
         if ($HashTable.Count -gt 0) {
+            # Get hashtable formatted properly
+            $pb = $HashTable | Format-Table -AutoSize | Out-String
 
-            # New empty line at the begining
-            [void]$objectList.Add($NewLine)
-
-            # Convert each hashtable entry to a custom object and add to the list
-            foreach ($entry in $HashTable.GetEnumerator()) {
-                $obj = New-Object PSObject -Property @{
-                    Key   = $entry.Key
-                    Value = $entry.Value
-                }
-                [void]$objectList.Add($obj)
-            } #end Foreach
-
-            # New empty line at the end
-            [void]$objectList.Add($NewLine)
-
+            # Add corresponding tabs and new lines to each table member
+            $display += $pb -split $Constants.NL | ForEach-Object { "$($Constants.HTab * $TabCount)$_" } | Out-String
         } else {
-
-            # No parameters to display
-            [void]$objectList.Add('No PsBoundParameters to display.')
-
-        } #end If-Else
+            $display = 'No PsBoundParameters to display.'
+        } #end If
+        $display += $Constants.NL
 
     } # end Process
 
     End {
-
-        # Convert the list of custom objects to a table and then to a string
-        $tableString = $objectList | Format-Table -Property Key, Value -AutoSize | Out-String
-
-        $indentedTableString = $tableString -split $NewLine | ForEach-Object { $Tab + $_ } | Out-String
-
-        Return $indentedTableString
+        Return $display
     } #end END
 } #end Function
