@@ -32,10 +32,70 @@ jobs:
       - name: Get Module Name
         shell: pwsh
         run: |
+          $Tags = @(
+                'Windows',
+                'ActiveDirectory',
+                'ActiveDirectory_Delegation',
+                'ActiveDirectory_Security',
+                'AD_Security',
+                'Security',
+                'Delegation',
+                'AD_Delegation',
+                'DelegationModel',
+                'TierModel',
+                'RBACmodel',
+                'RoleBasedAccessControl_model',
+                'DelegationModel',
+                'TierModel',
+                'RBACmodel',
+                'Infrastructure',
+                'Testing',
+                'Checks',
+                'Audits',
+                'Checklist',
+                'Validation',
+                'CredentialTheaf',
+                'Pass-the-Hash',
+                'Pass-the-Ticket',
+                'Golden_Ticket',
+                'Silver_Ticket'
+              )
           $ModuleName = (Test-ModuleManifest -Path '.\*.psd1').Name
+
+          $oldModuleVersion = (Test-ModuleManifest -Path ".\*.psd1").Version
+
+          $publicFunctions = Get-ChildItem -Path '.\Public\*.ps1'
+          $privateFunctions = Get-ChildItem -Path '.\Private\*.ps1'
+          $ClassesFunctions = Get-ChildItem -Path '.\Classes\*.ps1'
+          $EnumsFunctions = Get-ChildItem -Path '.\Enums\*.ps1'
+
+          $totalFunctions = $publicFunctions.count + $privateFunctions.count + $ClassesFunctions.count + $EnumsFunctions.count
+          $ModuleBuildNumber = $oldModuleVersion.Build + 1
+          $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
+
+          $functionsToExport = New-Object -TypeName System.Collections.ArrayList
+
+            foreach ($function in $publicFunctions.Name) {
+                Write-Verbose -Message "Exporting function: $(($function.split('.')[0]).ToString())"
+                [void]$functionsToExport.Add(($function.split('.')[0]).ToString())
+            }
+
+          Update-ModuleManifest -Path ".\$($ModuleName).psd1" -ModuleVersion $ModuleVersion -Tags $Tags -FunctionsToExport $functionsToExport
+
+          if (!(Get-PackageProvider | Where-Object { $_.Name -eq 'NuGet' })) {
+              Install-PackageProvider -Name NuGet -force | Out-Null
+          }
+          Import-PackageProvider -Name NuGet -force | Out-Null
+
+          if ((Get-PSRepository -Name PSGallery).InstallationPolicy -ne 'Trusted') {
+              Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          }
+
+          Write-Output "BUILD_NUMBER=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
           Write-Output "MODULE_NAME=$ModuleName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
         env:
           MODULE_NAME: ${{ env.MODULE_NAME }}
+          BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
 
 
       - name: Install PSScriptAnalyzer module
@@ -54,35 +114,6 @@ jobs:
           Invoke-ScriptAnalyzer -Path .\Classes -recurse
 
 
-      - name: Update Module Manifest
-        id: update_manifest
-        shell: pwsh
-        run: |
-          $oldModuleVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
-          $publicFunctions = Get-ChildItem -Path '.\Public\*.ps1'
-          $privateFunctions = Get-ChildItem -Path '.\Private\*.ps1'
-          $ClassesFunctions = Get-ChildItem -Path '.\Classes\*.ps1'
-          $EnumsFunctions = Get-ChildItem -Path '.\Enums\*.ps1'
-          $totalFunctions = $publicFunctions.count + $privateFunctions.count + $ClassesFunctions.count + $EnumsFunctions.count
-          $ModuleBuildNumber = $oldModuleVersion.Build + 1
-          $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
-          Update-ModuleManifest -Path ".\EguibarIT.psd1" -ModuleVersion $ModuleVersion
-
-          Write-Output "BUILD_NUMBER=$ModuleVersion" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-        env:
-          BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
-
-
-      - name: Copy Artifact
-        id: Copy_Artifact
-        shell: pwsh
-        run: |
-          $ModuleName = "${{ env.MODULE_NAME }}"
-          $ModuleVersion = "${{ env.BUILD_NUMBER }}"
-          pwsh -command ".\Build\CopyArtifact.ps1 -ModuleName $ModuleName -ModuleVersion $ModuleVersion -Verbose"
-
-
         # Pushing the changes from InvokeBuild to the main branch
       - name: Push changes to Git Repository
         run: |
@@ -92,16 +123,6 @@ jobs:
           git add .
           git commit -m "Build Module"
           git push
-
-        # Uploads the build powershell module as an artifact
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ env.MODULE_NAME }} # Naming the powershell module artifact
-          path: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/ # Saving the powershell module artifact to the path
-
-      - name: List Module Directory
-        run: ls -R . || true
 
 
 
@@ -118,7 +139,7 @@ jobs:
         id: Read_Var
         shell: pwsh
         run: |
-          $ModuleVersion = (Test-ModuleManifest -Path ".\EguibarIT.psd1").Version
+          $ModuleVersion = (Test-ModuleManifest -Path ".\*.psd1").Version
           $PS_Module_Version = ('v{0}' -f $ModuleVersion)
           $ModuleName = (Test-ModuleManifest -Path '.\*.psd1').Name
 
@@ -130,13 +151,6 @@ jobs:
           BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
           VERSION_NUMBER: ${{ env.VERSION_NUMBER }}
 
-      - name: show variable
-        run: |
-          echo "Module Name: ${{ env.MODULE_NAME }}"
-          echo "Build Number: ${{ env.BUILD_NUMBER }}"
-          echo "Version Number: ${{ env.VERSION_NUMBER }}"
-          echo "Current Working Directory: $(pwd)"
-          echo "Expected Module Path: ./Output/${{ env.MODULE_NAME }}/${{ env.BUILD_NUMBER }}/"
 
       - name: Check if Release Exists
         id: check_release
@@ -153,16 +167,6 @@ jobs:
             console.log(`Release ${tagName} exists: ${releaseExists}`);
             console.log(`::set-output name=exists::${releaseExists}`);
 
-
-      - name: Download Artifact
-        uses: aochmann/actions-download-artifact@1.0.4
-        with:
-          repo: ${{github.repository}}
-          name: ${{ env.MODULE_NAME }} # Name of the PowerShell module artifact
-          path: . # Downloads the module to the path ./Artifact/
-
-      - name: List Module Directory
-        run: ls -R . || true
 
         # Create a release to github
       - name: Create Release
@@ -187,31 +191,33 @@ jobs:
           $PublishParams = @{
             NuGetApiKey = $NugetAPIKey
             Path = '.'
-            ProjectUri = 'https://www.delegationmodel.com/'
             Tags = @(
               'Windows',
               'ActiveDirectory',
-              'Active Directory',
-              'Active Directory Security',
-              'AD Security',
-              'Seccurity',
+              'ActiveDirectory_Delegation',
+              'ActiveDirectory_Security',
+              'AD_Security',
+              'Security',
+              'Delegation',
+              'AD_Delegation',
               'DelegationModel',
               'TierModel',
               'RBACmodel',
-              'Delegation Model',
-              'Tier Model',
-              'RBAC model',
+              'RoleBasedAccessControl_model',
+              'DelegationModel',
+              'TierModel',
+              'RBACmodel',
               'Infrastructure',
               'Testing',
               'Checks',
               'Audits',
               'Checklist',
               'Validation',
-              'Credential Theaf',
+              'CredentialTheaf',
               'Pass-the-Hash',
               'Pass-the-Ticket',
-              'Golden Ticket',
-              'Silver Ticket'
+              'Golden_Ticket',
+              'Silver_Ticket'
             )
             Verbose = $true
           }

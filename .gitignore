@@ -10,7 +10,6 @@
 build.ps1
 GPO-Archive_V1.0.zip
 Publish.ps1
-Rename-to Config.xml.txt
 To-Do.txt
 .github/*
 # Local History for Visual Studio Code
@@ -18,7 +17,8 @@ To-Do.txt
 .vs/*
 .vscode/*
 Artefacts/*
-Examples/Output/*
+Docs/*
+Example/*
 Examples/Logs/*
 Ignore/*
 Lib/Default/*
@@ -27,6 +27,7 @@ Lib/Core/*
 Output/*
 Releases/*
 ReleasedUnpacked/*
+Tests/*
 Sources/.vs
 Sources/*/.vs
 Sources/*/obj
