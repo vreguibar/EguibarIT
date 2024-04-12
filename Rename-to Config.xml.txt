@@ -410,9 +410,9 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <Name>PawT2</Name>
                 <description>Tier 2 PAWs</description>
              </ItPawT2OU>
-             <ItPawStagingOU>
-             <Name>PawStaging</Name>
-             <description>PAW staging and maintenance</description>
+            <ItPawStagingOU>
+                <Name>PawStaging</Name>
+                <description>PAW staging and maintenance</description>
              </ItPawStagingOU>
              <ItServiceAccountsOU>
                 <Name>Service Accounts</Name>
