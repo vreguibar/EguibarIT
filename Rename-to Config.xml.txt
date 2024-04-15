@@ -5,7 +5,7 @@
     <PCs>
         <DC1>
             <Name>DC1</Name>
-            <IPv4>192.168.1.200</IPv4>
+            <IPv4>192.168.0.200</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::200</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
@@ -13,10 +13,11 @@
             <DNS1IPv6>fd36:46d4:a1a7:9d18::1</DNS1IPv6>
             <NetBIOSDomainName>EguibarIT</NetBIOSDomainName>
             <DnsDomainName>EguibarIT.local</DnsDomainName>
+            <Disks>Multiple-Disks</Disks>
         </DC1>
         <DC2>
             <Name>DC2</Name>
-            <IPv4>192.168.1.100</IPv4>
+            <IPv4>192.168.0.100</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::100</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
@@ -27,7 +28,7 @@
         </DC2>
         <DC3>
             <Name>DC3</Name>
-            <IPv4>192.168.1.150</IPv4>
+            <IPv4>192.168.0.150</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::150</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
@@ -36,7 +37,7 @@
         </DC3>
         <DC4>
             <Name>DC4</Name>
-            <IPv4>192.168.1.50</IPv4>
+            <IPv4>192.168.0.50</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::50</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
@@ -45,126 +46,126 @@
         </DC4>
         <PAW0>
             <Name>PAW0</Name>
-            <IPv4>192.168.1.240</IPv4>
+            <IPv4>192.168.0.240</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::240</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </PAW0>
         <PAW1>
             <Name>PAW1</Name>
-            <IPv4>192.168.1.70</IPv4>
+            <IPv4>192.168.0.70</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::70</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </PAW1>
         <PAW2>
             <Name>PAW2</Name>
-            <IPv4>192.168.1.140</IPv4>
+            <IPv4>192.168.0.140</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::140</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </PAW2>
         <PC1>
             <Name>PC1</Name>
-            <IPv4>192.168.1.40</IPv4>
+            <IPv4>192.168.0.40</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::40</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </PC1>
         <PC2>
             <Name>PC2</Name>
-            <IPv4>192.168.1.72</IPv4>
+            <IPv4>192.168.0.72</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::72</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </PC2>
         <PC3>
             <Name>PC3</Name>
-            <IPv4>192.168.1.142</IPv4>
+            <IPv4>192.168.0.142</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::142</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </PC3>
         <Srv1>
             <Name>Srv1</Name>
-            <IPv4>192.168.1.230</IPv4>
+            <IPv4>192.168.0.230</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::230</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </Srv1>
         <Srv2>
             <Name>Srv2</Name>
-            <IPv4>192.168.1.30</IPv4>
+            <IPv4>192.168.0.30</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::30</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </Srv2>
         <Srv3>
             <Name>Srv3</Name>
-            <IPv4>192.168.1.90</IPv4>
+            <IPv4>192.168.0.90</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::90</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </Srv3>
         <Srv4>
             <Name>Srv4</Name>
-            <IPv4>192.168.1.170</IPv4>
+            <IPv4>192.168.0.170</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::170</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </Srv4>
         <Srv5>
             <Name>Srv5</Name>
-            <IPv4>192.168.1.232</IPv4>
+            <IPv4>192.168.0.232</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::232</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </Srv5>
         <wsus1>
             <Name>wsus1</Name>
-            <IPv4>192.168.1.20</IPv4>
+            <IPv4>192.168.0.20</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::20</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </wsus1>
         <ca1>
             <Name>CA1</Name>
-            <IPv4>192.168.1.24</IPv4>
+            <IPv4>192.168.0.24</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::24</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </ca1>
         <scom1>
             <Name>scom1</Name>
-            <IPv4>192.168.1.94</IPv4>
+            <IPv4>192.168.0.94</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::94</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </scom1>
         <sccm1>
             <Name>sccm1</Name>
-            <IPv4>192.168.1.174</IPv4>
+            <IPv4>192.168.0.174</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::174</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </sccm1>
         <mdt1>
             <Name>mdt1</Name>
-            <IPv4>192.168.1.234</IPv4>
+            <IPv4>192.168.0.234</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::234</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </mdt1>
         <wac1>
             <Name>wac1</Name>
-            <IPv4>192.168.1.26</IPv4>
+            <IPv4>192.168.0.26</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::26</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
         </wac1>
         <DscSrv1>
             <Name>DscSrv1</Name>
-            <IPv4>192.168.1.96</IPv4>
+            <IPv4>192.168.0.96</IPv4>
             <PrefixLengthIPv4>23</PrefixLengthIPv4>
             <IPv6>fd36:46d4:a1a7:9d18::96</IPv6>
             <PrefixLengthIPv6>64</PrefixLengthIPv6>
@@ -182,136 +183,6 @@
         <GoogleDns1Ipv6>2001:4860:4860::8888</GoogleDns1Ipv6>
         <GoogleDns2Ipv6>2001:4860:4860::8844</GoogleDns2Ipv6>
     </IP>
-    <IPsec>
-        <Global>
-            <IPsecStrongCrlCheck>0</IPsecStrongCrlCheck>
-            <IPsecExemptions>ICMP</IPsecExemptions>
-            <IPsecEncapsulation>AH,ESP</IPsecEncapsulation>
-            <IPsecKeyExchange>dh20</IPsecKeyExchange>
-            <IPsecQMHash>aesgmac256</IPsecQMHash>
-            <IPsecMMHash>sha384</IPsecMMHash>
-            <IPsecQMEncryption>aesgcm256</IPsecQMEncryption>
-            <IPsecMMEncryption>aes256</IPsecMMEncryption>
-            <IPsecKeyModule>Default</IPsecKeyModule>
-        </Global>
-        <Rules>
-            <Rule Name="RF-ANY-ANY-Isolation"
-                Inbound="Require"
-                Outbound="Require"
-                LocalAddress="ANY"
-                RemoteAddress="ANY"
-                LocalPort=""
-                RemotePort=""
-                Protocol="ANY"
-                GPO="C-Baseline"
-                Location="RF.EguibarIT.local"
-                Description=""
-            />
-            <Rule Name="RF-WSUS-WU"
-                Inbound="Require"
-                Outbound="Request"
-                LocalAddress="192.168.1.20"
-                RemoteAddress="192.168.1.1"
-                LocalPort="ANY"
-                RemotePort="8080"
-                Protocol="TCP"
-                GPO="C-WSUS-Baseline"
-                Location="WSUS Servers"
-                Description=""
-            />
-            <Rule Name="RF-UDP-DCs-NTP"
-                Inbound="Require"
-                Outbound="Request"
-                LocalAddress="ANY"
-                RemoteAddress="192.168.1.1"
-                LocalPort="ANY"
-                RemotePort="123"
-                Protocol="UDP"
-                GPO="C-DomainControllers-Baseline"
-                Location="Domain Controllers"
-                Description=""
-            />
-            <Rule Name="RF-Workstations-DC-DomainJoinException"
-                Inbound="Request"
-                Outbound="Request"
-                LocalAddress="192.168.1.240"
-                RemoteAddress="192.168.1.150,192.168.1.50"
-                LocalPort=""
-                RemotePort=""
-                Protocol="ANY"
-                GPO="C-Baseline"
-                Location="RF.EguibarIT.local"
-                Description=""
-            />
-            <Rule Name="RF-Workstations-CA-DomainJoinException"
-                Inbound="Request"
-                Outbound="Request"
-                LocalAddress="192.168.1.240"
-                RemoteAddress="192.168.1.24"
-                LocalPort=""
-                RemotePort=""
-                Protocol="ANY"
-                GPO="C-Baseline"
-                Location="RF.EguibarIT.local"
-                Description=""
-            />
-            <Rule Name="RF-Workstations-MDT-DomainJoinException"
-                Inbound="Request"
-                Outbound="Request"
-                LocalAddress="192.168.1.240"
-                RemoteAddress="192.168.1.234"
-                LocalPort=""
-                RemotePort=""
-                Protocol="ANY"
-                GPO="C-Baseline"
-                Location="RF.EguibarIT.local"
-                Description=""
-            />
-            <Rule Name="RF-SCOM-SMTP"
-                Inbound="Require"
-                Outbound="Request"
-                LocalAddress="192.168.1.94"
-                RemoteAddress="192.168.1.1"
-                ocalPort="ANY"
-                RemotePort="25"
-                Protocol="TCP"
-                GPO="C-SCOM-Baseline"
-                Location="SCOM Servers"
-                Description=""
-            />
-            <Rule Name="RF-SCOM-DOMAIN1-SCOMGW"
-                Inbound="Require"
-                Outbound="Require"
-                LocalAddress="192.168.1.94"
-                RemoteAddress="192.168.1.50"
-                LocalPort="ANY"
-                RemotePort="5723"
-                Protocol="TCP"
-                GPO="C-SCOM-Baseline"
-                Location="SCOM Servers"
-                Description=""
-            />
-        </Rules>
-    </IPsec>
-    <CA>
-        <CAType>EnterpriseRootCA</CAType>
-        <CAValidity>16</CAValidity>
-        <CAKeyLength>4096</CAKeyLength>
-        <CACryptoProvider>RSA#Microsoft Software Key Storage Provider</CACryptoProvider>
-        <CAHashAlgorithm>sha384</CAHashAlgorithm>
-        <CACertValidity>2</CACertValidity>
-        <CACRLPeriodUnits>26</CACRLPeriodUnits>
-        <CACRLPeriod>Weeks</CACRLPeriod>
-        <CACRLDeltaPeriodUnits>0</CACRLDeltaPeriodUnits>
-        <CACRLDeltaPeriod>Days</CACRLDeltaPeriod>
-        <CACDP>C:\CAConfig\&lt;CaName&gt;&lt;CRLNameSuffix&gt;.crl
-
-ldap:///CN=&lt;CATruncatedName&gt;&lt;CRLNameSuffix&gt;,CN=&lt;ServerShortName&gt;,CN=CDP,CN=Public Key Services,CN=Services,&lt;ConfigurationContainer&gt;&lt;CDPObjectClass&gt;</CACDP>
-        <CAAIA>C:\CAConfig\&lt;CaName&gt;&lt;CertificateName&gt;.crt
-
-ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt;ConfigurationContainer&gt;&lt;CAObjectClass&gt;</CAAIA>
-        <CAPath>DC=Local,DC=EguibarIT,DC=FR,CN=RF Enterprise Root CA</CAPath>
-    </CA>
     <NTP>0.europe.pool.ntp.org,0x9 1.europe.pool.ntp.org,0xA 2.europe.pool.ntp.org,0xA 3.europe.pool.ntp.org,0xA</NTP>
     <userCSVfile>StarWars-Users.csv</userCSVfile>
     <groupCSVfile>group.csv</groupCSVfile>
@@ -323,7 +194,7 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
             <DnsDomainName>EguibarIT.local</DnsDomainName>
             <CreateExContainers>False</CreateExContainers>
             <CreateDFS>True</CreateDFS>
-            <CreateCA>True</CreateCA>
+            <CreateCA>False</CreateCA>
             <CreateDHCP>True</CreateDHCP>
             <CreateAGPM>True</CreateAGPM>
             <CreateLAPS>True</CreateLAPS>
@@ -333,8 +204,8 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
             <DnsDomainName>Admin.local</DnsDomainName>
             <CreateExContainers>False</CreateExContainers>
             <CreateDFS>True</CreateDFS>
-            <CreateCA>True</CreateCA>
-            <CreateDHCP>False</CreateDHCP>
+            <CreateCA>False</CreateCA>
+            <CreateDHCP>True</CreateDHCP>
             <CreateAGPM>True</CreateAGPM>
             <CreateLAPS>True</CreateLAPS>
         </Admin>
@@ -371,13 +242,17 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <description>OU for IT Administration purposes, containing objects necessary for this tasks</description>
              </ItAdminOU>
              <ItAdminAccountsOU>
-                <Name>Admin Accounts</Name>
+                <Name>Users</Name>
                 <description>IT Administration purposes, containing Privileged and SemiPrivileged users</description>
              </ItAdminAccountsOU>
              <ItAdminGroupsOU>
                 <Name>Groups</Name>
                 <description>IT Administration purposes, containing SemiPrivileged groups</description>
             </ItAdminGroupsOU>
+            <ItAdminSrvGroupsOU>
+                <Name>Server Access Groups</Name>
+                <description>IT Administration purposes, containing groups used to grant local server Admin access.</description>
+            </ItAdminSrvGroupsOU>
              <ItPrivGroupsOU>
                 <Name>PG</Name>
                 <description>IT Administration purposes, containing Privileged groups</description>
@@ -410,9 +285,9 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <Name>PawT2</Name>
                 <description>Tier 2 PAWs</description>
              </ItPawT2OU>
-            <ItPawStagingOU>
-                <Name>PawStaging</Name>
-                <description>PAW staging and maintenance</description>
+             <ItPawStagingOU>
+             <Name>PawStaging</Name>
+             <description>PAW staging and maintenance</description>
              </ItPawStagingOU>
              <ItServiceAccountsOU>
                 <Name>Service Accounts</Name>
@@ -462,27 +337,18 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
          <Users>
              <Admin>
                 <Name>TheGood</Name>
-                <description>Built-In Administrator Account</description>
-                <department>IT Operations and Architecture</department>
-                <employeeId></employeeId>
-                <Country>ES</Country>
-                <State>Zaragoza</State>
+                <description></description>
+                <department></department>
              </Admin>
              <NEWAdmin>
                 <Name>TheUgly</Name>
                 <description>New Administrator account used to replace the Built-In Administrator account, which is disabled and not used</description>
                 <department>IT Operations and Architecture</department>
-                <employeeId></employeeId>
-                <Country>MX</Country>
-                <State>Puebla</State>
              </NEWAdmin>
              <Guest>
                 <Name>TheBad</Name>
                 <description></description>
                 <department></department>
-                <employeeId></employeeId>
-                <Country></Country>
-                <State></State>
              </Guest>
          </Users>
          <gMSA>
@@ -491,20 +357,17 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <SamAccountName>msa_AGPM</SamAccountName>
                 <Description>Managed Service account used for Advanced Group Policy Management service</Description>
                 <DisplayName></DisplayName>
-                <C>CA</C>
-                <Co>Canada</Co>
-                <Department>IT Operation</Department>
-                <l>Alberta</l>
             </AGPM>
             <AdTaskScheduler>
                 <Name>gMSA_AdTskSchd</Name>
                 <SamAccountName>gMSA_AdTskSchd</SamAccountName>
                 <Description>Group Managed Service Account used by Domain Controllers to securely run scheduled tasks.</Description>
                 <DisplayName>AD Task Scheduler Group Managed Service Account</DisplayName>
-                <C>MX</C>
-                <Co>Mexico</Co>
-                <Department>IT Operation</Department>
-                <l>Puebla</l>
+                <C></C>
+                <Co>EguibarIT</Co>
+                <Company></Company>
+                <Department>IT Operations</Department>
+                <l>Mexico</l>
             </AdTaskScheduler>
          </gMSA>
          <GPOs>
@@ -512,44 +375,56 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <Name>Default Domain Policy</Name>
                 <Scope></Scope>
                 <gpoLink></gpoLink>
-                <backupID>B1706BA2-E2C2-4322-98C3-C1C0646DF67E</backupID>
+                <backupID>866736C0-C9A9-4631-90A0-9B98C7B086B8</backupID>
              </DefaultDomain>
              <DefaultDomainControllers>
                 <Name>Default Domain Controllers Policy</Name>
                 <Scope></Scope>
                 <gpoLink></gpoLink>
-                <backupID>15494358-2DEA-496F-B06F-4E7397FF1176</backupID>
+                <backupID></backupID>
              </DefaultDomainControllers>
              <DCbaseline>
                 <Name>DomainControllers</Name>
                 <Scope>C</Scope>
                 <gpoLink>OU=Domain Controllers</gpoLink>
-                <backupID>3747B917-8187-4FD8-A512-C97CDF64A419</backupID>
+                <backupID>1CB8C9E9-8035-49CB-BDAD-2070C646CAE1</backupID>
              </DCbaseline>
              <PCbaseline>
                 <Name></Name>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
-                <backupID>1D872D71-D961-4FCE-87E0-1CD368B5616F</backupID>
+                <backupID>55924CA0-653E-4F6F-9842-8A298BB974C2</backupID>
              </PCbaseline>
              <Userbaseline>
                 <Name></Name>
                 <Scope>U</Scope>
                 <gpoLink></gpoLink>
-                <backupID>4AA7D079-2522-4E43-8ED7-90917D4B0EB2</backupID>
+                <backupID>13861E2A-3EA2-41B7-B88C-0EF81E57A8C7</backupID>
              </Userbaseline>
              <AdminUserbaseline>
-                <Name>Admin Accounts</Name>
-                <Scope>C</Scope>
+                <Name>Admin</Name>
+                <Scope>U</Scope>
                 <gpoLink></gpoLink>
-                <backupID>A3346A47-E051-4CFC-97B4-001AC6AB3857</backupID>
+                <backupID>13861E2A-3EA2-41B7-B88C-0EF81E57A8C7</backupID>
              </AdminUserbaseline>
              <PAWbaseline>
                 <Name>PAW</Name>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
-                <backupID>87BCC822-2475-4C45-960E-55537FDE5D10</backupID>
+                <backupID>088AA3A3-6CE7-407F-8487-23C5B3CDF382</backupID>
              </PAWbaseline>
+			 <INFRAbaseline>
+                <Name>Infra</Name>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID>6D768CF7-502C-434A-805E-5A18579C5207</backupID>
+             </INFRAbaseline>
+             <Adminbaseline>
+                <Name>ItAdmin</Name>
+                <Scope>C</Scope>
+                <gpoLink></gpoLink>
+                <backupID></backupID>
+             </Adminbaseline>
          </GPOs>
          <PSOs>
              <ItAdminsPSO>
@@ -691,6 +566,11 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <DisplayName>Semi-Privileged Group Management Right</DisplayName>
                 <Description>Delegated Rights for Semi-Privileged Group Management</Description>
             </GM>
+            <SAGM>
+                <Name>SAGM</Name>
+                <DisplayName>Semi-Privileged Group Management for Local Server Administrative Right</DisplayName>
+                <Description>Delegated Rights for Semi-Privileged Local Server Admin Access Group Management</Description>
+            </SAGM>
              <PISM>
                 <Name>PISM</Name>
                 <DisplayName>Privileged Infrastructure Services Management Right</DisplayName>
@@ -721,11 +601,31 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <DisplayName>GPO Administrator Right</DisplayName>
                 <Description>Delegated Rights to Administer GPO</Description>
             </GpoAdminRight>
-             <DirReplRight>
+            <DnsAdminRight>
+                <Name>DnsAdminRight</Name>
+                <DisplayName>DNS Administrator Right</DisplayName>
+                <Description>Delegated Rights to Administer DNS</Description>
+            </DnsAdminRight>
+            <DirReplRight>
                 <Name>DirReplRight</Name>
                 <DisplayName>Directory Replication Right</DisplayName>
                 <Description>Delegated Rights to Replicate Directory</Description>
             </DirReplRight>
+            <PromoteDcRight>
+                <Name>PromoteDcRight</Name>
+                <DisplayName>Promote DC Right</DisplayName>
+                <Description>Delegated Rights to promote and Demote Domain Controllers</Description>
+            </PromoteDcRight>
+            <TransferFSMOright>
+                <Name>TransferFSMOright</Name>
+                <DisplayName>Transfer FSMO roles</DisplayName>
+                <Description>Delegated Rights to transfer FSMO roles</Description>
+            </TransferFSMOright>
+            <DcManagement>
+                <Name>DcManagement</Name>
+                <DisplayName>DC Management</DisplayName>
+                <Description>Delegated rights to administer the Domain Controller (Install Software, Create files/Folders, etc.)</Description>
+            </DcManagement>
              <GlobalGroupRight>
                 <Name>GlobalGroupRight</Name>
                 <DisplayName>Global Group Management Right</DisplayName>
@@ -737,6 +637,9 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <Description>Delegated Rights to Manage users for Application Access</Description>
             </GlobalAppAccUserRight>
          </LG>
+         <UPNsufix>
+            <DefaultUpnSufix>EguibarIT.local</DefaultUpnSufix>
+         </UPNsufix>
      </Admin>
      <AdminXtra>
         <OUs>
@@ -880,6 +783,10 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                  <Name>Hyper-V</Name>
                 <description>Global Hyper-V Servers</description>
              </HypervOU>
+             <LinuxOU>
+                <Name>Linux</Name>
+                <description>Global Linux Servers</description>
+             </LinuxOU>
              <RemoteDesktopOU>
                  <Name>Remote Desktop</Name>
                 <description>Global Remote Desktop Servers</description>
@@ -922,31 +829,31 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <Name>Servers</Name>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
-                <backupID>2F52D3EE-98A7-4494-92E8-7C839B58A2BF</backupID>
+                <backupID>79382470-AEA9-43AC-A494-CA2633BA1FA9</backupID>
              </Servers>
              <FileSrv>
                 <Name>FileServer</Name>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
-                <backupID>ee4a3043-f547-4708-9391-5048cb8f1991</backupID>
+                <backupID>5C450516-81E1-4B54-9B0D-530AFB7AE594</backupID>
              </FileSrv>
              <HyperV>
                 <Name>HyperV</Name>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
-                <backupID>efda5444-6e3d-4da2-9379-b81b9797e045</backupID>
+                <backupID>85B17C59-5E7A-4474-BF76-6DBEF710F8DA</backupID>
              </HyperV>
              <RemoteDesktop>
                 <Name>RemoteDesktop</Name>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
-                <backupID>1b6ec286-36e2-4cbe-8fca-562c94f5acf8</backupID>
+                <backupID>478E36A0-0D18-417C-90A6-01E9FC340243</backupID>
              </RemoteDesktop>
              <WebSrv>
                 <Name>WebServer</Name>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
-                <backupID>e92aaff7-32dc-4fce-b326-730e17c28c97</backupID>
+                <backupID>C4A8CFC2-21EC-408E-B8B3-E5F3F6D7DBD1</backupID>
              </WebSrv>
          </GPOs>
          <GG>
@@ -987,28 +894,28 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <description>Root OU for Sites, containing objects necessary for each defined site.</description>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
-                <backupID>2F52D3EE-98A7-4494-92E8-7C839B58A2BF</backupID>
+                <backupID>2406E8A5-02E6-4F62-8D3A-575EFCFE37A8</backupID>
              </SitesOU>
              <OuSiteUser>
                 <Name>Users</Name>
                 <description>Site for Physical users</description>
                 <Scope>U</Scope>
                 <gpoLink></gpoLink>
-                <backupID>b58e7c9c-9d13-4afc-96c9-47e6f70fa749</backupID>
+                <backupID>23EAE781-7964-4EC2-811F-9DA51A11CF40</backupID>
              </OuSiteUser>
              <OuSiteComputer>
                 <Name>Desktops</Name>
                 <description>Site for Desktop computers</description>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
-                <backupID>b3585ac8-adad-469f-8b5d-94a740892a72</backupID>
+                <backupID>2406E8A5-02E6-4F62-8D3A-575EFCFE37A8</backupID>
              </OuSiteComputer>
              <OuSiteLaptop>
                 <Name>Laptops</Name>
                 <description>Site for Laptop computers</description>
                 <Scope>C</Scope>
                 <gpoLink></gpoLink>
-                <backupID>b3585ac8-adad-469f-8b5d-94a740892a72</backupID>
+                <backupID>2406E8A5-02E6-4F62-8D3A-575EFCFE37A8</backupID>
              </OuSiteLaptop>
              <OuSiteGroup>
                 <Name>Groups</Name>
@@ -1047,7 +954,7 @@ ldap:///CN=&lt;CATruncatedName&gt;,CN=AIA,CN=Public Key Services,CN=Services,&lt
                 <description>GLOBAL Application Access Users OU, containing global User objects for all sites.</description>
              </OuSiteGlobalAppAccessUsers>
          </OUs>
-         <GG>
+		 <GG>
              <PwdAdmins>
                 <Name>PwdAdmins</Name>
                 <DisplayName>Password Admins</DisplayName>
