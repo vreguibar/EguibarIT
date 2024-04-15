@@ -2332,6 +2332,56 @@
         }
         Set-GpoPrivilegeRights @Splat
 
+        # Bypass traverse checking / Create Global Objects / Create symbolic links
+        # Change System Time / Change Time Zone / Force shutdown from a remote system
+        # Create Page File / Enable computer and user accounts to be trusted for delegation
+        # Impersonate a client after authentication / Load and unload device drivers
+        # Increase scheduling priority / Manage auditing and security log
+        # Modify firmware environment values / Perform volume maintenance tasks
+        # Profile single process / Profile system performance / Restore files and directories
+        # Shut down the system / Take ownership of files or other objects
+        $ArrayList.Clear()
+        [void]$ArrayList.Add('Administrators')
+        if ($null -ne $SG_Tier0Admins) {
+            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+        }
+        if ($null -ne $SG_AdAdmins) {
+            [void]$ArrayList.Add($SG_AdAdmins.SamAccountName)
+        }
+        $Splat = @{
+            GpoToModify          = 'C-DomainControllers-Baseline'
+            ChangeNotify         = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE'
+            CreateGlobal         = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE'
+            Systemtime           = $ArrayList.ToArray(), 'LOCAL SERVICE'
+            TimeZone             = $ArrayList.ToArray()
+            CreatePagefile       = $ArrayList.ToArray()
+            CreateSymbolicLink   = $ArrayList.ToArray()
+            EnableDelegation     = $ArrayList.ToArray()
+            RemoteShutDown       = $ArrayList.ToArray()
+            Impersonate          = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
+            IncreaseBasePriority = $ArrayList.ToArray()
+            LoadDriver           = $ArrayList.ToArray()
+            AuditSecurity        = $ArrayList.ToArray()
+            SystemEnvironment    = $ArrayList.ToArray()
+            ManageVolume         = $ArrayList.ToArray()
+            ProfileSingleProcess = $ArrayList.ToArray()
+            SystemProfile        = $ArrayList.ToArray()
+            Restore              = $ArrayList.ToArray()
+            Shutdown             = $ArrayList.ToArray()
+            TakeOwnership        = $ArrayList.ToArray()
+        }
+        Set-GpoPrivilegeRights @Splat
+
+        # Generate security audits / Replace a process level token
+        $Splat = @{
+            GpoToModify        = 'C-DomainControllers-Baseline'
+            ChangeNotify       = 'LOCAL SERVICE', 'NETWORK SERVICE'
+            AssignPrimaryToken = 'LOCAL SERVICE', 'NETWORK SERVICE'
+        }
+        Set-GpoPrivilegeRights @Splat
+
+
+
 
 
         # Admin Area
@@ -2737,7 +2787,7 @@
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
         # Deny Logon as a Batch job / Deny Logon as a Service
         $Splat = @{
-            GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name
+            GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name
             DenyInteractiveLogon       = $SG_Tier0Admins.SamAccountName, $SG_Tier1Admins.SamAccountName
             DenyRemoteInteractiveLogon = $SG_Tier0Admins.SamAccountName, $SG_Tier1Admins.SamAccountName
             DenyBatchLogon             = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier1ServiceAccount.SamAccountName
