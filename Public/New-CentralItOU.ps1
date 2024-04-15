@@ -2085,8 +2085,15 @@
         }
 
 
-        # C-ItAdmin-Baseline
-
+        # Import C-ItAdmin-Baseline
+        If ($confXML.n.Admin.GPOs.Adminbaseline.backupID) {
+            $splat = @{
+                BackupId   = $confXML.n.Admin.GPOs.Adminbaseline.backupID
+                TargetName = $confXML.n.Admin.GPOs.Adminbaseline.Name
+                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+            }
+            Import-GPO @splat
+        }
         # U-ItAdmin-Baseline
 
 
@@ -2415,7 +2422,7 @@
             [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName)
         }
         $Splat = @{
-            GpoToModify  = 'C-ItAdmin-Baseline'
+            GpoToModify  = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
             BatchLogon   = $ArrayList.ToArray()
             ServiceLogon = $ArrayList.ToArray()
         }
@@ -2457,7 +2464,7 @@
             [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName)
         }
         $Splat = @{
-            GpoToModify      = 'C-ItAdmin-Baseline'
+            GpoToModify      = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
             DenyBatchLogon   = $ArrayList.ToArray()
             DenyServiceLogon = $ArrayList.ToArray()
         }
@@ -2479,7 +2486,7 @@
             [void]$ArrayList.Add($SG_AdAdmins.SamAccountName)
         }
         $Splat = @{
-            GpoToModify          = 'C-ItAdmin-Baseline'
+            GpoToModify          = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
             MachineAccount       = $ArrayList.ToArray()
             Backup               = $ArrayList.ToArray()
             Systemtime           = $ArrayList.ToArray(), 'LOCAL SERVICE'
