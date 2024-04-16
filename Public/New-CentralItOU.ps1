@@ -2012,11 +2012,11 @@
 
         # Admin Area
         $Splat = @{
-            gpoDescription = 'ItAdmin-Baseline'
+            gpoDescription = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
             gpoLinkPath    = $ItAdminOuDn
             GpoAdmin       = $sl_GpoAdminRight.SamAccountName
         }
-        New-DelegateAdGpo -gpoScope 'C' @Splat
+        New-DelegateAdGpo -gpoScope 'C' @Splat -gpoBackupID $confXML.n.Admin.GPOs.Adminbaseline.backupID
         New-DelegateAdGpo -gpoScope 'U' @Splat
 
         # Users
