@@ -320,7 +320,7 @@
         # Organizational Units Names
         # Iterate all OUs within Admin
         Foreach ($node in $confXML.n.Admin.OUs.ChildNodes) {
-            $param = @{
+            $Splat = @{
                 Name        = "$($Node.LocalName)"
                 Value       = $Node.Name
                 Description = $Node.Description
@@ -328,7 +328,7 @@
                 Force       = $true
             }
             # Create variable for current OUs name, Using the XML LocalName of the node for the variable
-            New-Variable @Param
+            New-Variable @Splat
         }
 
         # Organizational Units Distinguished Names
@@ -2017,7 +2017,7 @@
             GpoAdmin       = $sl_GpoAdminRight.SamAccountName
         }
         New-DelegateAdGpo -gpoScope 'C' @Splat -gpoBackupID $confXML.n.Admin.GPOs.Adminbaseline.backupID
-        New-DelegateAdGpo -gpoScope 'U' @Splat
+        New-DelegateAdGpo -gpoScope 'U' @Splat -gpoBackupID $confXML.n.Admin.GPOs.AdminUserbaseline.backupID
 
         # Users
         $Splat = @{
@@ -2046,10 +2046,10 @@
             GpoAdmin = $sl_GpoAdminRight.SamAccountName
         }
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name) -gpoLinkPath $ItPawOuDn -gpoBackupId $confXML.n.Admin.GPOs.PAWbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn) -gpoBackupId $confXML.n.Admin.GPOs.PawT0baseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT1OU.Name, $ItPawOuDn)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT2OU.Name, $ItPawOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name, $ItPawOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name, $ItPawOuDn) -gpoBackupId $confXML.n.Admin.GPOs.PawStagingbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
 
         # Infrastructure Servers
         $Splat = @{
@@ -2057,10 +2057,10 @@
             GpoAdmin = $sl_GpoAdminRight.SamAccountName
         }
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name) -gpoLinkPath $ItInfraOuDn -gpoBackupId $confXML.n.Admin.GPOs.INFRAbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name, $ItInfraOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name, $ItInfraOuDn) -gpoBackupId $confXML.n.Admin.GPOs.INFRAT0baseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT1Ou.Name, $ItInfraOuDn)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT2Ou.Name, $ItInfraOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn) -gpoBackupId $confXML.n.Admin.GPOs.INFRAStagingBaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
 
         # redirected containers (X-Computers & X-Users)
         New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name, $AdDn) -GpoAdmin $sl_GpoAdminRight.SamAccountName
@@ -2084,17 +2084,6 @@
             Import-GPO @splat
         }
 
-
-        # Import C-ItAdmin-Baseline
-        If ($confXML.n.Admin.GPOs.Adminbaseline.backupID) {
-            $splat = @{
-                BackupId   = $confXML.n.Admin.GPOs.Adminbaseline.backupID
-                TargetName = $confXML.n.Admin.GPOs.Adminbaseline.Name
-                path       = (Join-Path -Path $DMscripts -ChildPath SecTmpl)
-            }
-            Import-GPO @splat
-        }
-        # U-ItAdmin-Baseline
 
 
 
@@ -2913,10 +2902,10 @@
         # Create basic GPO for Servers
         $Splat = @{
             gpoDescription = '{0}-Baseline' -f $ServersOu
-            gpoScope       = $confXML.n.Servers.GPOs.Servers.Scope
+            gpoScope       = $confXML.n.Servers.GPOs.ServersBaseline.Scope
             gpoLinkPath    = $ServersOuDn
             GpoAdmin       = $sl_GpoAdminRight.SamAccountName
-            gpoBackupId    = $confXML.n.Servers.GPOs.Servers.backupID
+            gpoBackupId    = $confXML.n.Servers.GPOs.ServersBaseline.backupID
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
         New-DelegateAdGpo @Splat
@@ -2927,12 +2916,12 @@
             GpoAdmin      = $sl_GpoAdminRight.SamAccountName
             gpoBackupPath = Join-Path $DMscripts SecTmpl
         }
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.ApplicationOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.ApplicationOU.Name, $ServersOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.FileOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.FileOU.Name, $ServersOuDn) -gpoBackupId $confXML.n.Servers.GPOs.FileSrv.backupID
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.HypervOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.HypervOU.Name, $ServersOuDn) -gpoBackupId $confXML.n.Servers.GPOs.HyperV.backupID
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name, $ServersOuDn) -gpoBackupId $confXML.n.Servers.GPOs.RemoteDesktop.backupID
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.SqlOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.SqlOU.Name, $ServersOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.WebOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.WebOU.Name, $ServersOuDn) -gpoBackupId $confXML.n.Servers.GPOs.WebSrv.backupID
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.ApplicationOU.Name)   -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.ApplicationOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.FileOU.Name)          -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.FileOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.HypervOU.Name)        -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.HypervOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.SqlOU.Name)           -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.SqlOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.WebOU.Name)           -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.WebOU.Name, $ServersOuDn)
 
 
         # Tier1 Restrictions
