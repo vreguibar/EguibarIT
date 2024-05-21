@@ -1,0 +1,23 @@
+{
+    "recommendations": [
+        "aaron-bond.better-comments",
+        "bagetx.inf",
+        "davidanson.vscode-markdownlint",
+        "formulahendry.auto-rename-tag",
+        "github.codespaces",
+        "github.vscode-pull-request-github",
+        "janisdd.vscode-edit-csv",
+        "marvhen.reflow-markdown",
+        "ms-azure-devops.azure-pipelines",
+        "ms-vscode.powershell",
+        "ms-vscode.remote-repositories",
+        "ms-vscode.vscode-typescript-tslint-plugin",
+        "redhat.vscode-xml",
+        "redhat.vscode-yaml",
+        "shuworks.vscode-table-formatter",
+        "streetsidesoftware.code-spell-checker",
+        "shuworks.vscode-table-formatter",
+        "usernamehw.errorlens",
+        "wmaurer.change-case"
+    ]
+}
