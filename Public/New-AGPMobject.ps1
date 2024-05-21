@@ -27,9 +27,9 @@
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     Param(
         # PARAM1 full path to the configuration.xml file
-        [Parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True, ValueFromRemainingArguments=$false,
-            HelpMessage='Full path to the configuration.xml file',
-            Position=0)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+            HelpMessage = 'Full path to the configuration.xml file',
+            Position = 0)]
         [string]
         $ConfigXMLFile,
 
@@ -39,9 +39,9 @@
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Path to all the scripts and files needed by this function',
-        Position = 1)]
+            Position = 1)]
         [string]
-        $DMscripts = "C:\PsScripts\"
+        $DMscripts = 'C:\PsScripts\'
     )
 
     Begin {
@@ -72,15 +72,10 @@
 
 
         try {
-            # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn)) {
-                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-            }
-
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML)) {
+            If (-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
+                If (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
@@ -92,13 +87,13 @@
 
 
         # Naming conventions hashtable
-        $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
-                'sg'    = $confXML.n.NC.GlobalGroupPreffix;
-                'su'    = $confXML.n.NC.UniversalGroupPreffix;
-                'Delim' = $confXML.n.NC.Delimiter;
-                'T0'    = $confXML.n.NC.AdminAccSufix0;
-                'T1'    = $confXML.n.NC.AdminAccSufix1;
-                'T2'    = $confXML.n.NC.AdminAccSufix2
+        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix
+            'sg'     = $confXML.n.NC.GlobalGroupPreffix
+            'su'     = $confXML.n.NC.UniversalGroupPreffix
+            'Delim'  = $confXML.n.NC.Delimiter
+            'T0'     = $confXML.n.NC.AdminAccSufix0
+            'T1'     = $confXML.n.NC.AdminAccSufix1
+            'T2'     = $confXML.n.NC.AdminAccSufix2
         }
 
         #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM, $NC['T0'])
@@ -109,7 +104,7 @@
         # IT Admin OU
         $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
         # IT Admin OU Distinguished Name
-        $ItAdminOuDn = 'OU={0},{1}' -f $ItAdminOu, $AdDn
+        $ItAdminOuDn = 'OU={0},{1}' -f $ItAdminOu, $Variables.AdDn
 
         # It Admin ServiceAccount OU Distinguished Name
         $ItServiceAccountsOu = $confXML.n.Admin.OUs.ItServiceAccountsOU.name
@@ -121,7 +116,7 @@
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-        $Splat    = [Hashtable]::New()
+        $Splat = [Hashtable]::New()
 
         #endregion Declarations
         ################################################################################
@@ -156,9 +151,9 @@
                 'msDS-SupportedEncryptionTypes' = '24'
             }
         }
-        New-AdUser @Splat
+        New-ADUser @Splat
 
-        $SA_AGPM = Get-AdUser -Filter { samAccountName -eq 'SA_AGPM_Temp' }
+        $SA_AGPM = Get-ADUser -Filter { samAccountName -eq 'SA_AGPM_Temp' }
 
         #http://blogs.msdn.com/b/openspecification/archive/2011/05/31/windows-configurations-for-kerberos-supported-encryption-type.aspx
         # 'msDS-SupportedEncryptionTypes'= Kerberos DES Encryption = 2, Kerberos AES 128 = 8, Kerberos AES 256 = 16
@@ -194,23 +189,24 @@
 
             $ReplaceParams = @{
                 Replace = @{
-                    'c'="MX"
-                    'co'="Mexico"
-                    'company'=$confXML.n.RegisteredOrg
-                    'department'="IT"
-                    'employeeID'='T0'
-                    'employeeType'="ServiceAccount"
-                    'info'=$confXML.n.Admin.gMSA.AGPM.Description
-                    'l'="Puebla"
-                    'title'=$confXML.n.Admin.gMSA.AGPM.DisplayName
-                    'userPrincipalName'='{0}@{1}' -f $confXML.n.Admin.gMSA.AGPM.Name, $env:USERDNSDOMAIN
+                    'c'                 = 'MX'
+                    'co'                = 'Mexico'
+                    'company'           = $confXML.n.RegisteredOrg
+                    'department'        = 'IT'
+                    'employeeID'        = 'T0'
+                    'employeeType'      = 'ServiceAccount'
+                    'info'              = $confXML.n.Admin.gMSA.AGPM.Description
+                    'l'                 = 'Puebla'
+                    'title'             = $confXML.n.Admin.gMSA.AGPM.DisplayName
+                    'userPrincipalName' = '{0}@{1}' -f $confXML.n.Admin.gMSA.AGPM.Name, $env:USERDNSDOMAIN
                 }
             }
 
             try {
                 New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0] 
             }
-            catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
         } else {
             $Splat = @{
                 name        = $confXML.n.Admin.gMSA.AGPM.Name
@@ -285,7 +281,7 @@
         # Nest Groups - Security for RODC
         # Avoid having privileged or semi-privileged groups copy to RODC
 
-        Add-AdGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SL_GpoApproverRight, $SL_GpoEditorRight, $SL_GpoReviewerRight
+        Add-ADGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SL_GpoApproverRight, $SL_GpoEditorRight, $SL_GpoReviewerRight
 
 
         ###############################################################################

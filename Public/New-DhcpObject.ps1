@@ -60,11 +60,6 @@
         #region Declarations
 
         try {
-            # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn)) {
-                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-            }
-
             # Check if Config.xml file is loaded. If not, proceed to load it.
             If(-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
@@ -97,7 +92,7 @@
         # IT Admin OU
         $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
         # IT Admin OU Distinguished Name
-        $ItAdminOuDn = 'OU={0},{1}' -f $ItAdminOu, $AdDn
+        $ItAdminOuDn = 'OU={0},{1}' -f $ItAdminOu, $Variables.AdDn
 
         # It Privileged Groups OU
         $ItPGOu = $confXML.n.Admin.OUs.ItPrivGroupsOU.name

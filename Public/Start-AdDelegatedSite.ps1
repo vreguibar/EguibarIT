@@ -66,9 +66,9 @@ function Start-AdDelegateSite {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium', DefaultParameterSetName = 'ParamOptions')]
     param (
         # PARAM1 full path to the configuration.xml file
-        [Parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True, ValueFromRemainingArguments=$false,
-            HelpMessage='Full path to the configuration.xml file',
-            Position=0)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+            HelpMessage = 'Full path to the configuration.xml file',
+            Position = 0)]
         [string]
         $ConfigXMLFile,
 
@@ -115,31 +115,27 @@ function Start-AdDelegateSite {
         #region Declarations
 
         try {
-            # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn)) {
-                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-            }
-
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML)) {
+            If (-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
+                If (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0] 
         }
-        catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
 
 
         # Naming conventions hashtable
-        $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
-                'sg'    = $confXML.n.NC.GlobalGroupPreffix;
-                'su'    = $confXML.n.NC.UniversalGroupPreffix;
-                'Delim' = $confXML.n.NC.Delimiter;
-                'T0'    = $confXML.n.NC.AdminAccSufix0;
-                'T1'    = $confXML.n.NC.AdminAccSufix1;
-                'T2'    = $confXML.n.NC.AdminAccSufix2
+        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix
+            'sg'     = $confXML.n.NC.GlobalGroupPreffix
+            'su'     = $confXML.n.NC.UniversalGroupPreffix
+            'Delim'  = $confXML.n.NC.Delimiter
+            'T0'     = $confXML.n.NC.AdminAccSufix0
+            'T1'     = $confXML.n.NC.AdminAccSufix1
+            'T2'     = $confXML.n.NC.AdminAccSufix2
         }
 
         #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM, $NC['T0'])
@@ -150,13 +146,13 @@ function Start-AdDelegateSite {
         #region Get all newly created Groups and store on variable
 
         # Iterate through all Site-DomainLocalGroups child nodes
-        Foreach($node in $confXML.n.Sites.LG.ChildNodes) {
+        Foreach ($node in $confXML.n.Sites.LG.ChildNodes) {
 
             $TempName = '{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
 
             Write-Verbose -Message ('Get group {0}' -f $TempName)
 
-            New-Variable -Name "$($TempName)" -Value (Get-AdGroup $TempName) -Force
+            New-Variable -Name "$($TempName)" -Value (Get-ADGroup $TempName) -Force
         }
 
         #endregion
@@ -164,16 +160,16 @@ function Start-AdDelegateSite {
 
 
         # Sites OU Distinguished Name
-        If(-Not (Test-Path -Path variable:ouNameDN)) {
-            $ouNameDN = 'OU={0},OU={1},{2}' -f $ouName, $confXML.n.Sites.OUs.SitesOU.name, $AdDn
+        If (-Not (Test-Path -Path variable:ouNameDN)) {
+            $ouNameDN = 'OU={0},OU={1},{2}' -f $ouName, $confXML.n.Sites.OUs.SitesOU.name, $Variables.AdDn
         }
 
-        $OuSiteDefComputer    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.name, $ouNameDN
-        $OuSiteDefLaptop      = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.name, $ouNameDN
+        $OuSiteDefComputer = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.name, $ouNameDN
+        $OuSiteDefLaptop = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.name, $ouNameDN
 
-        $OuSiteDefMailbox   = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteMailbox.name, $ouNameDN
+        $OuSiteDefMailbox = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteMailbox.name, $ouNameDN
         $OuSiteDefDistGroup = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteDistGroup.name, $ouNameDN
-        $OuSiteDefContact   = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteContact.name, $ouNameDN
+        $OuSiteDefContact = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteContact.name, $ouNameDN
 
         # parameters variable for splatting CMDlets
         $parameters = $null
@@ -255,21 +251,21 @@ function Start-AdDelegateSite {
         #region COMPUTER Site Admin Delegation
 
         # Create/Delete Computers
-        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName -LDAPPath $OuSiteDefComputer -QuarantineDN $PSBoundParameters['QuarantineDN']
-        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName -LDAPPath $OuSiteDefLaptop   -QuarantineDN $PSBoundParameters['QuarantineDN']
+        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName -LDAPpath $OuSiteDefComputer -QuarantineDN $PSBoundParameters['QuarantineDN']
+        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName -LDAPpath $OuSiteDefLaptop -QuarantineDN $PSBoundParameters['QuarantineDN']
 
         # Grant the right to delete computers from default container. Move Computers
-        Set-DeleteOnlyComputer -Group $SL_PcRight.SamAccountName          -LDAPPath $PSBoundParameters['QuarantineDN']
+        Set-DeleteOnlyComputer -Group $SL_PcRight.SamAccountName -LDAPPath $PSBoundParameters['QuarantineDN']
 
         #### GAL
 
         # Change Personal Info
-        Set-AdAclComputerPersonalInfo -Group $SL_GALRight.SamAccountName         -LDAPPath $OuSiteDefComputer
-        Set-AdAclComputerPersonalInfo -Group $SL_GALRight.SamAccountName         -LDAPPath $OuSiteDefLaptop
+        Set-AdAclComputerPersonalInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefComputer
+        Set-AdAclComputerPersonalInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefLaptop
 
         # Change Public Info
-        Set-AdAclComputerPublicInfo -Group $SL_GALRight.SamAccountName         -LDAPPath $OuSiteDefComputer
-        Set-AdAclComputerPublicInfo -Group $SL_GALRight.SamAccountName         -LDAPPath $OuSiteDefLaptop
+        Set-AdAclComputerPublicInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefComputer
+        Set-AdAclComputerPublicInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefLaptop
 
 
 
@@ -336,7 +332,7 @@ function Start-AdDelegateSite {
         ###############################################################################
         #region Exchange Related delegation
         ###############################################################################
-        If($PSBoundParameters['CreateExchange']) {
+        If ($PSBoundParameters['CreateExchange']) {
             # USER class
             # Create/Delete Users
             Set-AdAclCreateDeleteUser -Group $SL_CreateUserRight.SamAccountName -LDAPPath $OuSiteDefMailbox
@@ -355,7 +351,7 @@ function Start-AdDelegateSite {
             Set-AdAclUserLogonInfo -Group $SL_SiteRight.SamAccountName -LDAPPath $OuSiteDefMailbox
             #--------------------------------------------------
             # Change Group Membership
-            Set-AdAclUserGroupMembership     -Group $SL_SiteRight.SamAccountName -LDAPPath $OuSiteDefMailbox
+            Set-AdAclUserGroupMembership -Group $SL_SiteRight.SamAccountName -LDAPPath $OuSiteDefMailbox
 
             # Change Personal Information
             Set-AdAclUserPersonalInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefMailbox
@@ -364,7 +360,7 @@ function Start-AdDelegateSite {
             Set-AdAclUserPublicInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefMailbox
 
             # Change General Information
-            Set-AdAclUserGeneralInfo  -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefMailbox
+            Set-AdAclUserGeneralInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefMailbox
 
             # Change Web Info
             Set-AdAclUserWebInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefMailbox

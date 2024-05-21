@@ -59,11 +59,6 @@ Function New-ExchangeObject {
 
 
         try {
-            # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn)) {
-                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-            }
-
             # Check if Config.xml file is loaded. If not, proceed to load it.
             If(-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
@@ -97,7 +92,7 @@ Function New-ExchangeObject {
         # IT Admin OU
         New-Variable -Name 'ItAdminOu' -Value $confXML.n.Admin.OUs.ItAdminOU.name -Option ReadOnly -Force
         # IT Admin OU Distinguished Name
-        New-Variable -Name 'ItAdminOuDn' -Value ('OU={0},{1}' -f $ItAdminOu, $AdDn) -Option ReadOnly -Force
+        New-Variable -Name 'ItAdminOuDn' -Value ('OU={0},{1}' -f $ItAdminOu, $Variables.AdDn) -Option ReadOnly -Force
 
             # It Admin Groups OU
             #$ItGroupsOu = $confXML.n.Admin.OUs.ItAdminGroupsOU.name
@@ -147,7 +142,7 @@ Function New-ExchangeObject {
         # Servers OU
         $ServersOu = $confXML.n.Servers.OUs.ServersOU.name
         # Servers OU Distinguished Name
-        $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $AdDn
+        $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $Variables.AdDn
 
             # Exchange Servers
             $ExServersOu = $confXML.n.Servers.OUs.ExchangeOU.Name
@@ -182,7 +177,7 @@ Function New-ExchangeObject {
         # Quarantine OU
         $ItQuarantineOu = $confXML.n.Admin.OUs.ItNewComputersOU.name
         # Quarantine OU Distinguished Name
-        $ItQuarantineOuDn = 'OU={0},{1}' -f $ItQuarantineOu, $AdDn
+        $ItQuarantineOuDn = 'OU={0},{1}' -f $ItQuarantineOu, $Variables.AdDn
 
         #endregion Declarations
         ################################################################################

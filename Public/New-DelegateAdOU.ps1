@@ -147,11 +147,6 @@ function New-DelegateAdOU {
 
 
         try {
-            # Active Directory Domain Distinguished Name
-            If (-not (Test-Path -Path variable:AdDn)) {
-                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-            }
-
             # Sites OU Distinguished Name
             $ouNameDN = 'OU={0},{1}' -f $PSBoundParameters['ouName'], $PSBoundParameters['ouPath']
         } Catch {
@@ -170,7 +165,7 @@ function New-DelegateAdOU {
 
         try {
             # Try to get Ou
-            $OUexists = Get-ADOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $AdDn -ErrorAction SilentlyContinue
+            $OUexists = Get-ADOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $Variables.AdDn -ErrorAction SilentlyContinue
 
             # Check if OU exists
             If ($OUexists) {

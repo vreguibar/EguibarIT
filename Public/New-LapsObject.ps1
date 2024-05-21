@@ -63,11 +63,6 @@ Function New-LAPSobject {
         #region Declarations
 
         try {
-            # Active Directory Domain Distinguished Name
-            If (-Not (Test-Path -Path variable:AdDn)) {
-                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-            }
-
             # Check if Config.xml file is loaded. If not, proceed to load it.
             If (-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
@@ -76,19 +71,18 @@ Function New-LAPSobject {
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
-        }
-        catch {
+        } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
         }
 
         If (-Not (Test-Path -Path variable:NC)) {
             # Naming conventions hashtable
-            $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix;
-                'sg'     = $confXML.n.NC.GlobalGroupPreffix;
-                'su'     = $confXML.n.NC.UniversalGroupPreffix;
-                'Delim'  = $confXML.n.NC.Delimiter;
-                'T0'     = $confXML.n.NC.AdminAccSufix0;
-                'T1'     = $confXML.n.NC.AdminAccSufix1;
+            $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix
+                'sg'     = $confXML.n.NC.GlobalGroupPreffix
+                'su'     = $confXML.n.NC.UniversalGroupPreffix
+                'Delim'  = $confXML.n.NC.Delimiter
+                'T0'     = $confXML.n.NC.AdminAccSufix0
+                'T1'     = $confXML.n.NC.AdminAccSufix1
                 'T2'     = $confXML.n.NC.AdminAccSufix2
             }
         }
@@ -127,7 +121,7 @@ Function New-LAPSobject {
         }
         # IT Admin OU Distinguished Name
         If (-Not (Test-Path -Path variable:ItAdminOuDn)) {
-            New-Variable -Name 'ItAdminOuDn' -Value ('OU={0},{1}' -f $ItAdminOu, $AdDn) -Option ReadOnly -Force
+            New-Variable -Name 'ItAdminOuDn' -Value ('OU={0},{1}' -f $ItAdminOu, $Variables.AdDn) -Option ReadOnly -Force
         }
 
         # Servers OU
@@ -136,7 +130,7 @@ Function New-LAPSobject {
         }
         # Servers OU Distinguished Name
         If (-Not (Test-Path -Path variable:ServersOuDn)) {
-            $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $AdDn
+            $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $Variables.AdDn
         }
 
         # It InfraServers OU
@@ -192,7 +186,7 @@ Function New-LAPSobject {
         # Sites OU
         $SitesOu = $confXML.n.Sites.OUs.SitesOU.name
         # Sites OU Distinguished Name
-        $SitesOuDn = 'OU={0},{1}' -f $SitesOu, $AdDn
+        $SitesOuDn = 'OU={0},{1}' -f $SitesOu, $Variables.AdDn
 
         #endregion Declarations
         ################################################################################
@@ -212,11 +206,9 @@ Function New-LAPSobject {
                         Write-Verbose -Message 'Modify the schema...!'
                         Update-AdmPwdADSchema -Verbose
                         Update-LapsADSchema -Confirm:$false -Verbose
-                    }
-                    catch {
+                    } catch {
                         Get-CurrentErrorToDisplay -CurrentError $error[0]
-                    }
-                    finally {
+                    } finally {
                         # If Schema extension OK, remove user from Schema Admin
                         Remove-ADGroupMember -Identity 'Schema Admins' -Members $env:username -Confirm:$false
                     }
@@ -225,8 +217,7 @@ Function New-LAPSobject {
         }#end try
         catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
-        }
-        Finally {
+        } Finally {
             Write-Verbose -Message 'Schema was extended succesfully for LAPS.'
         }#end finally
     }

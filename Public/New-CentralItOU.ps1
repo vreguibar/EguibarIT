@@ -219,11 +219,6 @@ function New-CentralItOu {
         #region Declarations
 
         try {
-            # Active Directory Domain Distinguished Name
-            If (-Not (Test-Path -Path variable:AdDn)) {
-                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-            }
-
             # Check if Config.xml file is loaded. If not, proceed to load it.
             If (-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
@@ -334,12 +329,12 @@ function New-CentralItOu {
         # Organizational Units Distinguished Names
 
         # Domain Controllers DistinguishedName
-        $DCsOuDn = ('OU=Domain Controllers,{0}' -f $AdDn)
+        $DCsOuDn = ('OU=Domain Controllers,{0}' -f $Variables.AdDn)
 
         # Admin Area
 
         # IT Admin OU Distinguished Name
-        New-Variable -Name 'ItAdminOuDn' -Value ('OU={0},{1}' -f $ItAdminOu, $AdDn) -Option ReadOnly -Force
+        New-Variable -Name 'ItAdminOuDn' -Value ('OU={0},{1}' -f $ItAdminOu, $Variables.AdDn) -Option ReadOnly -Force
 
         # It Admin Users OU Distinguished Name
         $ItAdminAccountsOuDn = 'OU={0},{1}' -f $ItAdminAccountsOu, $ItAdminOuDn
@@ -408,7 +403,7 @@ function New-CentralItOu {
         # Servers OU
         New-Variable -Name 'ServersOu' -Value $confXML.n.Servers.OUs.ServersOU.Name -Option ReadOnly -Force
         # Servers OU Distinguished Name
-        $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $AdDn
+        $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $Variables.AdDn
 
 
 
@@ -417,7 +412,7 @@ function New-CentralItOu {
         # Sites OU
         New-Variable -Name 'SitesOu' -Value $confXML.n.Sites.OUs.SitesOU.name -Option ReadOnly -Force
         # Sites OU Distinguished Name
-        $SitesOuDn = 'OU={0},{1}' -f $SitesOu, $AdDn
+        $SitesOuDn = 'OU={0},{1}' -f $SitesOu, $Variables.AdDn
 
         # Sites GLOBAL OU
         $SitesGlobalOu = $confXML.n.Sites.OUs.OuSiteGlobal.name
@@ -440,7 +435,7 @@ function New-CentralItOu {
         # Quarantine OU for PCs
         New-Variable -Name 'ItQuarantinePcOu' -Value $confXML.n.Admin.OUs.ItNewComputersOU.name -Option ReadOnly -Force
         # Quarantine OU Distinguished Name
-        $ItQuarantinePcOuDn = 'OU={0},{1}' -f $ItQuarantinePcOu, $AdDn
+        $ItQuarantinePcOuDn = 'OU={0},{1}' -f $ItQuarantinePcOu, $Variables.AdDn
 
         # Quarantine OU for Users
         New-Variable -Name 'ItQuarantineUserOu' -Value $confXML.n.Admin.OUs.ItNewUsersOU.name -Option ReadOnly -Force
@@ -463,7 +458,7 @@ function New-CentralItOu {
         ###############################################################################
         # Create IT Admin and Sub OUs
         Write-Verbose -Message 'Create Admin Area and related structure...'
-        New-DelegateAdOU -ouName $ItAdminOu -ouPath $AdDn -ouDescription $confXML.n.Admin.OUs.ItAdminOU.description
+        New-DelegateAdOU -ouName $ItAdminOu -ouPath $Variables.AdDn -ouDescription $confXML.n.Admin.OUs.ItAdminOU.description
 
         # Remove Inheritance and copy the ACE
         Set-AdInheritance -LDAPPath $ItAdminOuDn -RemoveInheritance $true -RemovePermissions $true
@@ -1730,14 +1725,14 @@ function New-CentralItOu {
         ###############################################################################
         #region redirect Users & Computers containers
 
-        New-DelegateAdOU -ouName $ItQuarantinePcOu -ouPath $AdDn -ouDescription $confXML.n.Admin.OUs.ItNewComputersOU.description -RemoveAuthenticatedUsers
-        New-DelegateAdOU -ouName $ItQuarantineUserOu -ouPath $AdDn -ouDescription $confXML.n.Admin.OUs.ItNewUsersOU.description -RemoveAuthenticatedUsers
+        New-DelegateAdOU -ouName $ItQuarantinePcOu -ouPath $Variables.AdDn -ouDescription $confXML.n.Admin.OUs.ItNewComputersOU.description -RemoveAuthenticatedUsers
+        New-DelegateAdOU -ouName $ItQuarantineUserOu -ouPath $Variables.AdDn -ouDescription $confXML.n.Admin.OUs.ItNewUsersOU.description -RemoveAuthenticatedUsers
 
         # START Remove Delegation to BuiltIn groups BEFORE REDIRECTION
 
         $Splat = @{
             Group      = 'Account Operators'
-            LDAPPath   = 'CN=Computers,{0}' -f $AdDn
+            LDAPPath   = 'CN=Computers,{0}' -f $Variables.AdDn
             RemoveRule = $True
         }
         ### COMPUTERS
@@ -1761,7 +1756,7 @@ function New-CentralItOu {
 
         $Splat = @{
             Group      = 'Account Operators'
-            LDAPPath   = 'CN=Users,{0}' -f $AdDn
+            LDAPPath   = 'CN=Users,{0}' -f $Variables.AdDn
             RemoveRule = $True
         }
         ### USERS
@@ -1785,8 +1780,8 @@ function New-CentralItOu {
 
         ###############################################################################
         # Redirect Default USER & COMPUTERS Containers
-        redircmp.exe ('OU={0},{1}' -f $ItQuarantinePcOu, $AdDn)
-        redirusr.exe ('OU={0},{1}' -f $ItQuarantineUserOu, $AdDn)
+        redircmp.exe ('OU={0},{1}' -f $ItQuarantinePcOu, $Variables.AdDn)
+        redirusr.exe ('OU={0},{1}' -f $ItQuarantineUserOu, $Variables.AdDn)
 
         #endregion
         ###############################################################################
@@ -1876,7 +1871,7 @@ function New-CentralItOu {
         # Managed Service Accounts "Default Container"
         $Splat = @{
             Group    = $SL_PSAM.SamAccountName
-            LDAPPath = ('CN=Managed Service Accounts,{0}' -f $AdDn)
+            LDAPPath = ('CN=Managed Service Accounts,{0}' -f $Variables.AdDn)
         }
         Set-AdAclCreateDeleteGMSA @Splat
         Set-AdAclCreateDeleteMSA @Splat
@@ -1948,7 +1943,7 @@ function New-CentralItOu {
 
         # Infrastructure Admins
         # Organizational Units at domain level
-        Set-AdAclCreateDeleteOU -Group $SL_InfraRight.SamAccountName -LDAPPath $AdDn
+        Set-AdAclCreateDeleteOU -Group $SL_InfraRight.SamAccountName -LDAPPath $Variables.AdDn
         # Organizational Units at Admin area
         Set-AdAclCreateDeleteOU -Group $SL_InfraRight.SamAccountName -LDAPPath $ItAdminOuDn
         # Subnet Configuration Container
@@ -1992,7 +1987,7 @@ function New-CentralItOu {
         # Domain
         $Splat = @{
             gpoDescription = 'Baseline'
-            gpoLinkPath    = $AdDn
+            gpoLinkPath    = $Variables.AdDn
             GpoAdmin       = $sl_GpoAdminRight.SamAccountName
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
@@ -2003,7 +1998,7 @@ function New-CentralItOu {
         $Splat = @{
             gpoDescription = '{0}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Name
             gpoScope       = $confXML.n.Admin.GPOs.DCBaseline.Scope
-            gpoLinkPath    = 'OU=Domain Controllers,{0}' -f $AdDn
+            gpoLinkPath    = 'OU=Domain Controllers,{0}' -f $Variables.AdDn
             GpoAdmin       = $sl_GpoAdminRight.SamAccountName
             gpoBackupId    = $confXML.n.Admin.GPOs.DCBaseline.backupID
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
@@ -2063,8 +2058,8 @@ function New-CentralItOu {
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn) -gpoBackupId $confXML.n.Admin.GPOs.INFRAStagingBaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
 
         # redirected containers (X-Computers & X-Users)
-        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name, $AdDn) -GpoAdmin $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name) -gpoScope U -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name, $AdDn) -GpoAdmin $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name, $Variables.AdDn) -GpoAdmin $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name) -gpoScope U -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name, $Variables.AdDn) -GpoAdmin $sl_GpoAdminRight.SamAccountName
 
         # Housekeeping
         New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItHousekeepingOU.Name) -gpoScope U -gpoLinkPath $ItHousekeepingOuDn -GpoAdmin $sl_GpoAdminRight.SamAccountName
@@ -2885,7 +2880,7 @@ function New-CentralItOu {
 
         ###############################################################################
         # Create Servers and Sub OUs
-        New-DelegateAdOU -ouName $ServersOu -ouPath $AdDn -ouDescription $confXML.n.Servers.OUs.ServersOU.Description
+        New-DelegateAdOU -ouName $ServersOu -ouPath $Variables.AdDn -ouDescription $confXML.n.Servers.OUs.ServersOU.Description
 
         # Create Sub-OUs for Servers
         New-DelegateAdOU -ouName $confXML.n.Servers.OUs.SqlOU.Name -ouPath $ServersOuDn -ouDescription $confXML.n.Servers.OUs.SqlOU.Description
@@ -3054,7 +3049,7 @@ function New-CentralItOu {
 
         Write-Verbose -Message 'Creating Sites Area...'
 
-        New-DelegateAdOU -ouName $SitesOu -ouPath $AdDn -ouDescription $confXML.n.Sites.OUs.SitesOU.Description
+        New-DelegateAdOU -ouName $SitesOu -ouPath $Variables.AdDn -ouDescription $confXML.n.Sites.OUs.SitesOU.Description
 
         # Create basic GPO for Users and Computers
         $Splat = @{

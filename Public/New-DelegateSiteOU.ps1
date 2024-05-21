@@ -241,11 +241,6 @@
         # Define the variables
 
         try {
-            # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn)) {
-                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-            }
-
             # Check if Config.xml file is loaded. If not, proceed to load it.
             If(-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
@@ -288,7 +283,7 @@
         # IT Admin OU
         $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
         # IT Admin OU Distinguished Name
-        $ItAdminOuDn = 'OU={0},{1}' -f $ItAdminOu, $AdDn
+        $ItAdminOuDn = 'OU={0},{1}' -f $ItAdminOu, $Variables.AdDn
 
         # It Admin Groups OU
         $ItGroupsOu = $confXML.n.Admin.OUs.ItAdminGroupsOU.name
@@ -314,7 +309,7 @@
         # Sites OU
         $SitesOu = $confXML.n.Sites.OUs.SitesOU.name
         # Sites OU Distinguished Name
-        $SitesOuDn = 'OU={0},{1}' -f $SitesOu, $AdDn
+        $SitesOuDn = 'OU={0},{1}' -f $SitesOu, $Variables.AdDn
 
             # Sites GLOBAL OU
             #$SitesGlobalOu = $confXML.n.Sites.OUs.OuSiteGlobal.name
@@ -338,7 +333,7 @@
         # Quarantine OU
         $ItQuarantinePcOu = $confXML.n.Admin.OUs.ItNewComputersOU.name
         # Quarantine OU Distinguished Name
-        $ItQuarantinePcOuDn = 'OU={0},{1}' -f $ItQuarantinePcOu, $AdDn
+        $ItQuarantinePcOuDn = 'OU={0},{1}' -f $ItQuarantinePcOu, $Variables.AdDn
 
 
 
@@ -359,7 +354,7 @@
         Write-Verbose -Message ('Create Site root OU {0}' -f $PSBoundParameters['ouName'])
 
         # Check if the Site OU exists
-        If(-not(Get-AdOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $AdDn)) {
+        If(-not(Get-AdOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $Variables.AdDn)) {
             $splat = @{
                 ouName           = $PSBoundParameters['ouName']
                 ouPath           = $SitesOuDn

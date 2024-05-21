@@ -20,9 +20,9 @@
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     Param (
         # PARAM1 full path to the configuration.xml file
-        [Parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True, ValueFromRemainingArguments=$false,
-            HelpMessage='Full path to the configuration.xml file',
-            Position=0)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+            HelpMessage = 'Full path to the configuration.xml file',
+            Position = 0)]
         [string]
         $ConfigXMLFile
     )
@@ -39,7 +39,7 @@
 
         ################################################################################
         # Initialisations
-        Import-Module -name EguibarIT.Delegation -Verbose:$false
+        Import-Module -Name EguibarIT.Delegation -Verbose:$false
 
         #Get the OS Instalation Type
         $OsInstalationType = Get-ItemProperty -Path 'HKLM:Software\Microsoft\Windows NT\CurrentVersion' | Select-Object -ExpandProperty InstallationType
@@ -48,30 +48,26 @@
         #region Declarations
 
         try {
-            # Active Directory Domain Distinguished Name
-            If(-Not (Test-Path -Path variable:AdDn)) {
-                $AdDn = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-            }
-
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML)) {
+            If (-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
+                If (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
+        } catch {
+            throw
         }
-        catch { throw }
 
         # Naming conventions hashtable
-        $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
-                'sg'    = $confXML.n.NC.GlobalGroupPreffix;
-                'su'    = $confXML.n.NC.UniversalGroupPreffix;
-                'Delim' = $confXML.n.NC.Delimiter;
-                'T0'    = $confXML.n.NC.AdminAccSufix0;
-                'T1'    = $confXML.n.NC.AdminAccSufix1;
-                'T2'    = $confXML.n.NC.AdminAccSufix2
+        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix
+            'sg'     = $confXML.n.NC.GlobalGroupPreffix
+            'su'     = $confXML.n.NC.UniversalGroupPreffix
+            'Delim'  = $confXML.n.NC.Delimiter
+            'T0'     = $confXML.n.NC.AdminAccSufix0
+            'T1'     = $confXML.n.NC.AdminAccSufix1
+            'T2'     = $confXML.n.NC.AdminAccSufix2
         }
         #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM, $NC['T0'])
         # SG_PAWM_T0
@@ -81,7 +77,7 @@
         # IT Admin OU
         $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
         # IT Admin OU Distinguished Name
-        $ItAdminOuDn = 'OU={0},{1}' -f $ItAdminOu, $AdDn
+        $ItAdminOuDn = 'OU={0},{1}' -f $ItAdminOu, $Variables.AdDn
 
         # It Admin Groups OU
         # $ItGroupsOu = $confXML.n.Admin.OUs.ItAdminGroupsOU.name
@@ -98,7 +94,7 @@
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-        $Splat    = [Hashtable]::New()
+        $Splat = [Hashtable]::New()
 
         #endregion Declarations
         ################################################################################
@@ -106,10 +102,10 @@
 
     Process {
         # Check if AD module is installed
-        If(-not((Get-WindowsFeature -Name RSAT-AD-PowerShell).Installed)) {
+        If (-not((Get-WindowsFeature -Name RSAT-AD-PowerShell).Installed)) {
             Install-WindowsFeature -Name RSAT-AD-PowerShell -IncludeAllSubFeature
         }
-        Import-Module -name ActiveDirectory      -Verbose:$false
+        Import-Module -Name ActiveDirectory -Verbose:$false
 
         # AD CS Step by Step Guide: Two Tier PKI Hierarchy Deployment
         # https://social.technet.microsoft.com/wiki/contents/articles/15037.ad-cs-step-by-step-guide-two-tier-pki-hierarchy-deployment.aspx
@@ -120,14 +116,14 @@
 
         try {
             # Check if feature is installed, if not then proceed to install it.
-            If(-not((Get-WindowsFeature -Name ADCS-Cert-Authority).Installed)) {
+            If (-not((Get-WindowsFeature -Name ADCS-Cert-Authority).Installed)) {
                 Install-WindowsFeature -Name ADCS-Cert-Authority -IncludeAllSubFeature
 
                 Install-WindowsFeature -Name ADCS-web-enrollment
 
                 Install-WindowsFeature -Name ADCS-Online-Cert
 
-                If($OsInstalationType -ne 'Server Core') {
+                If ($OsInstalationType -ne 'Server Core') {
                     Install-WindowsFeature -Name RSAT-ADCS -IncludeAllSubFeature
                 }
 
@@ -166,7 +162,7 @@ LoadDefaultTemplates=0
                 # Create Folder where to store CA Database
                 $CaConfig = ('{0}\CaConfig\' -f $env:SystemDrive)
 
-                if(-not(Test-Path $CaConfig)) {
+                if (-not(Test-Path $CaConfig)) {
                     New-Item -ItemType Directory -Force -Path $CaConfig
                 }
 
@@ -177,8 +173,8 @@ LoadDefaultTemplates=0
                     HashAlgorithmName         = $confXML.n.CA.CAHashAlgorithm
                     ValidityPeriod            = 'Years'
                     ValidityPeriodUnits       = $confXML.n.CA.CACertValidity
-                    CACommonName              = '{0}-CA' -f ($AdDn.Split(",")[0]).split("=")[1]
-                    CADistinguishedNameSuffix = $AdDn
+                    CACommonName              = '{0}-CA' -f (($Variables.AdDn).Split(',')[0]).split('=')[1]
+                    CADistinguishedNameSuffix = $Variables.AdDn
                     DatabaseDirectory         = $CaConfig
                     LogDirectory              = '{0}LOGs' -f $CaConfig
                     Force                     = $true
@@ -192,7 +188,7 @@ LoadDefaultTemplates=0
             } # End If
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
-         } # End Try-Catch
+        } # End Try-Catch
         finally {
 
             # Remove all distribution points
@@ -206,7 +202,7 @@ LoadDefaultTemplates=0
             # Add CDP url
             Add-CACRLDistributionPoint -Uri http://$PkiServer/CertEnroll/%3%8%9.crl -AddToCertificateCDP -AddToFreshestCrl -Force
 
-            Get-CAAuthorityInformationAccess | Where-Object {$_.Uri -like '*ldap*' -or $_.Uri -like '*http*' -or $_.Uri -like '*file*'} | Remove-CAAuthorityInformationAccess -Force
+            Get-CAAuthorityInformationAccess | Where-Object { $_.Uri -like '*ldap*' -or $_.Uri -like '*http*' -or $_.Uri -like '*file*' } | Remove-CAAuthorityInformationAccess -Force
 
             # Add AIA url
             Add-CAAuthorityInformationAccess -AddToCertificateAia http://$PkiServer/CertEnroll/%1_%3%4.crt -Force
@@ -233,11 +229,11 @@ LoadDefaultTemplates=0
 
 
             # Create A record for PKI
-            Add-DnsServerResourceRecordCName -Name "pki" -HostNameAlias ('{0}.{1}' -f $env:COMPUTERNAME, $env:USERDNSDOMAIN) -ZoneName $env:USERDNSDOMAIN
+            Add-DnsServerResourceRecordCName -Name 'pki' -HostNameAlias ('{0}.{1}' -f $env:COMPUTERNAME, $env:USERDNSDOMAIN) -ZoneName $env:USERDNSDOMAIN
 
 
             # Configure CA auditing
-            [String]$cmd = "Certutil -setreg CA\AuditFilter 127"
+            [String]$cmd = 'Certutil -setreg CA\AuditFilter 127'
             Invoke-Expression -Command $cmd
 
             # Configure the AIA
@@ -246,7 +242,7 @@ LoadDefaultTemplates=0
             Invoke-Expression -Command $cmd
 
             # Configure the CDP
-            [String]$Locations = '"65:C:\Windows\system32\CertSrv\CertEnroll\%3%8%9.crl\n79:ldap:///CN=%7%8,CN=%2,CN=CDP,CN=Public Key Services,CN=Services,%6%10\n6:http://{0}/CertEnroll/%3%8%9.crl\n65:\\{1}\CertEnroll\%3%8%9.crl"' -f  $PkiServer, ('{0}.{1}' -f $env:COMPUTERNAME, $env:USERDNSDOMAIN)
+            [String]$Locations = '"65:C:\Windows\system32\CertSrv\CertEnroll\%3%8%9.crl\n79:ldap:///CN=%7%8,CN=%2,CN=CDP,CN=Public Key Services,CN=Services,%6%10\n6:http://{0}/CertEnroll/%3%8%9.crl\n65:\\{1}\CertEnroll\%3%8%9.crl"' -f $PkiServer, ('{0}.{1}' -f $env:COMPUTERNAME, $env:USERDNSDOMAIN)
             [String]$cmd = "certutil -setreg CA\CRLPublicationURLs $($Locations)"
             Invoke-Expression -Command $cmd
 
@@ -259,7 +255,7 @@ LoadDefaultTemplates=0
 
         } # End Try-Catch-Finally
 
-<#
+        <#
         ###############################################################################
         #Install Edge
         $ProgressPreference='SilentlyContinue' #for faster download
@@ -339,7 +335,7 @@ LoadDefaultTemplates=0
         # Nest Groups - Security for RODC
         # Avoid having privileged or semi-privileged groups copy to RODC
 
-        Add-AdGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SG_PkiAdmins, $SG_PkiTemplAdmins, $SL_PkiRight, $SL_PkiTemplRight
+        Add-ADGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SG_PkiAdmins, $SG_PkiTemplAdmins, $SL_PkiRight, $SL_PkiTemplRight
 
 
         ###############################################################################
@@ -433,7 +429,7 @@ RemovedProperties                    : {}
 ModifiedProperties                   : {}
 PropertyCount                        : 45
         #>
-        $DisplayName="RemoteDesktopAuthentication"
+        $DisplayName = 'RemoteDesktopAuthentication'
         $TemplateOtherAttributes = @{
             'Name'                                 = [System.String]$DisplayName
             'description'                          = [System.String]'SSL Certificate used to secure RDP connections.'
@@ -453,25 +449,25 @@ PropertyCount                        : 45
             'pKICriticalExtensions'                = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('2.5.29.15')
             'pKIDefaultCSPs'                       = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('3,Microsoft Smart Card Key Storage Provider, 2,Microsoft Platform Crypto Provider, 1,Microsoft Software Key Storage Provider')
             'pKIDefaultKeySpec'                    = [System.Int32]'1'
-            'pKIExpirationPeriod'                  = [System.Byte[]]@('0','128','114','14','93','194','253','255')
+            'pKIExpirationPeriod'                  = [System.Byte[]]@('0', '128', '114', '14', '93', '194', '253', '255')
             'pKIExtendedKeyUsage'                  = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.54.1.2')
-            'pKIKeyUsage'                          = [System.Byte[]]@('160','0')
+            'pKIKeyUsage'                          = [System.Byte[]]@('160', '0')
             'pKIMaxIssuingDepth'                   = [System.Int32]'0'
-            'pKIOverlapPeriod'                     = [System.Byte[]]@('0','128','166','10','255','222','255','255')
+            'pKIOverlapPeriod'                     = [System.Byte[]]@('0', '128', '166', '10', '255', '222', '255', '255')
         }
         New-Template -DisplayName $DisplayName -TemplateOtherAttributes $TemplateOtherAttributes
 
         #Publish  Template
-        Publish-CertificateTemplate -CertDisplayName  $DisplayName
+        Publish-CertificateTemplate -CertDisplayName $DisplayName
 
-        $DisplayName="WindowsAdminCenter"
+        $DisplayName = 'WindowsAdminCenter'
         $TemplateOtherAttributes = @{
             'Name'                                 = [System.String]$DisplayName
             'ObjectClass'                          = [System.String]'pKICertificateTemplate'
             'flags'                                = [System.Int32]'131649'
             'revision'                             = [System.Int32]'101'
-            "msPKI-Cert-Template-OID"              = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.21.8.2144245.16492515.9915066.5498192.1427428.109.11631727.2421588')
-            'msPKI-Certificate-Application-Policy' = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.2','1.3.6.1.5.5.7.3.1')
+            'msPKI-Cert-Template-OID'              = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.21.8.2144245.16492515.9915066.5498192.1427428.109.11631727.2421588')
+            'msPKI-Certificate-Application-Policy' = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.2', '1.3.6.1.5.5.7.3.1')
             'msPKI-Certificate-Name-Flag'          = [System.Int32]'1249902592'
             'msPKI-Enrollment-Flag'                = [System.Int32]'40'
             'msPKI-Minimal-Key-Size'               = [System.Int32]'2048'
@@ -481,26 +477,26 @@ PropertyCount                        : 45
             'msPKI-Template-Minor-Revision'        = [System.Int32]'1'
             'msPKI-Template-Schema-Version'        = [System.Int32]'4'
             'pKICriticalExtensions'                = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('2.5.29.15')
-            'pKIDefaultCSPs'                       = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1,Microsoft RSA SChannel Cryptographic Provider','2,Microsoft DH SChannel Cryptographic Provider')
+            'pKIDefaultCSPs'                       = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1,Microsoft RSA SChannel Cryptographic Provider', '2,Microsoft DH SChannel Cryptographic Provider')
             'pKIDefaultKeySpec'                    = [System.Int32]'1'
-            'pKIExpirationPeriod'                  = [System.Byte[]]@('0','128','114','14','93','194','253','255')
-            'pKIExtendedKeyUsage'                  = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.1','1.3.6.1.5.5.7.3.2')
-            'pKIKeyUsage'                          = [System.Byte[]]@('160','0')
+            'pKIExpirationPeriod'                  = [System.Byte[]]@('0', '128', '114', '14', '93', '194', '253', '255')
+            'pKIExtendedKeyUsage'                  = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.1', '1.3.6.1.5.5.7.3.2')
+            'pKIKeyUsage'                          = [System.Byte[]]@('160', '0')
             'pKIMaxIssuingDepth'                   = [System.Int32]'0'
-            'pKIOverlapPeriod'                     = [System.Byte[]]@('0','128','166','10','255','222','255','255')
+            'pKIOverlapPeriod'                     = [System.Byte[]]@('0', '128', '166', '10', '255', '222', '255', '255')
         }
         New-Template -DisplayName $DisplayName -TemplateOtherAttributes $TemplateOtherAttributes
 
         #Publish  Template
-        Publish-CertificateTemplate -CertDisplayName  $DisplayName
+        Publish-CertificateTemplate -CertDisplayName $DisplayName
 
-        $DisplayName="WinRM"
+        $DisplayName = 'WinRM'
         $TemplateOtherAttributes = @{
             'Name'                                 = [System.String]$DisplayName
             'ObjectClass'                          = [System.String]'pKICertificateTemplate'
             'flags'                                = [System.Int32]'131649'
             'revision'                             = [System.Int32]'100'
-            "msPKI-Cert-Template-OID"              = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.21.8.13605061.7836627.5522072.972782.1389733.240.12298286.5997517')
+            'msPKI-Cert-Template-OID'              = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.21.8.13605061.7836627.5522072.972782.1389733.240.12298286.5997517')
             'msPKI-Certificate-Application-Policy' = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.1')
             'msPKI-Certificate-Name-Flag'          = [System.Int32]'1249902592'
             'msPKI-Enrollment-Flag'                = [System.Int32]'40'
@@ -513,24 +509,24 @@ PropertyCount                        : 45
             'pKICriticalExtensions'                = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('2.5.29.15')
             'pKIDefaultCSPs'                       = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('3,Microsoft Smart Card Key Storage Provider, 2,Microsoft Platform Crypto Provider, 1,Microsoft Software Key Storage Provider')
             'pKIDefaultKeySpec'                    = [System.Int32]'1'
-            'pKIExpirationPeriod'                  = [System.Byte[]]@('0','128','114','14','93','194','253','255')
+            'pKIExpirationPeriod'                  = [System.Byte[]]@('0', '128', '114', '14', '93', '194', '253', '255')
             'pKIExtendedKeyUsage'                  = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.1')
-            'pKIKeyUsage'                          = [System.Byte[]]@('160','0')
+            'pKIKeyUsage'                          = [System.Byte[]]@('160', '0')
             'pKIMaxIssuingDepth'                   = [System.Int32]'0'
-            'pKIOverlapPeriod'                     = [System.Byte[]]@('0','128','166','10','255','222','255','255')
+            'pKIOverlapPeriod'                     = [System.Byte[]]@('0', '128', '166', '10', '255', '222', '255', '255')
         }
         New-Template -DisplayName $DisplayName -TemplateOtherAttributes $TemplateOtherAttributes
 
         #Publish  Template
-        Publish-CertificateTemplate -CertDisplayName  $DisplayName
+        Publish-CertificateTemplate -CertDisplayName $DisplayName
 
-        $DisplayName="Web Server V2"
+        $DisplayName = 'Web Server V2'
         $TemplateOtherAttributes = @{
             'Name'                                 = [System.String]$DisplayName
             'ObjectClass'                          = [System.String]'pKICertificateTemplate'
             'flags'                                = [System.Int32]'131649'
             'revision'                             = [System.Int32]'100'
-            "msPKI-Cert-Template-OID"              = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.21.8.14549150.3855793.16599969.611048.427463.215.10855872.15895385')
+            'msPKI-Cert-Template-OID'              = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.4.1.311.21.8.14549150.3855793.16599969.611048.427463.215.10855872.15895385')
             'msPKI-Certificate-Application-Policy' = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.1')
             'msPKI-Certificate-Name-Flag'          = [System.Int32]'-1971322880'
             'msPKI-Enrollment-Flag'                = [System.Int32]'40'
@@ -543,18 +539,18 @@ PropertyCount                        : 45
             'pKICriticalExtensions'                = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('2.5.29.15')
             'pKIDefaultCSPs'                       = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('3,Microsoft Platform Crypto Provider, 2,Microsoft Smart Card Key Storage Provider, 1,Microsoft Software Key Storage Provider')
             'pKIDefaultKeySpec'                    = [System.Int32]'1'
-            'pKIExpirationPeriod'                  = [System.Byte[]]@('0','128','114','14','93','194','253','255')
+            'pKIExpirationPeriod'                  = [System.Byte[]]@('0', '128', '114', '14', '93', '194', '253', '255')
             'pKIExtendedKeyUsage'                  = [Microsoft.ActiveDirectory.Management.ADPropertyValueCollection]@('1.3.6.1.5.5.7.3.1')
             'pKIKeyUsage'                          = [System.Byte[]]@('160')
             'pKIMaxIssuingDepth'                   = [System.Int32]'0'
-            'pKIOverlapPeriod'                     = [System.Byte[]]@('0','128','166','10','255','222','255','255')
+            'pKIOverlapPeriod'                     = [System.Byte[]]@('0', '128', '166', '10', '255', '222', '255', '255')
         }
         New-Template -DisplayName $DisplayName -TemplateOtherAttributes $TemplateOtherAttributes
 
         #Publish  Template
-        Publish-CertificateTemplate -CertDisplayName  $DisplayName
+        Publish-CertificateTemplate -CertDisplayName $DisplayName
 
-<#
+        <#
 
 $GatewayServerName="Wac1"
 $TemplateName = "WindowsAdminCenter"
