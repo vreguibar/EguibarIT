@@ -52,7 +52,7 @@ Function New-ExchangeObject {
         Import-Module -name ServerManager        -Verbose:$false
         Import-Module -name ActiveDirectory      -Verbose:$false
         Import-Module -name GroupPolicy          -Verbose:$false
-        Import-Module -name EguibarIT.Delegation -Verbose:$false
+        Import-Module -name EguibarIT.DelegationPS -Verbose:$false
 
         ################################################################################
         #region Declarations

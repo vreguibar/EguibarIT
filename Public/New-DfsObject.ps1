@@ -16,7 +16,7 @@
                 Add-AdGroupNesting                     | EguibarIT
                 Get-CurrentErrorToDisplay              | EguibarIT
                 New-AdDelegatedGroup                   | EguibarIT
-                Set-AdAclFullControlDFS                | EguibarIT.Delegation
+                Set-AdAclFullControlDFS                | EguibarIT.DelegationPS
                 Add-ADFineGrainedPasswordPolicySubject | ActiveDirectory
         .NOTES
             Version:         1.3
@@ -29,9 +29,9 @@
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     Param(
         # PARAM1 full path to the configuration.xml file
-        [Parameter(Mandatory=$true, ValueFromPipeline=$True, ValueFromPipelineByPropertyName=$True, ValueFromRemainingArguments=$false,
-            HelpMessage='Full path to the configuration.xml file',
-            Position=0)]
+        [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+            HelpMessage = 'Full path to the configuration.xml file',
+            Position = 0)]
         [string]
         $ConfigXMLFile
     )
@@ -49,8 +49,8 @@
 
         ################################################################################
         # Initialisations
-        Import-Module -name ActiveDirectory      -Verbose:$false
-        Import-Module -name EguibarIT.Delegation -Verbose:$false
+        Import-Module -Name ActiveDirectory -Verbose:$false
+        Import-Module -Name EguibarIT.DelegationPS -Verbose:$false
 
         ################################################################################
         #region Declarations
@@ -58,26 +58,27 @@
 
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML)) {
+            If (-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile'])
-                {
+                If (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
-        } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0] 
+        }
 
 
 
         # Naming conventions hashtable
-        $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
-                'sg'    = $confXML.n.NC.GlobalGroupPreffix;
-                'su'    = $confXML.n.NC.UniversalGroupPreffix;
-                'Delim' = $confXML.n.NC.Delimiter;
-                'T0'    = $confXML.n.NC.AdminAccSufix0;
-                'T1'    = $confXML.n.NC.AdminAccSufix1;
-                'T2'    = $confXML.n.NC.AdminAccSufix2
+        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix
+            'sg'     = $confXML.n.NC.GlobalGroupPreffix
+            'su'     = $confXML.n.NC.UniversalGroupPreffix
+            'Delim'  = $confXML.n.NC.Delimiter
+            'T0'     = $confXML.n.NC.AdminAccSufix0
+            'T1'     = $confXML.n.NC.AdminAccSufix1
+            'T2'     = $confXML.n.NC.AdminAccSufix2
         }
 
         #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM, $NC['T0'])
@@ -101,17 +102,17 @@
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-        $Splat    = [Hashtable]::New()
+        $Splat = [Hashtable]::New()
 
         #endregion Declarations
         ################################################################################
     }
     Process {
         # Check if feature is installed, if not then proceed to install it.
-        If(-not((Get-WindowsFeature -Name FS-DFS-Namespace).Installed)) {
+        If (-not((Get-WindowsFeature -Name FS-DFS-Namespace).Installed)) {
             Install-WindowsFeature -Name FS-DFS-Namespace -IncludeAllSubFeature
         }
-        If(-not((Get-WindowsFeature -Name FS-DFS-Replication).Installed)) {
+        If (-not((Get-WindowsFeature -Name FS-DFS-Replication).Installed)) {
             Install-WindowsFeature -Name FS-DFS-Replication -IncludeAllSubFeature
         }
 
@@ -153,7 +154,7 @@
         # Nest Groups - Security for RODC
         # Avoid having privileged or semi-privileged groups copy to RODC
 
-        Add-AdGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SG_DfsAdmins, $SL_DfsRight
+        Add-ADGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SG_DfsAdmins, $SL_DfsRight
 
 
         ###############################################################################

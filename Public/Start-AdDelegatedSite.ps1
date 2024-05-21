@@ -31,30 +31,30 @@ function Start-AdDelegateSite {
             Used Functions:
                 Name                                   | Module
                 ---------------------------------------|--------------------------
-                Set-AdAclResetUserPassword             | EguibarIT.Delegation
-                Set-AdAclChangeUserPassword            | EguibarIT.Delegation
-                Set-AdAclUnlockUser                    | EguibarIT.Delegation
-                Set-AdAclCreateDeleteUser              | EguibarIT.Delegation
-                Set-AdAclEnableDisableUser             | EguibarIT.Delegation
-                Set-AdAclUserAccountRestriction        | EguibarIT.Delegation
-                Set-AdAclUserLogonInfo                 | EguibarIT.Delegation
-                Set-AdAclUserGroupMembership           | EguibarIT.Delegation
-                Set-AdAclUserPersonalInfo              | EguibarIT.Delegation
-                Set-AdAclUserPublicInfo                | EguibarIT.Delegation
-                Set-AdAclUserGeneralInfo               | EguibarIT.Delegation
-                Set-AdAclUserWebInfo                   | EguibarIT.Delegation
-                Set-AdAclUserEmailInfo                 | EguibarIT.Delegation
+                Set-AdAclResetUserPassword             | EguibarIT.DelegationPS
+                Set-AdAclChangeUserPassword            | EguibarIT.DelegationPS
+                Set-AdAclUnlockUser                    | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteUser              | EguibarIT.DelegationPS
+                Set-AdAclEnableDisableUser             | EguibarIT.DelegationPS
+                Set-AdAclUserAccountRestriction        | EguibarIT.DelegationPS
+                Set-AdAclUserLogonInfo                 | EguibarIT.DelegationPS
+                Set-AdAclUserGroupMembership           | EguibarIT.DelegationPS
+                Set-AdAclUserPersonalInfo              | EguibarIT.DelegationPS
+                Set-AdAclUserPublicInfo                | EguibarIT.DelegationPS
+                Set-AdAclUserGeneralInfo               | EguibarIT.DelegationPS
+                Set-AdAclUserWebInfo                   | EguibarIT.DelegationPS
+                Set-AdAclUserEmailInfo                 | EguibarIT.DelegationPS
                 Set-AdAclDelegateComputerAdmin         | EguibarIT
-                Set-DeleteOnlyComputer                 | EguibarIT.Delegation
-                Set-AdAclComputerPersonalInfo          | EguibarIT.Delegation
-                Set-AdAclComputerPublicInfo            | EguibarIT.Delegation
-                Set-AdAclCreateDeleteGroup             | EguibarIT.Delegation
-                Set-AdAclChangeGroup                   | EguibarIT.Delegation
-                Set-AdAclCreateDeletePrintQueue        | EguibarIT.Delegation
-                Set-AdAclChangePrintQueue              | EguibarIT.Delegation
-                Set-AdAclCreateDeleteVolume            | EguibarIT.Delegation
-                Set-AdAclChangeVolume                  | EguibarIT.Delegation
-                Set-AdAclCreateDeleteContact           | EguibarIT.Delegation
+                Set-DeleteOnlyComputer                 | EguibarIT.DelegationPS
+                Set-AdAclComputerPersonalInfo          | EguibarIT.DelegationPS
+                Set-AdAclComputerPublicInfo            | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteGroup             | EguibarIT.DelegationPS
+                Set-AdAclChangeGroup                   | EguibarIT.DelegationPS
+                Set-AdAclCreateDeletePrintQueue        | EguibarIT.DelegationPS
+                Set-AdAclChangePrintQueue              | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteVolume            | EguibarIT.DelegationPS
+                Set-AdAclChangeVolume                  | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteContact           | EguibarIT.DelegationPS
         .NOTES
             Version:         1.3
             DateModified:    12/Feb/2019
@@ -124,7 +124,7 @@ function Start-AdDelegateSite {
                 } #end if
             } #end if
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0] 
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
         }
 
 

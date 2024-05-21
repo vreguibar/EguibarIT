@@ -74,43 +74,43 @@ function New-CentralItOu {
                 New-DelegateAdOU                       | EguibarIT
                 Set-AdAclDelegateUserAdmin             | EguibarIT
                 Set-AdAclDelegateGalAdmin              | EguibarIT
-                Remove-Everyone                        | EguibarIT.Delegation
-                Remove-PreWin2000                      | EguibarIT.Delegation
-                Set-AdAclChangeGroup                   | EguibarIT.Delegation
-                Set-AdAclChangeOU                      | EguibarIT.Delegation
-                Set-AdAclChangeSite                    | EguibarIT.Delegation
-                Set-AdAclChangeSiteLink                | EguibarIT.Delegation
-                Set-AdAclChangeSubnet                  | EguibarIT.Delegation
-                Set-AdAclChangeUserPassword            | EguibarIT.Delegation
-                Set-AdAclComputerPersonalInfo          | EguibarIT.Delegation
-                Set-AdAclComputerPublicInfo            | EguibarIT.Delegation
-                Set-AdAclCreateDeleteComputer          | EguibarIT.Delegation
-                Set-AdAclCreateDeleteContact           | EguibarIT.Delegation
-                Set-AdAclCreateDeleteGMSA              | EguibarIT.Delegation
-                Set-AdAclCreateDeleteGPO               | EguibarIT.Delegation
-                Set-AdAclCreateDeleteGroup             | EguibarIT.Delegation
-                Set-AdAclCreateDeleteMSA               | EguibarIT.Delegation
-                Set-AdAclCreateDeleteOU                | EguibarIT.Delegation
-                Set-AdAclCreateDeleteOU                | EguibarIT.Delegation
-                Set-AdAclCreateDeletePrintQueue        | EguibarIT.Delegation
-                Set-AdAclCreateDeleteSite              | EguibarIT.Delegation
-                Set-AdAclCreateDeleteSiteLink          | EguibarIT.Delegation
-                Set-AdAclCreateDeleteSubnet            | EguibarIT.Delegation
-                Set-AdAclCreateDeleteUser              | EguibarIT.Delegation
-                Set-AdAclCreateDeleteUser              | EguibarIT.Delegation
-                Set-AdAclGPoption                      | EguibarIT.Delegation
-                Set-AdAclLinkGPO                       | EguibarIT.Delegation
-                Set-AdAclMngPrivilegedAccounts         | EguibarIT.Delegation
-                Set-AdAclMngPrivilegedGroups           | EguibarIT.Delegation
-                Set-AdAclResetUserPassword             | EguibarIT.Delegation
-                Set-AdAclUserAccountRestriction        | EguibarIT.Delegation
-                Set-AdAclUserGroupMembership           | EguibarIT.Delegation
-                Set-AdAclUserLogonInfo                 | EguibarIT.Delegation
-                Set-AdDirectoryReplication             | EguibarIT.Delegation
-                Set-AdInheritance                      | EguibarIT.Delegation
-                Set-CreateDeleteInetOrgPerson          | EguibarIT.Delegation
-                Set-DeleteOnlyComputer                 | EguibarIT.Delegation
-                Set-GpoPrivilegeRights                 | EguibarIT.Delegation
+                Remove-Everyone                        | EguibarIT.DelegationPS
+                Remove-PreWin2000                      | EguibarIT.DelegationPS
+                Set-AdAclChangeGroup                   | EguibarIT.DelegationPS
+                Set-AdAclChangeOU                      | EguibarIT.DelegationPS
+                Set-AdAclChangeSite                    | EguibarIT.DelegationPS
+                Set-AdAclChangeSiteLink                | EguibarIT.DelegationPS
+                Set-AdAclChangeSubnet                  | EguibarIT.DelegationPS
+                Set-AdAclChangeUserPassword            | EguibarIT.DelegationPS
+                Set-AdAclComputerPersonalInfo          | EguibarIT.DelegationPS
+                Set-AdAclComputerPublicInfo            | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteComputer          | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteContact           | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteGMSA              | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteGPO               | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteGroup             | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteMSA               | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteOU                | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteOU                | EguibarIT.DelegationPS
+                Set-AdAclCreateDeletePrintQueue        | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteSite              | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteSiteLink          | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteSubnet            | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteUser              | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteUser              | EguibarIT.DelegationPS
+                Set-AdAclGPoption                      | EguibarIT.DelegationPS
+                Set-AdAclLinkGPO                       | EguibarIT.DelegationPS
+                Set-AdAclMngPrivilegedAccounts         | EguibarIT.DelegationPS
+                Set-AdAclMngPrivilegedGroups           | EguibarIT.DelegationPS
+                Set-AdAclResetUserPassword             | EguibarIT.DelegationPS
+                Set-AdAclUserAccountRestriction        | EguibarIT.DelegationPS
+                Set-AdAclUserGroupMembership           | EguibarIT.DelegationPS
+                Set-AdAclUserLogonInfo                 | EguibarIT.DelegationPS
+                Set-AdDirectoryReplication             | EguibarIT.DelegationPS
+                Set-AdInheritance                      | EguibarIT.DelegationPS
+                Set-CreateDeleteInetOrgPerson          | EguibarIT.DelegationPS
+                Set-DeleteOnlyComputer                 | EguibarIT.DelegationPS
+                Set-GpoPrivilegeRights                 | EguibarIT.DelegationPS
                 Add-ADFineGrainedPasswordPolicySubject | ActiveDirectory
                 Get-ADFineGrainedPasswordPolicy        | ActiveDirectory
                 Get-ADGroup                            | ActiveDirectory
@@ -213,7 +213,7 @@ function New-CentralItOu {
         Import-Module -Name ActiveDirectory -Verbose:$false
         Import-Module -Name GroupPolicy -Verbose:$false
         Import-Module -Name EguibarIT -Verbose:$false
-        Import-Module -Name EguibarIT.Delegation -Verbose:$false
+        Import-Module -Name EguibarIT.DelegationPS -Verbose:$false
 
         ################################################################################
         #region Declarations

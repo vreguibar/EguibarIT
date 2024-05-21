@@ -39,7 +39,7 @@
 
         ################################################################################
         # Initialisations
-        Import-Module -Name EguibarIT.Delegation -Verbose:$false
+        Import-Module -Name EguibarIT.DelegationPS -Verbose:$false
 
         #Get the OS Instalation Type
         $OsInstalationType = Get-ItemProperty -Path 'HKLM:Software\Microsoft\Windows NT\CurrentVersion' | Select-Object -ExpandProperty InstallationType

@@ -1,6 +1,5 @@
 # Group together all USER admin delegations
-function Set-AdAclDelegateUserAdmin
-{
+function Set-AdAclDelegateUserAdmin {
     <#
         .Synopsis
             Wrapper for all rights used for USER object container.
@@ -20,13 +19,13 @@ function Set-AdAclDelegateUserAdmin
             Used Functions:
                 Name                                   | Module
                 ---------------------------------------|--------------------------
-                Set-AdAclCreateDeleteUser              | EguibarIT.Delegation
-                Set-AdAclResetUserPassword             | EguibarIT.Delegation
-                Set-AdAclChangeUserPassword            | EguibarIT.Delegation
-                Set-AdAclEnableDisableUser             | EguibarIT.Delegation
-                Set-AdAclUnlockUser                    | EguibarIT.Delegation
-                Set-AdAclUserAccountRestriction        | EguibarIT.Delegation
-                Set-AdAclUserLogonInfo                 | EguibarIT.Delegation
+                Set-AdAclCreateDeleteUser              | EguibarIT.DelegationPS
+                Set-AdAclResetUserPassword             | EguibarIT.DelegationPS
+                Set-AdAclChangeUserPassword            | EguibarIT.DelegationPS
+                Set-AdAclEnableDisableUser             | EguibarIT.DelegationPS
+                Set-AdAclUnlockUser                    | EguibarIT.DelegationPS
+                Set-AdAclUserAccountRestriction        | EguibarIT.DelegationPS
+                Set-AdAclUserLogonInfo                 | EguibarIT.DelegationPS
                 Get-CurrentErrorToDisplay              | EguibarIT
                 Get-FunctionDisplay                    | EguibarIT
         .NOTES
@@ -86,12 +85,12 @@ function Set-AdAclDelegateUserAdmin
     Process {
         try {
             # Check if RemoveRule switch is present.
-            If($PSBoundParameters['RemoveRule']) {
+            If ($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
                 $Splat.Add('RemoveRule', $true)
             }
 
-            if ($Force -or $PSCmdlet.ShouldProcess("Proceed with delegations?")) {
+            if ($Force -or $PSCmdlet.ShouldProcess('Proceed with delegations?')) {
                 # Create/Delete Users
                 Set-AdAclCreateDeleteUser @Splat
 

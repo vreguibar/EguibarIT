@@ -40,7 +40,7 @@
                 Start-AdDelegateSite                   | EguibarIT
                 Start-AdCleanOU                        | EguibarIT
                 Set-AdAclLaps                          | EguibarIT
-                Set-GpoPrivilegeRights                 | EguibarIT.Delegation
+                Set-GpoPrivilegeRights                 | EguibarIT.DelegationPS
                 Get-ADGroup                            | ActiveDirectory
                 Get-AdOrganizationalUnit               | ActiveDirectory
                 Import-GPO                             | GroupPolicy
@@ -232,10 +232,10 @@
         # Variables Definition
 
 
-        Import-Module -name ServerManager        -Verbose:$false
-        Import-Module -name ActiveDirectory      -Verbose:$false
-        Import-Module -name GroupPolicy          -Verbose:$false
-        Import-Module -name EguibarIT.Delegation -Verbose:$false
+        Import-Module -name ServerManager          -Verbose:$false
+        Import-Module -name ActiveDirectory        -Verbose:$false
+        Import-Module -name GroupPolicy            -Verbose:$false
+        Import-Module -name EguibarIT.DelegationPS -Verbose:$false
 
         #------------------------------------------------------------------------------
         # Define the variables

@@ -63,8 +63,8 @@
             Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
         } #end If
 
-        if (-not (Get-Module -Name 'EguibarIT.Delegation' -ListAvailable)) {
-            Import-Module -Name 'EguibarIT.Delegation' -Force -Verbose:$false
+        if (-not (Get-Module -Name 'EguibarIT.DelegationPS' -ListAvailable)) {
+            Import-Module -Name 'EguibarIT.DelegationPS' -Force -Verbose:$false
         } #end If
 
         ################################################################################
@@ -205,7 +205,7 @@
             try {
                 New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0] 
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
             }
         } else {
             $Splat = @{

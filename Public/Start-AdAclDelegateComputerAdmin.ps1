@@ -19,16 +19,16 @@ function Set-AdAclDelegateComputerAdmin {
             Used Functions:
                 Name                                   | Module
                 ---------------------------------------|--------------------------
-                Set-AdAclCreateDeleteComputer          | EguibarIT.Delegation
-                Set-AdAclResetComputerPassword         | EguibarIT.Delegation
-                Set-AdAclChangeComputerPassword        | EguibarIT.Delegation
-                Set-AdAclValidateWriteDnsHostName      | EguibarIT.Delegation
-                Set-AdAclValidateWriteSPN              | EguibarIT.Delegation
-                Set-AdAclComputerAccountRestriction    | EguibarIT.Delegation
-                Set-AdAclDnsInfo                       | EguibarIT.Delegation
-                Set-AdAclMsTsGatewayInfo               | EguibarIT.Delegation
-                Set-AdAclBitLockerTPM                  | EguibarIT.Delegation
-                Set-DeleteOnlyComputer                 | EguibarIT.Delegation
+                Set-AdAclCreateDeleteComputer          | EguibarIT.DelegationPS
+                Set-AdAclResetComputerPassword         | EguibarIT.DelegationPS
+                Set-AdAclChangeComputerPassword        | EguibarIT.DelegationPS
+                Set-AdAclValidateWriteDnsHostName      | EguibarIT.DelegationPS
+                Set-AdAclValidateWriteSPN              | EguibarIT.DelegationPS
+                Set-AdAclComputerAccountRestriction    | EguibarIT.DelegationPS
+                Set-AdAclDnsInfo                       | EguibarIT.DelegationPS
+                Set-AdAclMsTsGatewayInfo               | EguibarIT.DelegationPS
+                Set-AdAclBitLockerTPM                  | EguibarIT.DelegationPS
+                Set-DeleteOnlyComputer                 | EguibarIT.DelegationPS
                 Set-AdAclLaps                          | EguibarIT
                 Get-CurrentErrorToDisplay              | EguibarIT
                 Get-FunctionDisplay                    | EguibarIT

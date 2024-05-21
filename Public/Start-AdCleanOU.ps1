@@ -25,18 +25,18 @@ function Start-AdCleanOU {
             Used Functions:
                 Name                                   | Module
                 ---------------------------------------|--------------------------
-                Set-AdAclCreateDeleteUser              | EguibarIT.Delegation
-                Set-AdAclCreateDeleteComputer          | EguibarIT.Delegation
-                Set-AdAclCreateDeleteGroup             | EguibarIT.Delegation
-                Set-AdAclCreateDeleteContact           | EguibarIT.Delegation
-                Set-CreateDeleteInetOrgPerson          | EguibarIT.Delegation
-                Set-AdAclCreateDeletePrintQueue        | EguibarIT.Delegation
-                Remove-PreWin2000                      | EguibarIT.Delegation
-                Remove-PreWin2000FromOU                | EguibarIT.Delegation
-                Remove-AccountOperator                 | EguibarIT.Delegation
-                Remove-PrintOperator                   | EguibarIT.Delegation
-                Remove-AuthUser                        | EguibarIT.Delegation
-                Remove-UnknownSID                      | EguibarIT.Delegation
+                Set-AdAclCreateDeleteUser              | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteComputer          | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteGroup             | EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteContact           | EguibarIT.DelegationPS
+                Set-CreateDeleteInetOrgPerson          | EguibarIT.DelegationPS
+                Set-AdAclCreateDeletePrintQueue        | EguibarIT.DelegationPS
+                Remove-PreWin2000                      | EguibarIT.DelegationPS
+                Remove-PreWin2000FromOU                | EguibarIT.DelegationPS
+                Remove-AccountOperator                 | EguibarIT.DelegationPS
+                Remove-PrintOperator                   | EguibarIT.DelegationPS
+                Remove-AuthUser                        | EguibarIT.DelegationPS
+                Remove-UnknownSID                      | EguibarIT.DelegationPS
                 Get-CurrentErrorToDisplay              | EguibarIT
                 Get-FunctionDisplay                    | EguibarIT
         .NOTES
@@ -52,7 +52,7 @@ function Start-AdCleanOU {
         #PARAM1 Distinguished name of the OU to be cleaned
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Distinguished name of the OU to be cleaned.',
-        Position = 0)]
+            Position = 0)]
         [ValidateNotNullOrEmpty()]
         [validateScript({ Test-IsValidDN -ObjectDN $_ })]
         [String]
@@ -61,14 +61,14 @@ function Start-AdCleanOU {
         #PARAM2 Remove Authenticated Users
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Remove Authenticated Users.',
-        Position = 1)]
+            Position = 1)]
         [switch]
         $RemoveAuthenticatedUsers,
 
         #PARAM3 Remove Unknown SIDs
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Remove Unknown SIDs.',
-        Position = 2)]
+            Position = 2)]
         [switch]
         $RemoveUnknownSIDs
     )
@@ -93,7 +93,7 @@ function Start-AdCleanOU {
 
     process {
         Try {
-            if ($Force -or $PSCmdlet.ShouldProcess("Proceed with delegations?")) {
+            if ($Force -or $PSCmdlet.ShouldProcess('Proceed with delegations?')) {
                 # Remove the Account Operators group from ACL to Create/Delete Users
                 Set-AdAclCreateDeleteUser @Splat
 
@@ -124,14 +124,14 @@ function Start-AdCleanOU {
                 # Remove PRINT OPERATORS 2000 Access group from OU
                 Remove-PrintOperator -LDAPPath $PSBoundParameters['LDAPPath']
 
-                If($PsBoundParameters['RemoveAuthenticatedUsers']) {
+                If ($PsBoundParameters['RemoveAuthenticatedUsers']) {
                     # Remove AUTHENTICATED USERS group from OU
                     Remove-AuthUser -LDAPPath $PSBoundParameters['LDAPPath']
 
                     Write-Verbose -Message 'Removing Authenticated Users'
                 }  #end If
 
-                If($PsBoundParameters['$RemoveUnknownSIDs']) {
+                If ($PsBoundParameters['$RemoveUnknownSIDs']) {
                     # Remove Un-Resolvable SID from a given object
                     Remove-UnknownSID -LDAPPath $PSBoundParameters['LDAPPath'] -RemoveSID
 

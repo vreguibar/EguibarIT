@@ -15,7 +15,7 @@ Function New-LAPSobject {
                 ---------------------------------------|--------------------------
                 Get-CurrentErrorToDisplay              | EguibarIT
                 Set-AdAclLaps                          | EguibarIT
-                Get-AttributeSchemaHashTable           | EguibarIT.Delegation
+                Get-AttributeSchemaHashTable           | EguibarIT.DelegationPS
                 Get-ADGroup                            | ActiveDirectory
                 Add-ADGroupMember                      | ActiveDirectory
                 Get-AdOrganizationalUnit               | ActiveDirectory
@@ -55,7 +55,7 @@ Function New-LAPSobject {
         # Initialisations
         Import-Module -Name ActiveDirectory -Verbose:$false
         Import-Module -Name EguibarIT -Verbose:$false
-        Import-Module -Name EguibarIT.Delegation -Verbose:$false
+        Import-Module -Name EguibarIT.DelegationPS -Verbose:$false
         Import-Module -Name AdmPwd.PS -Verbose:$false
         Import-Module -Name LAPS -Verbose:$false
 

@@ -21,10 +21,10 @@ function Set-AdAclLaps {
             Used Functions:
                 Name                                   | Module
                 ---------------------------------------|--------------------------
-                Set-AdmPwdComputerSelfPermission       | EguibarIT.Delegation
-                Set-AdmPwdReadPasswordPermission       | EguibarIT.Delegation
-                Set-AdmPwdResetPasswordPermission      | EguibarIT.Delegation
-                Get-AttributeSchemaHashTable           | EguibarIT.Delegation
+                Set-AdmPwdComputerSelfPermission       | EguibarIT.DelegationPS
+                Set-AdmPwdReadPasswordPermission       | EguibarIT.DelegationPS
+                Set-AdmPwdResetPasswordPermission      | EguibarIT.DelegationPS
+                Get-AttributeSchemaHashTable           | EguibarIT.DelegationPS
                 Get-CurrentErrorToDisplay              | EguibarIT
                 Get-FunctionDisplay                    | EguibarIT
                 Set-AdmPwdComputerSelfPermission       | AdmPwd.PS
@@ -109,8 +109,7 @@ function Set-AdAclLaps {
             Set-LapsADReadPasswordPermission -AllowedPrincipals $currentReadGroup.SID -Identity $LDAPpath
             Set-LapsADResetPasswordPermission -AllowedPrincipals $currentResetGroup.SID -Identity $LDAPpath
 
-        }
-        else {
+        } else {
             Write-Error -Message 'Not Implemented. Schema does not contains the requiered attributes.'
         }
     } #end Process

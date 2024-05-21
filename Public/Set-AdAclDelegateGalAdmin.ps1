@@ -1,6 +1,5 @@
 # Group together all USER admin delegations
-function Set-AdAclDelegateGalAdmin
-{
+function Set-AdAclDelegateGalAdmin {
     <#
         .Synopsis
             Wrapper for all rights used for GAL admin.
@@ -20,12 +19,12 @@ function Set-AdAclDelegateGalAdmin
             Used Functions:
                 Name                                   | Module
                 ---------------------------------------|--------------------------
-                Set-AdAclUserGroupMembership           | EguibarIT.Delegation
-                Set-AdAclUserPersonalInfo              | EguibarIT.Delegation
-                Set-AdAclUserPublicInfo                | EguibarIT.Delegation
-                Set-AdAclUserGeneralInfo               | EguibarIT.Delegation
-                Set-AdAclUserWebInfo                   | EguibarIT.Delegation
-                Set-AdAclUserEmailInfo                 | EguibarIT.Delegation
+                Set-AdAclUserGroupMembership           | EguibarIT.DelegationPS
+                Set-AdAclUserPersonalInfo              | EguibarIT.DelegationPS
+                Set-AdAclUserPublicInfo                | EguibarIT.DelegationPS
+                Set-AdAclUserGeneralInfo               | EguibarIT.DelegationPS
+                Set-AdAclUserWebInfo                   | EguibarIT.DelegationPS
+                Set-AdAclUserEmailInfo                 | EguibarIT.DelegationPS
                 Get-CurrentErrorToDisplay              | EguibarIT
                 Get-FunctionDisplay                    | EguibarIT
         .NOTES
@@ -86,12 +85,12 @@ function Set-AdAclDelegateGalAdmin
     Process {
         try {
             # Check if RemoveRule switch is present.
-            If($PSBoundParameters['RemoveRule']) {
+            If ($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
                 $Splat.Add('RemoveRule', $true)
             }
 
-            if ($Force -or $PSCmdlet.ShouldProcess("Proceed with delegations?")) {
+            if ($Force -or $PSCmdlet.ShouldProcess('Proceed with delegations?')) {
                 # Change Group Membership
                 Set-AdAclUserGroupMembership @Splat
 

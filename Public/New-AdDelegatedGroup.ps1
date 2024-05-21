@@ -47,10 +47,10 @@
             ---------------------------------------|--------------------------
             Get-CurrentErrorToDisplay              | EguibarIT
             Get-FunctionDisplay                    | EguibarIT
-            Remove-AccountOperator                 | EguibarIT.Delegation
-            Remove-Everyone                        | EguibarIT.Delegation
-            Remove-AuthUser                        | EguibarIT.Delegation
-            Remove-PreWin2000                      | EguibarIT.Delegation
+            Remove-AccountOperator                 | EguibarIT.DelegationPS
+            Remove-Everyone                        | EguibarIT.DelegationPS
+            Remove-AuthUser                        | EguibarIT.DelegationPS
+            Remove-PreWin2000                      | EguibarIT.DelegationPS
             Get-AdGroup                            | ActiveDirectory
             Move-ADObject                          | ActiveDirectory
             New-ADGroup                            | ActiveDirectory
@@ -166,8 +166,8 @@
             Import-Module -Name 'EguibarIT' -Force -Verbose:$false
         } #end If
 
-        if (-not (Get-Module -Name 'EguibarIT.Delegation' -ListAvailable)) {
-            Import-Module -Name 'EguibarIT.Delegation' -Force -Verbose:$false
+        if (-not (Get-Module -Name 'EguibarIT.DelegationPS' -ListAvailable)) {
+            Import-Module -Name 'EguibarIT.DelegationPS' -Force -Verbose:$false
         } #end If
 
         ##############################

@@ -139,7 +139,7 @@ function New-DelegateAdOU {
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
 
-        Import-MyModule -name 'EguibarIT.Delegation' -Verbose:$false
+        Import-MyModule -name 'EguibarIT.DelegationPS' -Verbose:$false
 
 
         ##############################
