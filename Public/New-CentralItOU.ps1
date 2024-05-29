@@ -235,12 +235,13 @@ function New-CentralItOu {
         ################################################################################
         # Initializations
 
+        Import-Module -Name ServerManager -Force -Verbose:$false
+        Import-Module -Name GroupPolicy -Force -Verbose:$false
+
         $AllModules = @(
             'ActiveDirectory',
             'EguibarIT',
-            'EguibarIT.DelegationPS',
-            'GroupPolicy',
-            'ServerManager'
+            'EguibarIT.DelegationPS'
         )
         foreach ($item in $AllModules) {
             Write-Verbose -Message ('Importing module {0}' -f $Item)
@@ -255,7 +256,7 @@ function New-CentralItOu {
                     # Import the module if it's not already imported
                     if (-not (Get-Module -Name $item -ErrorAction SilentlyContinue)) {
                         $Splat = @{
-                            Name        = $item
+                            ModuleInfo  = $module
                             ErrorAction = 'Stop'
                             Verbose     = $false
                         }
@@ -271,8 +272,23 @@ function New-CentralItOu {
                     }
                 }
             } catch {
-                Write-Error -Message ('Failed to import module {0}. Error: {1}' -f $item, $_)
-                Throw
+                # Special handling for ServerManager module
+                if ($item -eq 'ServerManager') {
+                    Write-Verbose -Message 'Attempting to import ServerManager module interactively'
+                    Start-Process powershell -ArgumentList '-Command Import-Module ServerManager' -Wait -NoNewWindow
+                } else {
+                    Write-Error -Message ('Failed to import module {0}. Error: {1}' -f $item, $_)
+                    Throw
+                }
+
+                # Special handling for GroupPolicy module
+                if ($item -eq 'GroupPolicy') {
+                    Write-Verbose -Message 'Attempting to import GroupPolicy module interactively'
+                    Start-Process powershell -ArgumentList '-Command Import-Module GroupPolicy' -Wait -NoNewWindow
+                } else {
+                    Write-Error -Message ('Failed to import module {0}. Error: {1}' -f $item, $_)
+                    Throw
+                }
             } #end Try-Catch
         } #end ForEach
 
