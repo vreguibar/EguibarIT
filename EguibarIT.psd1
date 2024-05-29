@@ -8,145 +8,139 @@
 
 @{
 
-# Script module or binary module file associated with this manifest.
-RootModule = 'EguibarIT.psm1'
+    # Script module or binary module file associated with this manifest.
+    RootModule        = 'EguibarIT.psm1'
 
-<<<<<<< HEAD
     # Version number of this module.
     ModuleVersion     = '1.56.109'
-    GUID              = '73548059-dfed-487e-9e47-f1a95ff90118'
-=======
-# Version number of this module.
-ModuleVersion = '1.56.109'
->>>>>>> fbedc9d82dc1026f95aed583c78bbea8f4ac2171
+    CompanyName       = 'EguibarIT'
 
-# Supported PSEditions
-# CompatiblePSEditions = @()
+    # Copyright statement for this module
+    Copyright         = 'All rights reserved (c) 2022 - EguibarIT'
 
-# ID used to uniquely identify this module
-GUID = '73548059-dfed-487e-9e47-f1a95ff90118'
+    # Description of the functionality provided by this module
+    Description       = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory.'
 
-# Author of this module
-Author = 'Vicente Rodriguez Eguibar'
+    # Minimum version of the PowerShell engine required by this module
+    PowerShellVersion = '5.1'
 
-# Company or vendor of this module
-CompanyName = 'EguibarIT'
+    # Name of the PowerShell host required by this module
+    # PowerShellHostName = ''
 
-# Copyright statement for this module
-Copyright = 'All rights reserved (c) 2022 - EguibarIT'
+    # Minimum version of the PowerShell host required by this module
+    # PowerShellHostVersion = ''
 
-# Description of the functionality provided by this module
-Description = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory.'
+    # Minimum version of Microsoft .NET Framework required by this module.
+    # This prerequisite is valid for the PowerShell Desktop edition only.
+    # DotNetFrameworkVersion = ''
 
-# Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '5.1'
+    # Minimum version of the common language runtime (CLR) required by this module.
+    # This prerequisite is valid for the PowerShell Desktop edition only.
+    # ClrVersion = ''
 
-# Name of the PowerShell host required by this module
-# PowerShellHostName = ''
+    # Processor architecture (None, X86, Amd64) required by this module
+    # ProcessorArchitecture = ''
 
-# Minimum version of the PowerShell host required by this module
-# PowerShellHostVersion = ''
+    # Modules that must be imported into the global environment prior to importing this module
+    # RequiredModules = @()
 
-# Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# DotNetFrameworkVersion = ''
+    # Assemblies that must be loaded prior to importing this module
+    # RequiredAssemblies = @()
 
-# Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# ClrVersion = ''
+    # Script files (.ps1) that are run in the caller's environment prior to importing this module.
+    # ScriptsToProcess = @()
 
-# Processor architecture (None, X86, Amd64) required by this module
-# ProcessorArchitecture = ''
+    # Type files (.ps1xml) to be loaded when importing this module
+    # TypesToProcess = @()
 
-# Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @()
+    # Format files (.ps1xml) to be loaded when importing this module
+    # FormatsToProcess = @()
 
-# Assemblies that must be loaded prior to importing this module
-# RequiredAssemblies = @()
+    # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
+    # NestedModules = @()
 
-# Script files (.ps1) that are run in the caller's environment prior to importing this module.
-# ScriptsToProcess = @()
+    # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry,
+    # use an empty array if there are no functions to export.
+    FunctionsToExport = 'Add-AdGroupNesting', 'ConvertTo-IntegerIPv4',
+    'ConvertTo-IPv4Integer', 'ConvertTo-IPv4MaskBit',
+    'ConvertTo-IPv4MaskString', 'ConvertTo-IPv4NetworkAddress',
+    'ConvertTo-WmiFilter', 'Get-AdSite', 'Get-AllAdSiteLink',
+    'Get-AllAdSubnet', 'Grant-NTFSPermission', 'Import-MyModule',
+    'New-AdDelegatedGroup', 'New-AGPMobject', 'New-AreaShareNTFS',
+    'New-CaObject', 'New-CentralItOU', 'New-DelegateAdGpo',
+    'New-DelegateAdOU', 'New-DelegateSiteOU', 'New-DfsObject',
+    'New-DhcpObject', 'New-EitAdSite', 'New-ExchangeObject',
+    'New-LapsObject', 'New-LocalLogonTask', 'New-TimePolicyGPO',
+    'New-WsusObjects', 'Revoke-Inheritance', 'Revoke-NTFSPermissions',
+    'Set-AdAclDelegateComputerAdmin', 'Set-AdAclDelegateGalAdmin',
+    'Set-AdAclDelegateUserAdmin', 'Set-AdAclLaps',
+    'Start-AdAclDelegateComputerAdmin', 'Start-AdCleanOU',
+    'Start-AdDelegatedSite', 'Test-IPv4MaskString', 'Test-RegistryValue'
 
-# Type files (.ps1xml) to be loaded when importing this module
-# TypesToProcess = @()
+    # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry,
+    # use an empty array if there are no cmdlets to export.
+    CmdletsToExport   = '*'
 
-# Format files (.ps1xml) to be loaded when importing this module
-# FormatsToProcess = @()
+    # Variables to export from this module
+    # VariablesToExport = @()
 
-# Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-# NestedModules = @()
+    # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry,
+    # use an empty array if there are no aliases to export.
+    AliasesToExport   = @()
 
-# Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Add-AdGroupNesting', 'ConvertTo-IntegerIPv4', 
-               'ConvertTo-IPv4Integer', 'ConvertTo-IPv4MaskBit', 
-               'ConvertTo-IPv4MaskString', 'ConvertTo-IPv4NetworkAddress', 
-               'ConvertTo-WmiFilter', 'Get-AdSite', 'Get-AllAdSiteLink', 
-               'Get-AllAdSubnet', 'Grant-NTFSPermission', 'Import-MyModule', 
-               'New-AdDelegatedGroup', 'New-AGPMobject', 'New-AreaShareNTFS', 
-               'New-CaObject', 'New-CentralItOU', 'New-DelegateAdGpo', 
-               'New-DelegateAdOU', 'New-DelegateSiteOU', 'New-DfsObject', 
-               'New-DhcpObject', 'New-EitAdSite', 'New-ExchangeObject', 
-               'New-LapsObject', 'New-LocalLogonTask', 'New-TimePolicyGPO', 
-               'New-WsusObjects', 'Revoke-Inheritance', 'Revoke-NTFSPermissions', 
-               'Set-AdAclDelegateComputerAdmin', 'Set-AdAclDelegateGalAdmin', 
-               'Set-AdAclDelegateUserAdmin', 'Set-AdAclLaps', 
-               'Start-AdAclDelegateComputerAdmin', 'Start-AdCleanOU', 
-               'Start-AdDelegatedSite', 'Test-IPv4MaskString', 'Test-RegistryValue'
+    # DSC resources to export from this module
+    # DscResourcesToExport = @()
 
-# Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = '*'
+    # List of all modules packaged with this module
+    # ModuleList = @()
 
-# Variables to export from this module
-# VariablesToExport = @()
+    # List of all files packaged with this module
+    # FileList = @()
 
-# Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @()
+    # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a
+    # PSData hashtable with additional module metadata used by PowerShell.
+    PrivateData       = @{
 
-# DSC resources to export from this module
-# DscResourcesToExport = @()
+        PSData = @{
 
-# List of all modules packaged with this module
-# ModuleList = @()
+            # Tags applied to this module. These help with module discovery in online galleries.
+            Tags                       = 'Windows', 'ActiveDirectory', 'ActiveDirectory_Delegation', 'ActiveDirectory_Security',
+            'AD_Security', 'Security', 'Delegation', 'AD_Delegation', 'DelegationModel', 'TierModel', 'RBACmodel',
+            'RoleBasedAccessControl_model', 'DelegationModel', 'TierModel', 'RBACmodel', 'Infrastructure', 'Testing',
+            'Checks', 'Audits', 'Checklist', 'Validation', 'CredentialTheaf', 'Pass-the-Hash', 'Pass-the-Ticket',
+            'Golden_Ticket', 'Silver_Ticket'
 
-# List of all files packaged with this module
-# FileList = @()
+            # A URL to the license for this module.
+            # LicenseUri = ''
 
-# Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
-PrivateData = @{
+            # A URL to the main website for this project.
+            ProjectUri                 = 'https://github.com/vreguibar/EguibarIT'
 
-    PSData = @{
+            # A URL to an icon representing this module.
+            IconUri                    = 'https://EguibarIT.com/wp-content/uploads/2017/09/LOGO_FondoBlanco.png'
 
-        # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Windows','ActiveDirectory','ActiveDirectory_Delegation','ActiveDirectory_Security','AD_Security','Security','Delegation','AD_Delegation','DelegationModel','TierModel','RBACmodel','RoleBasedAccessControl_model','DelegationModel','TierModel','RBACmodel','Infrastructure','Testing','Checks','Audits','Checklist','Validation','CredentialTheaf','Pass-the-Hash','Pass-the-Ticket','Golden_Ticket','Silver_Ticket'
+            # ReleaseNotes of this module
+            # ReleaseNotes = ''
 
-        # A URL to the license for this module.
-        # LicenseUri = ''
+            # Prerelease string of this module
+            # Prerelease = ''
 
-        # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/vreguibar/EguibarIT'
+            # Flag to indicate whether the module requires explicit user acceptance for install/update/save
+            # RequireLicenseAcceptance = $false
 
-        # A URL to an icon representing this module.
-        IconUri = 'https://EguibarIT.com/wp-content/uploads/2017/09/LOGO_FondoBlanco.png'
+            # External dependent modules of this module
+            ExternalModuleDependencies = @('ActiveDirectory', 'GroupPolicy', 'ServerManager', 'EguibarIT.DelegationPS')
 
-        # ReleaseNotes of this module
-        # ReleaseNotes = ''
+        } # End of PSData hashtable
 
-        # Prerelease string of this module
-        # Prerelease = ''
+    } # End of PrivateData hashtable
 
-        # Flag to indicate whether the module requires explicit user acceptance for install/update/save
-        # RequireLicenseAcceptance = $false
+    # HelpInfo URI of this module
+    HelpInfoURI       = 'https://eguibarit.eu/powershell/delegation-model-powershell-scripts/eguibarit-powershell-module/'
 
-        # External dependent modules of this module
-        ExternalModuleDependencies = @('ActiveDirectory','GroupPolicy','ServerManager','EguibarIT.DelegationPS')
+    # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
+    # DefaultCommandPrefix = ''
 
-    } # End of PSData hashtable
-
- } # End of PrivateData hashtable
-
-# HelpInfo URI of this module
-HelpInfoURI = 'https://eguibarit.eu/powershell/delegation-model-powershell-scripts/eguibarit-powershell-module/'
-
-# Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-# DefaultCommandPrefix = ''
-
+}
 }
 
