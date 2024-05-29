@@ -5,10 +5,16 @@
         "davidanson.vscode-markdownlint",
         "formulahendry.auto-rename-tag",
         "github.codespaces",
+        "github.remotehub",
+        "github.vscode-github-actions",
         "github.vscode-pull-request-github",
         "janisdd.vscode-edit-csv",
         "marvhen.reflow-markdown",
+        "meezilla.json",
         "ms-azure-devops.azure-pipelines",
+        "ms-azuretools.vscode-azureresourcegroups",
+        "ms-vscode.azure-account",
+        "ms-vscode.azure-repos",
         "ms-vscode.powershell",
         "ms-vscode.remote-repositories",
         "ms-vscode.vscode-typescript-tslint-plugin",
@@ -17,7 +23,9 @@
         "shuworks.vscode-table-formatter",
         "streetsidesoftware.code-spell-checker",
         "shuworks.vscode-table-formatter",
+        "tyriar.shell-launcher",
         "usernamehw.errorlens",
-        "wmaurer.change-case"
+        "wmaurer.change-case",
+        "zainchen.json"
     ]
 }
