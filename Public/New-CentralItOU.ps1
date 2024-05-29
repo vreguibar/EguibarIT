@@ -250,7 +250,7 @@ function New-CentralItOu {
                 $module = Get-Module -Name $item -ListAvailable -ErrorAction SilentlyContinue
 
                 if ($null -eq $module) {
-                    Write-Error "Module '$item' is not installed. Please install the module before importing."
+                    Write-Error -Message ('Module {0} is not installed. Please install the module before importing.' -f $item)
                 } else {
                     # Import the module if it's not already imported
                     if (-not (Get-Module -Name $item -ErrorAction SilentlyContinue)) {
@@ -265,13 +265,13 @@ function New-CentralItOu {
                         }
 
                         Import-Module @Splat
-                        Write-Verbose -Message "Successfully imported module $item"
+                        Write-Verbose -Message ('Successfully imported module {0}' -f $item)
                     } else {
-                        Write-Verbose -Message "Module $item is already imported."
+                        Write-Verbose -Message ('Module {0} is already imported.' -f $item)
                     }
                 }
             } catch {
-                Write-Error "Failed to import module $item. Error: $_"
+                Write-Error -Message ('Failed to import module {0}. Error: {1}' -f $item, $_)
                 Throw
             } #end Try-Catch
         } #end ForEach
