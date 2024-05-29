@@ -68,27 +68,6 @@
         # Schema Naming Context
         $Variables.SchemaNamingContext = ([ADSI]'LDAP://RootDSE').SchemaNamingContext.ToString()
 
-        # Well-Known SIDs
-        #. "$PSScriptRoot\Enum.WellKnownSids.ps1"
-        #Get-AdWellKnownSID -SID 'S-1-5-18' | Out-Null  # Just to ensure it's loaded and callable
-
-        # Following functions must be the last ones to be called, otherwise error is thrown.
-
-        # Hashtable containing the mappings between SchemaExtendedRights and GUID's
-        Try {
-            Get-ExtendedRightHashTable
-        } catch {
-            Throw
-        }
-
-        # Hashtable containing the mappings between ClassSchema/AttributeSchema and GUID's
-        Try {
-            Get-AttributeSchemaHashTable
-        } Catch {
-            Throw
-        }
-
-
     } #end Process
 
     End {
