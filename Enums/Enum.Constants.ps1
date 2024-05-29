@@ -1,13 +1,13 @@
 ﻿$Constants = [ordered] @{
 
-    # Null GUID wich is considered as "All"
+    # Null GUID which is considered as "All"
     #$guidNull  = New-Object -TypeName Guid -ArgumentList 00000000-0000-0000-0000-000000000000
     guidNull = [System.guid]::New('00000000-0000-0000-0000-000000000000')
 
     # Horizontal Tab
     HTab     = "`t"
 
-    # New Line
+    # New NewLine
     NL       = [System.Environment]::NewLine
 }
 
@@ -20,4 +20,10 @@ $Splat = @{
     Force       = $true
 }
 
-New-Variable @Splat
+# Check if the 'Constants' variable exists. Create it if not.
+if (-not (Get-Variable -Name 'Constants' -Scope Global -ErrorAction SilentlyContinue)) {
+    New-Variable @Splat
+}
+
+# Optional: Output the Constants for verification (verbose)
+Write-Verbose -Message ('Constants have been initialized: {0}' -f $Constants)

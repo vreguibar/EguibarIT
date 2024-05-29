@@ -41,6 +41,11 @@ $Splat = @{
     Scope       = 'Global'
     Force       = $true
 }
-New-Variable @Splat
 
-# Create variable with $Nulls, then call Initialize-ModuleVariable to fill it up.
+# Check if the 'Variables' variable exists. Create it if not.
+if (-not (Get-Variable -Name 'Variables' -Scope Global -ErrorAction SilentlyContinue)) {
+    New-Variable @Splat
+    Write-Verbose -Message ('Variables have been initialized: {0}' -f $Variables)
+} else {
+    Write-Verbose -Message 'Variables already exist.'
+}
