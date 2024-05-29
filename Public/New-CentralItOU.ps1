@@ -1,11 +1,11 @@
 function New-CentralItOu {
     <#
         .Synopsis
-            Create Central OU and aditional Tier 0 infrastructure OUs
+            Create Central OU and additional Tier 0 infrastructure OUs
         .DESCRIPTION
             Create Central OU including sub-OUs, secure them accordingly, move built-in objects
             and secure them, create needed groups and secure them, make nesting and delegations
-            and finaly create PSO and delegate accordingly.
+            and finally create PSO and delegate accordingly.
             This function is mainly a wrapper used to create Tier0 objects
         .EXAMPLE
             New-CentralItOu -ConfigXMLFile 'C:\PsScripts\Configuration.xml'
@@ -138,58 +138,83 @@ function New-CentralItOu {
 
     Param (
         # PARAM1 full path to the configuration.xml file
-        [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $True,
+            ValueFromPipelineByPropertyName = $True,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [string]
         $ConfigXMLFile,
 
         # Param2 If present It will create all needed Exchange objects, containers and delegations
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed Exchange objects, containers and delegations.',
             Position = 1)]
         [switch]
         $CreateExchange,
 
         # Param3 Create DFS Objects
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed DFS objects, containers and delegations.',
             Position = 2)]
         [switch]
         $CreateDfs,
 
         # Param4 Create CA (PKI) Objects
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed Certificate Authority (PKI) objects, containers and delegations.',
             Position = 3)]
         [switch]
         $CreateCa,
 
         # Param5 Create AGPM Objects
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed AGPM objects, containers and delegations.',
             Position = 4)]
         [switch]
         $CreateAGPM,
 
         # Param6 Create LAPS Objects
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed LAPS objects, containers and delegations.',
             Position = 5)]
         [switch]
         $CreateLAPS,
 
         # Param7 Create DHCP Objects
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed DHCP objects, containers and delegations.',
             Position = 6)]
         [switch]
         $CreateDHCP,
 
         # Param8 Location of all scripts & files
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Path to all the scripts and files needed by this function',
             Position = 7)]
+        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\"')]
         [string]
         $DMscripts = 'C:\PsScripts\'
     )
@@ -209,11 +234,48 @@ function New-CentralItOu {
 
         ################################################################################
         # Initializations
-        Import-Module -Name ServerManager -Verbose:$false
-        Import-Module -Name ActiveDirectory -Verbose:$false
-        Import-Module -Name GroupPolicy -Verbose:$false
-        Import-Module -Name EguibarIT -Verbose:$false
-        Import-Module -Name EguibarIT.DelegationPS -Verbose:$false
+
+        $AllModules = @(
+            'ActiveDirectory',
+            'EguibarIT',
+            'EguibarIT.DelegationPS',
+            'GroupPolicy',
+            'ServerManager'
+        )
+        foreach ($item in $AllModules) {
+            Write-Verbose -Message ('Importing module {0}' -f $Item)
+
+            try {
+                # Check if the module is already imported
+                $module = Get-Module -Name $item -ListAvailable -ErrorAction SilentlyContinue
+
+                if ($null -eq $module) {
+                    Write-Error "Module '$item' is not installed. Please install the module before importing."
+                } else {
+                    # Import the module if it's not already imported
+                    if (-not (Get-Module -Name $item -ErrorAction SilentlyContinue)) {
+                        $Splat = @{
+                            Name        = $item
+                            ErrorAction = 'Stop'
+                            Verbose     = $false
+                        }
+
+                        if ($Force) {
+                            $Splat.Add('Force', $true)
+                        }
+
+                        Import-Module @Splat
+                        Write-Verbose -Message "Successfully imported module $item"
+                    } else {
+                        Write-Verbose -Message "Module $item is already imported."
+                    }
+                }
+            } catch {
+                Write-Error "Failed to import module $item. Error: $_"
+                Throw
+            } #end Try-Catch
+        } #end ForEach
+
 
         ################################################################################
         #region Declarations
@@ -296,11 +358,38 @@ function New-CentralItOu {
 
 
 
-        New-Variable -Name 'SG_Operations' -Value ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.Name) -Force
-        New-Variable -Name 'SG_ServerAdmins' -Value ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name) -Force
+        # parameters variable for splatting CMDlets
+        $Splat = [hashtable]::New()
+        $ArrayList = [System.Collections.ArrayList]::New()
 
-        New-Variable -Name 'SL_SvrAdmRight' -Value ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name) -Force
-        New-Variable -Name 'SL_SvrOpsRight' -Value ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name) -Force
+        $AllGroups = [System.Collections.Generic.HashSet[object]]::New()
+
+
+        $Splat = @{
+            Name  = 'SG_Operations'
+            Value = ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.Name)
+            Force = $true
+        }
+        New-Variable @Splat
+        $Splat = @{
+            Name  = 'SG_ServerAdmins'
+            Value = ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name)
+            Force = $true
+        }
+        New-Variable @Splat
+
+        $Splat = @{
+            Name  = 'SL_SvrAdmRight'
+            Value = ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name)
+            Force = $true
+        }
+        New-Variable @Splat
+        $Splat = @{
+            Name  = 'SL_SvrOpsRight'
+            Value = ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name)
+            Force = $true
+        }
+        New-Variable @Splat
 
 
 
@@ -440,17 +529,6 @@ function New-CentralItOu {
         # Quarantine OU for Users
         New-Variable -Name 'ItQuarantineUserOu' -Value $confXML.n.Admin.OUs.ItNewUsersOU.name -Option ReadOnly -Force
 
-
-
-
-
-
-        # parameters variable for splatting CMDlets
-        $Splat = [hashtable]::New()
-        $ArrayList = [System.Collections.ArrayList]::New()
-
-        $AllGroups = [System.Collections.Generic.HashSet[object]]::New()
-
         #endregion Declarations
         ################################################################################
     }
@@ -490,7 +568,7 @@ function New-CentralItOu {
 
         Computer objects within this ares MUST have read access, otherwise GPO will not apply - TO BE DONE
 
-        Manually change Authenticated Users from "This Object Only" to "This and decendant objects"
+        Manually change Authenticated Users from "This Object Only" to "This and descendant objects"
 
         then ACL will look like this:
 

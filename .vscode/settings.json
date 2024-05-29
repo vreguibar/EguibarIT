@@ -45,7 +45,7 @@
     "editor.renderControlCharacters": true,
     "editor.renderWhitespace": "all",
     "editor.rulers": [
-        120
+        130
     ],
     "editor.showDeprecated": true,
     "editor.showUnused": true,
@@ -55,7 +55,7 @@
     "editor.unicodeHighlight.ambiguousCharacters": true,
     "editor.unicodeHighlight.invisibleCharacters": true,
     "editor.unusualLineTerminators": "auto",
-    "editor.wordWrapColumn": 80,
+    "editor.wordWrapColumn": 130,
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": false,
     "files.trimTrailingWhitespace": true,
