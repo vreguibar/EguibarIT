@@ -208,7 +208,7 @@ function New-CentralItOu {
 
 
         ################################################################################
-        # Initialisations
+        # Initializations
         Import-Module -Name ServerManager -Verbose:$false
         Import-Module -Name ActiveDirectory -Verbose:$false
         Import-Module -Name GroupPolicy -Verbose:$false
@@ -458,7 +458,12 @@ function New-CentralItOu {
         ###############################################################################
         # Create IT Admin and Sub OUs
         Write-Verbose -Message 'Create Admin Area and related structure...'
-        New-DelegateAdOU -ouName $ItAdminOu -ouPath $Variables.AdDn -ouDescription $confXML.n.Admin.OUs.ItAdminOU.description
+        $Splat = @{
+            ouName        = $ItAdminOu
+            ouPath        = $Variables.AdDn
+            ouDescription = $confXML.n.Admin.OUs.ItAdminOU.description
+        }
+        New-DelegateAdOU @Splat
 
         # Remove Inheritance and copy the ACE
         Set-AdInheritance -LDAPPath $ItAdminOuDn -RemoveInheritance $true -RemovePermissions $true
@@ -498,7 +503,7 @@ function New-CentralItOu {
         ACENumber              : 1
         DistinguishedName      : OU=Admin,DC=EguibarIT,DC=local
         IdentityReference      : NT AUTHORITY\Authenticated Users
-        ActiveDirectoryRightst : ReadProperty, GenericExecute
+        ActiveDirectoryRights : ReadProperty, GenericExecute
         AccessControlType      : Allow
         ObjectType             : GuidNULL
         InheritanceType        : All
@@ -2911,12 +2916,12 @@ function New-CentralItOu {
             GpoAdmin      = $sl_GpoAdminRight.SamAccountName
             gpoBackupPath = Join-Path $DMscripts SecTmpl
         }
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.ApplicationOU.Name)   -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.ApplicationOU.Name, $ServersOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.FileOU.Name)          -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.FileOU.Name, $ServersOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.HypervOU.Name)        -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.HypervOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.ApplicationOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.ApplicationOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.FileOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.FileOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.HypervOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.HypervOU.Name, $ServersOuDn)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.RemoteDesktopOU.Name, $ServersOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.SqlOU.Name)           -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.SqlOU.Name, $ServersOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.WebOU.Name)           -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.WebOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.SqlOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.SqlOU.Name, $ServersOuDn)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.WebOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.WebOU.Name, $ServersOuDn)
 
 
         # Tier1 Restrictions
