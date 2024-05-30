@@ -4,7 +4,7 @@ function Start-AdCleanOU {
         .Synopsis
             Clean default OU permissions.
         .DESCRIPTION
-            The function will remove some of the default premission on
+            The function will remove some of the default permission on
             the provided OU. It will remove the "Account Operators" and
             "Print Operators" built-in groups.
         .EXAMPLE
@@ -78,6 +78,8 @@ function Start-AdCleanOU {
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
+
+        Import-MyModule -Name EguibarIT.DelegationPS -Verbose:$False
 
         ##############################
         # Variables Definition
