@@ -142,5 +142,8 @@
     },
     "github.copilot.enable": {
         "PowerShell": "true"
-    }
+    },
+    "github-actions.workflows.pinned.workflows": [
+        ".github/workflows/pipeline.yml"
+    ]
 }
