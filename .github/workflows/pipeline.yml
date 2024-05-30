@@ -64,22 +64,15 @@ jobs:
 
           $oldModuleVersion = (Test-ModuleManifest -Path ".\*.psd1").Version
 
-           [System.Collections.ArrayList]$publicFunctions = (Get-ChildItem -Path '.\Public\*.ps1' -recurse).BaseName
+          [System.Collections.ArrayList]$publicFunctions = (Get-ChildItem -Path '.\Public\*.ps1' -recurse).BaseName
           [System.Collections.ArrayList]$privateFunctions = (Get-ChildItem -Path '.\Private\*.ps1' -recurse).BaseName
-          [System.Collections.ArrayList]$ClassesFunctions = (Get-ChildItem -Path '.\Classes\*.ps1' -recurse).BaseName
+          $ClassesFunctions = (Get-ChildItem -Path '.\Classes\*.ps1' -recurse).BaseName
           [System.Collections.ArrayList]$EnumsFunctions = (Get-ChildItem -Path '.\Enums\*.ps1' -recurse).BaseName
 
           $totalFunctions = $publicFunctions.count + $privateFunctions.count + $ClassesFunctions.count + $EnumsFunctions.count
           $ModuleBuildNumber = $oldModuleVersion.Build + 1
           While($totalFunctions -lt $oldModuleVersion.Minor) { $totalFunctions++ }
           $ModuleVersion = "$($oldModuleVersion.Major).$($totalFunctions).$($ModuleBuildNumber)"
-
-          $functionsToExport = New-Object -TypeName System.Collections.ArrayList
-
-            foreach ($function in $publicFunctions.Name) {
-                Write-Verbose -Message "Exporting function: $(($function.split('.')[0]).ToString())"
-                [void]$functionsToExport.Add(($function.split('.')[0]).ToString())
-            }
 
           Update-ModuleManifest -Path ".\$($ModuleName).psd1" -ModuleVersion $ModuleVersion -Tags $Tags -FunctionsToExport $publicFunctions
 
