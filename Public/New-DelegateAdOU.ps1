@@ -54,7 +54,10 @@ function New-DelegateAdOU {
 
     Param (
         # Param1 Site Name
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Name of the OU',
             Position = 0)]
         [ValidateNotNull()]
@@ -64,65 +67,97 @@ function New-DelegateAdOU {
         $ouName,
 
         # Param2 OU DistinguishedName (Path)
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'LDAP path where this ou will be created',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
+        [ValidateScript({ Test-IsValidDN -ObjectDN $_ })]
+        [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [string]
         $ouPath,
 
         # Param3 OU Description
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Full description of the OU',
             Position = 2)]
         [string]
         $ouDescription,
 
         # Param4 OU City
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             Position = 3)]
         [string]
         $ouCity,
 
         # Param5 OU Country
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             Position = 4)]
         [string]
         $ouCountry,
 
         # Param6 OU Street Address
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             Position = 5)]
         [string]
         $ouStreetAddress,
 
         # Param7 OU State
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             Position = 6)]
         [string]
         $ouState,
 
         # Param8 OU Postal Code
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             Position = 7)]
         [string]
         $ouZIPCode,
 
         # Param9 OU Display Name
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             Position = 8)]
         [string]
         $strOuDisplayName,
 
         #PARAM10 Remove Authenticated Users
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Remove Authenticated Users. CAUTION! This might affect applying GPO to objects.',
             Position = 9)]
         [switch]
         $RemoveAuthenticatedUsers,
 
         #PARAM11 Remove Specific Non-Inherited ACE and enable inheritance
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Remove Specific Non-Inherited ACE and enable inheritance.',
             Position = 10)]
         [switch]
@@ -165,7 +200,12 @@ function New-DelegateAdOU {
 
         try {
             # Try to get Ou
-            $OUexists = Get-ADOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $Variables.AdDn -ErrorAction SilentlyContinue
+            $Splat = @{
+                Filter      = { distinguishedName -eq $ouNameDN }
+                SearchBase  = $Variables.AdDn
+                ErrorAction = 'SilentlyContinue'
+            }
+            $OUexists = Get-ADOrganizationalUnit @Splat
 
             # Check if OU exists
             If ($OUexists) {
@@ -192,7 +232,7 @@ function New-DelegateAdOU {
             } #end If-Else
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
-        } #end Try-Caych
+        } #end Try-Catch
 
         # Remove "Account Operators" and "Print Operators" built-in groups from OU. Any unknown/UnResolvable SID will be removed.
         Start-AdCleanOU -LDAPpath $ouNameDN -RemoveUnknownSIDs

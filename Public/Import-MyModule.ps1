@@ -30,7 +30,10 @@ Function Import-MyModule {
     Param (
 
         # Param1 STRING for the Module Name
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Name of the module to be imported',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
@@ -60,33 +63,29 @@ Function Import-MyModule {
     Process {
 
         try {
-            $module = Get-Module -Name $PSBoundParameters['name'] -ErrorAction Stop
+            $module = Get-Module -Name $PSBoundParameters['name'] -ListAvailable -ErrorAction SilentlyContinue
 
-            if (-not $module) {
-                $availableModule = Get-Module -ListAvailable -Name $PSBoundParameters['name'] -ErrorAction Stop
-
-                if ($availableModule) {
-
+            if ($null -eq $module) {
+                Write-Error -Message ('Module {0} is not installed. Please install the module before importing.' -f $PSBoundParameters['name'])
+            } else {
+                # Import the module if it's not already imported
+                if (-not (Get-Module -Name $PSBoundParameters['name'] -ErrorAction SilentlyContinue)) {
                     $Splat = @{
-                        Name        = $PSBoundParameters['name']
+                        ModuleInfo  = $module
                         ErrorAction = 'Stop'
+                        Verbose     = $Verbose
                     }
 
-                    If ($Force) {
-                        $Splat.Add('Force', $True)
+                    if ($Force) {
+                        $Splat.Add('Force', $true)
                     }
 
                     Import-Module @Splat
-
                     Write-Verbose -Message ('Successfully imported module {0}' -f $PSBoundParameters['name'])
-
                 } else {
-                    Write-Error "Module '$Name' is not installed. Please install the module before importing."
-                } #end If-Else
-
-            } else {
-                Write-Verbose ('Module {0} is already imported.' -f $PSBoundParameters['name'])
-            } #end If-Else
+                    Write-Verbose -Message ('Module {0} is already imported.' -f $PSBoundParameters['name'])
+                }
+            }
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
         } #end Try-Catch
