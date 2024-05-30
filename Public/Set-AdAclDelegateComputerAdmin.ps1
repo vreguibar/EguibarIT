@@ -95,7 +95,7 @@ function Set-AdAclDelegateComputerAdmin {
         ##############################
         # Variables Definition
 
-        $Splat = [hashtable]::New()
+        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         $Splat = @{
             Group    = $PSBoundParameters['Group']

@@ -128,7 +128,7 @@ function New-DelegateAdGpo {
         ##############################
         # Variables Definition
 
-        $Splat = [Hashtable]::New()
+        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         #$gpoAlreadyExist = [Microsoft.GroupPolicy.GroupPolicyObject]::New()
 

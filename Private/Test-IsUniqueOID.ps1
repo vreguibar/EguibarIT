@@ -59,7 +59,7 @@ Function Test-IsUniqueOID {
         ##############################
         # Variables Definition
 
-        $Splat = [Hashtable]::New()
+        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         $SearchBase = 'CN=OID,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC
         $Filter = '{ cn -eq {0} -and msPKI-Cert-Template-OID -eq {1} }' -f $cn, $TemplateOID

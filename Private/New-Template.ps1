@@ -69,7 +69,7 @@ Function New-Template {
         $ConfigNC = (Get-ADRootDSE -Server $Server).configurationNamingContext
 
         # parameters variable for splatting CMDlets
-        $Splat = [hashtable]::New()
+        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
     } # End BEGIN section
 

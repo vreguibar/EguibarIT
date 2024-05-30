@@ -102,7 +102,7 @@
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-        $Splat = [Hashtable]::New()
+        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         #endregion Declarations
         ################################################################################

@@ -189,7 +189,7 @@ function New-DelegateAdOU {
         } #end Try-Catch
 
         $OUexists = [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]::New()
-        $Splat = [hashtable]::New()
+        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
     } #end Begin
 
     Process {

@@ -84,7 +84,7 @@ function Start-AdCleanOU {
         ##############################
         # Variables Definition
 
-        $Splat = [hashtable]::New()
+        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         $Splat = @{
             Group      = 'Account Operators'

@@ -53,7 +53,7 @@ function Add-AdGroupNesting {
 
         # Define arraylists
         $CurrentMembers = [System.Collections.ArrayList]::new()
-        $Splat = [Hashtable]::New()
+        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         # Check if Identity is a group. Retrive the object if not Microsoft.ActiveDirectory.Management.AdGroup.
         $Identity = Get-AdObjectType -Identity $Identity

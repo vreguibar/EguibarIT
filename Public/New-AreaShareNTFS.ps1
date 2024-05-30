@@ -99,7 +99,7 @@ function New-AreaShareNTFS {
         # Create Full Share Name
         $FullShareName = '{0}\{1}\{2}' -f $PSBoundParameters['ShareLocation'], $PSBoundParameters['AreasName'], $PSBoundParameters['ShareName']
 
-        $Splat    = [Hashtable]::New()
+        $Splat    = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
     } #end Begin
 
     Process {

@@ -165,7 +165,7 @@
         ##############################
         # Variables Definition
 
-        $Splat = [Hashtable]::New()
+        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
         $newGroup = [Microsoft.ActiveDirectory.Management.AdGroup]::New()
     } # End Begin Section
 

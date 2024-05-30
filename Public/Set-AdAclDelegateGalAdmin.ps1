@@ -74,7 +74,7 @@ function Set-AdAclDelegateGalAdmin {
         ##############################
         # Variables Definition
 
-        $Splat = [hashtable]::New()
+        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         $Splat = @{
             Group    = $PSBoundParameters['Group']
