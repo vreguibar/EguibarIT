@@ -30,8 +30,8 @@ function Get-AdSite {
         # Variables Definition
 
 
-        Import-Module -name ServerManager   -Verbose:$false
-        Import-Module -name ActiveDirectory -Verbose:$false
+        Import-Module -Name ServerManager   -Verbose:$false
+        Import-MyModule -name ActiveDirectory -Verbose:$false
     }
     Process {
         Write-Verbose -Message "Get AD Site List `r"

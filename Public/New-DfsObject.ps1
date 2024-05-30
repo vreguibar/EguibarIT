@@ -49,8 +49,8 @@
 
         ################################################################################
         # Initialisations
-        Import-Module -Name ActiveDirectory -Verbose:$false
-        Import-Module -Name EguibarIT.DelegationPS -Verbose:$false
+        Import-MyModule -Name ActiveDirectory -Verbose:$false
+        Import-MyModule -Name EguibarIT.DelegationPS -Verbose:$false
 
         ################################################################################
         #region Declarations
@@ -66,7 +66,7 @@
                 } #end if
             } #end if
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0] 
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
         }
 
 

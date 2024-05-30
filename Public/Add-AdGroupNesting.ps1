@@ -49,7 +49,7 @@ function Add-AdGroupNesting {
         ##############################
         # Variables Definition
 
-        Import-Module -Name ActiveDirectory -Verbose:$false
+        Import-MyModule -Name ActiveDirectory -Verbose:$false
 
         # Define arraylists
         $CurrentMembers = [System.Collections.ArrayList]::new()

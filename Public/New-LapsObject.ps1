@@ -52,12 +52,11 @@ Function New-LAPSobject {
 
 
         ################################################################################
-        # Initialisations
-        Import-Module -Name ActiveDirectory -Verbose:$false
-        Import-Module -Name EguibarIT -Verbose:$false
-        Import-Module -Name EguibarIT.DelegationPS -Verbose:$false
-        Import-Module -Name AdmPwd.PS -Verbose:$false
-        Import-Module -Name LAPS -Verbose:$false
+        # Initializations
+        Import-MyModule -Name ActiveDirectory -Verbose:$false
+        Import-MyModule -Name EguibarIT.DelegationPS -Verbose:$false
+        Import-MyModule -Name AdmPwd.PS -Verbose:$false
+        Import-MyModule -Name LAPS -Verbose:$false
 
         ################################################################################
         #region Declarations

@@ -20,8 +20,7 @@ function Get-AllAdSiteLink {
     [OutputType([array])]
     Param ()
 
-    Begin
-    {
+    Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
@@ -31,15 +30,14 @@ function Get-AllAdSiteLink {
         # Variables Definition
 
 
-        Import-Module -name ServerManager   -Verbose:$false
-        Import-Module -name ActiveDirectory -Verbose:$false
+        Import-Module -Name ServerManager -Verbose:$false
+        Import-MyModule -Name ActiveDirectory -Verbose:$false
 
-        $ADSiteDN      = 'CN=Sites,{0}' -f ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
+        $ADSiteDN = 'CN=Sites,{0}' -f ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
         #$SubnetsDN     = 'CN=Subnets,{0}' -f $ADSiteDN
         #$ADSiteLinksDN = 'CN=IP,CN=Inter-Site Transports,{0}' -f $ADSiteDN
     }
-    Process
-    {
+    Process {
         Write-Verbose -Message "Get List of AD Site Links `r"
 
         [array] $ADSiteLinks = Get-ADObject -Filter { ObjectClass -eq 'sitelink' } -SearchBase $ADSiteDN -Properties *
@@ -47,13 +45,13 @@ function Get-AllAdSiteLink {
         $ADSiteLinksCount = $ADSiteLinks.Count
 
         Write-Output -InputObject ("There are {0} AD Site Links in {1} `r" -f $ADSiteLinksCount, $env:USERDNSDOMAIN)
-  }
-  End {
+    }
+    End {
 
-    Return $ADSiteLinks
+        Return $ADSiteLinks
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting SiteLinks."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'
         Write-Verbose -Message ''
-  }
+    }
 }

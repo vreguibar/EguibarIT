@@ -52,9 +52,9 @@
 
 
         ################################################################################
-        # Initialisations
-        Import-Module ActiveDirectory -Verbose:$false
-        Import-Module EguibarIT.DelegationPS -Verbose:$false
+        # Initializations
+        Import-MyModule ActiveDirectory -Verbose:$false
+        Import-MyModule EguibarIT.DelegationPS -Verbose:$false
 
         ################################################################################
         #region Declarations
@@ -69,7 +69,7 @@
                 } #end if
             } #end if
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0] 
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
         }
 
         # Naming conventions hashtable

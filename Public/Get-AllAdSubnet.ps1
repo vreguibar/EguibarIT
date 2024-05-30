@@ -30,8 +30,8 @@ function Get-AllAdSubnet {
         # Variables Definition
 
 
-        Import-Module -name ServerManager   -Verbose:$false
-        Import-Module -name ActiveDirectory -Verbose:$false
+        Import-Module -Name ServerManager -Verbose:$false
+        Import-MyModule -name ActiveDirectory -Verbose:$false
     }
     Process {
         #Get a reference to the RootDSE of the current domain

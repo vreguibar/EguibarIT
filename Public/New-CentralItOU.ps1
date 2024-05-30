@@ -244,52 +244,7 @@ function New-CentralItOu {
             'EguibarIT.DelegationPS'
         )
         foreach ($item in $AllModules) {
-            Write-Verbose -Message ('Importing module {0}' -f $Item)
-
-            try {
-                # Check if the module is already imported
-                $module = Get-Module -Name $item -ListAvailable -ErrorAction SilentlyContinue
-
-                if ($null -eq $module) {
-                    Write-Error -Message ('Module {0} is not installed. Please install the module before importing.' -f $item)
-                } else {
-                    # Import the module if it's not already imported
-                    if (-not (Get-Module -Name $item -ErrorAction SilentlyContinue)) {
-                        $Splat = @{
-                            ModuleInfo  = $module
-                            ErrorAction = 'Stop'
-                            Verbose     = $false
-                        }
-
-                        if ($Force) {
-                            $Splat.Add('Force', $true)
-                        }
-
-                        Import-Module @Splat
-                        Write-Verbose -Message ('Successfully imported module {0}' -f $item)
-                    } else {
-                        Write-Verbose -Message ('Module {0} is already imported.' -f $item)
-                    }
-                }
-            } catch {
-                # Special handling for ServerManager module
-                if ($item -eq 'ServerManager') {
-                    Write-Verbose -Message 'Attempting to import ServerManager module interactively'
-                    Start-Process powershell -ArgumentList '-Command Import-Module ServerManager' -Wait -NoNewWindow
-                } else {
-                    Write-Error -Message ('Failed to import module {0}. Error: {1}' -f $item, $_)
-                    Throw
-                }
-
-                # Special handling for GroupPolicy module
-                if ($item -eq 'GroupPolicy') {
-                    Write-Verbose -Message 'Attempting to import GroupPolicy module interactively'
-                    Start-Process powershell -ArgumentList '-Command Import-Module GroupPolicy' -Wait -NoNewWindow
-                } else {
-                    Write-Error -Message ('Failed to import module {0}. Error: {1}' -f $item, $_)
-                    Throw
-                }
-            } #end Try-Catch
+            Import-MyModule -Name $item
         } #end ForEach
 
 

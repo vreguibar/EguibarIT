@@ -80,14 +80,14 @@ function Set-AdAclLaps {
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-        Import-Module -Name 'AdmPwd.PS' -Force -Verbose:$false
-        Import-Module -Name LAPS -Force -Verbose:$false
+        Import-MyModule -Name 'AdmPwd.PS' -Force -Verbose:$false
+        Import-MyModule -Name LAPS -Force -Verbose:$false
+        Import-MyModule -Name 'EguibarIT.DelegationPS' -Force -Verbose:$false
 
         ##############################
         # Variables Definition
 
-        $GuidMap = [Hashtable]::New()
-        $guidmap = Get-AttributeSchemaHashTable
+        Get-AttributeSchemaHashTable
 
         # Get the SID of the group
         $currentResetGroup = Get-AdObjectType -Identity $PSBoundParameters['ResetGroup']
@@ -96,7 +96,7 @@ function Set-AdAclLaps {
     } #end Begin
 
     Process {
-        if ($null -ne $guidmap['ms-Mcs-AdmPwdExpirationTime']) {
+        if ($null -ne $Variables.GuidMap['ms-Mcs-AdmPwdExpirationTime']) {
             Write-Verbose -Message 'LAPS is supported on this environment. We can proceed to configure it.'
 
             # AdmPwd.PS CMDlets
@@ -110,7 +110,7 @@ function Set-AdAclLaps {
             Set-LapsADResetPasswordPermission -AllowedPrincipals $currentResetGroup.SID -Identity $LDAPpath
 
         } else {
-            Write-Error -Message 'Not Implemented. Schema does not contains the requiered attributes.'
+            Write-Error -Message 'Not Implemented. Schema does not contains the required attributes.'
         }
     } #end Process
 

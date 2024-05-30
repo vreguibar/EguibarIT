@@ -1,5 +1,4 @@
-﻿function New-DelegateSiteOU
-{
+﻿function New-DelegateSiteOU {
     <#
         .Synopsis
             Create New delegated Site OU
@@ -146,7 +145,7 @@
         # Param1 Site Name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Name of the OU corresponding to the SITE root',
-        Position = 0)]
+            Position = 0)]
         [ValidateNotNullOrEmpty()]
         [string]
         $ouName,
@@ -154,67 +153,67 @@
         # Param2 OU Description
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Description of the OU',
-        Position = 1)]
+            Position = 1)]
         [string]
         $ouDescription,
 
         # Param3 OU City
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-        Position = 2)]
+            Position = 2)]
         [string]
         $ouCity,
 
         # Param4 OU Country
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-        Position = 3)]
+            Position = 3)]
         [ValidatePattern('[a-zA-Z]*')]
-        [ValidateLength(2,2)]
+        [ValidateLength(2, 2)]
         [string]
         $ouCountry,
 
         # Param5 OU Street Address
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-        Position = 4)]
+            Position = 4)]
         [string]
         $ouStreetAddress,
 
         # Param6 OU State
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-        Position = 5)]
+            Position = 5)]
         [string]
         $ouState,
 
         # Param7 OU Postal Code
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-        Position = 6)]
+            Position = 6)]
         [string]
         $ouZIPCode,
 
         # Param8 Create Exchange Objects
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed Exchange objects and containers.',
-        Position = 7)]
+            Position = 7)]
         [switch]
         $CreateExchange,
 
         # Param9 Create LAPS Objects
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed LAPS objects, containers and delegations.',
-        Position = 8)]
+            Position = 8)]
         [switch]
         $CreateLAPS,
 
         # PARAM10 full path to the configuration.xml file
         [Parameter(Mandatory = $false, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
-            HelpMessage='Full path to theGPO backup files',
-            Position=9)]
+            HelpMessage = 'Full path to theGPO backup files',
+            Position = 9)]
         [string]
         $GpoBackupPath,
 
         # PARAM11 full path to the configuration.xml file
         [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
-            HelpMessage='Full path to the configuration.xml file',
-            Position=10)]
+            HelpMessage = 'Full path to the configuration.xml file',
+            Position = 10)]
         [string]
         $ConfigXMLFile
 
@@ -232,35 +231,37 @@
         # Variables Definition
 
 
-        Import-Module -name ServerManager          -Verbose:$false
-        Import-Module -name ActiveDirectory        -Verbose:$false
-        Import-Module -name GroupPolicy            -Verbose:$false
-        Import-Module -name EguibarIT.DelegationPS -Verbose:$false
+        Import-Module -Name ServerManager -Verbose:$false
+        Import-MyModule -name ActiveDirectory -Verbose:$false
+        Import-Module -Name GroupPolicy -Verbose:$false
+        Import-MyModule -name EguibarIT.DelegationPS -Verbose:$false
 
         #------------------------------------------------------------------------------
         # Define the variables
 
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If(-Not (Test-Path -Path variable:confXML)) {
+            If (-Not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If(Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
+                If (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
-        } Catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+        } Catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0] 
+        }
 
 
         ####################
         # Naming conventions hashtable
-        $NC = @{'sl'    = $confXML.n.NC.LocalDomainGroupPreffix;
-                'sg'    = $confXML.n.NC.GlobalGroupPreffix;
-                'su'    = $confXML.n.NC.UniversalGroupPreffix;
-                'Delim' = $confXML.n.NC.Delimiter;
-                'T0'    = $confXML.n.NC.AdminAccSufix0;
-                'T1'    = $confXML.n.NC.AdminAccSufix1;
-                'T2'    = $confXML.n.NC.AdminAccSufix2
+        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix;
+            'sg'     = $confXML.n.NC.GlobalGroupPreffix;
+            'su'     = $confXML.n.NC.UniversalGroupPreffix;
+            'Delim'  = $confXML.n.NC.Delimiter;
+            'T0'     = $confXML.n.NC.AdminAccSufix0;
+            'T1'     = $confXML.n.NC.AdminAccSufix1;
+            'T2'     = $confXML.n.NC.AdminAccSufix2
         }
 
         #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM, $NC['T0'])
@@ -272,7 +273,7 @@
         ####################
         # Groups
         $SG_AllSiteAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AllSiteAdmins.Name)
-        $SG_AllGALAdmins  = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AllGALAdmins.Name)
+        $SG_AllGALAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AllGALAdmins.Name)
 
 
         ####################
@@ -311,20 +312,20 @@
         # Sites OU Distinguished Name
         $SitesOuDn = 'OU={0},{1}' -f $SitesOu, $Variables.AdDn
 
-            # Sites GLOBAL OU
-            #$SitesGlobalOu = $confXML.n.Sites.OUs.OuSiteGlobal.name
-            # Sites GLOBAL OU Distinguished Name
-            #$SitesGlobalOuDn = 'OU={0},{1}' -f $SitesGlobalOu, $SitesOuDn
+        # Sites GLOBAL OU
+        #$SitesGlobalOu = $confXML.n.Sites.OUs.OuSiteGlobal.name
+        # Sites GLOBAL OU Distinguished Name
+        #$SitesGlobalOuDn = 'OU={0},{1}' -f $SitesGlobalOu, $SitesOuDn
 
-                # Sites GLOBAL GROUPS OU
-                #$SitesGlobalGroupOu = $confXML.n.Sites.OUs.OuSiteGlobalGroups.name
-                # Sites GLOBAL GROUPS OU Distinguished Name
-                #$SitesGlobalGroupOuDn = 'OU={0},{1}' -f $SitesGlobalGroupOu, $SitesGlobalOuDn
+        # Sites GLOBAL GROUPS OU
+        #$SitesGlobalGroupOu = $confXML.n.Sites.OUs.OuSiteGlobalGroups.name
+        # Sites GLOBAL GROUPS OU Distinguished Name
+        #$SitesGlobalGroupOuDn = 'OU={0},{1}' -f $SitesGlobalGroupOu, $SitesGlobalOuDn
 
-                # Sites GLOBAL APPACCUSERS OU
-                #$SitesGlobalAppAccUserOu = $confXML.n.Sites.OUs.OuSiteGlobalAppAccessUsers.name
-                # Sites GLOBAL APPACCUSERS OU Distinguished Name
-                #$SitesGlobalAppAccUserOuDn = 'OU={0},{1}' -f $SitesGlobalAppAccUserOu, $SitesGlobalOuDn
+        # Sites GLOBAL APPACCUSERS OU
+        #$SitesGlobalAppAccUserOu = $confXML.n.Sites.OUs.OuSiteGlobalAppAccessUsers.name
+        # Sites GLOBAL APPACCUSERS OU Distinguished Name
+        #$SitesGlobalAppAccUserOuDn = 'OU={0},{1}' -f $SitesGlobalAppAccUserOu, $SitesGlobalOuDn
 
 
 
@@ -354,7 +355,7 @@
         Write-Verbose -Message ('Create Site root OU {0}' -f $PSBoundParameters['ouName'])
 
         # Check if the Site OU exists
-        If(-not(Get-AdOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $Variables.AdDn)) {
+        If (-not(Get-AdOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $Variables.AdDn)) {
             $splat = @{
                 ouName           = $PSBoundParameters['ouName']
                 ouPath           = $SitesOuDn
@@ -371,7 +372,7 @@
         } else {
             Write-Warning -Message ('Site {0} already exist. Continue to cleanup.' -f $PSBoundParameters['ouName'])
             # If OU already exist, clean it.
-            Start-AdCleanOU -LDAPPath $ouNameDN  -RemoveUnknownSIDs
+            Start-AdCleanOU -LDAPPath $ouNameDN -RemoveUnknownSIDs
         }
 
         Write-Verbose -Message 'Create SITE Sub-OU'
@@ -435,7 +436,7 @@
         #region Create the required Right's Local Domain groups
 
         # Iterate through all Site-LocalGroups child nodes
-        Foreach($node in $confXML.n.Sites.LG.ChildNodes) {
+        Foreach ($node in $confXML.n.Sites.LG.ChildNodes) {
             Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']))
             $parameters = @{
                 Name                          = '{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
@@ -461,7 +462,7 @@
 
 
         # Iterate through all Site-GlobalGroups child nodes
-        Foreach($node in $confXML.n.Sites.GG.ChildNodes) {
+        Foreach ($node in $confXML.n.Sites.GG.ChildNodes) {
             Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']))
             $parameters = @{
                 Name                          = '{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
@@ -490,33 +491,33 @@
 
         #region NESTING Global groups into Domain Local Groups -> order Less privileged to more privileged
 
-        Add-AdGroupNesting -Identity $SL_PwdRight        -Members $SG_PwdAdmins, $SG_GALAdmins, $SG_SiteAdmins
+        Add-AdGroupNesting -Identity $SL_PwdRight -Members $SG_PwdAdmins, $SG_GALAdmins, $SG_SiteAdmins
 
-        Add-AdGroupNesting -Identity $SL_PcRight         -Members $SG_ComputerAdmins, $SG_SiteAdmins
+        Add-AdGroupNesting -Identity $SL_PcRight -Members $SG_ComputerAdmins, $SG_SiteAdmins
 
-        Add-AdGroupNesting -Identity $SL_GroupRight      -Members $SG_GroupAdmins, $SG_SiteAdmins
+        Add-AdGroupNesting -Identity $SL_GroupRight -Members $SG_GroupAdmins, $SG_SiteAdmins
 
         Add-AdGroupNesting -Identity $SL_CreateUserRight -Members $SG_UserAdmins, $SG_SiteAdmins
 
-        Add-AdGroupNesting -Identity $SL_GALRight        -Members $SG_GALAdmins, $SG_SiteAdmins
+        Add-AdGroupNesting -Identity $SL_GALRight -Members $SG_GALAdmins, $SG_SiteAdmins
 
-        Add-AdGroupNesting -Identity $SL_SiteRight       -Members $SG_SiteAdmins
+        Add-AdGroupNesting -Identity $SL_SiteRight -Members $SG_SiteAdmins
 
         #endregion
 
         #region NESTING Global groups into Global Groups -> order Less privileged to more privileged
 
-        Add-AdGroupNesting -Identity $SG_PwdAdmins      -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.ServiceDesk.Name)
+        Add-AdGroupNesting -Identity $SG_PwdAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.ServiceDesk.Name)
 
         Add-AdGroupNesting -Identity $SG_ComputerAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalPcAdmins.Name)
 
-        Add-AdGroupNesting -Identity $SG_GroupAdmins    -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalGroupAdmins.Name)
+        Add-AdGroupNesting -Identity $SG_GroupAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalGroupAdmins.Name)
 
-        Add-AdGroupNesting -Identity $SG_UserAdmins     -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalUserAdmins.Name)
+        Add-AdGroupNesting -Identity $SG_UserAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalUserAdmins.Name)
 
-        Add-AdGroupNesting -Identity $SG_GALAdmins      -Members $SG_AllGALAdmins
+        Add-AdGroupNesting -Identity $SG_GALAdmins -Members $SG_AllGALAdmins
 
-        Add-AdGroupNesting -Identity $SG_SiteAdmins     -Members $SG_AllSiteAdmins
+        Add-AdGroupNesting -Identity $SG_SiteAdmins -Members $SG_AllSiteAdmins
 
         #endregion
 
@@ -573,7 +574,7 @@
         #region Configure GPO
 
         # Configure Users
-        If($confXML.n.Sites.OUs.OuSiteUser.backupID) {
+        If ($confXML.n.Sites.OUs.OuSiteUser.backupID) {
             $splat = @{
                 BackupId   = $confXML.n.Sites.OUs.OuSiteUser.backupID
                 TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteUser.Scope, $ouName, $confXML.n.Sites.OUs.OuSiteUser.Name
@@ -588,7 +589,7 @@
 
 
         # Configure Desktop Baseline
-        If($confXML.n.Sites.OUs.OuSiteComputer.backupID) {
+        If ($confXML.n.Sites.OUs.OuSiteComputer.backupID) {
             $splat = @{
                 BackupId   = $confXML.n.Sites.OUs.OuSiteComputer.backupID
                 TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteComputer.Scope, $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name
@@ -647,7 +648,7 @@
 
 
         # Configure Laptop Baseline
-        If($confXML.n.Sites.OUs.OuSiteLaptop.backupID) {
+        If ($confXML.n.Sites.OUs.OuSiteLaptop.backupID) {
             $splat = @{
                 BackupId   = $confXML.n.Sites.OUs.OuSiteLaptop.backupID
                 TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Scope, $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name
@@ -755,18 +756,18 @@
 
         # --- Exchange Related
         ###############################################################################
-        If($PSBoundParameters['CreateExchange']) {
+        If ($PSBoundParameters['CreateExchange']) {
             Start-AdDelegateSite -ConfigXMLFile $ConfigXMLFile -ouName $ouName -QuarantineDN $ItQuarantinePcOuDn -CreateExchange
 
             #create Sub-OUs
             # --- USER CLASS ---
-            New-DelegateAdOU -ouName $confXML.n.Sites.OUs.OuSiteMailbox.Name   -ouPath $ouNameDN -ouDescription ('{0} {1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteMailbox.Description)
+            New-DelegateAdOU -ouName $confXML.n.Sites.OUs.OuSiteMailbox.Name -ouPath $ouNameDN -ouDescription ('{0} {1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteMailbox.Description)
 
             # --- GROUP CLASS ---
             New-DelegateAdOU -ouName $confXML.n.Sites.OUs.OuSiteDistGroup.Name -ouPath $ouNameDN -ouDescription ('{0} {1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteDistGroup.Description)
 
             # --- CONTACT CLASS ---
-            New-DelegateAdOU -ouName $confXML.n.Sites.OUs.OuSiteContact.Name   -ouPath $ouNameDN -ouDescription ('{0} {1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteContact.Description)
+            New-DelegateAdOU -ouName $confXML.n.Sites.OUs.OuSiteContact.Name -ouPath $ouNameDN -ouDescription ('{0} {1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteContact.Description)
 
             #create Basic Gpo
             # Create Mailboxes Baseline
@@ -794,14 +795,14 @@
 
         # --- LAPS Related
         ###############################################################################
-        If($PSBoundParameters['CreateLAPS']) {
+        If ($PSBoundParameters['CreateLAPS']) {
             # Desktop LAPS delegation
             Set-AdAclLaps -ResetGroup $SL_PwdRight.SamAccountName -ReadGroup $SL_PwdRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.Name, $ouNameDN)
 
             # Laptop LAPS delegation
             Set-AdAclLaps -ResetGroup $SL_PwdRight.SamAccountName -ReadGroup $SL_PwdRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $ouNameDN)
 
-            If($PsBoundParameters['CreateSrvContainer']) {
+            If ($PsBoundParameters['CreateSrvContainer']) {
                 # File-Print LAPS delegation
                 Set-AdAclLaps -ResetGroup $SL_LocalServerRight.SamAccountName -ReadGroup $SL_LocalServerRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteFilePrint.Name, $ouNameDN)
 

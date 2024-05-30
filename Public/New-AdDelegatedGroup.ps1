@@ -158,17 +158,9 @@
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-        if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
-            Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
-        } #end If
 
-        if (-not (Get-Module -Name 'EguibarIT' -ListAvailable)) {
-            Import-Module -Name 'EguibarIT' -Force -Verbose:$false
-        } #end If
-
-        if (-not (Get-Module -Name 'EguibarIT.DelegationPS' -ListAvailable)) {
-            Import-Module -Name 'EguibarIT.DelegationPS' -Force -Verbose:$false
-        } #end If
+        Import-MyModule -Name 'ActiveDirectory' -Force -Verbose:$false
+        Import-MyModule -Name 'EguibarIT.DelegationPS' -Force -Verbose:$false
 
         ##############################
         # Variables Definition

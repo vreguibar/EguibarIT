@@ -61,7 +61,7 @@ function New-DelegateAdGpo {
         # Param1 GPO description, used to generate name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Description of the GPO. Used to build the name.',
-        Position = 0)]
+            Position = 0)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -70,7 +70,7 @@ function New-DelegateAdGpo {
         # Param2 GPO scope. U = Users, C = Computers
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Scope of the GPO. U for Users and C for Computers DEFAULT is U. The non-used part of the GPO will get disabled',
-        Position = 1)]
+            Position = 1)]
         [ValidateSet('U', 'C', ignorecase = $false)]
         [string]
         $gpoScope,
@@ -78,7 +78,7 @@ function New-DelegateAdGpo {
         # Param3 GPO Link to OU
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'DistinguishedName where to link the newly created GPO',
-        Position = 2)]
+            Position = 2)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -87,7 +87,7 @@ function New-DelegateAdGpo {
         # Param4 Domain Local Group with GPO Rights to be assigned
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Domain Local Group with GPO Rights to be assigned',
-        Position = 3)]
+            Position = 3)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -97,7 +97,7 @@ function New-DelegateAdGpo {
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Restore GPO settings from backup using the BackupID GUID',
             ParameterSetName = 'DelegatedAdGpo',
-        Position = 4)]
+            Position = 4)]
         [Parameter(ParameterSetName = 'GpoBackup', Position = 4)]
         [Alias('BackupID')]
         [string]
@@ -107,7 +107,7 @@ function New-DelegateAdGpo {
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Path where Backups are stored',
             ParameterSetName = 'GpoBackup',
-        Position = 5)]
+            Position = 5)]
         [string]
         $gpoBackupPath
 
@@ -121,18 +121,14 @@ function New-DelegateAdGpo {
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-        if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
-            Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
-        } #end If
 
-        if (-not (Get-Module -Name 'GroupPolicy' -ListAvailable)) {
-            Import-Module -Name 'GroupPolicy' -Force -Verbose:$false
-        } #end If
+        Import-MyModule -Name 'ActiveDirectory' -Force -Verbose:$false
+        Import-Module -Name 'GroupPolicy' -Force -Verbose:$false
 
         ##############################
         # Variables Definition
 
-        $Splat    = [Hashtable]::New()
+        $Splat = [Hashtable]::New()
 
         #$gpoAlreadyExist = [Microsoft.GroupPolicy.GroupPolicyObject]::New()
 
@@ -159,7 +155,7 @@ function New-DelegateAdGpo {
                 ErrorAction = 'SilentlyContinue'
                 Verbose     = $true
             }
-            if ($PSCmdlet.ShouldProcess("Creating GPO '$gpoName'", "Confirm creation?")) {
+            if ($PSCmdlet.ShouldProcess("Creating GPO '$gpoName'", 'Confirm creation?')) {
                 $gpoAlreadyExist = New-GPO @Splat
 
                 Write-Verbose -Message '1 second pause to give AD a chance to catch up'
@@ -176,35 +172,35 @@ function New-DelegateAdGpo {
                 TargetType      = 'group'
                 Server          = $dcServer
                 ErrorAction     = 'SilentlyContinue'
-                Verbose     = $true
+                Verbose         = $true
             }
-            if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", "Confirm giving permissions?")) {
+            if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", 'Confirm giving permissions?')) {
                 Set-GPPermissions @Splat
             }  #end If
 
 
             # Disable the corresponding Settings section of the GPO
             If ($gpoScope -eq 'C') {
-                if ($PSCmdlet.ShouldProcess("Disabling Users section on GPO '$gpoName'", "Confirm disabling user section?")) {
+                if ($PSCmdlet.ShouldProcess("Disabling Users section on GPO '$gpoName'", 'Confirm disabling user section?')) {
                     Write-Verbose -Message ('Disable Policy User Settings on GPO {0}' -f $gpoAlreadyExist.Name)
                     $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
                 } #end If
             } else {
-                if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'", "Confirm disabling computer section?")) {
+                if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'", 'Confirm disabling computer section?')) {
                     Write-Verbose -Message ('Disable Policy Computer Settings on GPO {0}' -f $gpoAlreadyExist.Name)
                     $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
                 } #end If
             }
 
             Write-Verbose -Message 'Add GPO-link to corresponding OU'
-            If( Test-IsValidDN -ObjectDN $PSBoundParameters['gpoLinkPath'] ) {
+            If ( Test-IsValidDN -ObjectDN $PSBoundParameters['gpoLinkPath'] ) {
                 $Splat = @{
                     GUID        = $gpoAlreadyExist.Id
                     Target      = $PSBoundParameters['gpoLinkPath']
                     LinkEnabled = 'Yes'
                     Server      = $dcServer
                 }
-                if ($PSCmdlet.ShouldProcess("Linking GPO '$gpoName'", "Link GPO?")) {
+                if ($PSCmdlet.ShouldProcess("Linking GPO '$gpoName'", 'Link GPO?')) {
                     New-GPLink @Splat
                 } #end If
             } # End If
@@ -231,18 +227,18 @@ function New-DelegateAdGpo {
                 ErrorAction     = 'SilentlyContinue'
                 Verbose         = $true
             }
-            if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", "Confirm giving permissions?")) {
+            if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", 'Confirm giving permissions?')) {
                 Set-GPPermissions @Splat
             }  #end If
 
             # Disable the corresponding Settings section of the GPO
             If ($gpoScope -eq 'C') {
-                if ($PSCmdlet.ShouldProcess("Disabling Users section on GPO '$gpoName'", "Confirm disabling user section?")) {
+                if ($PSCmdlet.ShouldProcess("Disabling Users section on GPO '$gpoName'", 'Confirm disabling user section?')) {
                     Write-Verbose -Message 'Disable Policy User Settings'
                     $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
                 } #end If
             } else {
-                if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'", "Confirm disabling computer section?")) {
+                if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'", 'Confirm disabling computer section?')) {
                     Write-Verbose -Message 'Disable Policy Computer Settings'
                     $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
                 } #end If
@@ -251,7 +247,7 @@ function New-DelegateAdGpo {
 
 
         # Check if Backup needs to be imported
-        If($PSBoundParameters['gpoBackupID']) {
+        If ($PSBoundParameters['gpoBackupID']) {
 
             # Import the Backup
             Write-Verbose -Message ('Importing GPO Backup {0} from path {1} to GPO {2}' -f $PSBoundParameters['gpoBackupID'], $PSBoundParameters['gpoBackupPath'], $gpoName)
@@ -262,7 +258,7 @@ function New-DelegateAdGpo {
                 path       = $PSBoundParameters['gpoBackupPath']
                 Verbose    = $true
             }
-            if ($PSCmdlet.ShouldProcess("Importing GPO Backup '$gpoBackupID' to GPO '$gpoName'", "Confirm import")) {
+            if ($PSCmdlet.ShouldProcess("Importing GPO Backup '$gpoBackupID' to GPO '$gpoName'", 'Confirm import')) {
                 Import-GPO @Splat
             }
 

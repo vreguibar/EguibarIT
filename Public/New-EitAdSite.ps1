@@ -1,5 +1,4 @@
-function New-EitAdSite
-{
+function New-EitAdSite {
     <#
         .Synopsis
             Create new AD Site
@@ -24,7 +23,7 @@ function New-EitAdSite
         # Param1 New Site name
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Add help message for user',
-        Position = 0)]
+            Position = 0)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -43,15 +42,15 @@ function New-EitAdSite
         # Variables Definition
 
 
-        Import-Module -name ServerManager   -Verbose:$false
-        Import-Module -name ActiveDirectory -Verbose:$false
+        Import-Module -Name ServerManager -Verbose:$false
+        Import-MyModule -name ActiveDirectory -Verbose:$false
 
         #Get a reference to the RootDSE of the current domain
         Write-Verbose -Message 'Get the Root DSE of the forest'
         $ADConfigurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
 
         # Get the Sites container
-        $ADSiteDN      = "CN=Sites,$ADConfigurationNamingContext"
+        $ADSiteDN = "CN=Sites,$ADConfigurationNamingContext"
 
         Write-Verbose -Message "Set necessary site variables `r "
         $NewADSiteDN = 'CN={0},{1}' -f $PSBoundParameters['NewSiteName'], $ADSiteDN
@@ -63,8 +62,7 @@ function New-EitAdSite
             Write-Verbose -Message 'Create New Site Object `r '
             TRY {
                 New-ADObject -Name $PSBoundParameters['NewSiteName'] -Path $ADSiteDN -Type Site
-            }
-            CATCH {
+            } CATCH {
                 Write-Warning -Message ('An error occured while attempting to create the new site {0} in the AD Site Path: {1} `r ' -f $PSBoundParameters['NewSiteName'], $ADSiteDN)
                 Get-CurrentErrorToDisplay -CurrentError $error[0]
             }
@@ -92,7 +90,7 @@ function New-EitAdSite
             }#end elseIf
         }#end elseIf
     }
-  End {
+    End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating new AD Site."
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

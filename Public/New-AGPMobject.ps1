@@ -57,15 +57,11 @@
 
 
         ################################################################################
-        # Initialisations
+        # Initializations
 
-        if (-not (Get-Module -Name 'ActiveDirectory' -ListAvailable)) {
-            Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false
-        } #end If
 
-        if (-not (Get-Module -Name 'EguibarIT.DelegationPS' -ListAvailable)) {
-            Import-Module -Name 'EguibarIT.DelegationPS' -Force -Verbose:$false
-        } #end If
+        Import-MyModule -Name 'ActiveDirectory' -Force -Verbose:$false
+        Import-MyModule -Name 'EguibarIT.DelegationPS' -Force -Verbose:$false
 
         ################################################################################
         #region Declarations
