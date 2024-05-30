@@ -86,8 +86,11 @@ function Start-AdCleanOU {
 
         $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
+        # Get 'Account Operators' group by SID
+        $AccountOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
+
         $Splat = @{
-            Group      = 'Account Operators'
+            Group      = $AccountOperators
             LDAPPath   = $PSBoundParameters['LDAPpath']
             RemoveRule = $true
         }

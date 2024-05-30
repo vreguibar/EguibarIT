@@ -1784,8 +1784,11 @@ function New-CentralItOu {
 
         # START Remove Delegation to BuiltIn groups BEFORE REDIRECTION
 
+        # Get 'Account Operators' group by SID
+        $AccountOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
+
         $Splat = @{
-            Group      = 'Account Operators'
+            Group      = $AccountOperators
             LDAPPath   = 'CN=Computers,{0}' -f $Variables.AdDn
             RemoveRule = $True
         }
@@ -1809,7 +1812,7 @@ function New-CentralItOu {
         Set-AdAclCreateDeletePrintQueue @Splat
 
         $Splat = @{
-            Group      = 'Account Operators'
+            Group      = $AccountOperators
             LDAPPath   = 'CN=Users,{0}' -f $Variables.AdDn
             RemoveRule = $True
         }

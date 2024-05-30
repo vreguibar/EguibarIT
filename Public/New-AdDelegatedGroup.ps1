@@ -1,7 +1,7 @@
 ﻿function New-AdDelegatedGroup {
     <#
     .SYNOPSIS
-        Same as New-AdGroup but with error handling, Security changes and loging
+        Same as New-AdGroup but with error handling, Security changes and login
     .DESCRIPTION
         Native New-AdGroup throws an error exception when the group already exists. This error is handeled
         as a "correct" within this function due the fact that group might already exist and operation
