@@ -97,55 +97,113 @@ function Start-AdCleanOU {
     } #end Begin
 
     process {
-        Try {
-            if ($Force -or $PSCmdlet.ShouldProcess('Proceed with delegations?')) {
-                # Remove the Account Operators group from ACL to Create/Delete Users
+
+        if ($Force -or $PSCmdlet.ShouldProcess('Proceed with delegations?')) {
+            # Remove the Account Operators group from ACL to Create/Delete Users
+            try {
                 Set-AdAclCreateDeleteUser @Splat
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Remove the Account Operators group from ACL to Create/Delete Computers
+            # Remove the Account Operators group from ACL to Create/Delete Computers
+            try {
                 Set-AdAclCreateDeleteComputer @Splat
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Remove the Account Operators group from ACL to Create/Delete Groups
+            # Remove the Account Operators group from ACL to Create/Delete Groups
+            try {
                 Set-AdAclCreateDeleteGroup @Splat
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Remove the Account Operators group from ACL to Create/Delete Contacts
+            # Remove the Account Operators group from ACL to Create/Delete Contacts
+            try {
                 Set-AdAclCreateDeleteContact @Splat
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Remove the Account Operators group from ACL to Create/Delete inetOrgPerson
+            # Remove the Account Operators group from ACL to Create/Delete inetOrgPerson
+            try {
                 Set-CreateDeleteInetOrgPerson @Splat
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Remove the Print Operators group from ACL to Create/Delete PrintQueues
+            # Remove the Print Operators group from ACL to Create/Delete PrintQueues
+            try {
                 Set-AdAclCreateDeletePrintQueue @Splat
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Remove Pre-Windows 2000 Compatible Access group from Admin-User
+            # Remove Pre-Windows 2000 Compatible Access group from Admin-User
+            try {
                 Remove-PreWin2000 -LDAPPath $PSBoundParameters['LDAPPath']
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Remove Pre-Windows 2000 Access group from OU
+            # Remove Pre-Windows 2000 Access group from OU
+            try {
                 Remove-PreWin2000FromOU -LDAPPath $PSBoundParameters['LDAPPath']
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Remove ACCOUNT OPERATORS 2000 Access group from OU
+            # Remove ACCOUNT OPERATORS 2000 Access group from OU
+            try {
                 Remove-AccountOperator -LDAPPath $PSBoundParameters['LDAPPath']
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Remove PRINT OPERATORS 2000 Access group from OU
+            # Remove PRINT OPERATORS 2000 Access group from OU
+            try {
                 Remove-PrintOperator -LDAPPath $PSBoundParameters['LDAPPath']
+            } catch {
+                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                If ($PsBoundParameters['RemoveAuthenticatedUsers']) {
-                    # Remove AUTHENTICATED USERS group from OU
+            If ($PsBoundParameters['RemoveAuthenticatedUsers']) {
+                # Remove AUTHENTICATED USERS group from OU
+                try {
                     Remove-AuthUser -LDAPPath $PSBoundParameters['LDAPPath']
+                } catch {
+                    Get-CurrentErrorToDisplay -CurrentError $error[0]
+                    throw
+                } #end Try-Catch
 
-                    Write-Verbose -Message 'Removing Authenticated Users'
-                }  #end If
+                Write-Verbose -Message 'Removing Authenticated Users'
+            }  #end If
 
-                If ($PsBoundParameters['$RemoveUnknownSIDs']) {
-                    # Remove Un-Resolvable SID from a given object
+            If ($PsBoundParameters['$RemoveUnknownSIDs']) {
+                # Remove Un-Resolvable SID from a given object
+                try {
                     Remove-UnknownSID -LDAPPath $PSBoundParameters['LDAPPath'] -RemoveSID
+                } catch {
+                    Get-CurrentErrorToDisplay -CurrentError $error[0]
+                    throw
+                } #end Try-Catch
 
-                    Write-Verbose -Message 'Remove Un-Resolvable / Unknown SIDs'
-                } #end If
+                Write-Verbose -Message 'Remove Un-Resolvable / Unknown SIDs'
             } #end If
-        } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
-        } #end Try-Catch
+        } #end If
+
     } #end Process
 
     end {
