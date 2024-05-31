@@ -55,7 +55,7 @@ function Add-AdGroupNesting {
         $CurrentMembers = [System.Collections.ArrayList]::new()
         $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-        # Check if Identity is a group. Retrive the object if not Microsoft.ActiveDirectory.Management.AdGroup.
+        # Check if Identity is a group. Retrieve the object if not Microsoft.ActiveDirectory.Management.AdGroup.
         $Identity = Get-AdObjectType -Identity $Identity
 
     } #end Begin
@@ -63,10 +63,12 @@ function Add-AdGroupNesting {
     Process {
         # Get group members
         Try {
-            Get-ADGroupMember -Identity $Identity | ForEach-Object { [void]$CurrentMembers.Add($_) }
+            $CurrentMembers = Get-ADGroupMember -Identity $Identity -ErrorAction Stop
 
         } Catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message ('Failed to retrieve members of the group "{0}". {1}' -f $Group.SamAccountName, $_)
+            throw
         } #end Try-Catch
 
 
@@ -74,7 +76,7 @@ function Add-AdGroupNesting {
             Write-Verbose -Message ('Adding members to group..: {0}' -f $Identity.SamAccountName)
 
             Foreach ($item in $Members) {
-                $item = Get-AdObjectType -Identity $item
+                $item = Get-AdObjectType -Identity $item -ErrorAction Stop
 
                 If ($CurrentMembers -notcontains $item) {
 

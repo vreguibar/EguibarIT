@@ -1374,8 +1374,8 @@
 
         $ArrayList.Clear()
 
-        [void]$ArrayList.Add('Domain Admins')
-        [void]$ArrayList.Add('Enterprise Admins')
+        [void]$ArrayList.Add($DomainAdmins)
+        [void]$ArrayList.Add($EnterpriseAdmins)
 
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName)
@@ -1491,7 +1491,7 @@
         if ($null -ne $SL_GlobalAppAccUserRight) {
             [void]$ArrayList.Add($SL_GlobalAppAccUserRight)
         }
-        Add-AdGroupNesting -Identity 'Denied RODC Password Replication Group' -Members $ArrayList
+        Add-AdGroupNesting -Identity $DeniedRODC -Members $ArrayList
 
         #endregion
         ###############################################################################
@@ -1500,10 +1500,10 @@
         #region Enabling Management Accounts to Modify the Membership of Protected Groups
 
         # Enable PUM to manage Privileged Accounts (Reset PWD, enable/disable Administrator built-in account)
-        Set-AdAclMngPrivilegedAccounts -Group $SL_PUM.SamAccountName
+        Set-AdAclMngPrivilegedAccount -Group $SL_PUM.SamAccountName
 
         # Enable PGM to manage Privileged Groups (Administrators, Domain Admins...)
-        Set-AdAclMngPrivilegedGroups -Group $SL_PGM.SamAccountName
+        Set-AdAclMngPrivilegedGroup -Group $SL_PGM.SamAccountName
 
         #endregion
         ###############################################################################
@@ -1514,23 +1514,37 @@
         # http://blogs.technet.com/b/lrobins/archive/2011/06/23/quot-admin-free-quot-active-directory-and-windows-part-1-understanding-privileged-groups-in-ad.aspx
         # http://blogs.msmvps.com/acefekay/2012/01/06/using-group-nesting-strategy-ad-best-practices-for-group-strategy/
 
-        Add-AdGroupNesting -Identity 'Cryptographic Operators' -Members $SG_AdAdmins
+        # Get 'Cryptographic Operators' group by SID
+        $CryptoOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
+        Add-AdGroupNesting -Identity $CryptoOperators -Members $SG_AdAdmins
 
-        Add-AdGroupNesting -Identity DnsAdmins -Members $SG_AdAdmins, $SG_Tier0Admins
+        Add-AdGroupNesting -Identity 'DnsAdmins' -Members $SG_AdAdmins, $SG_Tier0Admins
 
-        Add-AdGroupNesting -Identity 'Event Log Readers' -Members $SG_AdAdmins, $SG_Operations
+        # Get 'Event Log Readers' group by SID
+        $EvtLogReaders = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-573' }
+        Add-AdGroupNesting -Identity $EvtLogReaders -Members $SG_AdAdmins, $SG_Operations
 
         Add-AdGroupNesting -Identity 'Network Configuration Operators' -Members $SG_AdAdmins, $SG_Tier0Admins
 
-        Add-AdGroupNesting -Identity 'Performance Log Users' -Members $SG_AdAdmins, $SG_Operations, $SG_Tier0Admins
+        # Get 'Performance Log Users' group by SID
+        $PerfLogUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-559' }
+        Add-AdGroupNesting -Identity $PerfLogUsers -Members $SG_AdAdmins, $SG_Operations, $SG_Tier0Admins
 
-        Add-AdGroupNesting -Identity 'Performance Monitor Users' -Members $SG_AdAdmins, $SG_Operations, $SG_Tier0Admins
+        # Get 'Performance Monitor Users' group by SID
+        $PerfMonitorUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-558' }
+        Add-AdGroupNesting -Identity $PerfMonitorUsers -Members $SG_AdAdmins, $SG_Operations, $SG_Tier0Admins
 
-        Add-AdGroupNesting -Identity 'Remote Desktop Users' -Members $SG_AdAdmins
+        # Get 'Remote Desktop Users' group by SID
+        $RemoteDesktopUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-555' }
+        Add-AdGroupNesting -Identity $RemoteDesktopUsers -Members $SG_AdAdmins
 
-        Add-AdGroupNesting -Identity 'Server Operators' -Members $SG_AdAdmins
+        # Get 'Server Operators' group by SID
+        $ServerOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-549' }
+        Add-AdGroupNesting -Identity $ServerOperators -Members $SG_AdAdmins
 
-        Add-AdGroupNesting -Identity 'Remote Management Users' -Members $SG_AdAdmins, $SG_Tier0Admins
+        # Get 'Remote Management Users' group by SID
+        $RemoteMngtUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-580' }
+        Add-AdGroupNesting -Identity $RemoteMngtUsers -Members $SG_AdAdmins, $SG_Tier0Admins
 
         $RemoteWMI = Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' }
         If (-not $RemoteWMI) {
