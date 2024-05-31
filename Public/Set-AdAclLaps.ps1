@@ -81,7 +81,7 @@ function Set-AdAclLaps {
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
         Import-MyModule -Name 'AdmPwd.PS' -Force -Verbose:$false
-        Import-MyModule -Name LAPS -Force -Verbose:$false
+        Import-MyModule -Name 'LAPS' -Force -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Force -Verbose:$false
 
         ##############################

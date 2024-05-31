@@ -33,7 +33,10 @@ Function New-LAPSobject {
     Param
     (
         # PARAM1 full path to the configuration.xml file
-        [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $True,
+            ValueFromPipelineByPropertyName = $True,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [string]
@@ -106,10 +109,7 @@ Function New-LAPSobject {
             $SL_SvrAdmRight = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name)
         }
 
-        $guidmap = $null
-        $guidmap = @{}
-        $guidmap = Get-AttributeSchemaHashTable
-        #$parameters = $null
+
 
 
         # Organizational Units Distinguished Names
@@ -192,7 +192,7 @@ Function New-LAPSobject {
 
         # Check if schema is extended for LAPS. Extend it if not.
         Try {
-            if ($null -eq $guidmap['ms-Mcs-AdmPwd']) {
+            if ($null -eq $Variables.GuidMap['ms-Mcs-AdmPwd']) {
                 Write-Verbose -Message 'LAPS is NOT supported on this environment. Proceeding to configure it by extending the Schema.'
 
                 # Check if user can change schema
@@ -217,7 +217,7 @@ Function New-LAPSobject {
         catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
         } Finally {
-            Write-Verbose -Message 'Schema was extended succesfully for LAPS.'
+            Write-Verbose -Message 'Schema was extended successfully for LAPS.'
         }#end finally
     }
 
