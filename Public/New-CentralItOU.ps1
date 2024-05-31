@@ -110,7 +110,7 @@
                 Set-AdInheritance                      | EguibarIT.DelegationPS
                 Set-CreateDeleteInetOrgPerson          | EguibarIT.DelegationPS
                 Set-DeleteOnlyComputer                 | EguibarIT.DelegationPS
-                Set-GpoPrivilegeRights                 | EguibarIT.DelegationPS
+                Set-GpoPrivilegeRight                 | EguibarIT.DelegationPS
                 Add-ADFineGrainedPasswordPolicySubject | ActiveDirectory
                 Get-ADFineGrainedPasswordPolicy        | ActiveDirectory
                 Get-ADGroup                            | ActiveDirectory
@@ -2187,7 +2187,8 @@
             GpoToModify  = 'C-Baseline'
             NetworkLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
+
 
         # Deny access to this computer from the network
         $ArrayList.Clear()
@@ -2198,7 +2199,7 @@
             GpoToModify      = 'C-Baseline'
             DenyNetworkLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Allow Logon Locally
         # not defined
@@ -2219,7 +2220,7 @@
             GpoToModify          = 'C-Baseline'
             DenyInteractiveLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Allow Logon through RDS/TerminalServices
         # not defined
@@ -2247,7 +2248,7 @@
             GpoToModify                = 'C-Baseline'
             DenyRemoteInteractiveLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Allow Logon as a Batch job
         # not implemented
@@ -2287,7 +2288,7 @@
             DenyBatchLogon   = $ArrayList.ToArray()
             DenyServiceLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Logon as a Service
         $ArrayList.Clear()
@@ -2297,7 +2298,7 @@
             GpoToModify  = 'C-Baseline'
             ServiceLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
 
 
@@ -2316,7 +2317,7 @@
             GpoToModify  = 'C-DomainControllers-Baseline'
             NetworkLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Access this computer from the network
         # Not Defined
@@ -2341,7 +2342,7 @@
             InteractiveLogon       = $ArrayList.ToArray()
             RemoteInteractiveLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Logon Locally / Deny Logon throug RDP/TerminalServices
         $ArrayList.Clear()
@@ -2366,7 +2367,7 @@
             DenyInteractiveLogon       = $ArrayList.ToArray()
             DenyRemoteInteractiveLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Logon as a Batch job / Logon as a Service
         $splat = @{
@@ -2374,7 +2375,7 @@
             BatchLogon   = $SG_Tier0ServiceAccount.SamAccountName, 'Performance Log Users'
             ServiceLogon = $SG_Tier0ServiceAccount.SamAccountName, 'Network Service'
         }
-        Set-GpoPrivilegeRights @splat
+        Set-GpoPrivilegeRight @splat
 
 
 
@@ -2417,7 +2418,7 @@
             DenyBatchLogon   = $ArrayList.ToArray()
             DenyServiceLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Back up files and directories / Bypass traverse checking / Create Global Objects / Create symbolic links
         # Change System Time / Change Time Zone / Force shutdown from a remote system
@@ -2458,7 +2459,7 @@
             Shutdown             = $ArrayList.ToArray()
             TakeOwnership        = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Generate security audits / Replace a process level token
         $Splat = @{
@@ -2466,7 +2467,7 @@
             ChangeNotify       = 'LOCAL SERVICE', 'NETWORK SERVICE'
             AssignPrimaryToken = 'LOCAL SERVICE', 'NETWORK SERVICE'
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
 
 
@@ -2499,7 +2500,7 @@
             BatchLogon   = $ArrayList.ToArray()
             ServiceLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Logon as a Batch job / Deny Logon as a Service
         $ArrayList.Clear()
@@ -2541,7 +2542,7 @@
             DenyBatchLogon   = $ArrayList.ToArray()
             DenyServiceLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Add workstations to domain / Backup files and directories / Create symbolic links
         # Change System Time / Change Time Zone / Force shutdown from a remote system
@@ -2578,7 +2579,7 @@
             Shutdown             = $ArrayList.ToArray()
             TakeOwnership        = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
 
 
@@ -2597,7 +2598,7 @@
             NetworkLogon     = $ArrayList.ToArray()
             InteractiveLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Access this computer from the network
         # Not Defined
@@ -2620,7 +2621,7 @@
             BatchLogon   = $ArrayList.ToArray()
             ServiceLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Logon as a Batch job / Deny Logon as a Service
         # Not Defined
@@ -2651,7 +2652,7 @@
             InteractiveLogon       = $ArrayList.ToArray()
             RemoteInteractiveLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
         # Not Defined
@@ -2700,7 +2701,7 @@
             Shutdown             = $ArrayList.ToArray()
             TakeOwnership        = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
 
         # Admin Area = Tier0 Infrastructure
@@ -2727,7 +2728,7 @@
             InteractiveLogon       = $ArrayList.ToArray()
             RemoteInteractiveLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
         # Not Defined
@@ -2744,7 +2745,7 @@
             BatchLogon   = $SG_Tier0ServiceAccount.SamAccountName
             ServiceLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Logon as a Batch job / Deny Logon as a Service
         # Not Defined
@@ -2768,7 +2769,7 @@
             BatchLogon             = $SG_Tier1ServiceAccount.SamAccountName
             ServiceLogon           = $SG_Tier1ServiceAccount.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Logon as a Batch job / Deny Logon as a Service
         # Not Defined
@@ -2792,7 +2793,7 @@
             BatchLogon             = $SG_Tier2ServiceAccount.SamAccountName
             ServiceLogon           = $SG_Tier2ServiceAccount.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Logon as a Batch job / Deny Logon as a Service
         # Not Defined
@@ -2823,7 +2824,7 @@
             InteractiveLogon       = $ArrayList.ToArray()
             RemoteInteractiveLogon = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
         # Not Defined
@@ -2862,7 +2863,7 @@
             InteractiveLogon       = $SL_PAWM.SamAccountName, 'Administrators'
             RemoteInteractiveLogon = $SL_PAWM.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
 
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
@@ -2887,7 +2888,7 @@
             BatchLogon             = $SG_Tier0ServiceAccount.SamAccountName
             ServiceLogon           = $SG_Tier0ServiceAccount.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
         # Deny Logon as a Batch job / Deny Logon as a Service
@@ -2898,7 +2899,7 @@
             DenyBatchLogon             = $SG_Tier1ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
             DenyServiceLogon           = $SG_Tier1ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
 
 
@@ -2916,7 +2917,7 @@
             BatchLogon             = $SG_Tier1ServiceAccount.SamAccountName
             ServiceLogon           = $SG_Tier1ServiceAccount.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
         # Deny Logon as a Batch job / Deny Logon as a Service
@@ -2927,7 +2928,7 @@
             DenyBatchLogon             = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
             DenyServiceLogon           = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
 
 
@@ -2945,7 +2946,7 @@
             BatchLogon             = $SG_Tier2ServiceAccount.SamAccountName
             ServiceLogon           = $SG_Tier2ServiceAccount.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
         # Deny Logon as a Batch job / Deny Logon as a Service
@@ -2956,7 +2957,7 @@
             DenyBatchLogon             = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier1ServiceAccount.SamAccountName
             DenyServiceLogon           = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier1ServiceAccount.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
 
         #endregion
@@ -3022,7 +3023,7 @@
             InteractiveLogon       = $SG_Tier1Admins.SamAccountName
             RemoteInteractiveLogon = $SG_Tier1Admins.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
 
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices / Deny Logon as a Batch job / Deny Logon as a Service
@@ -3054,7 +3055,7 @@
             DenyBatchLogon             = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
             DenyServiceLogon           = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Back up files and directories / Bypass traverse checking / Create Global Objects / Create symbolic links
         # Change System Time / Change Time Zone / Force shutdown from a remote system
@@ -3091,7 +3092,7 @@
             Shutdown             = $ArrayList.ToArray()
             TakeOwnership        = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
 
 
@@ -3188,7 +3189,7 @@
             InteractiveLogon           = $SG_Tier2Admins.SamAccountName
             RemoteInteractiveLogon     = $SG_Tier2Admins.SamAccountName
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
         # Back up files and directories / Bypass traverse checking / Create Global Objects / Create symbolic links
         # Change System Time / Change Time Zone / Force shutdown from a remote system
@@ -3225,7 +3226,7 @@
             Shutdown             = $ArrayList.ToArray()
             TakeOwnership        = $ArrayList.ToArray()
         }
-        Set-GpoPrivilegeRights @Splat
+        Set-GpoPrivilegeRight @Splat
 
 
 
