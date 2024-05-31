@@ -63,6 +63,7 @@ function Set-AdAclDelegateComputerAdmin {
             Position = 1)]
         [ValidateNotNullOrEmpty()]
         [validateScript({ Test-IsValidDN -ObjectDN $_ })]
+        [Alias('DN', 'DistinguishedName')]
         [String]
         $LDAPpath,
 
@@ -72,6 +73,7 @@ function Set-AdAclDelegateComputerAdmin {
             Position = 2)]
         [ValidateNotNullOrEmpty()]
         [validateScript({ Test-IsValidDN -ObjectDN $_ })]
+        [Alias('QuarantineDistinguishedName', 'QuarantineLDAPpath')]
         [String]
         $QuarantineDN,
 
@@ -97,8 +99,10 @@ function Set-AdAclDelegateComputerAdmin {
 
         $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
+        $CurrentGroup = Get-AdObjectType -Identity $PSBoundParameters['Group']
+
         $Splat = @{
-            Group    = $PSBoundParameters['Group']
+            Group    = $CurrentGroup
             LDAPPath = $PSBoundParameters['LDAPpath']
         }
 
@@ -144,7 +148,7 @@ function Set-AdAclDelegateComputerAdmin {
                 Set-DeleteOnlyComputer @Splat
 
                 # Set LAPS
-                Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPpath $PSBoundParameters['LDAPpath']
+                Set-AdAclLaps -ResetGroup $CurrentGroup -ReadGroup $CurrentGroup -LDAPpath $PSBoundParameters['LDAPpath']
             } #end If
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
