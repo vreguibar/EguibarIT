@@ -1798,8 +1798,21 @@
         ###############################################################################
         #region redirect Users & Computers containers
 
-        New-DelegateAdOU -ouName $ItQuarantinePcOu -ouPath $Variables.AdDn -ouDescription $confXML.n.Admin.OUs.ItNewComputersOU.description -RemoveAuthenticatedUsers
-        New-DelegateAdOU -ouName $ItQuarantineUserOu -ouPath $Variables.AdDn -ouDescription $confXML.n.Admin.OUs.ItNewUsersOU.description -RemoveAuthenticatedUsers
+        $Splat = @{
+            ouName                   = $ItQuarantinePcOu
+            ouPath                   = $Variables.AdDn
+            ouDescription            = $confXML.n.Admin.OUs.ItNewComputersOU.description
+            RemoveAuthenticatedUsers = $true
+        }
+        New-DelegateAdOU @Splat
+
+        $Splat = @{
+            ouName                   = $ItQuarantineUserOu
+            ouPath                   = $Variables.AdDn
+            ouDescription            = $confXML.n.Admin.OUs.ItNewUsersOU.description
+            RemoveAuthenticatedUsers = $true
+        }
+        New-DelegateAdOU @Splat
 
         # START Remove Delegation to BuiltIn groups BEFORE REDIRECTION
 
