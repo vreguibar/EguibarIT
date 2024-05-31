@@ -27,17 +27,21 @@ function Test-IsValidDN {
     [OutputType([bool])]
     param
     (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'String to ve validated as DistinguishedName',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [Alias('DN', 'DistinguishedName')]
+        [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [string]
         $ObjectDN
     )
     Begin {
         # Define DN Regex
-        [regex]$distinguishedNameRegex = '^(?:(?<cn>CN=(?<name>(?:[^,]|\,)*)),)?(?:(?<path>(?:(?:CN|OU)=(?:[^,]|\,)+,?)+),)?(?<domain>(?:DC=(?:[^,]|\,)+,?)+)$'
+        [regex]$distinguishedNameRegex = '^(?:CN|OU|DC)=([^,]+(?:\,[^,]+)*)(?:\,(?:CN|OU|DC)=([^,]+(?:\,[^,]+)*))*$'
+
     } #end Begin
     Process {
         Try {
@@ -51,8 +55,7 @@ function Test-IsValidDN {
                     Write-Verbose "DistinguishedName validation result: $isValid"
                 } #end If
             } #end If
-        }
-        catch {
+        } catch {
             # Handle exceptions gracefully
             Get-CurrentErrorToDisplay -CurrentError $error[0]
         } #end Try-Catch

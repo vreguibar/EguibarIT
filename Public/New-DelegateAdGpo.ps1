@@ -57,18 +57,24 @@ function New-DelegateAdGpo {
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium', DefaultParameterSetName = 'DelegatedAdGpo')]
     #[OutputType([Microsoft.GroupPolicy.Gpo])]
+
     Param (
         # Param1 GPO description, used to generate name
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Description of the GPO. Used to build the name.',
             Position = 0)]
-        [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [string]
         $gpoDescription,
 
         # Param2 GPO scope. U = Users, C = Computers
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Scope of the GPO. U for Users and C for Computers DEFAULT is U. The non-used part of the GPO will get disabled',
             Position = 1)]
         [ValidateSet('U', 'C', ignorecase = $false)]
@@ -76,25 +82,34 @@ function New-DelegateAdGpo {
         $gpoScope,
 
         # Param3 GPO Link to OU
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'DistinguishedName where to link the newly created GPO',
             Position = 2)]
-        [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
+        [ValidateScript({ Test-IsValidDN -ObjectDN $_ })]
+        [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [string]
         $gpoLinkPath,
 
         # Param4 Domain Local Group with GPO Rights to be assigned
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Domain Local Group with GPO Rights to be assigned',
             Position = 3)]
-        [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [string]
         $GpoAdmin,
 
         # Param5 Restore GPO settings from backup using the BackupID GUID
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Restore GPO settings from backup using the BackupID GUID',
             ParameterSetName = 'DelegatedAdGpo',
             Position = 4)]
@@ -104,7 +119,10 @@ function New-DelegateAdGpo {
         $gpoBackupID,
 
         # Param6 Path where Backups are stored
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Path where Backups are stored',
             ParameterSetName = 'GpoBackup',
             Position = 5)]
@@ -133,7 +151,9 @@ function New-DelegateAdGpo {
         #$gpoAlreadyExist = [Microsoft.GroupPolicy.GroupPolicyObject]::New()
 
         $gpoName = '{0}-{1}' -f $PSBoundParameters['gpoScope'], $PSBoundParameters['gpoDescription']
-        #$adGroupName = Get-ADGroup -Identity $GpoAdmin
+
+        $GpoAdmin = Get-ADObjectType -Identity $GpoAdmin
+
         [system.string]$dcServer = (Get-ADDomaincontroller -Discover -Service 'PrimaryDC').HostName
 
     } # End Begin Section
@@ -252,16 +272,19 @@ function New-DelegateAdGpo {
             # Import the Backup
             Write-Verbose -Message ('Importing GPO Backup {0} from path {1} to GPO {2}' -f $PSBoundParameters['gpoBackupID'], $PSBoundParameters['gpoBackupPath'], $gpoName)
 
-            $Splat = @{
-                BackupId   = $PSBoundParameters['gpoBackupID']
-                TargetGuid = $gpoAlreadyExist.Id
-                path       = $PSBoundParameters['gpoBackupPath']
-                Verbose    = $true
-            }
-            if ($PSCmdlet.ShouldProcess("Importing GPO Backup '$gpoBackupID' to GPO '$gpoName'", 'Confirm import')) {
-                Import-GPO @Splat
-            }
-
+            If (Test-Path -Path ('{0}\{1}' -f $PSBoundParameters['gpoBackupPath'], $PSBoundParameters['gpoBackupID'])) {
+                $Splat = @{
+                    BackupId   = $PSBoundParameters['gpoBackupID']
+                    TargetGuid = $gpoAlreadyExist.Id
+                    path       = $PSBoundParameters['gpoBackupPath']
+                    Verbose    = $true
+                }
+                if ($PSCmdlet.ShouldProcess("Importing GPO Backup '$gpoBackupID' to GPO '$gpoName'", 'Confirm import')) {
+                    Import-GPO @Splat
+                } #end If
+            } else {
+                Write-Warning -Message ('No valid backup was found on !!' -f $PSBoundParameters['gpoBackupPath'])
+            } #end If-Else
         } # End If
 
     } # End Process Section
