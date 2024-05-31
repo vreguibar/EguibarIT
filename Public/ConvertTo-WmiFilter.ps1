@@ -1,5 +1,4 @@
-function ConvertTo-WmiFilter
-{
+function ConvertTo-WmiFilter {
     <#
         .Synopsis
         .DESCRIPTION
@@ -19,7 +18,7 @@ function ConvertTo-WmiFilter
         [Microsoft.ActiveDirectory.Management.ADObject[]] $ADObject
     )
 
-    Begin  {
+    Begin {
         $error.Clear()
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
@@ -29,7 +28,7 @@ function ConvertTo-WmiFilter
         ##############################
         # Variables Definition
 
-    }
+    } #end Begin
 
     Process {
         # The concept of this function has been taken directly from the GPWmiFilter.psm1 module
@@ -43,8 +42,7 @@ function ConvertTo-WmiFilter
             $filter = $null
             try {
                 $filter = $gpDomain.GetWmiFilter($path)
-            }
-            catch {
+            } catch {
                 Write-Error -Message 'The WMI filter could not be found.'
                 Get-CurrentErrorToDisplay -CurrentError $error[0]
             }
@@ -52,20 +50,20 @@ function ConvertTo-WmiFilter
                 [Guid]$Guid = $_.Name.Substring(1, $_.Name.Length - 2)
                 $filter |
                     Add-Member -MemberType NoteProperty -Name Guid -Value $Guid -PassThru |
-                    Add-Member -MemberType NoteProperty -Name Content -Value $_.'msWMI-Parm2' -PassThru
-            } else {
-                Write-Warning -Message 'Waiting 5 seconds for Active Directory replication to complete.'
-                Start-Sleep -Seconds 5
-                Write-Warning -Message 'Trying again to retrieve the WMI filter.'
-                ConvertTo-WmiFilter $ADObject
-            }
-        }
-    }
+                        Add-Member -MemberType NoteProperty -Name Content -Value $_.'msWMI-Parm2' -PassThru
+                    } else {
+                        Write-Warning -Message 'Waiting 5 seconds for Active Directory replication to complete.'
+                        Start-Sleep -Seconds 5
+                        Write-Warning -Message 'Trying again to retrieve the WMI filter.'
+                        ConvertTo-WmiFilter $ADObject
+                    }
+                }
+            } #end Process
 
-    End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished converting the WMI filter."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+            End {
+                Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished converting the WMI filter."
+                Write-Verbose -Message ''
+                Write-Verbose -Message '-------------------------------------------------------------------------------'
+                Write-Verbose -Message ''
+            } #end Function
+        }

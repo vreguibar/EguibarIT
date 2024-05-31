@@ -51,7 +51,7 @@ function Add-AdGroupNesting {
 
         Import-MyModule -Name ActiveDirectory -Verbose:$false
 
-        # Define arraylists
+        # Define array lists
         $CurrentMembers = [System.Collections.ArrayList]::new()
         $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
