@@ -68,7 +68,10 @@
     [OutputType([Microsoft.ActiveDirectory.Management.AdGroup])]
     Param (
         # Param1 Group which membership is to be changed
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Name of the group to be created. SamAccountName',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
@@ -76,7 +79,10 @@
         $Name,
 
         # Param2 Group category, either Security or Distribution
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Group category, either Security or Distribution',
             Position = 1)]
         [ValidateSet('Security', 'Distribution')]
@@ -84,7 +90,10 @@
         $GroupCategory,
 
         # Param3 Group Scope, either DomainLocal, Global or Universal
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Group Scope, either DomainLocal, Global or Universal',
             Position = 2)]
         [ValidateSet('DomainLocal', 'Global', 'Universal')]
@@ -92,7 +101,10 @@
         $GroupScope,
 
         # Param4 Display Name of the group to be created
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Display Name of the group to be created',
             Position = 3)]
         [ValidateNotNullOrEmpty()]
@@ -100,15 +112,23 @@
         $DisplayName,
 
         # Param5 DistinguishedName of the container where the group will be created.
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'DistinguishedName of the container where the group will be created.',
             Position = 4)]
         [ValidateNotNullOrEmpty()]
+        [ValidateScript({ Test-IsValidDN -ObjectDN $_ })]
+        [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [System.String]
         $path,
 
         # Param6 Description of the group.
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Description of the group.',
             Position = 5)]
         [ValidateNotNullOrEmpty()]
@@ -116,35 +136,50 @@
         $Description,
 
         # Param7 Protect from accidental deletion.
-        [Parameter(Mandatory = $False, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $False,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Protect from accidental deletion.',
             Position = 6)]
         [Switch]
         $ProtectFromAccidentalDeletion,
 
         # Param8 Remove Account Operators Built-In group.
-        [Parameter(Mandatory = $False, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $False,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Remove Account Operators Built-In group',
             Position = 7)]
         [Switch]
         $RemoveAccountOperators,
 
         # Param9 Remove Everyone Built-In group.
-        [Parameter(Mandatory = $False, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $False,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Remove Everyone Built-In group',
             Position = 8)]
         [Switch]
         $RemoveEveryone,
 
         # Param10 Remove Authenticated Users Built-In group.
-        [Parameter(Mandatory = $False, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $False,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Remove Authenticated Users Built-In group',
             Position = 9)]
         [Switch]
         $RemoveAuthUsers,
 
         # Param11 Remove Pre-Windows 2000 Built-In group.
-        [Parameter(Mandatory = $False, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $False,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Remove Pre-Windows 2000 Built-In group',
             Position = 10)]
         [Switch]
@@ -178,7 +213,7 @@
 
             Write-Verbose -Message ('Group {0} does not exists. Creating it!' -f $PSBoundParameters['Name'])
 
-            if ($PSCmdlet.ShouldProcess("$Name", 'Group does not exist. SHould it be created?')) {
+            if ($PSCmdlet.ShouldProcess("$Name", 'Group does not exist. Should it be created?')) {
 
                 Try {
                     $Splat = @{
@@ -187,15 +222,19 @@
                         GroupCategory  = $PSBoundParameters['GroupCategory']
                         GroupScope     = $PSBoundParameters['GroupScope']
                         DisplayName    = $PSBoundParameters['DisplayName']
-                        Path           = $PSBoundParameters['path']
+                        path           = $PSBoundParameters['path']
                         Description    = $PSBoundParameters['Description']
+                        Passthru       = $true
+                        ErrorAction    = 'Stop'
                     }
                     $newGroup = New-ADGroup @Splat
-                    Write-Verbose -Message ('Group {0} created successfully.' -f $name)
+                    Write-Verbose -Message ('Group {0} created successfully.' -f $PSBoundParameters['Name'])
 
                 } catch {
                     Get-CurrentErrorToDisplay -CurrentError $error[0]
-                    Write-Warning -Message ('An unhandeled error was thrown when creating Groups {0}' -f $PSBoundParameters['Name'])
+
+                    Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
+                    Return
                 } #end Try-Catch
 
             } #end If
@@ -209,11 +248,12 @@
             # Modify existing group
             Try {
                 $Splat = @{
-                    Identity      = $PSBoundParameters['Name']
+                    Identity      = $groupExists
                     Description   = $PSBoundParameters['Description']
                     DisplayName   = $PSBoundParameters['DisplayName']
                     GroupCategory = $PSBoundParameters['GroupCategory']
                     GroupScope    = $PSBoundParameters['GroupScope']
+                    ErrorAction   = 'Stop'
                 }
                 if ($Force -or $PSCmdlet.ShouldProcess('Existing group. Should it be Modified?')) {
                     $newGroup = Set-ADGroup @Splat
@@ -221,12 +261,13 @@
 
                 If (-not($newGroup.DistinguishedName -contains $PSBoundParameters['path'])) {
                     # Move object to the corresponding OU
-                    Move-ADObject -Identity $newGroup.DistinguishedName -TargetPath $PSBoundParameters['path']
+                    Move-ADObject -Identity $newGroup.DistinguishedName -TargetPath $PSBoundParameters['path'] -ErrorAction Stop
                 }
 
             } catch {
                 Get-CurrentErrorToDisplay -CurrentError $error[0]
-                Write-Warning -Message ('An unhandeled error was thrown when modifying Groups {0}' -f $PSBoundParameters['Name'])
+                Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
+                Return
             } #end Try-Catch
 
         } #end If-Else
@@ -234,7 +275,7 @@
 
 
         # Get the group again and store it on variable.
-        $newGroup = Get-ADGroup -Filter { SamAccountName -eq $Name }
+        $newGroup = Get-ADGroup -Filter { SamAccountName -eq $PSBoundParameters['Name'] }
 
 
         # Protect From Accidental Deletion

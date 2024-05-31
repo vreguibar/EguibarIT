@@ -1,5 +1,5 @@
-function Get-AdObjectType {
-  <#
+﻿function Get-AdObjectType {
+    <#
     .SYNOPSIS
         This function retrieves the type of an Active Directory object based on the provided identity.
 
@@ -45,150 +45,139 @@ function Get-AdObjectType {
         Microsoft.ActiveDirectory.Management.AdGroup
 
     .NOTES
-        Version:         1.0
-            DateModified:    08/Oct/2021
+        Version:         1.2
+            DateModified:    31/May/2024
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-  [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'low')]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'low')]
 
-  Param (
-    # Param1
-    [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
-      HelpMessage = 'Identity of the object',
-      Position = 0)]
-    [ValidateNotNullOrEmpty()]
-    [Alias('ID', 'SamAccountName', 'DistinguishedName', 'DN', 'SID')]
-    $Identity
-  )
+    Param (
+        # Param1
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'Identity of the object',
+            Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [Alias('ID', 'SamAccountName', 'DistinguishedName', 'DN', 'SID')]
+        $Identity
+    )
 
-  Begin {
-    Write-Verbose -Message '|=> ************************************************************************ <=|'
-    Write-Verbose -Message (Get-Date).ToShortDateString()
-    Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-    Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
+    Begin {
+        Write-Verbose -Message '|=> ************************************************************************ <=|'
+        Write-Verbose -Message (Get-Date).ToShortDateString()
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
+        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
 
-    Import-MyModule -name 'ActiveDirectory' -Verbose:$false
+        Import-MyModule -name 'ActiveDirectory' -Verbose:$false
 
 
-    ##############################
-    # Variables Definition
+        ##############################
+        # Variables Definition
 
-    $ReturnValue = $null
-    $newObject = $null
+        $ReturnValue = $null
+        $newObject = $null
 
-  } # End Begin Section
+    } # End Begin Section
 
-  Process {
+    Process {
 
-    # Known Identities OR AD Objects
-    If ($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount]) {
+        try {
+            # Known Identities OR AD Objects
+            if ($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount] -or
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADComputer] -or
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADGroup] -or
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]) {
 
-      Write-Verbose -Message 'AD User Object'
-      [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = $Identity
+                Write-Verbose -Message ('----> Known AD Object Type: {0}' -f $Identity.GetType().Name)
+                $ReturnValue = $Identity
 
-    } ElseIf ($Identity -is [Microsoft.ActiveDirectory.Management.ADComputer]) {
+            } elseif ($Identity -is [string]) {
 
-      Write-Verbose -Message 'AD Computer Object'
-      [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = $Identity
+                Write-Verbose -Message ('Identity is a string: {0}. Trying to resolve it!' -f $Identity)
 
-    } ElseIf ($Identity -is [Microsoft.ActiveDirectory.Management.AdGroup]) {
+                if (Test-IsValidDN -ObjectDN $Identity) {
 
-      Write-Verbose -Message 'AD Group Object'
-      [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = $Identity
+                    Write-Verbose -Message 'Looking for DistinguishedName'
+                    $newObject = Get-ADObject -Filter { DistinguishedName -eq $Identity }
 
-    } ElseIf ($Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]) {
+                } elseif (Test-IsValidSID -ObjectSID $Identity) {
 
-      Write-Verbose -Message 'Organizational Unit Object'
-      [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]$ReturnValue = $Identity
+                    Write-Verbose -Message 'Looking for ObjectSID'
+                    $newObject = Get-ADObject -Filter { ObjectSID -eq $Identity }
 
-    } else {
-      Try {
-        If ($Identity -is [String]) {
-          Write-Verbose -Message 'Simple String... Try to identify if SamAccountNamem DistinguishedName or SID as string.'
+                } elseif (Test-IsValidGUID -ObjectGUID $Identity) {
 
-          if (Test-IsValidDN -ObjectDN $Identity) {
+                    Write-Verbose -Message 'Looking for ObjectGUID'
+                    $newObject = Get-ADObject -Filter { ObjectGUID -eq $Identity }
 
-            Write-Verbose -Message 'Looking for DistinguishedName'
+                } else {
 
-            $newObject = Get-ADObject -Filter { DistinguishedName -eq $Identity }
+                    Write-Verbose -Message 'Looking for SamAccountName'
+                    $newObject = Get-ADObject -Filter { SamAccountName -eq $Identity }
+                } #end If-ElseIf-Else
+            } else {
+                throw "Unsupported Identity type: $($Identity.GetType().Name)"
+                return $null
+            } #end If-ElseIf-Else
 
-          } elseif (Test-IsValidSID -ObjectSID $Identity) {
 
-            Write-Verbose -Message 'Looking for ObjectSID'
-            $newObject = Get-ADObject -Filter { ObjectSID -eq $Identity }
 
-          } elseif (Test-IsValidGUID -ObjectGUID $Identity) {
 
-            Write-Verbose -Message 'Looking for ObjectGUID'
-            $newObject = Get-ADObject -Filter { ObjectGUID -eq $Identity }
+            If ($newObject -and (-not $ReturnValue)) {
+                # once we have the object, lets get it from AD
+                Switch ($newObject.ObjectClass) {
 
-          } else {
+                    'user' {
+                        Write-Verbose -Message '#|-----> AD User Object from STRING'
+                        [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = Get-ADUser -Identity $newObject
+                    }
 
-            Write-Verbose -Message 'Looking for SamAccountName'
-            $newObject = Get-ADObject -Filter { SamAccountName -eq $Identity }
+                    'group' {
+                        Write-Verbose -Message '#|-----> AD Group Object from STRING'
+                        [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = Get-ADGroup -Identity $newObject
+                    }
 
-          } #end if-ElseIf-Else
+                    'computer' {
+                        Write-Verbose -Message '#|-----> AD Computer Object from STRING'
+                        [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = Get-ADComputer -Identity $newObject
+                    }
+
+                    'organizationalUnit' {
+                        Write-Verbose -Message '#|-----> AD Organizational Unit Object from STRING'
+                        [Microsoft.ActiveDirectory.Management.organizationalUnit]$ReturnValue = Get-ADOrganizationalUnit -Identity $newObject
+                    }
+
+                    Default {
+                        Write-Error -Message ('#|-----> Unknown object type for identity: {0}' -f $Identity)
+
+                        return $null
+                    }
+                } # End Switch
+
+            } #end If
+        } catch {
+            Write-Error -Message "An error occurred: $_"
+            $ReturnValue = $null
+        }
+
+
+    } # End Process Section
+
+    End {
+        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD object type."
+        Write-Verbose -Message ''
+        Write-Verbose -Message '-------------------------------------------------------------------------------'
+        Write-Verbose -Message ''
+
+        if ($null -ne $ReturnValue) {
+            Write-Output $ReturnValue
         } #end If
-      } catch {
-        Get-CurrentErrorToDisplay -CurrentError $error[0]
-
-        return $null
-      } #end Try-Catch
-    } #end If-ElseIf-Else
-
-
-
-
-
-    If ($newObject -and (-not $ReturnValue)) {
-      # once we have the object, lets get it from AD
-      Switch ($newObject.ObjectClass) {
-
-        'user' {
-          Write-Verbose -Message '#|-----> AD User Object from STRING'
-          [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = Get-ADUser -Identity $newObject
-        }
-
-        'group' {
-          Write-Verbose -Message '#|-----> AD Group Object from STRING'
-          [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = Get-ADGroup -Identity $newObject
-        }
-
-        'computer' {
-          Write-Verbose -Message '#|-----> AD Computer Object from STRING'
-          [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = Get-ADComputer -Identity $newObject
-        }
-
-        'organizationalUnit' {
-          Write-Verbose -Message '#|-----> AD Organizational Unit Object from STRING'
-          [Microsoft.ActiveDirectory.Management.organizationalUnit]$ReturnValue = Get-ADOrganizationalUnit -Identity $newObject
-        }
-
-        Default {
-          Write-Error -Message "#|-----> Unknown object type for identity: $Identity"
-
-          return $null
-        }
-      } # End Switch
-
-    } #end If
-
-
-  } # End Process Section
-
-  End {
-    Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD object type."
-    Write-Verbose -Message ''
-    Write-Verbose -Message '-------------------------------------------------------------------------------'
-    Write-Verbose -Message ''
-
-    if ($null -ne $ReturnValue) {
-      Write-Output $ReturnValue
-    } #end If
-  } # End End Section
+    } # End End Section
 
 } #end Function

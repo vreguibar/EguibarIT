@@ -842,10 +842,15 @@
         Set-ADObject -Identity $newAdminName.ObjectGUID -ProtectedFromAccidentalDeletion $true
 
         # Make it member of administrative groups
-        Add-AdGroupNesting -Identity 'Domain Admins' -Members $newAdminName
-        Add-AdGroupNesting -Identity 'Enterprise Admins' -Members $newAdminName
-        Add-AdGroupNesting -Identity 'Group Policy Creator Owners' -Members $newAdminName
-        Add-AdGroupNesting -Identity 'Denied RODC Password Replication Group' -Members $newAdminName
+
+        $DomainAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-512' }
+        Add-AdGroupNesting -Identity $DomainAdmins -Members $newAdminName
+        $EnterpriseAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-519' }
+        Add-AdGroupNesting -Identity $EnterpriseAdmins -Members $newAdminName
+        $GPOCreatorsOwner = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-520' }
+        Add-AdGroupNesting -Identity $GPOCreatorsOwner -Members $newAdminName
+        $DeniedRODC = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-572' }
+        Add-AdGroupNesting -Identity $DeniedRODC -Members $newAdminName
 
         # http://blogs.msdn.com/b/muaddib/archive/2013/12/30/how-to-modify-security-inheritance-on-active-directory-objects.aspx
 
@@ -1186,8 +1191,8 @@
         Start-Sleep -Seconds 5
         # Apply the PSO to the corresponding accounts and groups
         $ArrayList.Clear()
-        [void]$ArrayList.Add('Domain Admins')
-        [void]$ArrayList.Add('Enterprise Admins')
+        [void]$ArrayList.Add($DomainAdmins.SamAccountName)
+        [void]$ArrayList.Add($EnterpriseAdmins.SamAccountName)
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName.SamAccountName)
         }
