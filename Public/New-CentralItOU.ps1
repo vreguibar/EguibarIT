@@ -406,6 +406,9 @@
         $AccountOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
 
 
+        # DNS Administrators
+        $DnsAdmins = Get-AdGroup -Identity'DnsAdmins'
+
         #endregion Users
 
 
@@ -726,7 +729,7 @@
 
         Get-ADGroup -Identity 'Allowed RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'RAS and IAS Servers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'DNSAdmins' | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
+        Get-ADGroup -Identity $DnsAdmins | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Cert Publishers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Denied RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Protected Users' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
@@ -1564,7 +1567,7 @@
 
         Add-AdGroupNesting -Identity $CryptoOperators -Members $SG_AdAdmins
 
-        Add-AdGroupNesting -Identity 'DnsAdmins' -Members $SG_AdAdmins, $SG_Tier0Admins
+        Add-AdGroupNesting -Identity $DnsAdmins -Members $SG_AdAdmins, $SG_Tier0Admins
 
         Add-AdGroupNesting -Identity $EvtLogReaders -Members $SG_AdAdmins, $SG_Operations
 
