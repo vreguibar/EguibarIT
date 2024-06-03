@@ -381,13 +381,13 @@
         # Administrator
         $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
         # Domain Admins
-        $DomainAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-512' }
+        $DomainAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
         # Enterprise Admins
-        $EnterpriseAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-519' }
+        $EnterpriseAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
         # Group Policy Creators Owner
-        $GPOCreatorsOwner = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-520' }
+        $GPOCreatorsOwner = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
         # Denied RODC Password Replication Group
-        $DeniedRODC = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-572' }
+        $DeniedRODC = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
         # Cryptographic Operators
         $CryptoOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
         # Event Log Readers
@@ -1114,7 +1114,8 @@
         #region Create Group Managed Service Account
 
         # Get the current OS build
-        # Create the KDS Root Key (only once per domain).  This is used by the KDS service on DCs (along with other information) to generate passwords
+        # Create the KDS Root Key (only once per domain).  This is used by the KDS service
+        # on DCs (along with other information) to generate passwords
         # http://blogs.technet.com/b/askpfeplat/archive/2012/12/17/windows-server-2012-group-managed-service-accounts.aspx
         # If working in a test environment with a minimal number of DCs and the ability to guarantee immediate replication, please use:
         Add-KdsRootKey -EffectiveTime ((Get-Date).addhours(-10))

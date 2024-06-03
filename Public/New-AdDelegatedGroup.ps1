@@ -277,7 +277,7 @@
 
 
         # Get the group again and store it on variable.
-        $newGroup = Get-ADGroup -Filter { SamAccountName -eq $PSBoundParameters['Name'] }
+        $newGroup = Get-ADGroup -Identity $newGroup
 
 
         # Protect From Accidental Deletion
