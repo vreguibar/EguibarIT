@@ -58,6 +58,7 @@ function Test-IsValidDN {
         } catch {
             # Handle exceptions gracefully
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         } #end Try-Catch
     } #end Process
     end {

@@ -186,6 +186,7 @@ function New-DelegateAdOU {
             $ouNameDN = 'OU={0},{1}' -f $PSBoundParameters['ouName'], $PSBoundParameters['ouPath']
         } Catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         } #end Try-Catch
 
         $OUexists = [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]::New()
@@ -232,6 +233,7 @@ function New-DelegateAdOU {
             } #end If-Else
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         } #end Try-Catch
 
         # Remove "Account Operators" and "Print Operators" built-in groups from OU. Any unknown/UnResolvable SID will be removed.

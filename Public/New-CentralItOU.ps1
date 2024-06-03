@@ -264,6 +264,7 @@
             } #end if
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         } # End Try
 
         # Read the value from parsed SWITCH parameters.
@@ -314,6 +315,7 @@
             }
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         } # End Try
 
 
@@ -868,6 +870,7 @@
                 New-ADUser @Splat
             } Catch {
                 Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
             }
 
             #http://blogs.msdn.com/b/openspecification/archive/2011/05/31/windows-configurations-for-kerberos-supported-encryption-type.aspx
@@ -1169,6 +1172,7 @@
                     New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
                 } catch {
                     Get-CurrentErrorToDisplay -CurrentError $error[0]
+                    throw
                 } #end Try-Catch
             } else {
                 $Splat = @{

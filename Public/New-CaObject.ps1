@@ -188,6 +188,7 @@ LoadDefaultTemplates=0
             } # End If
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         } # End Try-Catch
         finally {
 

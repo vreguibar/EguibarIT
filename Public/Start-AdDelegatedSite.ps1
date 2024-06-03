@@ -125,6 +125,7 @@ function Start-AdDelegateSite {
             } #end if
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         }
 
 

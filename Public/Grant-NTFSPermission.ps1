@@ -25,7 +25,7 @@ function Grant-NTFSPermission {
         # Param1 path to the resource|folder
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Absolute path to the object',
-        Position = 0)]
+            Position = 0)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -34,7 +34,7 @@ function Grant-NTFSPermission {
         # Param2 object or SecurityPrincipal
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Name of the Identity getting the permission.',
-        Position = 1)]
+            Position = 1)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -43,7 +43,7 @@ function Grant-NTFSPermission {
         # Param3 permission
         [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
             HelpMessage = 'Permission of the object',
-        Position = 2)]
+            Position = 2)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -63,10 +63,10 @@ function Grant-NTFSPermission {
 
         # Possible values for FileSystemRights are:
         # ReadAndExecute, AppendData, CreateFiles, read, write, Modify, FullControl
-        $FileSystemRights  = [Security.AccessControl.FileSystemRights]$PSBoundParameters['permission']
+        $FileSystemRights = [Security.AccessControl.FileSystemRights]$PSBoundParameters['permission']
 
-        $InheritanceFlag   = [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
-        $PropagationFlag   = [Security.AccessControl.PropagationFlags]::None
+        $InheritanceFlag = [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
+        $PropagationFlag = [Security.AccessControl.PropagationFlags]::None
         $AccessControlType = [Security.AccessControl.AccessControlType]::Allow
     }
     Process {
@@ -80,10 +80,12 @@ function Grant-NTFSPermission {
             $DirectorySecurity.AddAccessRule($FileSystemAccessRule)
 
             Set-Acl -Path $PSBoundParameters['path'] -AclObject $DirectorySecurity
-        } catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
+        } catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
+        }
     }
-    End
-    {
+    End {
         Write-Verbose -Message ('The User/Group {0} was given {1} to folder {2}.' -f $PSBoundParameters['object'], $PSBoundParameters['permission'], $PSBoundParameters['path'])
         Write-Verbose -Message ''
         Write-Verbose -Message '-------------------------------------------------------------------------------'

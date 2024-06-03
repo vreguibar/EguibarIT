@@ -111,6 +111,7 @@ function Set-AdAclDelegateGalAdmin {
             } #end If
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         }
     } #end Process
     End {

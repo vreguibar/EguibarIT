@@ -65,6 +65,7 @@ function New-EitAdSite {
             } CATCH {
                 Write-Warning -Message ('An error occured while attempting to create the new site {0} in the AD Site Path: {1} `r ' -f $PSBoundParameters['NewSiteName'], $ADSiteDN)
                 Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
             }
 
             $SiteCreationCheck = Test-Path -Path AD:$NewADSiteDN
@@ -86,6 +87,7 @@ function New-EitAdSite {
                 CATCH {
                     Write-Warning -Message ('An error occured while attempting to create site {0} child objects in the AD Site Path: {1} `r ' -f $PSBoundParameters['NewSiteName'], $NewADSiteDN)
                     Get-CurrentErrorToDisplay -CurrentError $error[0]
+                    throw
                 }
             }#end elseIf
         }#end elseIf

@@ -232,6 +232,7 @@
 
                 } catch {
                     Get-CurrentErrorToDisplay -CurrentError $error[0]
+                    throw
 
                     Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
                     Return
@@ -266,6 +267,7 @@
 
             } catch {
                 Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
                 Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
                 Return
             } #end Try-Catch

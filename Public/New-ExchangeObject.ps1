@@ -69,6 +69,7 @@ Function New-ExchangeObject {
             } #end if
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         }
 
 

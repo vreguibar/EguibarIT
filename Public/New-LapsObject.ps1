@@ -75,6 +75,7 @@ Function New-LAPSobject {
             } #end if
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         }
 
         If (-Not (Test-Path -Path variable:NC)) {
@@ -207,6 +208,7 @@ Function New-LAPSobject {
                         Update-LapsADSchema -Confirm:$false -Verbose
                     } catch {
                         Get-CurrentErrorToDisplay -CurrentError $error[0]
+                        throw
                     } finally {
                         # If Schema extension OK, remove user from Schema Admin
                         Remove-ADGroupMember -Identity 'Schema Admins' -Members $env:username -Confirm:$false
@@ -216,6 +218,7 @@ Function New-LAPSobject {
         }#end try
         catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         } Finally {
             Write-Verbose -Message 'Schema was extended successfully for LAPS.'
         }#end finally

@@ -112,6 +112,7 @@ Function New-Template {
         catch {
             # Handle errors here
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         } #end Try-Catch
     } # End PROCESS section
 

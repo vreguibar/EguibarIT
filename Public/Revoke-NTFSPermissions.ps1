@@ -1,6 +1,5 @@
-function Revoke-NTFSPermissions
-{
-<#
+function Revoke-NTFSPermissions {
+    <#
     .Synopsis
     Function to remove NTFS permissions to a folder
     .DESCRIPTION
@@ -19,42 +18,42 @@ function Revoke-NTFSPermissions
     Eguibar Information Technology S.L.
     http://www.eguibarit.com
 #>
-  [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
-  Param
-  (
-    # Param1 path to the resource|folder
-    [Parameter(Mandatory = $true,HelpMessage = 'Add help message for user',
-        ValueFromPipeline = $true,
-        ValueFromPipelineByPropertyName = $true,
-        ValueFromRemainingArguments = $false,
-    Position = 0)]
-    [ValidateNotNull()]
-    [ValidateNotNullOrEmpty()]
-    [string]
-    $path,
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    Param
+    (
+        # Param1 path to the resource|folder
+        [Parameter(Mandatory = $true, HelpMessage = 'Add help message for user',
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
+            Position = 0)]
+        [ValidateNotNull()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $path,
 
-    # Param2 object or SecurityPrincipal
-    [Parameter(Mandatory = $true,HelpMessage = 'Add help message for user',
-        ValueFromPipeline = $true,
-        ValueFromPipelineByPropertyName = $true,
-        ValueFromRemainingArguments = $false,
-    Position = 1)]
-    [ValidateNotNull()]
-    [ValidateNotNullOrEmpty()]
-    [string]
-    $object,
+        # Param2 object or SecurityPrincipal
+        [Parameter(Mandatory = $true, HelpMessage = 'Add help message for user',
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
+            Position = 1)]
+        [ValidateNotNull()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $object,
 
-    # Param3 permission
-    [Parameter(Mandatory = $true,HelpMessage = 'Add help message for user',
-        ValueFromPipeline = $true,
-        ValueFromPipelineByPropertyName = $true,
-        ValueFromRemainingArguments = $false,
-    Position = 2)]
-    [ValidateNotNull()]
-    [ValidateNotNullOrEmpty()]
-    [string]
-    $permission
-  )
+        # Param3 permission
+        [Parameter(Mandatory = $true, HelpMessage = 'Add help message for user',
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
+            Position = 2)]
+        [ValidateNotNull()]
+        [ValidateNotNullOrEmpty()]
+        [string]
+        $permission
+    )
     Begin {
         $error.Clear()
 
@@ -79,8 +78,10 @@ function Revoke-NTFSPermissions
             $DirectorySecurity = Get-Acl -Path $path
             $DirectorySecurity.RemoveAccessRuleAll($FileSystemAccessRule)
             Set-Acl -Path $path -AclObject $DirectorySecurity
+        } Catch {
+            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         }
-        Catch { Get-CurrentErrorToDisplay -CurrentError $error[0] }
     }
     End {
         Write-Verbose -Message ('The User/Group {0} was removed {1} from folder {2}.' -f $object, $permission, $path)

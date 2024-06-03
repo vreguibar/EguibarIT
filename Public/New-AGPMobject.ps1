@@ -78,6 +78,7 @@
             } #end if
         } catch {
             Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
         } #end Try-Catch
 
 
@@ -202,6 +203,7 @@
                 New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
             } catch {
                 Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
             }
         } else {
             $Splat = @{
