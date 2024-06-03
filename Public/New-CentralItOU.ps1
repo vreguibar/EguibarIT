@@ -235,6 +235,7 @@
         ################################################################################
         # Initializations
 
+        # These modules must be imported without checking and handling.
         Import-Module -Name ServerManager -Force -Verbose:$false
         Import-Module -Name GroupPolicy -Force -Verbose:$false
 
@@ -251,6 +252,7 @@
         ################################################################################
         #region Declarations
 
+        #region Files-Splatting
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
             If (-Not (Test-Path -Path variable:confXML)) {
@@ -314,6 +316,8 @@
             Get-CurrentErrorToDisplay -CurrentError $error[0]
         } # End Try
 
+
+
         # Naming conventions hashtable
         $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix;
             'sg'     = $confXML.n.NC.GlobalGroupPreffix;
@@ -362,13 +366,45 @@
         }
         New-Variable @Splat
 
+        #endregion Files-Splatting
 
 
-        # Users
+        #region Users
         $AdminName = $confXML.n.Admin.users.Admin.Name
         $newAdminName = $confXML.n.Admin.users.NEWAdmin.Name
 
 
+        # Get the AD Objects by Well-Known SID
+
+        # Administrator
+        $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+        # Domain Admins
+        $DomainAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-512' }
+        # Enterprise Admins
+        $EnterpriseAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-519' }
+        # Group Policy Creators Owner
+        $GPOCreatorsOwner = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-520' }
+        # Denied RODC Password Replication Group
+        $DeniedRODC = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-572' }
+        # Cryptographic Operators
+        $CryptoOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
+        # Event Log Readers
+        $EvtLogReaders = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-573' }
+        # Performance Log Users
+        $PerfLogUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-559' }
+        # Performance Monitor Users
+        $PerfMonitorUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-558' }
+        # Remote Desktop Users
+        $RemoteDesktopUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-555' }
+        # Server Operators
+        $ServerOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-549' }
+        # Remote Management Users
+        $RemoteMngtUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-580' }
+        # Account Operators
+        $AccountOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
+
+
+        #endregion Users
 
 
 
@@ -386,8 +422,10 @@
             New-Variable @Splat
         }
 
+        #region DistinguishedNames
         # Organizational Units Distinguished Names
 
+        #region Tier0DistinguishedNames
         # Domain Controllers DistinguishedName
         $DCsOuDn = ('OU=Domain Controllers,{0}' -f $Variables.AdDn)
 
@@ -456,6 +494,7 @@
         # It HOUSEKEEPING OU Distinguished Name
         $ItHousekeepingOuDn = 'OU={0},{1}' -f $ItHousekeepingOu, $ItAdminOuDn
 
+        #endregion Tier0DistinguishedNames
 
 
         # Servers Area
@@ -489,6 +528,7 @@
         # Sites GLOBAL APPACCUSERS OU Distinguished Name
         $SitesGlobalAppAccUserOuDn = 'OU={0},{1}' -f $SitesGlobalAppAccUserOu, $SitesGlobalOuDn
 
+        #endregion DistinguishedNames
 
 
 
@@ -658,8 +698,7 @@
 
         Write-Verbose -Message 'Moving objects...'
 
-        # Get the Administrator by Well-Known SID and if not named as per the XML file, proceed to rename it
-        $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+
         If ($AdminName.SamAccountName -ne $confXML.n.Admin.users.Admin.Name) {
             Rename-ADObject -Identity $AdminName.DistinguishedName -NewName $confXML.n.Admin.users.Admin.Name
             Set-ADUser $AdminName -SamAccountName $confXML.n.Admin.users.Admin.Name -DisplayName $confXML.n.Admin.users.Admin.Name
@@ -670,7 +709,7 @@
         Get-ADUser -Identity $confXML.n.Admin.users.Guest.Name | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $env:COMPUTERNAME
         Get-ADUser -Identity krbtgt | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $env:COMPUTERNAME
 
-        Get-ADGroup -Identity 'Domain Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
+        Get-ADGroup -Identity $DomainAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Enterprise Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Schema Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
@@ -723,7 +762,7 @@
         # Get-ADGroup "Users" |                                   Move-ADObject -TargetPath $ItRightsOuDn
         # Get-ADGroup "Windows Authorization Access Group" |      Move-ADObject -TargetPath $ItRightsOuDn
 
-        #Get the object after moving it.
+        # REFRESH - Get the object after moving it.
         $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
 
         #endregion
@@ -842,14 +881,9 @@
         Set-ADObject -Identity $newAdminName.ObjectGUID -ProtectedFromAccidentalDeletion $true
 
         # Make it member of administrative groups
-
-        $DomainAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-512' }
         Add-AdGroupNesting -Identity $DomainAdmins -Members $newAdminName
-        $EnterpriseAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-519' }
         Add-AdGroupNesting -Identity $EnterpriseAdmins -Members $newAdminName
-        $GPOCreatorsOwner = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-520' }
         Add-AdGroupNesting -Identity $GPOCreatorsOwner -Members $newAdminName
-        $DeniedRODC = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-572' }
         Add-AdGroupNesting -Identity $DeniedRODC -Members $newAdminName
 
         # http://blogs.msdn.com/b/muaddib/archive/2013/12/30/how-to-modify-security-inheritance-on-active-directory-objects.aspx
@@ -1514,36 +1548,23 @@
         # http://blogs.technet.com/b/lrobins/archive/2011/06/23/quot-admin-free-quot-active-directory-and-windows-part-1-understanding-privileged-groups-in-ad.aspx
         # http://blogs.msmvps.com/acefekay/2012/01/06/using-group-nesting-strategy-ad-best-practices-for-group-strategy/
 
-        # Get 'Cryptographic Operators' group by SID
-        $CryptoOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
+
         Add-AdGroupNesting -Identity $CryptoOperators -Members $SG_AdAdmins
 
         Add-AdGroupNesting -Identity 'DnsAdmins' -Members $SG_AdAdmins, $SG_Tier0Admins
 
-        # Get 'Event Log Readers' group by SID
-        $EvtLogReaders = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-573' }
         Add-AdGroupNesting -Identity $EvtLogReaders -Members $SG_AdAdmins, $SG_Operations
 
         Add-AdGroupNesting -Identity 'Network Configuration Operators' -Members $SG_AdAdmins, $SG_Tier0Admins
 
-        # Get 'Performance Log Users' group by SID
-        $PerfLogUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-559' }
         Add-AdGroupNesting -Identity $PerfLogUsers -Members $SG_AdAdmins, $SG_Operations, $SG_Tier0Admins
 
-        # Get 'Performance Monitor Users' group by SID
-        $PerfMonitorUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-558' }
         Add-AdGroupNesting -Identity $PerfMonitorUsers -Members $SG_AdAdmins, $SG_Operations, $SG_Tier0Admins
 
-        # Get 'Remote Desktop Users' group by SID
-        $RemoteDesktopUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-555' }
         Add-AdGroupNesting -Identity $RemoteDesktopUsers -Members $SG_AdAdmins
 
-        # Get 'Server Operators' group by SID
-        $ServerOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-549' }
         Add-AdGroupNesting -Identity $ServerOperators -Members $SG_AdAdmins
 
-        # Get 'Remote Management Users' group by SID
-        $RemoteMngtUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-580' }
         Add-AdGroupNesting -Identity $RemoteMngtUsers -Members $SG_AdAdmins, $SG_Tier0Admins
 
         $RemoteWMI = Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' }
@@ -1815,10 +1836,6 @@
         New-DelegateAdOU @Splat
 
         # START Remove Delegation to BuiltIn groups BEFORE REDIRECTION
-
-        # Get 'Account Operators' group by SID
-        $AccountOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
-
         $Splat = @{
             Group      = $AccountOperators
             LDAPPath   = 'CN=Computers,{0}' -f $Variables.AdDn
@@ -2257,7 +2274,7 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('Schema Admins')
         [void]$ArrayList.Add('Enterprise Admins')
-        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add('$DomainAdmins')
         [void]$ArrayList.Add('Administrators')
         [void]$ArrayList.Add('Account Operators')
         [void]$ArrayList.Add('Backup Operators')
@@ -2326,7 +2343,7 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('Schema Admins')
         [void]$ArrayList.Add('Enterprise Admins')
-        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName.SamAccountName)
@@ -2383,7 +2400,7 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('Schema Admins')
         [void]$ArrayList.Add('Enterprise Admins')
-        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         [void]$ArrayList.Add('Account Operators')
         [void]$ArrayList.Add('Backup Operators')
@@ -2506,7 +2523,7 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('Schema Admins')
         [void]$ArrayList.Add('Enterprise Admins')
-        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         [void]$ArrayList.Add('Account Operators')
         [void]$ArrayList.Add('Backup Operators')
@@ -2588,7 +2605,7 @@
 
         # Access this computer from the network / Allow Logon Locally
         $ArrayList.Clear()
-        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SG_Tier0Admins) {
             [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
@@ -2639,7 +2656,7 @@
 
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices
         $ArrayList.Clear()
-        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SL_PISM) {
             [void]$ArrayList.Add($SL_PISM.SamAccountName)
@@ -2715,7 +2732,7 @@
 
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices
         $ArrayList.Clear()
-        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SL_PISM) {
             [void]$ArrayList.Add($SL_PISM.SamAccountName)
@@ -2811,7 +2828,7 @@
 
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices
         $ArrayList.Clear()
-        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SL_PISM) {
             [void]$ArrayList.Add($SL_PISM.SamAccountName)
@@ -3030,7 +3047,7 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('Schema Admins')
         [void]$ArrayList.Add('Enterprise Admins')
-        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         [void]$ArrayList.Add('Account Operators')
         [void]$ArrayList.Add('Backup Operators')
@@ -3160,7 +3177,7 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('Schema Admins')
         [void]$ArrayList.Add('Enterprise Admins')
-        [void]$ArrayList.Add('Domain Admins')
+        [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         [void]$ArrayList.Add('Account Operators')
         [void]$ArrayList.Add('Backup Operators')
