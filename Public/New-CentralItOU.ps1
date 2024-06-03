@@ -408,6 +408,8 @@
 
         # DNS Administrators
         $DnsAdmins = Get-AdGroup -Identity'DnsAdmins'
+        # Protected Users
+        $ProtectedUsers = Get-AdGroup -Identity'Protected Users'
 
         #endregion Users
 
@@ -732,7 +734,7 @@
         Get-ADGroup -Identity $DnsAdmins | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Cert Publishers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Denied RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Protected Users' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
+        Get-ADGroup -Identity $ProtectedUsers | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Cloneable Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Access-Denied Assistance Users' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
         Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' } | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
@@ -1640,7 +1642,7 @@
         if ($null -ne $SG_ServiceDesk) {
             [void]$ArrayList.Add($SG_ServiceDesk)
         }
-        Add-AdGroupNesting -Identity 'Protected Users' -Members $ArrayList
+        Add-AdGroupNesting -Identity $ProtectedUsers -Members $ArrayList
 
 
         #endregion
