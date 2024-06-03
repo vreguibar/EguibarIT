@@ -876,34 +876,35 @@
             #http://blogs.msdn.com/b/openspecification/archive/2011/05/31/windows-configurations-for-kerberos-supported-encryption-type.aspx
             # 'msDS-SupportedEncryptionTypes'= Kerberos DES Encryption = 2, Kerberos AES 128 = 8, Kerberos AES 256 = 16
         } #end else-if new user created
-        $newAdminName = Get-ADUser -Identity $confXML.n.Admin.users.NEWAdmin.name
+        #$newAdminName = Get-ADUser -Identity $confXML.n.Admin.users.NEWAdmin.name
+        $NewAdminExists = Get-ADUser -Identity $newAdminName
 
         # Set the Protect against accidental deletions attribute
         # Identity ONLY accepts DistinguishedName or GUID -- DN fails I don't know why
         Set-ADObject -Identity $AdminName.ObjectGUID -ProtectedFromAccidentalDeletion $true
-        Set-ADObject -Identity $newAdminName.ObjectGUID -ProtectedFromAccidentalDeletion $true
+        Set-ADObject -Identity $NewAdminExists.ObjectGUID -ProtectedFromAccidentalDeletion $true
 
         # Make it member of administrative groups
-        Add-AdGroupNesting -Identity $DomainAdmins -Members $newAdminName
-        Add-AdGroupNesting -Identity $EnterpriseAdmins -Members $newAdminName
-        Add-AdGroupNesting -Identity $GPOCreatorsOwner -Members $newAdminName
-        Add-AdGroupNesting -Identity $DeniedRODC -Members $newAdminName
+        Add-AdGroupNesting -Identity $DomainAdmins -Members $NewAdminExists
+        Add-AdGroupNesting -Identity $EnterpriseAdmins -Members $NewAdminExists
+        Add-AdGroupNesting -Identity $GPOCreatorsOwner -Members $NewAdminExists
+        Add-AdGroupNesting -Identity $DeniedRODC -Members $NewAdminExists
 
         # http://blogs.msdn.com/b/muaddib/archive/2013/12/30/how-to-modify-security-inheritance-on-active-directory-objects.aspx
 
         ####
         # Remove Everyone group from Admin-User & Administrator
-        Remove-Everyone -LDAPPath $newAdminName.DistinguishedName
+        Remove-Everyone -LDAPPath $NewAdminExists.DistinguishedName
         Remove-Everyone -LDAPPath $AdminName.DistinguishedName
 
         ####
         # Remove AUTHENTICATED USERS group from Admin-User & Administrator
-        #Remove-AuthUser -LDAPPath $newAdminName.DistinguishedName
+        #Remove-AuthUser -LDAPPath $NewAdminExists.DistinguishedName
         #Remove-AuthUser -LDAPPath ('CN={0},{1}' -f $AdminName, $ItAdminAccountsOuDn)
 
         ####
         # Remove Pre-Windows 2000 Compatible Access group from Admin-User & Administrator
-        Remove-PreWin2000 -LDAPPath $newAdminName.DistinguishedName
+        Remove-PreWin2000 -LDAPPath $NewAdminExists.DistinguishedName
         Remove-PreWin2000 -LDAPPath $AdminName.DistinguishedName
 
         ###
@@ -1242,8 +1243,8 @@
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName.SamAccountName)
         }
-        if ($null -ne $newAdminName) {
-            [void]$ArrayList.Add($newAdminName.SamAccountName)
+        if ($null -ne $NewAdminExists) {
+            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
         }
         if ($null -ne $SG_InfraAdmins) {
             [void]$ArrayList.Add($SG_InfraAdmins.SamAccountName)
@@ -1426,8 +1427,8 @@
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName)
         }
-        if ($null -ne $newAdminName) {
-            [void]$ArrayList.Add($newAdminName)
+        if ($null -ne $NewAdminExists) {
+            [void]$ArrayList.Add($NewAdminExists)
         }
         if ($null -ne $SG_InfraAdmins) {
             [void]$ArrayList.Add($SG_InfraAdmins)
@@ -1591,8 +1592,8 @@
         if ($null -ne $AdminName) {
             [void][void]$ArrayList.Add($AdminName)
         }
-        if ($null -ne $NewAdminName) {
-            [void]$ArrayList.Add($NewAdminName)
+        if ($null -ne $NewAdminExists) {
+            [void]$ArrayList.Add($NewAdminExists)
         }
         if ($null -ne $SG_InfraAdmins) {
             [void]$ArrayList.Add($SG_InfraAdmins)
@@ -2309,8 +2310,8 @@
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName.SamAccountName)
         }
-        if ($null -ne $newAdminName) {
-            [void]$ArrayList.Add($newAdminName.SamAccountName)
+        if ($null -ne $NewAdminExists) {
+            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
         }
         $Splat = @{
             GpoToModify      = 'C-Baseline'
@@ -2360,8 +2361,8 @@
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName.SamAccountName)
         }
-        if ($null -ne $newAdminName) {
-            [void]$ArrayList.Add($newAdminName.SamAccountName)
+        if ($null -ne $NewAdminExists) {
+            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
         }
         if ($null -ne $SG_Tier0Admins) {
             [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
@@ -2424,8 +2425,8 @@
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName.SamAccountName)
         }
-        if ($null -ne $newAdminName) {
-            [void]$ArrayList.Add($newAdminName.SamAccountName)
+        if ($null -ne $NewAdminExists) {
+            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
         }
         if ($null -ne $SG_Tier0Admins) {
             [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
@@ -2548,8 +2549,8 @@
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName.SamAccountName)
         }
-        if ($null -ne $newAdminName) {
-            [void]$ArrayList.Add($newAdminName.SamAccountName)
+        if ($null -ne $NewAdminExists) {
+            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
         }
         if ($null -ne $SG_Tier0Admins) {
             [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
@@ -2912,8 +2913,8 @@
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name
-            InteractiveLogon       = $SL_PAWM.SamAccountName, 'Administrators', $SG_Tier0Admins.SamAccountName, $AdminName.SamAccountName, $newAdminName.SamAccountName
-            RemoteInteractiveLogon = $SL_PAWM.SamAccountName, 'Administrators', $SG_Tier0Admins.SamAccountName, $AdminName.SamAccountName, $newAdminName.SamAccountName
+            InteractiveLogon       = $SL_PAWM.SamAccountName, 'Administrators', $SG_Tier0Admins.SamAccountName, $AdminName.SamAccountName, $NewAdminExists.SamAccountName
+            RemoteInteractiveLogon = $SL_PAWM.SamAccountName, 'Administrators', $SG_Tier0Admins.SamAccountName, $AdminName.SamAccountName, $NewAdminExists.SamAccountName
             BatchLogon             = $SG_Tier0ServiceAccount.SamAccountName
             ServiceLogon           = $SG_Tier0ServiceAccount.SamAccountName
         }
@@ -3068,8 +3069,8 @@
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName.SamAccountName)
         }
-        if ($null -ne $newAdminName) {
-            [void]$ArrayList.Add($newAdminName.SamAccountName)
+        if ($null -ne $NewAdminExists) {
+            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
         }
         if ($null -ne $SG_Tier0Admins) {
             [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
@@ -3198,8 +3199,8 @@
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName.SamAccountName)
         }
-        if ($null -ne $newAdminName) {
-            [void]$ArrayList.Add($newAdminName.SamAccountName)
+        if ($null -ne $NewAdminExists) {
+            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
         }
         if ($null -ne $SG_Tier0Admins) {
             [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
