@@ -919,7 +919,14 @@
             $params.Add('thumbnailPhoto', $photo)
         }
 
-        Set-ADUser -Identity $AdminName -TrustedForDelegation $false -AccountNotDelegated $true -Add $params -Server $env:COMPUTERNAME
+        $Splat = @{
+            Identity             = $AdminName
+            TrustedForDelegation = $false
+            AccountNotDelegated  = $true
+            Add                  = $params
+            Server               = $env:COMPUTERNAME
+        }
+        Set-ADUser @Splat
 
         Write-Verbose -Message 'Admin accounts created and secured.'
 
@@ -1100,7 +1107,7 @@
             Move-ADObject -TargetPath $ItPrivGroupsOUDn -Identity $item.ObjectGUID
 
             # Set back again the ProtectedFromAccidentalDeletion flag.
-            #The group has to be fetch again because of the previus move
+            #The group has to be fetch again because of the previous move
             Set-ADObject -Identity $item.ObjectGUID -ProtectedFromAccidentalDeletion $true
 
             #refresh the variable because DistinguishedName changed
