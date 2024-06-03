@@ -103,7 +103,7 @@ function Start-AdCleanOU {
             try {
                 Set-AdAclCreateDeleteUser @Splat
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             } #end Try-Catch
 
@@ -111,7 +111,7 @@ function Start-AdCleanOU {
             try {
                 Set-AdAclCreateDeleteComputer @Splat
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             } #end Try-Catch
 
@@ -119,7 +119,7 @@ function Start-AdCleanOU {
             try {
                 Set-AdAclCreateDeleteGroup @Splat
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             } #end Try-Catch
 
@@ -127,7 +127,7 @@ function Start-AdCleanOU {
             try {
                 Set-AdAclCreateDeleteContact @Splat
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             } #end Try-Catch
 
@@ -135,7 +135,7 @@ function Start-AdCleanOU {
             try {
                 Set-CreateDeleteInetOrgPerson @Splat
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             } #end Try-Catch
 
@@ -143,7 +143,7 @@ function Start-AdCleanOU {
             try {
                 Set-AdAclCreateDeletePrintQueue @Splat
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             } #end Try-Catch
 
@@ -151,7 +151,7 @@ function Start-AdCleanOU {
             try {
                 Remove-PreWin2000 -LDAPPath $PSBoundParameters['LDAPPath']
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             } #end Try-Catch
 
@@ -159,7 +159,7 @@ function Start-AdCleanOU {
             try {
                 Remove-PreWin2000FromOU -LDAPPath $PSBoundParameters['LDAPPath']
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             } #end Try-Catch
 
@@ -167,7 +167,7 @@ function Start-AdCleanOU {
             try {
                 Remove-AccountOperator -LDAPPath $PSBoundParameters['LDAPPath']
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             } #end Try-Catch
 
@@ -175,7 +175,7 @@ function Start-AdCleanOU {
             try {
                 Remove-PrintOperator -LDAPPath $PSBoundParameters['LDAPPath']
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             } #end Try-Catch
 
@@ -184,7 +184,7 @@ function Start-AdCleanOU {
                 try {
                     Remove-AuthUser -LDAPPath $PSBoundParameters['LDAPPath']
                 } catch {
-                    Get-CurrentErrorToDisplay -CurrentError $error[0]
+                    ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                     throw
                 } #end Try-Catch
 
@@ -196,7 +196,7 @@ function Start-AdCleanOU {
                 try {
                     Remove-UnknownSID -LDAPPath $PSBoundParameters['LDAPPath'] -RemoveSID
                 } catch {
-                    Get-CurrentErrorToDisplay -CurrentError $error[0]
+                    ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                     throw
                 } #end Try-Catch
 

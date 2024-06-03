@@ -110,7 +110,7 @@ function Set-AdAclDelegateGalAdmin {
                 Set-AdAclUserEmailInfo @Splat
             } #end If
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         }
     } #end Process

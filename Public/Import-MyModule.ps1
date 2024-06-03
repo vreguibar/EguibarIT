@@ -85,7 +85,7 @@ Function Import-MyModule {
                 }
             }
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         } #end Try-Catch
 

@@ -185,7 +185,7 @@ function New-DelegateAdOU {
             # Sites OU Distinguished Name
             $ouNameDN = 'OU={0},{1}' -f $PSBoundParameters['ouName'], $PSBoundParameters['ouPath']
         } Catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         } #end Try-Catch
 
@@ -232,7 +232,7 @@ function New-DelegateAdOU {
                 }
             } #end If-Else
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         } #end Try-Catch
 

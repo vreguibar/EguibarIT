@@ -77,7 +77,7 @@
                 } #end if
             } #end if
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         } #end Try-Catch
 
@@ -202,7 +202,7 @@
             try {
                 New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             }
         } else {

@@ -231,7 +231,7 @@
                     Write-Verbose -Message ('Group {0} created successfully.' -f $PSBoundParameters['Name'])
 
                 } catch {
-                    Get-CurrentErrorToDisplay -CurrentError $error[0]
+                    ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                     throw
 
                     Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
@@ -266,7 +266,7 @@
                 }
 
             } catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
                 Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
                 Return

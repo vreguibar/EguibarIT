@@ -263,7 +263,7 @@
                 } #end if
             } #end if
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         } # End Try
 
@@ -314,7 +314,7 @@
                 $CreateLAPS = $False
             }
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         } # End Try
 
@@ -869,13 +869,13 @@
             Try {
                 New-ADUser @Splat
             } Catch {
-                Get-CurrentErrorToDisplay -CurrentError $error[0]
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             }
 
             #http://blogs.msdn.com/b/openspecification/archive/2011/05/31/windows-configurations-for-kerberos-supported-encryption-type.aspx
             # 'msDS-SupportedEncryptionTypes'= Kerberos DES Encryption = 2, Kerberos AES 128 = 8, Kerberos AES 256 = 16
-        } #end esle-if new user created
+        } #end else-if new user created
         $newAdminName = Get-ADUser -Identity $confXML.n.Admin.users.NEWAdmin.name
 
         # Set the Protect against accidental deletions attribute
@@ -1179,7 +1179,7 @@
                 try {
                     New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
                 } catch {
-                    Get-CurrentErrorToDisplay -CurrentError $error[0]
+                    ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                     throw
                 } #end Try-Catch
             } else {

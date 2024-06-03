@@ -79,7 +79,7 @@ function Revoke-NTFSPermissions {
             $DirectorySecurity.RemoveAccessRuleAll($FileSystemAccessRule)
             Set-Acl -Path $path -AclObject $DirectorySecurity
         } Catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         }
     }

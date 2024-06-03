@@ -66,7 +66,7 @@ function Add-AdGroupNesting {
             $CurrentMembers = Get-ADGroupMember -Identity $Identity -ErrorAction Stop
 
         } Catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             Write-Error -Message ('Failed to retrieve members of the group "{0}". {1}' -f $Group.SamAccountName, $_)
             throw
         } #end Try-Catch
@@ -96,7 +96,7 @@ function Add-AdGroupNesting {
 
             Write-Verbose -Message ('Members were added correctly to group {0}' -f $Identity.sAMAccountName)
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         } #end Try-Catch
     } #end Process

@@ -187,7 +187,7 @@ LoadDefaultTemplates=0
                 Install-ADCSwebenrollment -Confirm
             } # End If
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         } # End Try-Catch
         finally {

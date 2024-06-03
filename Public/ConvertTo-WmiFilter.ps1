@@ -69,7 +69,7 @@ function ConvertTo-WmiFilter {
                         $filter = $gpDomain.GetWmiFilter($path)
                     } catch {
                         Write-Error -Message 'The WMI filter could not be found.'
-                        Get-CurrentErrorToDisplay -CurrentError $error[0]
+                        ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                         throw
                     } #end Try-Catch
 

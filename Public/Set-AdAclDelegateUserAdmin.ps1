@@ -113,7 +113,7 @@ function Set-AdAclDelegateUserAdmin {
                 Set-AdAclUserLogonInfo @Splat
             } #end Id
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         } #end Try-Catch
     } #end Process

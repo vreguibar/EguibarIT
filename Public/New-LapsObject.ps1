@@ -74,7 +74,7 @@ Function New-LAPSobject {
                 } #end if
             } #end if
         } catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         }
 
@@ -207,7 +207,7 @@ Function New-LAPSobject {
                         Update-AdmPwdADSchema -Verbose
                         Update-LapsADSchema -Confirm:$false -Verbose
                     } catch {
-                        Get-CurrentErrorToDisplay -CurrentError $error[0]
+                        ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                         throw
                     } finally {
                         # If Schema extension OK, remove user from Schema Admin
@@ -217,7 +217,7 @@ Function New-LAPSobject {
             }#end if
         }#end try
         catch {
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         } Finally {
             Write-Verbose -Message 'Schema was extended successfully for LAPS.'

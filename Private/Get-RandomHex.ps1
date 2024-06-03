@@ -53,7 +53,7 @@ Function Get-RandomHex {
     }
     catch {
         # Handling exceptions
-        Get-CurrentErrorToDisplay -CurrentError $error[0]
+        ###Get-CurrentErrorToDisplay -CurrentError $error[0]
         throw
     } #end Try
 } #end Function

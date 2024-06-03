@@ -7,7 +7,7 @@ function Get-CurrentErrorToDisplay {
         .EXAMPLE
             Get-CurrentErrorToDisplay $error[0]
         .EXAMPLE
-            Get-CurrentErrorToDisplay -CurrentError $error[0]
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
         .PARAMETER CurrentError
             Is the error to be processed
         .INPUTS
@@ -28,7 +28,10 @@ function Get-CurrentErrorToDisplay {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([System.String])]
     Param (
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Current error (usually from $Error variable) which is going to be proccessed. If no error is provided then $error[0] will be used instead.',
             Position = 0)]
         $CurrentError
@@ -123,8 +126,7 @@ function Get-CurrentErrorToDisplay {
                 [void]$OutputError.AppendLine($Header)
                 [void]$OutputError.AppendLine()
                 [void]$OutputError.AppendLine()
-            }
-            catch {
+            } catch {
                 Write-Error "Error processing the error: $_"
             } #end Try-Catch
         } #end If
