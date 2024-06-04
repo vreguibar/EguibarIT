@@ -54,7 +54,6 @@ function Set-AdAclDelegateComputerAdmin {
             HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [String]
         $Group,
 
         # PARAM2 Distinguished Name of the OU where given group can read the computer password
