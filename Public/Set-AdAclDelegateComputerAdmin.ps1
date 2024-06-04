@@ -67,20 +67,10 @@ function Set-AdAclDelegateComputerAdmin {
         [String]
         $LDAPpath,
 
-        # PARAM3 Distinguished Name of the quarantine OU
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Distinguished Name of the quarantine OU',
-            Position = 2)]
-        [ValidateNotNullOrEmpty()]
-        [validateScript({ Test-IsValidDN -ObjectDN $_ })]
-        [Alias('QuarantineDistinguishedName', 'QuarantineLDAPpath')]
-        [String]
-        $QuarantineDN,
-
-        # PARAM4 SWITCH If present, the access rule will be removed.
+        # PARAM3 SWITCH If present, the access rule will be removed.
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'If present, the access rule will be removed.',
-            Position = 3)]
+            Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Switch]
         $RemoveRule
@@ -108,52 +98,103 @@ function Set-AdAclDelegateComputerAdmin {
 
     } #end Begin
     Process {
-        try {
 
-            # Check if RemoveRule switch is present.
-            If ($PSBoundParameters['RemoveRule']) {
-                # Add the parameter to remove the rule
-                $Splat.Add('RemoveRule', $true)
-            } #end If
+        # Check if RemoveRule switch is present.
+        If ($PSBoundParameters['RemoveRule']) {
+            # Add the parameter to remove the rule
+            $Splat.Add('RemoveRule', $true)
+        } #end If
 
-            if ($Force -or $PSCmdlet.ShouldProcess('Proceed with delegations?')) {
-                # Create/Delete Computers
+        if ($Force -or $PSCmdlet.ShouldProcess('Proceed with delegations?')) {
+
+            # Create/Delete Computers
+            try {
                 Set-AdAclCreateDeleteComputer @Splat
+            } catch {
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Reset Computer Password
+            # Reset Computer Password
+            try {
                 Set-AdAclResetComputerPassword @Splat
+            } catch {
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Change Computer Password
+            # Change Computer Password
+            try {
                 Set-AdAclChangeComputerPassword @Splat
+            } catch {
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Validated write to DNS host name
+            # Validated write to DNS host name
+            try {
                 Set-AdAclValidateWriteDnsHostName @Splat
+            } catch {
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Validated write to SPN
+            # Validated write to SPN
+            try {
                 Set-AdAclValidateWriteSPN @Splat
+            } catch {
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Change Computer Account Restriction
+            # Change Computer Account Restriction
+            try {
                 Set-AdAclComputerAccountRestriction @Splat
+            } catch {
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Change DNS Hostname Info
+            # Change DNS Hostname Info
+            try {
                 Set-AdAclDnsInfo @Splat
+            } catch {
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Change MS TerminalServices info
+            # Change MS TerminalServices info
+            try {
                 Set-AdAclMsTsGatewayInfo @Splat
+            } catch {
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Access to BitLocker & TMP info
+            # Access to BitLocker & TMP info
+            try {
                 Set-AdAclBitLockerTPM @Splat
+            } catch {
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Grant the right to delete computers from default container. Move Computers
+            # Grant the right to delete computers from default container. Move Computers
+            try {
                 Set-DeleteOnlyComputer @Splat
+            } catch {
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
 
-                # Set LAPS
+            # Set LAPS
+            try {
                 Set-AdAclLaps -ResetGroup $CurrentGroup -ReadGroup $CurrentGroup -LDAPpath $PSBoundParameters['LDAPpath']
-            } #end If
-        } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-            throw
-        } #end Try-Catch
+            } catch {
+                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                throw
+            } #end Try-Catch
+        } #end If
     } #end Process
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating Computer Admin."
