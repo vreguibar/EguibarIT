@@ -73,7 +73,6 @@ function New-DelegateAdOU {
             HelpMessage = 'LDAP path where this ou will be created',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ })]
         [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [string]
         $ouPath,
@@ -215,22 +214,39 @@ function New-DelegateAdOU {
                 Write-Verbose -Message ('Creating the {0} Organizational Unit' -f $PSBoundParameters['ouName'])
                 # Create    OU
                 $Splat = @{
-                    Name                            = $PSBoundParameters['ouName']
+                    Name                            = $ouName
                     Path                            = $PSBoundParameters['ouPath']
-                    City                            = $PSBoundParameters['ouCity']
-                    Country                         = $PSBoundParameters['ouCountry']
-                    Description                     = $PSBoundParameters['ouDescription']
-                    DisplayName                     = $PSBoundParameters['strOuDisplayName']
-                    PostalCode                      = $PSBoundParameters['ouZIPCode']
                     ProtectedFromAccidentalDeletion = $true
-                    StreetAddress                   = $PSBoundParameters['ouStreetAddress']
-                    State                           = $PSBoundParameters['ouState']
                 }
+
+                if ($PSBoundParameters['ouCity']) {
+                    $Splat.City = $PSBoundParameters['ouCity']
+                }
+                if ($PSBoundParameters['ouCountry']) {
+                    $Splat.Country = $PSBoundParameters['ouCountry']
+                }
+                if ($PSBoundParameters['ouDescription']) {
+                    $Splat.Description = $PSBoundParameters['ouDescription']
+                }
+                if ($PSBoundParameters['strOuDisplayName']) {
+                    $Splat.DisplayName = $PSBoundParameters['strOuDisplayName']
+                }
+                if ($PSBoundParameters['ouZIPCode']) {
+                    $Splat.PostalCode = $PSBoundParameters['ouZIPCode']
+                }
+                if ($PSBoundParameters['ouStreetAddress']) {
+                    $Splat.StreetAddress = $PSBoundParameters['ouStreetAddress']
+                }
+                if ($PSBoundParameters['ouState']) {
+                    $Splat.State = $PSBoundParameters['ouState']
+                }
+
                 if ($PSCmdlet.ShouldProcess("Creating the Organizational Unit '$OuName'")) {
                     $OUexists = New-ADOrganizationalUnit @Splat
                 }
             } #end If-Else
         } catch {
+            Write-Error -Message ('Error creating OU: {0}' -f $_)
             ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
         } #end Try-Catch
@@ -238,12 +254,17 @@ function New-DelegateAdOU {
         # Remove "Account Operators" and "Print Operators" built-in groups from OU. Any unknown/UnResolvable SID will be removed.
         Start-AdCleanOU -LDAPpath $ouNameDN -RemoveUnknownSIDs
 
-        if ($PSBoundParameters['CleanACL']) {
-            if ($PSCmdlet.ShouldProcess("Removing specific Non-Inherited ACE and enabling inheritance for '$OuName'")) {
-                #Remove-SpecificACLandEnableInheritance -LDAPpath $ouNameDN
-                Revoke-Inheritance -LDAPpath $ouNameDN -RemoveInheritance -KeepPermissions
-            }
-        } #end If
+        try {
+            if ($PSBoundParameters['CleanACL']) {
+                if ($PSCmdlet.ShouldProcess("Removing specific Non-Inherited ACE and enabling inheritance for '$OuName'")) {
+                    #Remove-SpecificACLandEnableInheritance -LDAPpath $ouNameDN
+                    Revoke-Inheritance -LDAPpath $ouNameDN -RemoveInheritance -KeepPermissions
+                }
+            } #end If
+        } catch {
+            Write-Error -Message ('Error cleaning ACL: {0}' -f $_)
+            throw
+        } #end Try-Catch
     } #end Process
 
     End {

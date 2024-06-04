@@ -39,7 +39,7 @@ Function New-LAPSobject {
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
-        [string]
+        [System.IO.FileInfo]
         $ConfigXMLFile
     )
     Begin {
