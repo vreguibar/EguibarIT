@@ -73,6 +73,7 @@ function New-DelegateAdOU {
             HelpMessage = 'LDAP path where this ou will be created',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
+        [ValidateScript({ Test-IsValidDN -ObjectDN $_ })]
         [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [string]
         $ouPath,
@@ -209,7 +210,8 @@ function New-DelegateAdOU {
             # Check if OU exists
             If ($OUexists) {
                 # OU it does exists
-                Write-Warning -Message ('Organizational Unit {0} already exists.' -f $ouNameDN)
+                Write-Warning -Message ('Organizational Unit {0} already exists. Exit the script.' -f $ouNameDN)
+                return
             } else {
                 Write-Verbose -Message ('Creating the {0} Organizational Unit' -f $PSBoundParameters['ouName'])
                 # Create    OU

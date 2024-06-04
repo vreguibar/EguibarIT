@@ -34,7 +34,6 @@ function Test-IsValidDN {
             HelpMessage = 'String to ve validated as DistinguishedName',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ })]
         [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [string]
         $ObjectDN
