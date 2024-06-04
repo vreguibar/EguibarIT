@@ -65,7 +65,7 @@ function Add-AdGroupNesting {
         Try {
 
             Write-Verbose -Message ('Getting members of group {0}' -f $Identity)
-            $CurrentMembers = Get-ADGroupMember -Identity $Identity
+            $CurrentMembers = Get-ADGroupMember -Identity $Identity -Recursive -ErrorAction SilentlyContinue
 
         } Catch {
             ###Get-CurrentErrorToDisplay -CurrentError $error[0]

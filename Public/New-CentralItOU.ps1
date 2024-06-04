@@ -706,7 +706,7 @@
         Write-Verbose -Message 'Moving objects...'
 
 
-        If ($AdminName.SamAccountName -ne $confXML.n.Admin.users.Admin.Name) {
+        If ($AdminName -ne $confXML.n.Admin.users.Admin.Name) {
             Rename-ADObject -Identity $AdminName.DistinguishedName -NewName $confXML.n.Admin.users.Admin.Name
             Set-ADUser $AdminName -SamAccountName $confXML.n.Admin.users.Admin.Name -DisplayName $confXML.n.Admin.users.Admin.Name
         }
@@ -1243,121 +1243,121 @@
         Start-Sleep -Seconds 5
         # Apply the PSO to the corresponding accounts and groups
         $ArrayList.Clear()
-        [void]$ArrayList.Add($DomainAdmins.SamAccountName)
-        [void]$ArrayList.Add($EnterpriseAdmins.SamAccountName)
+        [void]$ArrayList.Add($DomainAdmins)
+        [void]$ArrayList.Add($EnterpriseAdmins)
         if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName.SamAccountName)
+            [void]$ArrayList.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
+            [void]$ArrayList.Add($NewAdminExists)
         }
         if ($null -ne $SG_InfraAdmins) {
-            [void]$ArrayList.Add($SG_InfraAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_InfraAdmins)
         }
         if ($null -ne $SG_AdAdmins) {
-            [void]$ArrayList.Add($SG_AdAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_AdAdmins)
         }
         if ($null -ne $SG_GpoAdmins) {
-            [void]$ArrayList.Add($SG_GpoAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_GpoAdmins)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_Tier1Admins) {
-            [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1Admins)
         }
         if ($null -ne $SG_Tier2Admins) {
-            [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2Admins)
         }
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
         }
         if ($null -ne $SG_Operations) {
-            [void]$ArrayList.Add($SG_Operations.SamAccountName)
+            [void]$ArrayList.Add($SG_Operations)
         }
         if ($null -ne $SG_ServerAdmins) {
-            [void]$ArrayList.Add($SG_ServerAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_ServerAdmins)
         }
         if ($null -ne $SG_AllSiteAdmins) {
-            [void]$ArrayList.Add($SG_AllSiteAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_AllSiteAdmins)
         }
         if ($null -ne $SG_AllGALAdmins) {
-            [void]$ArrayList.Add($SG_AllGALAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_AllGALAdmins)
         }
         if ($null -ne $SG_GlobalUserAdmins) {
-            [void]$ArrayList.Add($SG_GlobalUserAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_GlobalUserAdmins)
         }
         if ($null -ne $SG_GlobalPcAdmins) {
-            [void]$ArrayList.Add($SG_GlobalPcAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_GlobalPcAdmins)
         }
         if ($null -ne $SG_GlobalGroupAdmins) {
-            [void]$ArrayList.Add($SG_GlobalGroupAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_GlobalGroupAdmins)
         }
         if ($null -ne $SG_ServiceDesk) {
-            [void]$ArrayList.Add($SG_ServiceDesk.SamAccountName)
+            [void]$ArrayList.Add($SG_ServiceDesk)
         }
         if ($null -ne $SL_InfraRight) {
-            [void]$ArrayList.Add($SL_InfraRight.SamAccountName)
+            [void]$ArrayList.Add($SL_InfraRight)
         }
         if ($null -ne $SL_AdRight) {
-            [void]$ArrayList.Add($SL_AdRight.SamAccountName)
+            [void]$ArrayList.Add($SL_AdRight)
         }
         if ($null -ne $SL_UM) {
-            [void]$ArrayList.Add($SL_UM.SamAccountName)
+            [void]$ArrayList.Add($SL_UM)
         }
         if ($null -ne $SL_GM) {
-            [void]$ArrayList.Add($SL_GM.SamAccountName)
+            [void]$ArrayList.Add($SL_GM)
         }
         if ($null -ne $SL_PUM) {
-            [void]$ArrayList.Add($SL_PUM.SamAccountName)
+            [void]$ArrayList.Add($SL_PUM)
         }
         if ($null -ne $SL_PGM) {
-            [void]$ArrayList.Add($SL_PGM.SamAccountName)
+            [void]$ArrayList.Add($SL_PGM)
         }
         if ($null -ne $SL_GpoAdminRight) {
-            [void]$ArrayList.Add($SL_GpoAdminRight.SamAccountName)
+            [void]$ArrayList.Add($SL_GpoAdminRight)
         }
         if ($null -ne $SL_DnsAdminRight) {
-            [void]$ArrayList.Add($SL_DnsAdminRight.SamAccountName)
+            [void]$ArrayList.Add($SL_DnsAdminRight)
         }
         if ($null -ne $SL_DirReplRight) {
-            [void]$ArrayList.Add($SL_DirReplRight.SamAccountName)
+            [void]$ArrayList.Add($SL_DirReplRight)
         }
         if ($null -ne $SL_PromoteDcRight) {
-            [void]$ArrayList.Add($SL_PromoteDcRight.SamAccountName)
+            [void]$ArrayList.Add($SL_PromoteDcRight)
         }
         if ($null -ne $SL_TransferFSMOright) {
-            [void]$ArrayList.Add($SL_TransferFSMOright.SamAccountName)
+            [void]$ArrayList.Add($SL_TransferFSMOright)
         }
         if ($null -ne $SL_DcManagement) {
-            [void]$ArrayList.Add($SL_DcManagement.SamAccountName)
+            [void]$ArrayList.Add($SL_DcManagement)
         }
         if ($null -ne $SL_PISM) {
-            [void]$ArrayList.Add($SL_PISM.SamAccountName)
+            [void]$ArrayList.Add($SL_PISM)
         }
         if ($null -ne $SL_PAWM) {
-            [void]$ArrayList.Add($SL_PAWM.SamAccountName)
+            [void]$ArrayList.Add($SL_PAWM)
         }
         if ($null -ne $SL_PSAM) {
-            [void]$ArrayList.Add($SL_PSAM.SamAccountName)
+            [void]$ArrayList.Add($SL_PSAM)
         }
         if ($null -ne $SL_SvrAdmRight) {
-            [void]$ArrayList.Add($SL_SvrAdmRight.SamAccountName)
+            [void]$ArrayList.Add($SL_SvrAdmRight)
         }
         if ($null -ne $SL_SvrOpsRight) {
-            [void]$ArrayList.Add($SL_SvrOpsRight.SamAccountName)
+            [void]$ArrayList.Add($SL_SvrOpsRight)
         }
         if ($null -ne $SL_GlobalGroupRight) {
-            [void]$ArrayList.Add($SL_GlobalGroupRight.SamAccountName)
+            [void]$ArrayList.Add($SL_GlobalGroupRight)
         }
         if ($null -ne $SL_GlobalAppAccUserRight) {
-            [void]$ArrayList.Add($SL_GlobalAppAccUserRight.SamAccountName)
+            [void]$ArrayList.Add($SL_GlobalAppAccUserRight)
         }
 
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
@@ -1404,13 +1404,13 @@
         # Apply the PSO to all Tier Service Accounts
         $ArrayList.Clear()
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
         }
 
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
@@ -1552,10 +1552,10 @@
         #region Enabling Management Accounts to Modify the Membership of Protected Groups
 
         # Enable PUM to manage Privileged Accounts (Reset PWD, enable/disable Administrator built-in account)
-        Set-AdAclMngPrivilegedAccount -Group $SL_PUM.SamAccountName
+        Set-AdAclMngPrivilegedAccount -Group $SL_PUM
 
         # Enable PGM to manage Privileged Groups (Administrators, Domain Admins...)
-        Set-AdAclMngPrivilegedGroup -Group $SL_PGM.SamAccountName
+        Set-AdAclMngPrivilegedGroup -Group $SL_PGM
 
         #endregion
         ###############################################################################
@@ -1585,7 +1585,7 @@
 
         Add-AdGroupNesting -Identity $RemoteMngtUsers -Members $SG_AdAdmins, $SG_Tier0Admins
 
-        $RemoteWMI = Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' }
+        $RemoteWMI = Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' } -ErrorAction SilentlyContinue
         If (-not $RemoteWMI) {
 
             $RemoteWMI = New-ADGroup -GroupScope DomainLocal -GroupCategory Security -Name 'WinRMRemoteWMIUsers__' -Path $ItRightsOuDn
@@ -1944,7 +1944,7 @@
         # PGM - Privileged Group Management
         # Create/Delete Groups
         Set-AdAclCreateDeleteGroup -Group $SL_PGM -LDAPPath $ItPrivGroupsOUDn
-        Set-AdAclCreateDeleteGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItRightsOuDn
+        Set-AdAclCreateDeleteGroup -Group $SL_PGM -LDAPPath $ItRightsOuDn
         # Change Group Properties
         Set-AdAclChangeGroup -Group $SL_PGM -LDAPPath $ItPrivGroupsOUDn
         Set-AdAclChangeGroup -Group $SL_PGM -LDAPPath $ItRightsOuDn
@@ -2243,13 +2243,13 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('BuiltIn\Guests')
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
         }
         $Splat = @{
             GpoToModify          = 'C-Baseline'
@@ -2271,13 +2271,13 @@
         [void]$ArrayList.Add('Domain Controllers')
         [void]$ArrayList.Add('Read-Only Domain Controllers')
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
         }
         $Splat = @{
             GpoToModify                = 'C-Baseline'
@@ -2304,19 +2304,19 @@
         [void]$ArrayList.Add('Cryptographic Operators')
         [void]$ArrayList.Add('BuiltIn\Guests')
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_Tier1Admins) {
-            [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1Admins)
         }
         if ($null -ne $SG_Tier2Admins) {
-            [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2Admins)
         }
         if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName.SamAccountName)
+            [void]$ArrayList.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
+            [void]$ArrayList.Add($NewAdminExists)
         }
         $Splat = @{
             GpoToModify      = 'C-Baseline'
@@ -2364,13 +2364,13 @@
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName.SamAccountName)
+            [void]$ArrayList.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
+            [void]$ArrayList.Add($NewAdminExists)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         $Splat = @{
             GpoToModify            = 'C-DomainControllers-Baseline'
@@ -2386,16 +2386,16 @@
         [void]$ArrayList.Add('Print Operators')
         [void]$ArrayList.Add('BuiltIn\Guests')
         if ($null -ne $SG_Tier1Admins) {
-            [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1Admins)
         }
         if ($null -ne $SG_Tier2Admins) {
-            [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2Admins)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
         }
         $Splat = @{
             GpoToModify                = 'C-DomainControllers-Baseline'
@@ -2407,8 +2407,8 @@
         # Logon as a Batch job / Logon as a Service
         $splat = @{
             GpoToModify  = 'C-DomainControllers-Baseline'
-            BatchLogon   = $SG_Tier0ServiceAccount.SamAccountName, 'Performance Log Users'
-            ServiceLogon = $SG_Tier0ServiceAccount.SamAccountName, 'Network Service'
+            BatchLogon   = $SG_Tier0ServiceAccount, 'Performance Log Users'
+            ServiceLogon = $SG_Tier0ServiceAccount, 'Network Service'
         }
         Set-GpoPrivilegeRight @splat
 
@@ -2428,25 +2428,25 @@
         [void]$ArrayList.Add('Cryptographic Operators')
         [void]$ArrayList.Add('BuiltIn\Guests')
         if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName.SamAccountName)
+            [void]$ArrayList.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
+            [void]$ArrayList.Add($NewAdminExists)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_Tier1Admins) {
-            [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1Admins)
         }
         if ($null -ne $SG_Tier2Admins) {
-            [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2Admins)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
         }
         $Splat = @{
             GpoToModify      = 'C-DomainControllers-Baseline'
@@ -2466,10 +2466,10 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_AdAdmins) {
-            [void]$ArrayList.Add($SG_AdAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_AdAdmins)
         }
         $Splat = @{
             GpoToModify          = 'C-DomainControllers-Baseline'
@@ -2528,7 +2528,7 @@
         [void]$ArrayList.Add('Network Service')
         [void]$ArrayList.Add('NT SERVICE\All Services')
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
         }
         $Splat = @{
             GpoToModify  = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
@@ -2552,25 +2552,25 @@
         [void]$ArrayList.Add('Cryptographic Operators')
         [void]$ArrayList.Add('BuiltIn\Guests')
         if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName.SamAccountName)
+            [void]$ArrayList.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
+            [void]$ArrayList.Add($NewAdminExists)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_Tier1Admins) {
-            [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1Admins)
         }
         if ($null -ne $SG_Tier2Admins) {
-            [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2Admins)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
         }
         $Splat = @{
             GpoToModify      = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
@@ -2589,10 +2589,10 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_AdAdmins) {
-            [void]$ArrayList.Add($SG_AdAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_AdAdmins)
         }
         $Splat = @{
             GpoToModify          = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
@@ -2626,7 +2626,7 @@
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         $Splat = @{
             GpoToModify      = 'C-Housekeeping-LOCKDOWN'
@@ -2649,7 +2649,7 @@
         [void]$ArrayList.Add('Network Service')
         [void]$ArrayList.Add('NT SERVICE\All Services')
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
         }
         $Splat = @{
             GpoToModify  = 'C-Housekeeping-LOCKDOWN'
@@ -2677,10 +2677,10 @@
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SL_PISM) {
-            [void]$ArrayList.Add($SL_PISM.SamAccountName)
+            [void]$ArrayList.Add($SL_PISM)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         $Splat = @{
             GpoToModify            = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0OU.Name)
@@ -2709,10 +2709,10 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         if ($null -ne $SL_PISM) {
-            [void]$ArrayList.Add($SG_AdAdmins.SamAccountName)
+            [void]$ArrayList.Add($SG_AdAdmins)
         }
         $Splat = @{
             GpoToModify          = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0OU.Name)
@@ -2753,10 +2753,10 @@
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SL_PISM) {
-            [void]$ArrayList.Add($SL_PISM.SamAccountName)
+            [void]$ArrayList.Add($SL_PISM)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         $Splat = @{
             GpoToModify            = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0OU.Name)
@@ -2773,11 +2773,11 @@
         [void]$ArrayList.Add('Network Service')
         [void]$ArrayList.Add('NT SERVICE\All Services')
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
         }
         $Splat = @{
             GpoToModify  = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0OU.Name)
-            BatchLogon   = $SG_Tier0ServiceAccount.SamAccountName
+            BatchLogon   = $SG_Tier0ServiceAccount
             ServiceLogon = $ArrayList.ToArray()
         }
         Set-GpoPrivilegeRight @Splat
@@ -2799,10 +2799,10 @@
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1OU.Name
-            InteractiveLogon       = $SG_Tier1Admins.SamAccountName, 'Administrators'
-            RemoteInteractiveLogon = $SG_Tier1Admins.SamAccountName
-            BatchLogon             = $SG_Tier1ServiceAccount.SamAccountName
-            ServiceLogon           = $SG_Tier1ServiceAccount.SamAccountName
+            InteractiveLogon       = $SG_Tier1Admins, 'Administrators'
+            RemoteInteractiveLogon = $SG_Tier1Admins
+            BatchLogon             = $SG_Tier1ServiceAccount
+            ServiceLogon           = $SG_Tier1ServiceAccount
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2823,10 +2823,10 @@
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2OU.Name
-            InteractiveLogon       = $SG_Tier2Admins.SamAccountName, 'Administrators'
-            RemoteInteractiveLogon = $SG_Tier2Admins.SamAccountName
-            BatchLogon             = $SG_Tier2ServiceAccount.SamAccountName
-            ServiceLogon           = $SG_Tier2ServiceAccount.SamAccountName
+            InteractiveLogon       = $SG_Tier2Admins, 'Administrators'
+            RemoteInteractiveLogon = $SG_Tier2Admins
+            BatchLogon             = $SG_Tier2ServiceAccount
+            ServiceLogon           = $SG_Tier2ServiceAccount
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2849,10 +2849,10 @@
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SL_PISM) {
-            [void]$ArrayList.Add($SL_PISM.SamAccountName)
+            [void]$ArrayList.Add($SL_PISM)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         $Splat = @{
             GpoToModify            = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.name)
@@ -2895,8 +2895,8 @@
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name
-            InteractiveLogon       = $SL_PAWM.SamAccountName, 'Administrators'
-            RemoteInteractiveLogon = $SL_PAWM.SamAccountName
+            InteractiveLogon       = $SL_PAWM, 'Administrators'
+            RemoteInteractiveLogon = $SL_PAWM
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2918,10 +2918,10 @@
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name
-            InteractiveLogon       = $SL_PAWM.SamAccountName, 'Administrators', $SG_Tier0Admins.SamAccountName, $AdminName.SamAccountName, $NewAdminExists.SamAccountName
-            RemoteInteractiveLogon = $SL_PAWM.SamAccountName, 'Administrators', $SG_Tier0Admins.SamAccountName, $AdminName.SamAccountName, $NewAdminExists.SamAccountName
-            BatchLogon             = $SG_Tier0ServiceAccount.SamAccountName
-            ServiceLogon           = $SG_Tier0ServiceAccount.SamAccountName
+            InteractiveLogon       = $SL_PAWM, 'Administrators', $SG_Tier0Admins, $AdminName, $NewAdminExists
+            RemoteInteractiveLogon = $SL_PAWM, 'Administrators', $SG_Tier0Admins, $AdminName, $NewAdminExists
+            BatchLogon             = $SG_Tier0ServiceAccount
+            ServiceLogon           = $SG_Tier0ServiceAccount
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2929,10 +2929,10 @@
         # Deny Logon as a Batch job / Deny Logon as a Service
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name
-            DenyInteractiveLogon       = $SG_Tier1Admins.SamAccountName, $SG_Tier2Admins.SamAccountName
-            DenyRemoteInteractiveLogon = $SG_Tier1Admins.SamAccountName, $SG_Tier2Admins.SamAccountName
-            DenyBatchLogon             = $SG_Tier1ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
-            DenyServiceLogon           = $SG_Tier1ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
+            DenyInteractiveLogon       = $SG_Tier1Admins, $SG_Tier2Admins
+            DenyRemoteInteractiveLogon = $SG_Tier1Admins, $SG_Tier2Admins
+            DenyBatchLogon             = $SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount
+            DenyServiceLogon           = $SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2947,10 +2947,10 @@
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name
-            InteractiveLogon       = $SG_Tier1Admins.SamAccountName, 'Administrators'
-            RemoteInteractiveLogon = $SG_Tier1Admins.SamAccountName
-            BatchLogon             = $SG_Tier1ServiceAccount.SamAccountName
-            ServiceLogon           = $SG_Tier1ServiceAccount.SamAccountName
+            InteractiveLogon       = $SG_Tier1Admins, 'Administrators'
+            RemoteInteractiveLogon = $SG_Tier1Admins
+            BatchLogon             = $SG_Tier1ServiceAccount
+            ServiceLogon           = $SG_Tier1ServiceAccount
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2958,10 +2958,10 @@
         # Deny Logon as a Batch job / Deny Logon as a Service
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name
-            DenyInteractiveLogon       = $SG_Tier0Admins.SamAccountName, $SG_Tier2Admins.SamAccountName
-            DenyRemoteInteractiveLogon = $SG_Tier0Admins.SamAccountName, $SG_Tier2Admins.SamAccountName
-            DenyBatchLogon             = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
-            DenyServiceLogon           = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
+            DenyInteractiveLogon       = $SG_Tier0Admins, $SG_Tier2Admins
+            DenyRemoteInteractiveLogon = $SG_Tier0Admins, $SG_Tier2Admins
+            DenyBatchLogon             = $SG_Tier0ServiceAccount, $SG_Tier2ServiceAccount
+            DenyServiceLogon           = $SG_Tier0ServiceAccount, $SG_Tier2ServiceAccount
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2976,10 +2976,10 @@
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name
-            InteractiveLogon       = $SG_Tier2Admins.SamAccountName, 'Administrators'
-            RemoteInteractiveLogon = $SG_Tier2Admins.SamAccountName
-            BatchLogon             = $SG_Tier2ServiceAccount.SamAccountName
-            ServiceLogon           = $SG_Tier2ServiceAccount.SamAccountName
+            InteractiveLogon       = $SG_Tier2Admins, 'Administrators'
+            RemoteInteractiveLogon = $SG_Tier2Admins
+            BatchLogon             = $SG_Tier2ServiceAccount
+            ServiceLogon           = $SG_Tier2ServiceAccount
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2987,10 +2987,10 @@
         # Deny Logon as a Batch job / Deny Logon as a Service
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name
-            DenyInteractiveLogon       = $SG_Tier0Admins.SamAccountName, $SG_Tier1Admins.SamAccountName
-            DenyRemoteInteractiveLogon = $SG_Tier0Admins.SamAccountName, $SG_Tier1Admins.SamAccountName
-            DenyBatchLogon             = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier1ServiceAccount.SamAccountName
-            DenyServiceLogon           = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier1ServiceAccount.SamAccountName
+            DenyInteractiveLogon       = $SG_Tier0Admins, $SG_Tier1Admins
+            DenyRemoteInteractiveLogon = $SG_Tier0Admins, $SG_Tier1Admins
+            DenyBatchLogon             = $SG_Tier0ServiceAccount, $SG_Tier1ServiceAccount
+            DenyServiceLogon           = $SG_Tier0ServiceAccount, $SG_Tier1ServiceAccount
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -3024,7 +3024,7 @@
             gpoDescription = '{0}-Baseline' -f $ServersOu
             gpoScope       = $confXML.n.Servers.GPOs.ServersBaseline.Scope
             gpoLinkPath    = $ServersOuDn
-            GpoAdmin       = $sl_GpoAdminRight.SamAccountName
+            GpoAdmin       = $sl_GpoAdminRight
             gpoBackupId    = $confXML.n.Servers.GPOs.ServersBaseline.backupID
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
@@ -3033,7 +3033,7 @@
         # Create basic GPOs for different types under Servers
         $Splat = @{
             gpoScope      = 'C'
-            GpoAdmin      = $sl_GpoAdminRight.SamAccountName
+            GpoAdmin      = $sl_GpoAdminRight
             gpoBackupPath = Join-Path $DMscripts SecTmpl
         }
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Servers.OUs.ApplicationOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Servers.OUs.ApplicationOU.Name, $ServersOuDn)
@@ -3053,10 +3053,10 @@
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $ServersOu
-            BatchLogon             = $SG_Tier1ServiceAccount.SamAccountName
-            ServiceLogon           = $SG_Tier1ServiceAccount.SamAccountName
-            InteractiveLogon       = $SG_Tier1Admins.SamAccountName
-            RemoteInteractiveLogon = $SG_Tier1Admins.SamAccountName
+            BatchLogon             = $SG_Tier1ServiceAccount
+            ServiceLogon           = $SG_Tier1ServiceAccount
+            InteractiveLogon       = $SG_Tier1Admins
+            RemoteInteractiveLogon = $SG_Tier1Admins
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -3072,23 +3072,23 @@
         [void]$ArrayList.Add('Print Operators')
         [void]$ArrayList.Add($ServerOperators)
         if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName.SamAccountName)
+            [void]$ArrayList.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
+            [void]$ArrayList.Add($NewAdminExists)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_Tier2Admins) {
-            [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2Admins)
         }
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $ServersOu
             DenyInteractiveLogon       = $ArrayList.ToArray()
             DenyRemoteInteractiveLogon = $ArrayList.ToArray()
-            DenyBatchLogon             = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
-            DenyServiceLogon           = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier2ServiceAccount.SamAccountName
+            DenyBatchLogon             = $SG_Tier0ServiceAccount, $SG_Tier2ServiceAccount
+            DenyServiceLogon           = $SG_Tier0ServiceAccount, $SG_Tier2ServiceAccount
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -3103,7 +3103,7 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1Admins)
         }
         $Splat = @{
             GpoToModify          = 'C-{0}-Baseline' -f $ServersOu
@@ -3144,24 +3144,24 @@
             ###############################################################################
             # Delegation to SL_SvrAdmRight group to SERVERS area
 
-            Set-AdAclDelegateComputerAdmin -Group $SL_SvrAdmRight.SamAccountName -LDAPPath $Item -QuarantineDN $ItQuarantinePcOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_SvrAdmRight -LDAPPath $Item -QuarantineDN $ItQuarantinePcOuDn
 
             ###############################################################################
             # Delegation to SL_SvrOpsRight group on SERVERS area
 
             # Change Public Info
-            Set-AdAclComputerPublicInfo -Group $SL_SvrOpsRight.SamAccountName -LDAPPath $Item
+            Set-AdAclComputerPublicInfo -Group $SL_SvrOpsRight -LDAPPath $Item
 
             # Change Personal Info
-            Set-AdAclComputerPersonalInfo -Group $SL_SvrOpsRight.SamAccountName -LDAPPath $Item
+            Set-AdAclComputerPersonalInfo -Group $SL_SvrOpsRight -LDAPPath $Item
 
         }#end foreach
 
         # Create/Delete OUs within Servers
-        Set-AdAclCreateDeleteOU -Group $SL_InfraRight.SamAccountName -LDAPPath $ServersOuDn
+        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPPath $ServersOuDn
 
         # Change OUs within Servers
-        Set-AdAclChangeOU -Group $SL_AdRight.SamAccountName -LDAPPath $ServersOuDn
+        Set-AdAclChangeOU -Group $SL_AdRight -LDAPPath $ServersOuDn
 
         #endregion
         ###############################################################################
@@ -3180,7 +3180,7 @@
         $Splat = @{
             gpoDescription = '{0}-Baseline' -f $SitesOu
             gpoLinkPath    = $SitesOuDn
-            GpoAdmin       = $sl_GpoAdminRight.SamAccountName
+            GpoAdmin       = $sl_GpoAdminRight
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
         New-DelegateAdGpo @Splat -gpoScope 'C' -gpoBackupID $confXML.n.Sites.OUs.OuSiteComputer.backupID
@@ -3202,27 +3202,27 @@
         [void]$ArrayList.Add('Print Operators')
         [void]$ArrayList.Add($ServerOperators)
         if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName.SamAccountName)
+            [void]$ArrayList.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists.SamAccountName)
+            [void]$ArrayList.Add($NewAdminExists)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_Tier1Admins) {
-            [void]$ArrayList.Add($SG_Tier1Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier1Admins)
         }
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $SitesOu
             DenyInteractiveLogon       = $ArrayList.ToArray()
             DenyRemoteInteractiveLogon = $ArrayList.ToArray()
-            DenyBatchLogon             = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier1ServiceAccount.SamAccountName
-            DenyServiceLogon           = $SG_Tier0ServiceAccount.SamAccountName, $SG_Tier1ServiceAccount.SamAccountName
-            BatchLogon                 = $SG_Tier2ServiceAccount.SamAccountName
-            ServiceLogon               = $SG_Tier2ServiceAccount.SamAccountName
-            InteractiveLogon           = $SG_Tier2Admins.SamAccountName
-            RemoteInteractiveLogon     = $SG_Tier2Admins.SamAccountName
+            DenyBatchLogon             = $SG_Tier0ServiceAccount, $SG_Tier1ServiceAccount
+            DenyServiceLogon           = $SG_Tier0ServiceAccount, $SG_Tier1ServiceAccount
+            BatchLogon                 = $SG_Tier2ServiceAccount
+            ServiceLogon               = $SG_Tier2ServiceAccount
+            InteractiveLogon           = $SG_Tier2Admins
+            RemoteInteractiveLogon     = $SG_Tier2Admins
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -3237,7 +3237,7 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('Administrators')
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier2Admins.SamAccountName)
+            [void]$ArrayList.Add($SG_Tier2Admins)
         }
         $Splat = @{
             GpoToModify          = 'C-{0}-Baseline' -f $SitesOu
@@ -3275,18 +3275,18 @@
 
         # Sites OU
         # Create/Delete OUs within Sites
-        Set-AdAclCreateDeleteOU -Group $SL_InfraRight.SamAccountName -LDAPPath $SitesOuDn
+        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPPath $SitesOuDn
 
         # Sites OU
         # Change OUs
-        Set-AdAclChangeOU -Group $SL_AdRight.SamAccountName -LDAPPath $SitesOuDn
+        Set-AdAclChangeOU -Group $SL_AdRight -LDAPPath $SitesOuDn
 
 
         Write-Verbose -Message 'START APPLICATION ACCESS USER Global Delegation'
         ###############################################################################
         #region USER Site Administrator Delegation
         $Splat = @{
-            Group    = $SL_GlobalAppAccUserRight.SamAccountName
+            Group    = $SL_GlobalAppAccUserRight
             LDAPPath = $SitesGlobalAppAccUserOuDn
         }
         Set-AdAclDelegateUserAdmin @Splat
@@ -3294,7 +3294,7 @@
         #### GAL
         Set-AdAclDelegateGalAdmin @Splat
 
-        Add-AdGroupNesting -Identity $SL_GlobalAppAccUserRight.SamAccountName -Members $SG_GlobalUserAdmins.SamAccountName
+        Add-AdGroupNesting -Identity $SL_GlobalAppAccUserRight -Members $SG_GlobalUserAdmins
 
         #endregion USER Site Delegation
         ###############################################################################
@@ -3304,15 +3304,15 @@
         #region GROUP Site Admin Delegation
 
         # Create/Delete Groups
-        Set-AdAclCreateDeleteGroup -Group $SL_GlobalGroupRight.SamAccountName -LDAPPath $SitesGlobalGroupOuDn
+        Set-AdAclCreateDeleteGroup -Group $SL_GlobalGroupRight -LDAPPath $SitesGlobalGroupOuDn
 
         # Nest groups
-        Add-AdGroupNesting -Identity $SL_GlobalGroupRight.SamAccountName -Members $SG_GlobalGroupAdmins.SamAccountName
+        Add-AdGroupNesting -Identity $SL_GlobalGroupRight -Members $SG_GlobalGroupAdmins
 
         #### GAL
 
         # Change Group Properties
-        Set-AdAclChangeGroup -Group $SL_GlobalGroupRight.SamAccountName -LDAPPath $SitesGlobalGroupOuDn
+        Set-AdAclChangeGroup -Group $SL_GlobalGroupRight -LDAPPath $SitesGlobalGroupOuDn
 
         #endregion GROUP Site Delegation
         ###############################################################################
