@@ -1,4 +1,4 @@
-function New-DelegateAdGpo {
+﻿function New-DelegateAdGpo {
     <#
         .Synopsis
             Creates and Links new GPO
