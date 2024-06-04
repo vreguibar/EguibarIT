@@ -1918,24 +1918,24 @@
         # Computer objects within this ares MUST have read access, otherwise GPO will not apply
 
         # UM - Semi-Privileged User Management
-        Set-AdAclDelegateUserAdmin -Group $SL_UM.SamAccountName -LDAPpath $ItAdminAccountsOuDn
-        Set-AdAclDelegateGalAdmin -Group $SL_UM.SamAccountName -LDAPpath $ItAdminAccountsOuDn
+        Set-AdAclDelegateUserAdmin -Group $SL_UM -LDAPpath $ItAdminAccountsOuDn
+        Set-AdAclDelegateGalAdmin -Group $SL_UM -LDAPpath $ItAdminAccountsOuDn
 
 
 
 
 
         # GM - Semi-Privileged Group Management
-        Set-AdAclCreateDeleteGroup -Group $SL_GM.SamAccountName -LDAPPath $ItAdminGroupsOuDn
-        Set-AdAclChangeGroup -Group $SL_GM.SamAccountName -LDAPPath $ItAdminGroupsOuDn
+        Set-AdAclCreateDeleteGroup -Group $SL_GM -LDAPPath $ItAdminGroupsOuDn
+        Set-AdAclChangeGroup -Group $SL_GM -LDAPPath $ItAdminGroupsOuDn
 
 
 
 
 
         # PUM - Privileged User Management
-        Set-AdAclDelegateUserAdmin -Group $SL_PUM.SamAccountName -LDAPpath $ItAdminAccountsOuDn
-        Set-AdAclDelegateGalAdmin -Group $SL_PUM.SamAccountName -LDAPpath $ItAdminAccountsOuDn
+        Set-AdAclDelegateUserAdmin -Group $SL_PUM -LDAPpath $ItAdminAccountsOuDn
+        Set-AdAclDelegateGalAdmin -Group $SL_PUM -LDAPpath $ItAdminAccountsOuDn
 
 
 
@@ -1943,20 +1943,20 @@
 
         # PGM - Privileged Group Management
         # Create/Delete Groups
-        Set-AdAclCreateDeleteGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItPrivGroupsOUDn
+        Set-AdAclCreateDeleteGroup -Group $SL_PGM -LDAPPath $ItPrivGroupsOUDn
         Set-AdAclCreateDeleteGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItRightsOuDn
         # Change Group Properties
-        Set-AdAclChangeGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItPrivGroupsOUDn
-        Set-AdAclChangeGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItRightsOuDn
+        Set-AdAclChangeGroup -Group $SL_PGM -LDAPPath $ItPrivGroupsOUDn
+        Set-AdAclChangeGroup -Group $SL_PGM -LDAPPath $ItRightsOuDn
 
 
 
 
         # Local Admin groups management
         # Create/Delete Groups
-        Set-AdAclCreateDeleteGroup -Group $SL_SAGM.SamAccountName -LDAPPath $ItAdminSrvGroupsOUDn
+        Set-AdAclCreateDeleteGroup -Group $SL_SAGM -LDAPPath $ItAdminSrvGroupsOUDn
         # Change Group Properties
-        Set-AdAclChangeGroup -Group $SL_SAGM.SamAccountName -LDAPPath $ItAdminSrvGroupsOUDn
+        Set-AdAclChangeGroup -Group $SL_SAGM -LDAPPath $ItAdminSrvGroupsOUDn
 
 
 
@@ -1964,20 +1964,20 @@
 
         # PISM - Privileged Infrastructure Services Management
         # Create/Delete Computers
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraT0OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraT1OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraT2OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM.SamAccountName -LDAPPath $ItInfraStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPPath $ItInfraT0OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPPath $ItInfraT1OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPPath $ItInfraT2OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPPath $ItInfraStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
 
 
 
 
 
         # PAWM - Privileged Access Workstation Management
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawT0OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawT1OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawT2OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM.SamAccountName -LDAPPath $ItPawStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPPath $ItPawT0OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPPath $ItPawT1OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPPath $ItPawT2OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPPath $ItPawStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
 
 
 
@@ -1985,7 +1985,7 @@
 
 
         # DC_Management - Domain Controllers Management
-        Set-AdAclDelegateComputerAdmin -Group $SL_DcManagement.SamAccountName -LDAPPath $DCsOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_DcManagement -LDAPPath $DCsOuDn -QuarantineDN $ItQuarantinePcOuDn
 
 
 
@@ -1994,7 +1994,7 @@
         # PSAM - Privileged Service Account Management - Create/Delete Managed Service Accounts & Standard user service accounts
         # Managed Service Accounts "Default Container"
         $Splat = @{
-            Group    = $SL_PSAM.SamAccountName
+            Group    = $SL_PSAM
             LDAPPath = ('CN=Managed Service Accounts,{0}' -f $Variables.AdDn)
         }
         Set-AdAclCreateDeleteGMSA @Splat
@@ -2002,7 +2002,7 @@
 
         # TIER 0
         $Splat = @{
-            Group    = $SL_PSAM.SamAccountName
+            Group    = $SL_PSAM
             LDAPPath = $ItSAT0OuDn
         }
         Set-AdAclCreateDeleteGMSA @Splat
@@ -2016,7 +2016,7 @@
 
         # TIER 1
         $Splat = @{
-            Group    = $SL_PSAM.SamAccountName
+            Group    = $SL_PSAM
             LDAPPath = $ItSAT1OuDn
         }
         Set-AdAclCreateDeleteGMSA @Splat
@@ -2030,7 +2030,7 @@
 
         # TIER 2
         $Splat = @{
-            Group    = $SL_PSAM.SamAccountName
+            Group    = $SL_PSAM
             LDAPPath = $ItSAT2OuDn
         }
         Set-AdAclCreateDeleteGMSA @Splat
@@ -2048,18 +2048,18 @@
 
         # GPO Admins
         # Create/Delete GPOs
-        Set-AdAclCreateDeleteGPO -Group $SL_GpoAdminRight.SamAccountName
+        Set-AdAclCreateDeleteGPO -Group $SL_GpoAdminRight
         # Link existing GPOs to OUs
-        Set-AdAclLinkGPO -Group $SL_GpoAdminRight.SamAccountName
+        Set-AdAclLinkGPO -Group $SL_GpoAdminRight
         # Change GPO options
-        Set-AdAclGPoption -Group $SL_GpoAdminRight.SamAccountName
+        Set-AdAclGPoption -Group $SL_GpoAdminRight
 
 
 
 
 
         # Delegate Directory Replication Rights
-        Set-AdDirectoryReplication -Group $SL_DirReplRight.SamAccountName
+        Set-AdDirectoryReplication -Group $SL_DirReplRight
 
 
 
@@ -2067,38 +2067,38 @@
 
         # Infrastructure Admins
         # Organizational Units at domain level
-        Set-AdAclCreateDeleteOU -Group $SL_InfraRight.SamAccountName -LDAPPath $Variables.AdDn
+        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPPath $Variables.AdDn
         # Organizational Units at Admin area
-        Set-AdAclCreateDeleteOU -Group $SL_InfraRight.SamAccountName -LDAPPath $ItAdminOuDn
+        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPPath $ItAdminOuDn
         # Subnet Configuration Container
         # Create/Delete Subnet
-        Set-AdAclCreateDeleteSubnet -Group $SL_InfraRight.SamAccountName
+        Set-AdAclCreateDeleteSubnet -Group $SL_InfraRight
         # Site Configuration Container
         # Create/Delete Sites
-        Set-AdAclCreateDeleteSite -Group $SL_InfraRight.SamAccountName
+        Set-AdAclCreateDeleteSite -Group $SL_InfraRight
         # Site-Link Configuration Container
         # Create/Delete Site-Link
-        Set-AdAclCreateDeleteSiteLink -Group $SL_InfraRight.SamAccountName
+        Set-AdAclCreateDeleteSiteLink -Group $SL_InfraRight
         # Transfer FSMO roles
-        Set-AdAclFSMOtransfer -Group $SL_TransferFSMOright.SamAccountName -FSMOroles 'Schema', 'Infrastructure', 'DomainNaming', 'RID', 'PDC'
+        Set-AdAclFSMOtransfer -Group $SL_TransferFSMOright -FSMOroles 'Schema', 'Infrastructure', 'DomainNaming', 'RID', 'PDC'
 
 
 
 
         # AD Admins
         # Domain Controllers management
-        Set-AdAclDelegateComputerAdmin -Group $SL_AdRight.SamAccountName -LDAPPath $DCsOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_AdRight -LDAPPath $DCsOuDn -QuarantineDN $ItQuarantinePcOuDn
         # Delete computers from default container
-        Set-DeleteOnlyComputer -Group $SL_AdRight.SamAccountName -LDAPPath $ItQuarantinePcOuDn
+        Set-DeleteOnlyComputer -Group $SL_AdRight -LDAPPath $ItQuarantinePcOuDn
         # Subnet Configuration Container|
         # Change Subnet
-        Set-AdAclChangeSubnet -Group $SL_AdRight.SamAccountName
+        Set-AdAclChangeSubnet -Group $SL_AdRight
         # Site Configuration Container
         # Change Site
-        Set-AdAclChangeSite -Group $SL_AdRight.SamAccountName
+        Set-AdAclChangeSite -Group $SL_AdRight
         # Site-Link Configuration Container
         # Change SiteLink
-        Set-AdAclChangeSiteLink -Group $SL_AdRight.SamAccountName
+        Set-AdAclChangeSiteLink -Group $SL_AdRight
 
         #endregion
         ###############################################################################
@@ -2112,7 +2112,7 @@
         $Splat = @{
             gpoDescription = 'Baseline'
             gpoLinkPath    = $Variables.AdDn
-            GpoAdmin       = $sl_GpoAdminRight.SamAccountName
+            GpoAdmin       = $sl_GpoAdminRight
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
         New-DelegateAdGpo @Splat -gpoScope 'C' -gpoBackupID $confXML.n.Admin.GPOs.PCbaseline.backupID
@@ -2123,7 +2123,7 @@
             gpoDescription = '{0}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Name
             gpoScope       = $confXML.n.Admin.GPOs.DCBaseline.Scope
             gpoLinkPath    = 'OU=Domain Controllers,{0}' -f $Variables.AdDn
-            GpoAdmin       = $sl_GpoAdminRight.SamAccountName
+            GpoAdmin       = $sl_GpoAdminRight
             gpoBackupId    = $confXML.n.Admin.GPOs.DCBaseline.backupID
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
@@ -2133,7 +2133,7 @@
         $Splat = @{
             gpoDescription = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
             gpoLinkPath    = $ItAdminOuDn
-            GpoAdmin       = $sl_GpoAdminRight.SamAccountName
+            GpoAdmin       = $sl_GpoAdminRight
         }
         New-DelegateAdGpo -gpoScope 'C' @Splat -gpoBackupID $confXML.n.Admin.GPOs.Adminbaseline.backupID
         New-DelegateAdGpo -gpoScope 'U' @Splat -gpoBackupID $confXML.n.Admin.GPOs.AdminUserbaseline.backupID
@@ -2143,7 +2143,7 @@
             gpoDescription = '{0}-Baseline' -f $confXML.n.Admin.OUs.ItAdminAccountsOU.Name
             gpoScope       = 'U'
             gpoLinkPath    = $ItAdminAccountsOuDn
-            GpoAdmin       = $sl_GpoAdminRight.SamAccountName
+            GpoAdmin       = $sl_GpoAdminRight
             gpoBackupId    = $confXML.n.Admin.GPOs.AdminUserbaseline.backupID
             gpoBackupPath  = Join-Path $DMscripts SecTmpl
         }
@@ -2152,7 +2152,7 @@
         # Service Accounts
         $Splat = @{
             gpoScope = 'U'
-            GpoAdmin = $sl_GpoAdminRight.SamAccountName
+            GpoAdmin = $sl_GpoAdminRight
         }
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItServiceAccountsOU.Name) -gpoLinkPath $ItServiceAccountsOuDn
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT0OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.Name, $ItServiceAccountsOuDn)
@@ -2162,7 +2162,7 @@
         # PAWs
         $Splat = @{
             gpoScope = 'C'
-            GpoAdmin = $sl_GpoAdminRight.SamAccountName
+            GpoAdmin = $sl_GpoAdminRight
         }
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name) -gpoLinkPath $ItPawOuDn -gpoBackupId $confXML.n.Admin.GPOs.PAWbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn) -gpoBackupId $confXML.n.Admin.GPOs.PawT0baseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
@@ -2173,7 +2173,7 @@
         # Infrastructure Servers
         $Splat = @{
             gpoScope = 'C'
-            GpoAdmin = $sl_GpoAdminRight.SamAccountName
+            GpoAdmin = $sl_GpoAdminRight
         }
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name) -gpoLinkPath $ItInfraOuDn -gpoBackupId $confXML.n.Admin.GPOs.INFRAbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name, $ItInfraOuDn) -gpoBackupId $confXML.n.Admin.GPOs.INFRAT0baseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
@@ -2182,12 +2182,12 @@
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn) -gpoBackupId $confXML.n.Admin.GPOs.INFRAStagingBaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
 
         # redirected containers (X-Computers & X-Users)
-        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name, $Variables.AdDn) -GpoAdmin $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name) -gpoScope U -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name, $Variables.AdDn) -GpoAdmin $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name, $Variables.AdDn) -GpoAdmin $sl_GpoAdminRight
+        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name) -gpoScope U -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name, $Variables.AdDn) -GpoAdmin $sl_GpoAdminRight
 
         # Housekeeping
-        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItHousekeepingOU.Name) -gpoScope U -gpoLinkPath $ItHousekeepingOuDn -GpoAdmin $sl_GpoAdminRight.SamAccountName
-        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItHousekeepingOU.Name) -gpoScope C -gpoLinkPath $ItHousekeepingOuDn -GpoAdmin $sl_GpoAdminRight.SamAccountName
+        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItHousekeepingOU.Name) -gpoScope U -gpoLinkPath $ItHousekeepingOuDn -GpoAdmin $sl_GpoAdminRight
+        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItHousekeepingOU.Name) -gpoScope C -gpoLinkPath $ItHousekeepingOuDn -GpoAdmin $sl_GpoAdminRight
 
 
         ###############################################################################
@@ -2264,10 +2264,10 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add('NT AUTHORITY\Local Account')
         [void]$ArrayList.Add('BuiltIn\Guests')
-        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add($AccountOperators)
         [void]$ArrayList.Add('Backup Operators')
         [void]$ArrayList.Add('Print Operators')
-        [void]$ArrayList.Add('Server Operators')
+        [void]$ArrayList.Add($ServerOperators)
         [void]$ArrayList.Add('Domain Controllers')
         [void]$ArrayList.Add('Read-Only Domain Controllers')
         if ($null -ne $SG_Tier0ServiceAccount) {
@@ -2291,13 +2291,13 @@
         # Deny Logon as a Batch job / Deny Logon as a Service
         $ArrayList.Clear()
         [void]$ArrayList.Add('Schema Admins')
-        [void]$ArrayList.Add('Enterprise Admins')
-        [void]$ArrayList.Add('$DomainAdmins')
+        [void]$ArrayList.Add($EnterpriseAdmins)
+        [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
-        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add($AccountOperators)
         [void]$ArrayList.Add('Backup Operators')
         [void]$ArrayList.Add('Print Operators')
-        [void]$ArrayList.Add('Server Operators')
+        [void]$ArrayList.Add($ServerOperators)
         [void]$ArrayList.Add('Domain Controllers')
         [void]$ArrayList.Add('Read-Only Domain Controllers')
         [void]$ArrayList.Add('Group Policy Creators Owners')
@@ -2381,7 +2381,7 @@
 
         # Deny Logon Locally / Deny Logon throug RDP/TerminalServices
         $ArrayList.Clear()
-        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add($AccountOperators)
         [void]$ArrayList.Add('Backup Operators')
         [void]$ArrayList.Add('Print Operators')
         [void]$ArrayList.Add('BuiltIn\Guests')
@@ -2420,10 +2420,10 @@
         [void]$ArrayList.Add('Enterprise Admins')
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
-        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add($AccountOperators)
         [void]$ArrayList.Add('Backup Operators')
         [void]$ArrayList.Add('Print Operators')
-        [void]$ArrayList.Add('Server Operators')
+        [void]$ArrayList.Add($ServerOperators)
         [void]$ArrayList.Add('Group Policy Creators Owners')
         [void]$ArrayList.Add('Cryptographic Operators')
         [void]$ArrayList.Add('BuiltIn\Guests')
@@ -2543,10 +2543,10 @@
         [void]$ArrayList.Add('Enterprise Admins')
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
-        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add($AccountOperators)
         [void]$ArrayList.Add('Backup Operators')
         [void]$ArrayList.Add('Print Operators')
-        [void]$ArrayList.Add('Server Operators')
+        [void]$ArrayList.Add($ServerOperators)
         [void]$ArrayList.Add('Read-Only Domain Controllers')
         [void]$ArrayList.Add('Group Policy Creators Owners')
         [void]$ArrayList.Add('Cryptographic Operators')
@@ -3064,13 +3064,13 @@
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices / Deny Logon as a Batch job / Deny Logon as a Service
         $ArrayList.Clear()
         [void]$ArrayList.Add('Schema Admins')
-        [void]$ArrayList.Add('Enterprise Admins')
+        [void]$ArrayList.Add($EnterpriseAdmins)
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
-        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add($AccountOperators)
         [void]$ArrayList.Add('Backup Operators')
         [void]$ArrayList.Add('Print Operators')
-        [void]$ArrayList.Add('Server Operators')
+        [void]$ArrayList.Add($ServerOperators)
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName.SamAccountName)
         }
@@ -3194,13 +3194,13 @@
 
         $ArrayList.Clear()
         [void]$ArrayList.Add('Schema Admins')
-        [void]$ArrayList.Add('Enterprise Admins')
+        [void]$ArrayList.Add($EnterpriseAdmins)
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add('Administrators')
-        [void]$ArrayList.Add('Account Operators')
+        [void]$ArrayList.Add($AccountOperators)
         [void]$ArrayList.Add('Backup Operators')
         [void]$ArrayList.Add('Print Operators')
-        [void]$ArrayList.Add('Server Operators')
+        [void]$ArrayList.Add($ServerOperators)
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName.SamAccountName)
         }
