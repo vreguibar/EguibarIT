@@ -26,7 +26,8 @@ function ConvertTo-IntegerIPv4 {
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
             Position = 0)]
-        [uint32] $Integer
+        [uint32]
+        $Integer
     )
 
     Begin {

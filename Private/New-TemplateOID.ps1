@@ -39,15 +39,21 @@ Function New-TemplateOID {
     [OutputType([System.Collections.Hashtable])]
 
     Param(
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'FQDN of a Domain Controller.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
         [System.String]
         $Server,
 
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
-            HelpMessage = 'Configuration Namin Context of the domain.',
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
+            HelpMessage = 'Configuration Naming Context of the domain.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
         [System.String]

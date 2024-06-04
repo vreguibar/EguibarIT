@@ -36,7 +36,7 @@ function Set-AdAclDelegateUserAdmin {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     Param
     (
         # PARAM1 STRING for the Delegated Group Name
@@ -44,7 +44,6 @@ function Set-AdAclDelegateUserAdmin {
             HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [String]
         $Group,
 
         # PARAM2 Distinguished Name of the OU where given group can read the User password
@@ -77,8 +76,10 @@ function Set-AdAclDelegateUserAdmin {
 
         $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
+        $CurrentGroup = Get-AdObjectType -Identity $PSBoundParameters['Group']
+
         $Splat = @{
-            Group    = $PSBoundParameters['Group']
+            Group    = $CurrentGroup
             LDAPPath = $PSBoundParameters['LDAPpath']
         }
     } #end Begin

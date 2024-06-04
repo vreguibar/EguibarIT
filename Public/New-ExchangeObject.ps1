@@ -18,9 +18,13 @@ Function New-ExchangeObject {
       http://www.eguibarit.com
   #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+
     Param(
         # PARAM1 full path to the configuration.xml file
-        [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $True,
+            ValueFromPipelineByPropertyName = $True,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [string]
@@ -33,6 +37,7 @@ Function New-ExchangeObject {
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Path to all the scripts and files needed by this function',
             Position = 1)]
+        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\"')]
         [string]
         $DMscripts = 'C:\PsScripts\'
     )

@@ -66,6 +66,7 @@
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([Microsoft.ActiveDirectory.Management.AdGroup])]
+
     Param (
         # Param1 Group which membership is to be changed
         [Parameter(Mandatory = $true,

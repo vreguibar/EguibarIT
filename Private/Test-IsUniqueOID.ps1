@@ -25,25 +25,37 @@ Function Test-IsUniqueOID {
     [OutputType([System.Boolean])]
 
     param (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Specifies the Common Name (CN) of the Certificate Template',
             Position = 0)]
         [string]
         $cn,
 
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Specifies the OID (Object Identifier) of the Certificate Template',
             Position = 1)]
         [string]
         $TemplateOID,
 
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Specifies the Active Directory server to query',
             Position = 2)]
         [string]
         $Server,
 
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Specifies the Configuration Naming Context (ConfigNC) to search for the Certificate Template.',
             Position = 3)]
         [string]

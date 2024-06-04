@@ -15,8 +15,8 @@ function Test-IPv4MaskString {
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = "Specifies the IPv4 network mask string (e.g., 255.255.255.0)",
-        Position = 1)]
+            HelpMessage = 'Specifies the IPv4 network mask string (e.g., 255.255.255.0)',
+            Position = 1)]
         [String] $MaskString
     )
 
@@ -29,9 +29,9 @@ function Test-IPv4MaskString {
 
     Process {
         $validBytes = '0|128|192|224|240|248|252|254|255'
-        $maskPattern = ('^((({0})\.0\.0\.0)|'      -f $validBytes) +
-             ('(255\.({0})\.0\.0)|'      -f $validBytes) +
-             ('(255\.255\.({0})\.0)|'    -f $validBytes) +
+        $maskPattern = ('^((({0})\.0\.0\.0)|' -f $validBytes) +
+             ('(255\.({0})\.0\.0)|' -f $validBytes) +
+             ('(255\.255\.({0})\.0)|' -f $validBytes) +
              ('(255\.255\.255\.({0})))$' -f $validBytes)
         $MaskString -match $maskPattern
     } #end Process

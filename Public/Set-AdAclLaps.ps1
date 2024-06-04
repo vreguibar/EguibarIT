@@ -45,7 +45,6 @@ function Set-AdAclLaps {
             HelpMessage = 'Identity of the group getting being able to READ the password.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [String]
         $ReadGroup,
 
         # PARAM2 STRING for the Delegated Group Name
@@ -53,7 +52,6 @@ function Set-AdAclLaps {
             HelpMessage = 'Identity of the group getting being able to RESET the password.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
-        [String]
         $ResetGroup,
 
         # PARAM3 Distinguished Name of the OU where given group can read the computer password
@@ -62,6 +60,7 @@ function Set-AdAclLaps {
             Position = 2)]
         [ValidateNotNullOrEmpty()]
         [validateScript({ Test-IsValidDN -ObjectDN $_ })]
+        [Alias('DN', 'DistinguishedName')]
         [String]
         $LDAPpath,
 
@@ -101,13 +100,13 @@ function Set-AdAclLaps {
 
             # AdmPwd.PS CMDlets
             Set-AdmPwdComputerSelfPermission -Identity $LDAPpath
-            Set-AdmPwdReadPasswordPermission -AllowedPrincipals $ReadGroup -Identity $LDAPpath
-            Set-AdmPwdResetPasswordPermission -AllowedPrincipals $ResetGroup -Identity $LDAPpath
+            Set-AdmPwdReadPasswordPermission -AllowedPrincipals $currentReadGroup -Identity $PSBoundParameters['LDAPpath']
+            Set-AdmPwdResetPasswordPermission -AllowedPrincipals $currentResetGroup -Identity $PSBoundParameters['LDAPpath']
 
             # LAPS CMDlets
             Set-LapsADComputerSelfPermission -Identity $LDAPpath
-            Set-LapsADReadPasswordPermission -AllowedPrincipals $currentReadGroup.SID -Identity $LDAPpath
-            Set-LapsADResetPasswordPermission -AllowedPrincipals $currentResetGroup.SID -Identity $LDAPpath
+            Set-LapsADReadPasswordPermission -AllowedPrincipals $currentReadGroup.SID -Identity $PSBoundParameters['LDAPpath']
+            Set-LapsADResetPasswordPermission -AllowedPrincipals $currentResetGroup.SID -Identity $PSBoundParameters['LDAPpath']
 
         } else {
             Write-Error -Message 'Not Implemented. Schema does not contains the required attributes.'

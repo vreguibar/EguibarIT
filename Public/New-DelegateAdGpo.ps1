@@ -102,7 +102,6 @@ function New-DelegateAdGpo {
             HelpMessage = 'Domain Local Group with GPO Rights to be assigned',
             Position = 3)]
         [ValidateNotNullOrEmpty()]
-        [string]
         $GpoAdmin,
 
         # Param5 Restore GPO settings from backup using the BackupID GUID

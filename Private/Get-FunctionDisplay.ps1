@@ -34,9 +34,10 @@
         [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Amount of Tabs to be used on the formatting.',
             Position = 1)]
-        [ValidateNotNullOrEmpty()][PSDefaultValue(Help = 'Default Value is "4"')]
+        [ValidateNotNullOrEmpty()]
+        [PSDefaultValue(Help = 'Default Value is "4"')]
         [int]
-        $TabCount = 4
+        $TabCount = 2
     )
 
     Begin {

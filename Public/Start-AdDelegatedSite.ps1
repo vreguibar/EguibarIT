@@ -66,14 +66,20 @@ function Start-AdDelegateSite {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium', DefaultParameterSetName = 'ParamOptions')]
     param (
         # PARAM1 full path to the configuration.xml file
-        [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $True,
+            ValueFromPipelineByPropertyName = $True,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [string]
         $ConfigXMLFile,
 
         #PARAM2
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             ParameterSetName = 'ParamOptions',
             HelpMessage = 'Enter the Name of the Site OU',
             Position = 1)]
@@ -82,16 +88,24 @@ function Start-AdDelegateSite {
         $ouName,
 
         #PARAM3
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             ParameterSetName = 'ParamOptions',
             HelpMessage = 'Enter the Name new redirected OU for computers',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
+        [validateScript({ Test-IsValidDN -ObjectDN $_ })]
+        [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [String]
         $QuarantineDN,
 
         # Param4 Create Exchange Objects
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed Exchange objects and containers.',
             Position = 3)]
         [switch]

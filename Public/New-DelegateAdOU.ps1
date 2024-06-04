@@ -60,7 +60,6 @@ function New-DelegateAdOU {
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Name of the OU',
             Position = 0)]
-        [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [ValidateLength(2, 50)]
         [string]

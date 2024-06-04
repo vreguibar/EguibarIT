@@ -48,7 +48,6 @@ function Set-AdAclDelegateComputerAdmin {
             HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [String]
         $Group,
 
         # PARAM2 Distinguished Name of the OU where given group can read the computer password
@@ -57,6 +56,7 @@ function Set-AdAclDelegateComputerAdmin {
             Position = 1)]
         [ValidateNotNullOrEmpty()]
         [validateScript({ Test-IsValidDN -ObjectDN $_ })]
+        [Alias('DN', 'DistinguishedName')]
         [String]
         $LDAPpath,
 
@@ -91,8 +91,10 @@ function Set-AdAclDelegateComputerAdmin {
 
         $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
+        $currentGroup = Get-AdObjectType -Identity $PSBoundParameters['Group']
+
         $Splat = @{
-            Group    = $PSBoundParameters['Group']
+            Group    = $currentGroup
             LDAPPath = $PSBoundParameters['LDAPpath']
         }
 
@@ -100,13 +102,13 @@ function Set-AdAclDelegateComputerAdmin {
     Process {
         try {
             # Check if RemoveRule switch is present.
-            If($PSBoundParameters['RemoveRule']) {
+            If ($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
                 $Splat.Add('RemoveRule', $true)
             }
 
-            if ($Force -or $PSCmdlet.ShouldProcess("Proceed with delegations?")) {
-            # Create/Delete Computers
+            if ($Force -or $PSCmdlet.ShouldProcess('Proceed with delegations?')) {
+                # Create/Delete Computers
                 Set-AdAclCreateDeleteComputer @Splat
 
                 # Reset Computer Password
@@ -134,10 +136,10 @@ function Set-AdAclDelegateComputerAdmin {
                 Set-AdAclBitLockerTPM @Splat
 
                 # Grant the right to delete computers from default container. Move Computers
-                Set-DeleteOnlyComputer -Group $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['QuarantineDN']
+                Set-DeleteOnlyComputer -Group $currentGroup -LDAPPath $PSBoundParameters['QuarantineDN']
 
                 # Set LAPS
-                Set-AdAclLaps -ResetGroup $PSBoundParameters['Group'] -ReadGroup $PSBoundParameters['Group'] -LDAPPath $PSBoundParameters['LDAPpath']
+                Set-AdAclLaps -ResetGroup $currentGroup -ReadGroup $currentGroup -LDAPPath $PSBoundParameters['LDAPpath']
             } #end If
 
         } catch {

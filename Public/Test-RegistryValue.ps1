@@ -29,15 +29,22 @@ function Test-RegistryValue {
   #>
     [CmdletBinding(ConfirmImpact = 'Low')]
     [OutputType([Bool])]
+
     Param (
-        [parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Registry path to be tested',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
         [string]
         $Path,
 
-        [parameter(Mandatory=$true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Registry value to be tested',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
@@ -59,8 +66,7 @@ function Test-RegistryValue {
         try {
             Get-ItemProperty -Path $Path | Select-Object -ExpandProperty $Value -ErrorAction Stop | Out-Null
             return $true
-        }
-        catch {
+        } catch {
             return $false
         }
     } #end Process

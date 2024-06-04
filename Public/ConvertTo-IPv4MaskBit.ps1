@@ -26,9 +26,10 @@ function ConvertTo-IPv4MaskBit {
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-        Position = 0)]
-        [ValidateScript({Test-IPv4MaskString $_})]
-        [String] $MaskString
+            Position = 0)]
+        [ValidateScript({ Test-IPv4MaskString $_ })]
+        [String]
+        $MaskString
     )
     Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'

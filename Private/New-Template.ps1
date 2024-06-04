@@ -37,14 +37,20 @@ Function New-Template {
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     Param(
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Display Name of the new template.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
         [System.String]
         $DisplayName,
 
-        [Parameter(Mandatory = $True, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $False,
+        [Parameter(Mandatory = $True,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
             HelpMessage = 'Other attributes in form of HashTable of the new template.',
             Position = 1)]
         [System.Collections.Hashtable]
@@ -108,8 +114,7 @@ Function New-Template {
                 New-ADObject @Splat
             }
 
-        }
-        catch {
+        } catch {
             # Handle errors here
             ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw

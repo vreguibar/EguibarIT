@@ -36,34 +36,38 @@ Function ConvertTo-IPv4NetworkAddress {
     #>
     [CmdletBinding(ConfirmImpact = 'Low')]
     [OutputType([System.Net.IpAddress])]
-    Param
-    (
+
+    Param (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = "Specifies the IPv4 Address as string (e.g., 192.168.1.200)",
-        Position = 0)]
-        [String] $IPv4Address,
+            HelpMessage = 'Specifies the IPv4 Address as string (e.g., 192.168.1.200)',
+            Position = 0)]
+        [String]
+        $IPv4Address,
 
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = "Specifies the IPv4 network mask as string (e.g., 255.255.255.0)",
-            ParameterSetName='SubnetMask',
-        Position = 1)]
-        [String] $SubnetMask,
+            HelpMessage = 'Specifies the IPv4 network mask as string (e.g., 255.255.255.0)',
+            ParameterSetName = 'SubnetMask',
+            Position = 1)]
+        [String]
+        $SubnetMask,
 
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = "Specifies the network prefix length, also known as CIDR  (e.g., 24)",
-            ParameterSetName='PrefixLength',
-        Position = 1)]
-        [String] $PrefixLength
+            HelpMessage = 'Specifies the network prefix length, also known as CIDR  (e.g., 24)',
+            ParameterSetName = 'PrefixLength',
+            Position = 1)]
+        [String]
+        $PrefixLength
     )
+
     Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
         Write-Verbose -Message (Get-Date).ToShortDateString()
@@ -75,7 +79,7 @@ Function ConvertTo-IPv4NetworkAddress {
 
         #####
         # Variables
-        $IntegerIPv4Address    = 0
+        $IntegerIPv4Address = 0
         $IntegerIPv4SubnetMask = 0
         $IntegerNetworkAddress = 0
         [IpAddress]$NetworkAddress
@@ -86,7 +90,7 @@ Function ConvertTo-IPv4NetworkAddress {
         Write-Verbose -Message ('IP Address {0} to Integer: {1}' -f $IPv4Address, $IntegerIPv4Address)
 
         # Get IPv4 subnet mask as an Integer
-        If($PSCmdlet.ParameterSetName -eq 'PrefixLength') {
+        If ($PSCmdlet.ParameterSetName -eq 'PrefixLength') {
             $SubnetMask = (ConvertTo-IPv4MaskString -MaskBits $PrefixLength).ToString()
             Write-Verbose -Message ('PrefixLength of {0} to Integer: {1}' -f $SubnetMask, $IntegerIPv4SubnetMask)
         }

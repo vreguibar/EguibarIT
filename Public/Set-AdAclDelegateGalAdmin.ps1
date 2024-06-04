@@ -43,7 +43,6 @@ function Set-AdAclDelegateGalAdmin {
             HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [String]
         $Group,
 
         # PARAM2 Distinguished Name of the OU where given group will manage a User GAL.
@@ -76,8 +75,10 @@ function Set-AdAclDelegateGalAdmin {
 
         $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
+        $CurrentGroup = Get-AdObjectType -Identity $PSBoundParameters['Group']
+
         $Splat = @{
-            Group    = $PSBoundParameters['Group']
+            Group    = $CurrentGroup
             LDAPPath = $PSBoundParameters['LDAPpath']
         }
 

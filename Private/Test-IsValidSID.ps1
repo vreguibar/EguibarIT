@@ -27,7 +27,10 @@ function Test-IsValidSID {
     [OutputType([bool])]
     param
     (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'String to be validated as SID',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
@@ -37,7 +40,7 @@ function Test-IsValidSID {
     )
     Begin {
         # Define DN Regex
-        $SidRegex = [RegEx]::new("^S-1-[0-59]-\d{2}-\d{8,10}-\d{8,10}-\d{8,10}-[1-9]\d{3}")
+        $SidRegex = [RegEx]::new('^S-1-[0-59]-\d{2}-\d{8,10}-\d{8,10}-\d{8,10}-[1-9]\d{3}')
     } #end Begin
     Process {
         Try {

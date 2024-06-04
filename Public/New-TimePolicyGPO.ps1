@@ -1,5 +1,4 @@
-Function New-TimePolicyGPO
-{
+Function New-TimePolicyGPO {
     <#
         .Synopsis
 
@@ -26,7 +25,7 @@ Function New-TimePolicyGPO
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Name of the GPO to be created',
-        Position = 0)]
+            Position = 0)]
         [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [string]
@@ -38,7 +37,7 @@ Function New-TimePolicyGPO
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
             HelpMessage = 'NTP Servers to be used for time sync',
-        Position = 1)]
+            Position = 1)]
         [string]
         $NtpServer,
 
@@ -48,7 +47,7 @@ Function New-TimePolicyGPO
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
             HelpMessage = 'AnnounceFlags for reliable time server',
-        Position = 2)]
+            Position = 2)]
         [ValidateNotNullOrEmpty()]
         [int]
         $AnnounceFlags,
@@ -59,7 +58,7 @@ Function New-TimePolicyGPO
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Type of sync to be used',
-        Position = 3)]
+            Position = 3)]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('NoSync', 'NTP', 'NT5DS', 'AllSync', ignorecase = $false)]
         [string]
@@ -71,7 +70,7 @@ Function New-TimePolicyGPO
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
             HelpMessage = 'WMIFilter to be created and used',
-        Position = 3)]
+            Position = 3)]
         [ValidateNotNullOrEmpty()]
         $WMIFilter,
 
@@ -81,7 +80,7 @@ Function New-TimePolicyGPO
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Disable Virtual Machine time sync clock',
-        Position = 4)]
+            Position = 4)]
         [switch]
         $DisableVMTimeSync
     )
@@ -100,8 +99,8 @@ Function New-TimePolicyGPO
         $msWMIAuthor = (Get-ADUser -Identity $env:USERNAME).Name
 
         # Create WMI Filter
-        $WMIGUID = [string]'{'+([Guid]::NewGuid())+'}'
-        $WMIDN = 'CN='+$WMIGUID+',CN=SOM,CN=WMIPolicy,CN=System,{0}' -f ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
+        $WMIGUID = [string]'{' + ([Guid]::NewGuid()) + '}'
+        $WMIDN = 'CN=' + $WMIGUID + ',CN=SOM,CN=WMIPolicy,CN=System,{0}' -f ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
         $WMICN = $WMIGUID
         $WMIdistinguishedname = $WMIDN
         $WMIID = $WMIGUID
@@ -116,16 +115,16 @@ Function New-TimePolicyGPO
         # msWMI-Parm1: The description of the WMI filter
         # msWMI-Parm2: The query and other related data of the WMI filter
         $Attr = @{
-            'msWMI-Name'           = $msWMIName
-            'msWMI-Parm1'          = $msWMIParm1
-            'msWMI-Parm2'          = $msWMIParm2
-            'msWMI-Author'         = $msWMIAuthor
-            'msWMI-ID'             = $WMIID
-            'instanceType'         = 4
+            'msWMI-Name'             = $msWMIName
+            'msWMI-Parm1'            = $msWMIParm1
+            'msWMI-Parm2'            = $msWMIParm2
+            'msWMI-Author'           = $msWMIAuthor
+            'msWMI-ID'               = $WMIID
+            'instanceType'           = 4
             'showInAdvancedViewOnly' = 'TRUE'
-            'distinguishedname'    = $WMIdistinguishedname
-            'msWMI-ChangeDate'     = $msWMICreationDate
-            'msWMI-CreationDate'   = $msWMICreationDate
+            'distinguishedname'      = $WMIdistinguishedname
+            'msWMI-ChangeDate'       = $msWMICreationDate
+            'msWMI-CreationDate'     = $msWMICreationDate
         }
 
         $WMIPath = ('CN=SOM,CN=WMIPolicy,CN=System,{0}' -f ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString())
@@ -136,8 +135,7 @@ Function New-TimePolicyGPO
 
     Process {
         If ($null -ne $ExistingWMIFilters) {
-            foreach ($ExistingWMIFilter in $ExistingWMIFilters)
-            {
+            foreach ($ExistingWMIFilter in $ExistingWMIFilters) {
                 $array += $ExistingWMIFilter.'msWMI-Name'
             }
         } Else {
@@ -155,9 +153,9 @@ Function New-TimePolicyGPO
 
         # Get WMI filter
         $WMIFilterADObject = Get-ADObject -Filter 'objectClass -eq "msWMI-Som"' -Properties 'msWMI-Name', 'msWMI-Parm1', 'msWMI-Parm2' |
-        Where-Object {
-            $_.'msWMI-Name' -eq "$msWMIName"
-        }
+            Where-Object {
+                $_.'msWMI-Name' -eq "$msWMIName"
+            }
 
         $ExistingGPO = get-gpo -Name $PSBoundParameters['gpoName'] -ErrorAction 'SilentlyContinue'
 
@@ -190,7 +188,7 @@ Function New-TimePolicyGPO
                 # Disable the Hyper-V time synchronization integration service.
                 $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
                     -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters' `
-                -Type DWord -ValueName 'Enabled' -Value 0
+                    -Type DWord -ValueName 'Enabled' -Value 0
 
                 # Used to control how often the time service synchronizes to 15 minutes
                 $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
@@ -203,7 +201,7 @@ Function New-TimePolicyGPO
                     -Type DWord -ValueName 'MaxPosPhaseCorrection' -Value 3600
 
                 # Set the three registry keys in the Preferences section of the new GPO
-                    $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
+                $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
                     -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Config' `
                     -Type DWord -ValueName 'MaxNegPhaseCorrection' -Value 3600
             }#end if

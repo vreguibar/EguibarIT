@@ -31,15 +31,17 @@ Function Get-ADCSTemplate {
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-        Position = 0)]
-        [string]$DisplayName,
+            Position = 0)]
+        [string]
+        $DisplayName,
 
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-        Position = 1)]
-        [string]$Server
+            Position = 1)]
+        [string]
+        $Server
     )
     Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
@@ -50,7 +52,7 @@ Function Get-ADCSTemplate {
         ##############################
         # Variables Definition
 
-        if(-not $Server) {
+        if (-not $Server) {
             $Server = (Get-ADDomainController -Discover -ForceDiscover -Writable).HostName[0]
         }
 
@@ -61,7 +63,7 @@ Function Get-ADCSTemplate {
         } #end If
     } #end Begin
     Process {
-        $ConfigNC     = $((Get-ADRootDSE -Server $Server).configurationNamingContext)
+        $ConfigNC = $((Get-ADRootDSE -Server $Server).configurationNamingContext)
 
         $TemplatePath = ('CN=Certificate Templates,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC)
 

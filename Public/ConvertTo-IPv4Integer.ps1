@@ -26,8 +26,9 @@ function ConvertTo-IPv4Integer {
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-        Position = 0)]
-        [String] $Ipv4Address
+            Position = 0)]
+        [String]
+        $Ipv4Address
     )
 
     Begin {
@@ -41,18 +42,18 @@ function ConvertTo-IPv4Integer {
     }
 
     Process {
-        Try{
+        Try {
             $ipAddress = [IPAddress]::Parse($IPv4Address)
 
             $bytes = $ipAddress.GetAddressBytes()
 
             [Array]::Reverse($bytes)
 
-            [System.BitConverter]::ToUInt32($bytes,0)
+            [System.BitConverter]::ToUInt32($bytes, 0)
 
-          }Catch{
+        } Catch {
             Write-Error -Exception $_.Exception -Category $_.CategoryInfo.Category
-          }
+        }
     }
 
     End {

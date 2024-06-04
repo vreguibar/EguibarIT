@@ -21,10 +21,12 @@ function New-EitAdSite {
     Param
     (
         # Param1 New Site name
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Add help message for user',
             Position = 0)]
-        [ValidateNotNull()]
         [ValidateNotNullOrEmpty()]
         [string]
         $NewSiteName

@@ -25,9 +25,10 @@ function ConvertTo-IPv4MaskString {
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-        Position =0)]
-        [ValidateRange(0,32)]
-        [System.Int32] $MaskBits
+            Position = 0)]
+        [ValidateRange(0, 32)]
+        [System.Int32]
+        $MaskBits
     )
     Begin {
         Write-Verbose -Message '|=> ************************************************************************ <=|'
@@ -42,7 +43,7 @@ function ConvertTo-IPv4MaskString {
     Process {
         $mask = ([Math]::Pow(2, $MaskBits) - 1) * [Math]::Pow(2, (32 - $MaskBits))
         $bytes = [BitConverter]::GetBytes([UInt32] $mask)
-        (($bytes.Count - 1)..0 | ForEach-Object { [String] $bytes[$_] }) -join "."
+        (($bytes.Count - 1)..0 | ForEach-Object { [String] $bytes[$_] }) -join '.'
     }
     End {
         Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."

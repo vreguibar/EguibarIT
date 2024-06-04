@@ -36,7 +36,9 @@
     Param
     (
         # PARAM1 STRING for the Object Name
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Distinguished Name of the object (or container).',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
@@ -45,13 +47,17 @@
         [String]
         $LDAPpath,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Remove inheritance from parent. If present Inheritance will be removed.',
             Position = 1)]
         [switch]
         $RemoveInheritance,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Previous inherited access rules will be kept. If present means rules will
             be copied and maintained, otherwise rules will be removed.',
             Position = 1)]
