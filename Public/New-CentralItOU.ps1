@@ -407,7 +407,7 @@
 
 
         # DNS Administrators
-        $DnsAdmins = Get-AdGroup -Identity'DnsAdmins'
+        $DnsAdmins = Get-AdGroup -Identity 'DnsAdmins'
         # Protected Users
         $ProtectedUsers = Get-AdGroup -Identity'Protected Users'
 
