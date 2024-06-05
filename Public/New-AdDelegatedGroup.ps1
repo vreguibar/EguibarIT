@@ -3,9 +3,9 @@
     .SYNOPSIS
         Same as New-AdGroup but with error handling, Security changes and login
     .DESCRIPTION
-        Native New-AdGroup throws an error exception when the group already exists. This error is handeled
+        Native New-AdGroup throws an error exception when the group already exists. This error is handled
         as a "correct" within this function due the fact that group might already exist and operation
-        should continue after writting a log.
+        should continue after writing a log.
     .EXAMPLE
         New-AdDelegatedGroup -Name "Poor Admins" -GroupCategory Security -GroupScope DomainLocal -DisplayName "Poor Admins" -Path 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local' -Description 'New Admin Group'
     .EXAMPLE
@@ -76,7 +76,7 @@
             HelpMessage = 'Name of the group to be created. SamAccountName',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [Alias('GroupName', 'GroupID')]
+        [Alias('GroupName', 'GroupID', 'Identity', 'SamAccountName')]
         $Name,
 
         # Param2 Group category, either Security or Distribution
@@ -208,34 +208,33 @@
     Process {
 
         #Check if group exist
-        $groupExists = Get-ADGroup -Filter "SamAccountName -eq '$Name'" -ErrorAction SilentlyContinue
+        $groupExists = Get-ADGroup -Filter { SamAccountName -eq $Name } -ErrorAction SilentlyContinue
 
         if (-not $groupExists) {
 
-            Write-Verbose -Message ('Group {0} does not exists. Creating it!' -f $PSBoundParameters['Name'])
+            Write-Verbose -Message ('Group {0} does not exists. Creating it!' -f $Name)
 
             if ($PSCmdlet.ShouldProcess("$Name", 'Group does not exist. Should it be created?')) {
 
                 Try {
                     $Splat = @{
-                        Name           = $PSBoundParameters['Name']
-                        SamAccountName = $PSBoundParameters['Name']
+                        Name           = $Name
+                        SamAccountName = $Name
                         GroupCategory  = $PSBoundParameters['GroupCategory']
                         GroupScope     = $PSBoundParameters['GroupScope']
                         DisplayName    = $PSBoundParameters['DisplayName']
                         path           = $PSBoundParameters['path']
                         Description    = $PSBoundParameters['Description']
-                        Passthru       = $true
                         ErrorAction    = 'Stop'
                     }
                     $newGroup = New-ADGroup @Splat
-                    Write-Verbose -Message ('Group {0} created successfully.' -f $PSBoundParameters['Name'])
+                    Write-Verbose -Message ('Group {0} created successfully.' -f $Name)
 
                 } catch {
                     ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                    throw
 
                     Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
+                    throw
                     Return
                 } #end Try-Catch
 
@@ -245,7 +244,7 @@
             Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
 
             # Remove ProtectedFromAccidentalDeletion flag
-            Set-ADObject -Identity $groupExists.DistinguishedName -ProtectedFromAccidentalDeletion $False
+            Set-ADObject -Identity $groupExists -ProtectedFromAccidentalDeletion $False
 
             # Modify existing group
             Try {
@@ -255,10 +254,17 @@
                     DisplayName   = $PSBoundParameters['DisplayName']
                     GroupCategory = $PSBoundParameters['GroupCategory']
                     GroupScope    = $PSBoundParameters['GroupScope']
+                    Passthru      = $true
                     ErrorAction   = 'Stop'
                 }
                 if ($Force -or $PSCmdlet.ShouldProcess('Existing group. Should it be Modified?')) {
                     $newGroup = Set-ADGroup @Splat
+                    if (-not $newGroup) {
+                        Start-Sleep 2
+                        $newGroup = Get-ADGroup $groupExists
+                    }
+
+                    Write-Verbose -Message ('Existing group {0} modified.' -f $newGroup)
                 }
 
                 If (-not($newGroup.DistinguishedName -contains $PSBoundParameters['path'])) {
