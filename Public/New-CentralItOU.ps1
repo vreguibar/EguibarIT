@@ -245,7 +245,7 @@
             'EguibarIT.DelegationPS'
         )
         foreach ($item in $AllModules) {
-            Import-MyModule -Name $item
+            Import-MyModule -name $item
         } #end ForEach
 
 
@@ -335,6 +335,11 @@
 
 
 
+
+        $CurrentDC = (Get-ADDomainController -Discover).hostname
+
+
+
         # parameters variable for splatting CMDlets
         $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
         $ArrayList = [System.Collections.ArrayList]::New()
@@ -379,37 +384,37 @@
         # Get the AD Objects by Well-Known SID
 
         # Administrator
-        $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+        $AdminName = Get-ADUser -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
         # Domain Admins
-        $DomainAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
+        $DomainAdmins = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
         # Enterprise Admins
-        $EnterpriseAdmins = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+        $EnterpriseAdmins = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
         # Group Policy Creators Owner
-        $GPOCreatorsOwner = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
+        $GPOCreatorsOwner = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
         # Denied RODC Password Replication Group
-        $DeniedRODC = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
+        $DeniedRODC = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
         # Cryptographic Operators
-        $CryptoOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
+        $CryptoOperators = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-569' }
         # Event Log Readers
-        $EvtLogReaders = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-573' }
+        $EvtLogReaders = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-573' }
         # Performance Log Users
-        $PerfLogUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-559' }
+        $PerfLogUsers = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-559' }
         # Performance Monitor Users
-        $PerfMonitorUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-558' }
+        $PerfMonitorUsers = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-558' }
         # Remote Desktop Users
-        $RemoteDesktopUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-555' }
+        $RemoteDesktopUsers = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-555' }
         # Server Operators
-        $ServerOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-549' }
+        $ServerOperators = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-549' }
         # Remote Management Users
-        $RemoteMngtUsers = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-580' }
+        $RemoteMngtUsers = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-580' }
         # Account Operators
-        $AccountOperators = Get-AdGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
+        $AccountOperators = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-548' }
 
 
         # DNS Administrators
-        $DnsAdmins = Get-AdGroup -Identity 'DnsAdmins'
+        $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins' -Server $CurrentDC
         # Protected Users
-        $ProtectedUsers = Get-AdGroup -Identity 'Protected Users'
+        $ProtectedUsers = Get-ADGroup -Identity 'Protected Users' -Server $CurrentDC
 
         #endregion Users
 
@@ -562,7 +567,7 @@
         New-DelegateAdOU @Splat
 
         # Remove Inheritance and copy the ACE
-        Set-AdInheritance -LDAPPath $ItAdminOuDn -RemoveInheritance $true -RemovePermissions $true
+        Set-AdInheritance -LDAPpath $ItAdminOuDn -RemoveInheritance $true -RemovePermissions $true
         <#
         # Remove AUTHENTICATED USERS group from OU
         #
@@ -630,15 +635,15 @@
             RemoveInheritance = $false
             RemovePermissions = $True
         }
-        Set-AdInheritance -LDAPPath $ItAdminAccountsOuDn @Splat
-        Set-AdInheritance -LDAPPath $ItAdminGroupsOUDn @Splat
-        Set-AdInheritance -LDAPPath $ItPrivGroupsOUDn @Splat
-        Set-AdInheritance -LDAPPath $ItPawOuDn @Splat
-        Set-AdInheritance -LDAPPath $ItRightsOuDn @Splat
-        Set-AdInheritance -LDAPPath $ItServiceAccountsOuDn @Splat
-        Set-AdInheritance -LDAPPath $ItHousekeepingOuDn @Splat
-        Set-AdInheritance -LDAPPath $ItInfraOuDn @Splat
-        Set-AdInheritance -LDAPPath $ItAdminSrvGroupsOUDn @Splat
+        Set-AdInheritance -LDAPpath $ItAdminAccountsOuDn @Splat
+        Set-AdInheritance -LDAPpath $ItAdminGroupsOUDn @Splat
+        Set-AdInheritance -LDAPpath $ItPrivGroupsOUDn @Splat
+        Set-AdInheritance -LDAPpath $ItPawOuDn @Splat
+        Set-AdInheritance -LDAPpath $ItRightsOuDn @Splat
+        Set-AdInheritance -LDAPpath $ItServiceAccountsOuDn @Splat
+        Set-AdInheritance -LDAPpath $ItHousekeepingOuDn @Splat
+        Set-AdInheritance -LDAPpath $ItInfraOuDn @Splat
+        Set-AdInheritance -LDAPpath $ItAdminSrvGroupsOUDn @Splat
 
         # PAW Sub-OUs
         $Splat = @{
@@ -655,10 +660,10 @@
             RemoveInheritance = $false
             RemovePermissions = $True
         }
-        Set-AdInheritance -LDAPPath $ItPawT0OuDn @Splat
-        Set-AdInheritance -LDAPPath $ItPawT1OuDn @Splat
-        Set-AdInheritance -LDAPPath $ItPawT2OuDn @Splat
-        Set-AdInheritance -LDAPPath $ItPawStagingOuDn @Splat
+        Set-AdInheritance -LDAPpath $ItPawT0OuDn @Splat
+        Set-AdInheritance -LDAPpath $ItPawT1OuDn @Splat
+        Set-AdInheritance -LDAPpath $ItPawT2OuDn @Splat
+        Set-AdInheritance -LDAPpath $ItPawStagingOuDn @Splat
 
         # Service Accounts Sub-OUs
         $Splat = @{
@@ -674,9 +679,9 @@
             RemoveInheritance = $false
             RemovePermissions = $True
         }
-        Set-AdInheritance -LDAPPath $ItSAT0OuDn @Splat
-        Set-AdInheritance -LDAPPath $ItSAT1OuDn @Splat
-        Set-AdInheritance -LDAPPath $ItSAT2OuDn @Splat
+        Set-AdInheritance -LDAPpath $ItSAT0OuDn @Splat
+        Set-AdInheritance -LDAPpath $ItSAT1OuDn @Splat
+        Set-AdInheritance -LDAPpath $ItSAT2OuDn @Splat
 
         # Infrastructure Servers Sub-OUs
         $Splat = @{
@@ -693,10 +698,10 @@
             RemoveInheritance = $false
             RemovePermissions = $True
         }
-        Set-AdInheritance -LDAPPath $ItInfraT0OuDn @Splat
-        Set-AdInheritance -LDAPPath $ItInfraT1OuDn @Splat
-        Set-AdInheritance -LDAPPath $ItInfraT2OuDn @Splat
-        Set-AdInheritance -LDAPPath $ItInfraStagingOuDn @Splat
+        Set-AdInheritance -LDAPpath $ItInfraT0OuDn @Splat
+        Set-AdInheritance -LDAPpath $ItInfraT1OuDn @Splat
+        Set-AdInheritance -LDAPpath $ItInfraT2OuDn @Splat
+        Set-AdInheritance -LDAPpath $ItInfraStagingOuDn @Splat
 
         #endregion
 
@@ -712,38 +717,38 @@
         }
 
 
-        $AdminName | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $env:COMPUTERNAME
-        Get-ADUser -Identity $confXML.n.Admin.users.Guest.Name | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $env:COMPUTERNAME
-        Get-ADUser -Identity krbtgt | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $env:COMPUTERNAME
+        $AdminName | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
+        Get-ADUser -Identity $confXML.n.Admin.users.Guest.Name | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
+        Get-ADUser -Identity krbtgt | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
 
-        Get-ADGroup -Identity $DomainAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity $EnterpriseAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Schema Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Group Policy Creator Owners' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Enterprise Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
+        Get-ADGroup -Identity $DomainAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity $EnterpriseAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Schema Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Group Policy Creator Owners' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Enterprise Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
 
-        Get-ADGroup -Identity 'DnsUpdateProxy' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Domain Users' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Domain Computers' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Domain Guests' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'DnsUpdateProxy' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Domain Users' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Domain Computers' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Domain Guests' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $CurrentDC
 
-        Get-ADGroup -Identity 'Allowed RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'RAS and IAS Servers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity $DnsAdmins | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Cert Publishers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Denied RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity $ProtectedUsers | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Cloneable Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Access-Denied Assistance Users' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' } | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
+        Get-ADGroup -Identity 'Allowed RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
+        Get-ADGroup -Identity 'RAS and IAS Servers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
+        Get-ADGroup -Identity $DnsAdmins | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Cert Publishers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Denied RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
+        Get-ADGroup -Identity $ProtectedUsers | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Cloneable Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Access-Denied Assistance Users' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' } | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
 
 
         # Following groups only exist on Win 2019
         If ([System.Environment]::OSVersion.Version.Build -ge 17763) {
-            Get-ADGroup -Identity 'Enterprise Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
-            Get-ADGroup -Identity 'Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
+            Get-ADGroup -Identity 'Enterprise Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+            Get-ADGroup -Identity 'Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
             #Get-ADGroup -Identity 'Windows Admin Center CredSSP Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
         }
 
@@ -1927,7 +1932,7 @@
 
         # GM - Semi-Privileged Group Management
         Set-AdAclCreateDeleteGroup -Group $SL_GM -LDAPPath $ItAdminGroupsOuDn
-        Set-AdAclChangeGroup -Group $SL_GM -LDAPPath $ItAdminGroupsOuDn
+        Set-AdAclChangeGroup -Group $SL_GM -LDAPpath $ItAdminGroupsOuDn
 
 
 
@@ -1946,8 +1951,8 @@
         Set-AdAclCreateDeleteGroup -Group $SL_PGM -LDAPPath $ItPrivGroupsOUDn
         Set-AdAclCreateDeleteGroup -Group $SL_PGM -LDAPPath $ItRightsOuDn
         # Change Group Properties
-        Set-AdAclChangeGroup -Group $SL_PGM -LDAPPath $ItPrivGroupsOUDn
-        Set-AdAclChangeGroup -Group $SL_PGM -LDAPPath $ItRightsOuDn
+        Set-AdAclChangeGroup -Group $SL_PGM -LDAPpath $ItPrivGroupsOUDn
+        Set-AdAclChangeGroup -Group $SL_PGM -LDAPpath $ItRightsOuDn
 
 
 
@@ -1956,7 +1961,7 @@
         # Create/Delete Groups
         Set-AdAclCreateDeleteGroup -Group $SL_SAGM -LDAPPath $ItAdminSrvGroupsOUDn
         # Change Group Properties
-        Set-AdAclChangeGroup -Group $SL_SAGM -LDAPPath $ItAdminSrvGroupsOUDn
+        Set-AdAclChangeGroup -Group $SL_SAGM -LDAPpath $ItAdminSrvGroupsOUDn
 
 
 
@@ -1964,20 +1969,20 @@
 
         # PISM - Privileged Infrastructure Services Management
         # Create/Delete Computers
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPPath $ItInfraT0OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPPath $ItInfraT1OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPPath $ItInfraT2OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPPath $ItInfraStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraT0OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraT1OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraT2OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
 
 
 
 
 
         # PAWM - Privileged Access Workstation Management
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPPath $ItPawT0OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPPath $ItPawT1OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPPath $ItPawT2OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPPath $ItPawStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawT0OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawT1OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawT2OuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
 
 
 
@@ -1985,7 +1990,7 @@
 
 
         # DC_Management - Domain Controllers Management
-        Set-AdAclDelegateComputerAdmin -Group $SL_DcManagement -LDAPPath $DCsOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_DcManagement -LDAPpath $DCsOuDn -QuarantineDN $ItQuarantinePcOuDn
 
 
 
@@ -2067,9 +2072,9 @@
 
         # Infrastructure Admins
         # Organizational Units at domain level
-        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPPath $Variables.AdDn
+        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPpath $Variables.AdDn
         # Organizational Units at Admin area
-        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPPath $ItAdminOuDn
+        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPpath $ItAdminOuDn
         # Subnet Configuration Container
         # Create/Delete Subnet
         Set-AdAclCreateDeleteSubnet -Group $SL_InfraRight
@@ -2087,9 +2092,9 @@
 
         # AD Admins
         # Domain Controllers management
-        Set-AdAclDelegateComputerAdmin -Group $SL_AdRight -LDAPPath $DCsOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_AdRight -LDAPpath $DCsOuDn -QuarantineDN $ItQuarantinePcOuDn
         # Delete computers from default container
-        Set-DeleteOnlyComputer -Group $SL_AdRight -LDAPPath $ItQuarantinePcOuDn
+        Set-DeleteOnlyComputer -Group $SL_AdRight -LDAPpath $ItQuarantinePcOuDn
         # Subnet Configuration Container|
         # Change Subnet
         Set-AdAclChangeSubnet -Group $SL_AdRight
@@ -2164,22 +2169,22 @@
             gpoScope = 'C'
             GpoAdmin = $sl_GpoAdminRight
         }
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name) -gpoLinkPath $ItPawOuDn -gpoBackupId $confXML.n.Admin.GPOs.PAWbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn) -gpoBackupId $confXML.n.Admin.GPOs.PawT0baseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name) -gpoLinkPath $ItPawOuDn -gpoBackupID $confXML.n.Admin.GPOs.PAWbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn) -gpoBackupID $confXML.n.Admin.GPOs.PawT0baseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT1OU.Name, $ItPawOuDn)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT2OU.Name, $ItPawOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name, $ItPawOuDn) -gpoBackupId $confXML.n.Admin.GPOs.PawStagingbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name, $ItPawOuDn) -gpoBackupID $confXML.n.Admin.GPOs.PawStagingbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
 
         # Infrastructure Servers
         $Splat = @{
             gpoScope = 'C'
             GpoAdmin = $sl_GpoAdminRight
         }
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name) -gpoLinkPath $ItInfraOuDn -gpoBackupId $confXML.n.Admin.GPOs.INFRAbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name, $ItInfraOuDn) -gpoBackupId $confXML.n.Admin.GPOs.INFRAT0baseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name) -gpoLinkPath $ItInfraOuDn -gpoBackupID $confXML.n.Admin.GPOs.INFRAbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name, $ItInfraOuDn) -gpoBackupID $confXML.n.Admin.GPOs.INFRAT0baseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT1Ou.Name, $ItInfraOuDn)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT2Ou.Name, $ItInfraOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn) -gpoBackupId $confXML.n.Admin.GPOs.INFRAStagingBaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
+        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn) -gpoBackupID $confXML.n.Admin.GPOs.INFRAStagingBaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
 
         # redirected containers (X-Computers & X-Users)
         New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name, $Variables.AdDn) -GpoAdmin $sl_GpoAdminRight
@@ -3144,24 +3149,24 @@
             ###############################################################################
             # Delegation to SL_SvrAdmRight group to SERVERS area
 
-            Set-AdAclDelegateComputerAdmin -Group $SL_SvrAdmRight -LDAPPath $Item -QuarantineDN $ItQuarantinePcOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_SvrAdmRight -LDAPpath $Item -QuarantineDN $ItQuarantinePcOuDn
 
             ###############################################################################
             # Delegation to SL_SvrOpsRight group on SERVERS area
 
             # Change Public Info
-            Set-AdAclComputerPublicInfo -Group $SL_SvrOpsRight -LDAPPath $Item
+            Set-AdAclComputerPublicInfo -Group $SL_SvrOpsRight -LDAPpath $Item
 
             # Change Personal Info
-            Set-AdAclComputerPersonalInfo -Group $SL_SvrOpsRight -LDAPPath $Item
+            Set-AdAclComputerPersonalInfo -Group $SL_SvrOpsRight -LDAPpath $Item
 
         }#end foreach
 
         # Create/Delete OUs within Servers
-        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPPath $ServersOuDn
+        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPpath $ServersOuDn
 
         # Change OUs within Servers
-        Set-AdAclChangeOU -Group $SL_AdRight -LDAPPath $ServersOuDn
+        Set-AdAclChangeOU -Group $SL_AdRight -LDAPpath $ServersOuDn
 
         #endregion
         ###############################################################################
@@ -3275,11 +3280,11 @@
 
         # Sites OU
         # Create/Delete OUs within Sites
-        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPPath $SitesOuDn
+        Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPpath $SitesOuDn
 
         # Sites OU
         # Change OUs
-        Set-AdAclChangeOU -Group $SL_AdRight -LDAPPath $SitesOuDn
+        Set-AdAclChangeOU -Group $SL_AdRight -LDAPpath $SitesOuDn
 
 
         Write-Verbose -Message 'START APPLICATION ACCESS USER Global Delegation'
@@ -3312,7 +3317,7 @@
         #### GAL
 
         # Change Group Properties
-        Set-AdAclChangeGroup -Group $SL_GlobalGroupRight -LDAPPath $SitesGlobalGroupOuDn
+        Set-AdAclChangeGroup -Group $SL_GlobalGroupRight -LDAPpath $SitesGlobalGroupOuDn
 
         #endregion GROUP Site Delegation
         ###############################################################################
