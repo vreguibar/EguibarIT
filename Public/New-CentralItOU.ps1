@@ -384,37 +384,37 @@
         # Get the AD Objects by Well-Known SID
 
         # Administrator
-        $AdminName = Get-ADUser -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+        $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
         # Domain Admins
-        $DomainAdmins = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
+        $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
         # Enterprise Admins
-        $EnterpriseAdmins = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+        $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
         # Group Policy Creators Owner
-        $GPOCreatorsOwner = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
+        $GPOCreatorsOwner = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
         # Denied RODC Password Replication Group
         $DeniedRODC = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
         # Cryptographic Operators
-        $CryptoOperators = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-569' }
+        $CryptoOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
         # Event Log Readers
-        $EvtLogReaders = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-573' }
+        $EvtLogReaders = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-573' }
         # Performance Log Users
-        $PerfLogUsers = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-559' }
+        $PerfLogUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-559' }
         # Performance Monitor Users
-        $PerfMonitorUsers = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-558' }
+        $PerfMonitorUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-558' }
         # Remote Desktop Users
-        $RemoteDesktopUsers = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-555' }
+        $RemoteDesktopUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-555' }
         # Server Operators
-        $ServerOperators = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-549' }
+        $ServerOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-549' }
         # Remote Management Users
-        $RemoteMngtUsers = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-580' }
+        $RemoteMngtUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-580' }
         # Account Operators
-        $AccountOperators = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-32-548' }
+        $AccountOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
 
 
         # DNS Administrators
-        $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins' -Server $CurrentDC
+        $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins'
         # Protected Users
-        $ProtectedUsers = Get-ADGroup -Identity 'Protected Users' -Server $CurrentDC
+        $ProtectedUsers = Get-ADGroup -Identity 'Protected Users'
 
         #endregion Users
 
