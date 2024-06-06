@@ -336,7 +336,7 @@
 
 
 
-        [String]$CurrentDC = [string](Get-ADDomainController -Discover).HostName
+        [String]$CurrentDC = [string](Get-ADDomainController).HostName
 
 
 
