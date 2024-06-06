@@ -717,7 +717,7 @@
         Get-ADUser -Identity krbtgt | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $env:COMPUTERNAME
 
         Get-ADGroup -Identity $DomainAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
-        Get-ADGroup -Identity 'Enterprise Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
+        Get-ADGroup -Identity $EnterpriseAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Schema Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
         Get-ADGroup -Identity 'Group Policy Creator Owners' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $env:COMPUTERNAME
