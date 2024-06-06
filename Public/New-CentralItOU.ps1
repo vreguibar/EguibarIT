@@ -336,7 +336,7 @@
 
 
 
-        [String]$CurrentDC = [string](Get-ADDomainController).HostName
+        [String]$CurrentDC = '{0}.{1}' -f (($env:LOGONSERVER).replace('\', '')), $env:USERDNSDOMAIN
 
 
 
