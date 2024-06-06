@@ -721,8 +721,8 @@
         Get-ADUser -Identity $confXML.n.Admin.users.Guest.Name | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
         Get-ADUser -Identity krbtgt | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
 
-        Get-ADGroup -Identity $DomainAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
-        Get-ADGroup -Identity $EnterpriseAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        $DomainAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        $EnterpriseAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Schema Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Group Policy Creator Owners' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
@@ -736,10 +736,10 @@
 
         Get-ADGroup -Identity 'Allowed RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
         Get-ADGroup -Identity 'RAS and IAS Servers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
-        Get-ADGroup -Identity $DnsAdmins | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
+        $DnsAdmins | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
         Get-ADGroup -Identity 'Cert Publishers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
         Get-ADGroup -Identity 'Denied RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
-        Get-ADGroup -Identity $ProtectedUsers | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        $ProtectedUsers | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Cloneable Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Access-Denied Assistance Users' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' } | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
@@ -776,6 +776,10 @@
 
         # REFRESH - Get the object after moving it.
         $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+        $DomainAdmins = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
+        $EnterpriseAdmins = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+        $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins' -Server $CurrentDC
+        $ProtectedUsers = Get-ADGroup -Identity 'Protected Users' -Server $CurrentDC
 
         #endregion
         ###############################################################################
@@ -1250,12 +1254,14 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add($EnterpriseAdmins)
+        <#
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
             [void]$ArrayList.Add($NewAdminExists)
         }
+        #>
         if ($null -ne $SG_InfraAdmins) {
             [void]$ArrayList.Add($SG_InfraAdmins)
         }
@@ -1592,8 +1598,13 @@
 
         $RemoteWMI = Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' } -ErrorAction SilentlyContinue
         If (-not $RemoteWMI) {
-
-            $RemoteWMI = New-ADGroup -GroupScope DomainLocal -GroupCategory Security -Name 'WinRMRemoteWMIUsers__' -Path $ItRightsOuDn
+            $Splat = @{
+                GroupScope    = DomainLocal
+                GroupCategory = Security
+                Name          = 'WinRMRemoteWMIUsers__'
+                Path          = $ItRightsOuDn
+            }
+            $RemoteWMI = New-ADGroup @Splat
         }
         Add-AdGroupNesting -Identity $RemoteWMI -Members $SG_AdAdmins, $SG_Tier0Admins
 
