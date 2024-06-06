@@ -392,7 +392,7 @@
         # Group Policy Creators Owner
         $GPOCreatorsOwner = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
         # Denied RODC Password Replication Group
-        $DeniedRODC = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
+        $DeniedRODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
         # Cryptographic Operators
         $CryptoOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
         # Event Log Readers
@@ -776,10 +776,10 @@
 
         # REFRESH - Get the object after moving it.
         $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
-        $DomainAdmins = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
-        $EnterpriseAdmins = Get-ADGroup -Filter * -Server $CurrentDC | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
-        $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins' -Server $CurrentDC
-        $ProtectedUsers = Get-ADGroup -Identity 'Protected Users' -Server $CurrentDC
+        $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
+        $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+        $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins'
+        $ProtectedUsers = Get-ADGroup -Identity 'Protected Users'
 
         #endregion
         ###############################################################################
