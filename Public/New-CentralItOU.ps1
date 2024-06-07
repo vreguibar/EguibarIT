@@ -940,7 +940,7 @@
             TrustedForDelegation = $false
             AccountNotDelegated  = $true
             Add                  = $params
-            Server               = $env:COMPUTERNAME
+            Server               = $CurrentDC
         }
         Set-ADUser @Splat
 
