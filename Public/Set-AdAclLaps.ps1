@@ -79,9 +79,9 @@ function Set-AdAclLaps {
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-        Import-MyModule -Name 'AdmPwd.PS' -Force -Verbose:$false
-        Import-MyModule -Name 'LAPS' -Force -Verbose:$false
-        Import-MyModule -Name 'EguibarIT.DelegationPS' -Force -Verbose:$false
+        Import-MyModule -name 'AdmPwd.PS' -Force -Verbose:$false
+        Import-MyModule -name 'LAPS' -Force -Verbose:$false
+        Import-MyModule -name 'EguibarIT.DelegationPS' -Force -Verbose:$false
 
         ##############################
         # Variables Definition
@@ -95,22 +95,27 @@ function Set-AdAclLaps {
     } #end Begin
 
     Process {
-        if ($null -ne $Variables.GuidMap['ms-Mcs-AdmPwdExpirationTime']) {
-            Write-Verbose -Message 'LAPS is supported on this environment. We can proceed to configure it.'
 
+        Write-Verbose -Message 'LAPS is supported on this environment. We can proceed to configure it.'
+
+        if ($null -eq $Variables.guidmap['ms-Mcs-AdmPwd']) {
             # AdmPwd.PS CMDlets
             Set-AdmPwdComputerSelfPermission -Identity $LDAPpath
             Set-AdmPwdReadPasswordPermission -AllowedPrincipals $currentReadGroup -Identity $PSBoundParameters['LDAPpath']
             Set-AdmPwdResetPasswordPermission -AllowedPrincipals $currentResetGroup -Identity $PSBoundParameters['LDAPpath']
+        } else {
+            Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for legacy LAPS.'
+        } #end If-Else
 
+        if ($null -ne $Variables.GuidMap['ms-Mcs-AdmPwdExpirationTime']) {
             # LAPS CMDlets
             Set-LapsADComputerSelfPermission -Identity $LDAPpath
             Set-LapsADReadPasswordPermission -AllowedPrincipals $currentReadGroup.SID -Identity $PSBoundParameters['LDAPpath']
             Set-LapsADResetPasswordPermission -AllowedPrincipals $currentResetGroup.SID -Identity $PSBoundParameters['LDAPpath']
 
         } else {
-            Write-Error -Message 'Not Implemented. Schema does not contains the required attributes.'
-        }
+            Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for new Windows LAPS.'
+        } #end If-Else
     } #end Process
 
     End {
