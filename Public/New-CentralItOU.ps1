@@ -1241,11 +1241,14 @@
                 MinPasswordLength           = $confXML.n.Admin.PSOs.ItAdminsPSO.MinPasswordLength
                 PasswordHistoryCount        = $confXML.n.Admin.PSOs.ItAdminsPSO.PasswordHistoryCount
                 ReversibleEncryptionEnabled = [System.Boolean]$confXML.n.Admin.PSOs.ItAdminsPSO.ReversibleEncryptionEnabled
+                Passthru                    = $true
             }
 
-            New-ADFineGrainedPasswordPolicy @Splat
-            Start-Sleep -Seconds 5
-            $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -eq $PsoName }
+            $PSOexists = New-ADFineGrainedPasswordPolicy @Splat
+            If ( -not $PSOexists ) {
+                $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -eq $PsoName }
+            }
+
         } # End If PSO exists
 
 
@@ -1404,10 +1407,13 @@
                 MinPasswordLength           = $confXML.n.Admin.PSOs.ServiceAccountsPSO.MinPasswordLength
                 PasswordHistoryCount        = $confXML.n.Admin.PSOs.ServiceAccountsPSO.PasswordHistoryCount
                 ReversibleEncryptionEnabled = [System.Boolean]$confXML.n.Admin.PSOs.ServiceAccountsPSO.ReversibleEncryptionEnabled
+                Passthru                    = $true
             }
-            New-ADFineGrainedPasswordPolicy @Splat
-            Start-Sleep -Seconds 5
-            $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
+            $PSOexists = New-ADFineGrainedPasswordPolicy @Splat
+            If (-not $PSOexists) {
+                $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
+            }
+
             #$PSOexists = Get-ADFineGrainedPasswordPolicy -Identity $PsoName
         }
 
