@@ -349,7 +349,7 @@
 
         $Splat = @{
             Name  = 'SG_Operations'
-            Value = ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.Name)
+            Value = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.Operations.Name)
             Force = $true
         }
         New-Variable @Splat
@@ -953,7 +953,7 @@
 
         # Iterate through all Admin-LocalGroups child nodes
         Foreach ($Node in $confXML.n.Admin.LG.ChildNodes) {
-            Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Node.Name))
+            Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Node.LocalName))
             $Splat = @{
                 Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Node.Name
                 GroupCategory                 = 'Security'
@@ -969,7 +969,7 @@
             $createdGroup = New-AdDelegatedGroup @Splat
 
             $varparam = @{
-                Name  = "$('SL{0}{1}' -f  $NC['Delim'], $Node.Name)"
+                Name  = "$('SL{0}{1}' -f  $NC['Delim'], $Node.LocalName)"
                 Value = $createdGroup
                 Force = $true
             }
