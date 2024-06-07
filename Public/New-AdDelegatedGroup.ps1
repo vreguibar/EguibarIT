@@ -195,8 +195,8 @@
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
 
-        Import-MyModule -Name 'ActiveDirectory' -Force -Verbose:$false
-        Import-MyModule -Name 'EguibarIT.DelegationPS' -Force -Verbose:$false
+        Import-MyModule -name 'ActiveDirectory' -Force -Verbose:$false
+        Import-MyModule -name 'EguibarIT.DelegationPS' -Force -Verbose:$false
 
         ##############################
         # Variables Definition
@@ -284,32 +284,42 @@
 
 
         # Get the group again and store it on variable.
-        $newGroup = Get-ADGroup -Identity $newGroup
+        try {
+            $newGroup = Get-ADGroup -Filter { SamAccountName -eq $Name } -ErrorAction Stop
+            Write-Verbose -Message ('Refreshing group {0}' -f $name)
+        } catch {
+            Write-Error -Message ('Error while trying to refresh group {0}' -f $name)
+        }
 
 
         # Protect From Accidental Deletion
         If ($PSBoundParameters['ProtectFromAccidentalDeletion']) {
             Set-ADObject -Identity $newGroup.DistinguishedName -ProtectedFromAccidentalDeletion $true
+            Write-Verbose -Message ('Group {0} Protect From Accidental Deletion' -f $name)
         }
 
         # Remove Account Operators Built-In group
         If ($PSBoundParameters['RemoveAccountOperators']) {
             Remove-AccountOperator -LDAPPath $newGroup.DistinguishedName
+            Write-Verbose -Message ('Group {0} Remove Account Operators' -f $name)
         }
 
         # Remove Everyone Built-In group
         If ($PSBoundParameters['RemoveEveryone']) {
             Remove-Everyone -LDAPPath $newGroup.DistinguishedName
+            Write-Verbose -Message ('Group {0} Remove Everyone' -f $name)
         }
 
         # Remove Authenticated Users Built-In group
         If ($PSBoundParameters['RemoveAuthUsers']) {
             Remove-AuthUser -LDAPPath $newGroup.DistinguishedName
+            Write-Verbose -Message ('Group {0} Remove Authenticated Users' -f $name)
         }
 
         # Remove Pre-Windows 2000 Built-In group
         If ($PSBoundParameters['RemovePreWin2000']) {
             Remove-PreWin2000 -LDAPPath $newGroup.DistinguishedName
+            Write-Verbose -Message ('Group {0} Remove Pre-Windows 2000' -f $name)
         }
 
     } # End Process section

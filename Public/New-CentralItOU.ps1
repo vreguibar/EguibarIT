@@ -725,7 +725,7 @@
         $EnterpriseAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Schema Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
-        Get-ADGroup -Identity 'Group Policy Creator Owners' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity $GPOCreatorsOwner | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Enterprise Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
 
@@ -749,7 +749,7 @@
         If ([System.Environment]::OSVersion.Version.Build -ge 17763) {
             Get-ADGroup -Identity 'Enterprise Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
             Get-ADGroup -Identity 'Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
-            #Get-ADGroup -Identity 'Windows Admin Center CredSSP Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
+            Get-ADGroup -Identity 'Windows Admin Center CredSSP Administrators' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
         }
 
         # Get-ADGroup "Administrators" |                          Move-ADObject -TargetPath $ItRightsOuDn
@@ -778,6 +778,7 @@
         $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
         $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
         $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+        $GPOCreatorsOwner = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
         $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins'
         $ProtectedUsers = Get-ADGroup -Identity 'Protected Users'
 
@@ -908,8 +909,8 @@
 
         ####
         # Remove Everyone group from Admin-User & Administrator
-        Remove-Everyone -LDAPPath $NewAdminExists.DistinguishedName
-        Remove-Everyone -LDAPPath $AdminName.DistinguishedName
+        Remove-Everyone -LDAPpath $NewAdminExists.DistinguishedName
+        Remove-Everyone -LDAPpath $AdminName.DistinguishedName
 
         ####
         # Remove AUTHENTICATED USERS group from Admin-User & Administrator
@@ -918,8 +919,8 @@
 
         ####
         # Remove Pre-Windows 2000 Compatible Access group from Admin-User & Administrator
-        Remove-PreWin2000 -LDAPPath $NewAdminExists.DistinguishedName
-        Remove-PreWin2000 -LDAPPath $AdminName.DistinguishedName
+        Remove-PreWin2000 -LDAPpath $NewAdminExists.DistinguishedName
+        Remove-PreWin2000 -LDAPpath $AdminName.DistinguishedName
 
         ###
         # Configure TheGood account
@@ -1942,7 +1943,7 @@
 
 
         # GM - Semi-Privileged Group Management
-        Set-AdAclCreateDeleteGroup -Group $SL_GM -LDAPPath $ItAdminGroupsOuDn
+        Set-AdAclCreateDeleteGroup -Group $SL_GM -LDAPpath $ItAdminGroupsOuDn
         Set-AdAclChangeGroup -Group $SL_GM -LDAPpath $ItAdminGroupsOuDn
 
 
@@ -1959,8 +1960,8 @@
 
         # PGM - Privileged Group Management
         # Create/Delete Groups
-        Set-AdAclCreateDeleteGroup -Group $SL_PGM -LDAPPath $ItPrivGroupsOUDn
-        Set-AdAclCreateDeleteGroup -Group $SL_PGM -LDAPPath $ItRightsOuDn
+        Set-AdAclCreateDeleteGroup -Group $SL_PGM -LDAPpath $ItPrivGroupsOUDn
+        Set-AdAclCreateDeleteGroup -Group $SL_PGM -LDAPpath $ItRightsOuDn
         # Change Group Properties
         Set-AdAclChangeGroup -Group $SL_PGM -LDAPpath $ItPrivGroupsOUDn
         Set-AdAclChangeGroup -Group $SL_PGM -LDAPpath $ItRightsOuDn
@@ -1970,7 +1971,7 @@
 
         # Local Admin groups management
         # Create/Delete Groups
-        Set-AdAclCreateDeleteGroup -Group $SL_SAGM -LDAPPath $ItAdminSrvGroupsOUDn
+        Set-AdAclCreateDeleteGroup -Group $SL_SAGM -LDAPpath $ItAdminSrvGroupsOUDn
         # Change Group Properties
         Set-AdAclChangeGroup -Group $SL_SAGM -LDAPpath $ItAdminSrvGroupsOUDn
 
@@ -1980,10 +1981,10 @@
 
         # PISM - Privileged Infrastructure Services Management
         # Create/Delete Computers
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraT0OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraT1OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraT2OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraT0OuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraT1OuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraT2OuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PISM -LDAPpath $ItInfraStagingOuDn
 
 
 
@@ -2316,7 +2317,7 @@
         [void]$ArrayList.Add($ServerOperators)
         [void]$ArrayList.Add('Domain Controllers')
         [void]$ArrayList.Add('Read-Only Domain Controllers')
-        [void]$ArrayList.Add('Group Policy Creators Owners')
+        [void]$ArrayList.Add($GPOCreatorsOwner)
         [void]$ArrayList.Add('Cryptographic Operators')
         [void]$ArrayList.Add('BuiltIn\Guests')
         if ($null -ne $SG_Tier0Admins) {
@@ -2440,7 +2441,7 @@
         [void]$ArrayList.Add('Backup Operators')
         [void]$ArrayList.Add('Print Operators')
         [void]$ArrayList.Add($ServerOperators)
-        [void]$ArrayList.Add('Group Policy Creators Owners')
+        [void]$ArrayList.Add($GPOCreatorsOwner)
         [void]$ArrayList.Add('Cryptographic Operators')
         [void]$ArrayList.Add('BuiltIn\Guests')
         if ($null -ne $AdminName) {
@@ -2564,7 +2565,7 @@
         [void]$ArrayList.Add('Print Operators')
         [void]$ArrayList.Add($ServerOperators)
         [void]$ArrayList.Add('Read-Only Domain Controllers')
-        [void]$ArrayList.Add('Group Policy Creators Owners')
+        [void]$ArrayList.Add($GPOCreatorsOwner)
         [void]$ArrayList.Add('Cryptographic Operators')
         [void]$ArrayList.Add('BuiltIn\Guests')
         if ($null -ne $AdminName) {
@@ -3320,7 +3321,7 @@
         #region GROUP Site Admin Delegation
 
         # Create/Delete Groups
-        Set-AdAclCreateDeleteGroup -Group $SL_GlobalGroupRight -LDAPPath $SitesGlobalGroupOuDn
+        Set-AdAclCreateDeleteGroup -Group $SL_GlobalGroupRight -LDAPpath $SitesGlobalGroupOuDn
 
         # Nest groups
         Add-AdGroupNesting -Identity $SL_GlobalGroupRight -Members $SG_GlobalGroupAdmins
