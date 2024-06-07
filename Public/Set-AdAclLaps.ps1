@@ -100,9 +100,9 @@ function Set-AdAclLaps {
 
         if ($Variables.guidmap['ms-Mcs-AdmPwd']) {
             # AdmPwd.PS CMDlets
-            Set-AdmPwdComputerSelfPermission -Identity $LDAPpath
-            Set-AdmPwdReadPasswordPermission -AllowedPrincipals $currentReadGroup -Identity $PSBoundParameters['LDAPpath']
-            Set-AdmPwdResetPasswordPermission -AllowedPrincipals $currentResetGroup -Identity $PSBoundParameters['LDAPpath']
+            Set-AdmPwdComputerSelfPermission -LDAPpath $LDAPpath
+            Set-AdmPwdReadPasswordPermission -Group $currentReadGroup -LDAPpath $PSBoundParameters['LDAPpath']
+            Set-AdmPwdResetPasswordPermission -Group $currentResetGroup -LDAPpath $PSBoundParameters['LDAPpath']
         } else {
             Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for legacy LAPS.'
         } #end If-Else
