@@ -2110,7 +2110,7 @@
 
         # AD Admins
         # Domain Controllers management
-        Set-AdAclDelegateComputerAdmin -Group $SL_AdRight -LDAPpath $DCsOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_AdRight -LDAPpath $DCsOuDn
         # Delete computers from default container
         Set-DeleteOnlyComputer -Group $SL_AdRight -LDAPpath $ItQuarantinePcOuDn
         # Subnet Configuration Container|
