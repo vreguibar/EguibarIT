@@ -98,7 +98,7 @@ function Set-AdAclLaps {
 
         Write-Verbose -Message 'LAPS is supported on this environment. We can proceed to configure it.'
 
-        if ($null -eq $Variables.guidmap['ms-Mcs-AdmPwd']) {
+        if ($Variables.guidmap['ms-Mcs-AdmPwd']) {
             # AdmPwd.PS CMDlets
             Set-AdmPwdComputerSelfPermission -Identity $LDAPpath
             Set-AdmPwdReadPasswordPermission -AllowedPrincipals $currentReadGroup -Identity $PSBoundParameters['LDAPpath']
@@ -107,7 +107,7 @@ function Set-AdAclLaps {
             Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for legacy LAPS.'
         } #end If-Else
 
-        if ($null -ne $Variables.GuidMap['ms-Mcs-AdmPwdExpirationTime']) {
+        if ($Variables.GuidMap['ms-Mcs-AdmPwdExpirationTime']) {
             # LAPS CMDlets
             Set-LapsADComputerSelfPermission -Identity $LDAPpath
             Set-LapsADReadPasswordPermission -AllowedPrincipals $currentReadGroup.SID -Identity $PSBoundParameters['LDAPpath']
