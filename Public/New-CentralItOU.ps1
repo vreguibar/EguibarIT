@@ -1991,10 +1991,10 @@
 
 
         # PAWM - Privileged Access Workstation Management
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawT0OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawT1OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawT2OuDn -QuarantineDN $ItQuarantinePcOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawStagingOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawT0OuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawT1OuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawT2OuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_PAWM -LDAPpath $ItPawStagingOuDn
 
 
 
@@ -2002,7 +2002,7 @@
 
 
         # DC_Management - Domain Controllers Management
-        Set-AdAclDelegateComputerAdmin -Group $SL_DcManagement -LDAPpath $DCsOuDn -QuarantineDN $ItQuarantinePcOuDn
+        Set-AdAclDelegateComputerAdmin -Group $SL_DcManagement -LDAPpath $DCsOuDn
 
 
 
