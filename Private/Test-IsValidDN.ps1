@@ -40,7 +40,8 @@ function Test-IsValidDN {
     )
     Begin {
         # Define DN Regex
-        [regex]$distinguishedNameRegex = '^(?:CN|OU|DC)=([^,]+(?:\,[^,]+)*)(?:\,(?:CN|OU|DC)=([^,]+(?:\,[^,]+)*))*$'
+        #[regex]$distinguishedNameRegex = '^(?:CN|OU|DC)=([^,]+(?:\,[^,]+)*)(?:\,(?:CN|OU|DC)=([^,]+(?:\,[^,]+)*))*$'
+        [regex]$distinguishedNameRegex = '^(?i:(CN|OU|DC|UID)=([^,\\]+|\\[,\\=+<>#;\"\\ ]|[^,]+)+)(?:,(?i:(CN|OU|DC||UID)=([^,\\]+|\\[,\\=+<>#;\"\\ ]|[^,]+)+))*$'
 
     } #end Begin
     Process {
