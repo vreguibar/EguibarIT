@@ -125,6 +125,12 @@
             HelpMessage = 'Path where Backups are stored',
             ParameterSetName = 'GpoBackup',
             Position = 5)]
+        [ValidateScript({ if (Test-Path $_) {
+                    $true
+                } else {
+                    throw "Path $_ is not valid!"
+                }
+            })]
         [string]
         $gpoBackupPath
 
@@ -139,7 +145,7 @@
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
 
-        Import-MyModule -Name 'ActiveDirectory' -Force -Verbose:$false
+        Import-MyModule -name 'ActiveDirectory' -Force -Verbose:$false
         Import-Module -Name 'GroupPolicy' -Force -Verbose:$false
 
         ##############################
@@ -153,7 +159,7 @@
 
         $GpoAdmin = Get-ADObjectType -Identity $GpoAdmin
 
-        [system.string]$dcServer = (Get-ADDomaincontroller -Discover -Service 'PrimaryDC').HostName
+        [system.string]$dcServer = (Get-ADDomainController -Discover -Service 'PrimaryDC').HostName
 
     } # End Begin Section
 
@@ -271,7 +277,7 @@
             # Import the Backup
             Write-Verbose -Message ('Importing GPO Backup {0} from path {1} to GPO {2}' -f $PSBoundParameters['gpoBackupID'], $PSBoundParameters['gpoBackupPath'], $gpoName)
 
-            If (Test-Path -Path ('{0}\{1}' -f $PSBoundParameters['gpoBackupPath'], $PSBoundParameters['gpoBackupID'])) {
+            If (Test-Path -Path ('{0}\{1}' -f $PSBoundParameters['gpoBackupPath'], ('{' + $PSBoundParameters['gpoBackupID'] + '}'))) {
                 $Splat = @{
                     BackupId   = $PSBoundParameters['gpoBackupID']
                     TargetGuid = $gpoAlreadyExist.Id
