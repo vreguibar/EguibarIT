@@ -379,6 +379,7 @@
         #region Users
         $AdminName = $confXML.n.Admin.users.Admin.Name
         $newAdminName = $confXML.n.Admin.users.NEWAdmin.Name
+        $GuestNewName = $confXML.n.Admin.users.Guest.Name
 
 
         # Get the AD Objects by Well-Known SID
@@ -710,15 +711,16 @@
 
         Write-Verbose -Message 'Moving objects...'
 
-
+        # Move, and if needed, rename the Admin account
         If ($AdminName -ne $confXML.n.Admin.users.Admin.Name) {
             Rename-ADObject -Identity $AdminName.DistinguishedName -NewName $confXML.n.Admin.users.Admin.Name
             Set-ADUser $AdminName -SamAccountName $confXML.n.Admin.users.Admin.Name -DisplayName $confXML.n.Admin.users.Admin.Name
         }
 
+        # Move the Guest Account
+        Get-ADUser -Identity $GuestNewName | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
 
         $AdminName | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
-        Get-ADUser -Identity $confXML.n.Admin.users.Guest.Name | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
         Get-ADUser -Identity krbtgt | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
 
         $DomainAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
