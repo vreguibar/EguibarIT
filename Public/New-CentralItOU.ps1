@@ -383,40 +383,42 @@
 
 
         # Get the AD Objects by Well-Known SID
+        try {
+            # Administrator
+            $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+            # Domain Admins
+            $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
+            # Enterprise Admins
+            $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+            # Group Policy Creators Owner
+            $GPOCreatorsOwner = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
+            # Denied RODC Password Replication Group
+            $DeniedRODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
+            # Cryptographic Operators
+            $CryptoOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
+            # Event Log Readers
+            $EvtLogReaders = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-573' }
+            # Performance Log Users
+            $PerfLogUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-559' }
+            # Performance Monitor Users
+            $PerfMonitorUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-558' }
+            # Remote Desktop Users
+            $RemoteDesktopUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-555' }
+            # Server Operators
+            $ServerOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-549' }
+            # Remote Management Users
+            $RemoteMngtUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-580' }
+            # Account Operators
+            $AccountOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
 
-        # Administrator
-        $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
-        # Domain Admins
-        $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
-        # Enterprise Admins
-        $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
-        # Group Policy Creators Owner
-        $GPOCreatorsOwner = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
-        # Denied RODC Password Replication Group
-        $DeniedRODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
-        # Cryptographic Operators
-        $CryptoOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
-        # Event Log Readers
-        $EvtLogReaders = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-573' }
-        # Performance Log Users
-        $PerfLogUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-559' }
-        # Performance Monitor Users
-        $PerfMonitorUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-558' }
-        # Remote Desktop Users
-        $RemoteDesktopUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-555' }
-        # Server Operators
-        $ServerOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-549' }
-        # Remote Management Users
-        $RemoteMngtUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-580' }
-        # Account Operators
-        $AccountOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
 
-
-        # DNS Administrators
-        $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins'
-        # Protected Users
-        $ProtectedUsers = Get-ADGroup -Identity 'Protected Users'
-
+            # DNS Administrators
+            $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins'
+            # Protected Users
+            $ProtectedUsers = Get-ADGroup -Identity 'Protected Users'
+        } catch {
+            Write-Error -Message 'One or some of the User/Groups was not able to be retrived. Please check'
+        } #end Try-Catch
         #endregion Users
 
 

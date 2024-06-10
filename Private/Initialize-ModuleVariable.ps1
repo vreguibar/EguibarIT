@@ -78,7 +78,6 @@
         Try {
             [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
             [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
-            [int32]$i = 0
 
             Write-Verbose -Message 'The GUID map is null, empty, zero, or false.'
             Write-Verbose -Message 'Getting the GUID value of each schema class and attribute'
@@ -92,16 +91,6 @@
 
             Write-Verbose -Message 'Processing all schema class and attribute'
             Foreach ($item in $AllSchema) {
-                $i ++
-
-                $Splat = @{
-                    Activity         = 'Adding {0} Schema attributes to Hashtable' -f $AllSchema.count
-                    Status           = 'Reading attribute number {0}  ' -f $i
-                    PercentComplete  = [math]::Round(($i / $AllSchema.Count) * 100, 2)
-                    CurrentOperation = '      Processing Attribute...: {0}' -f $item.lDAPDisplayName
-                }
-                Write-Progress @Splat
-
                 # add current Guid to $TempMap
                 $TmpMap.Add($item.lDAPDisplayName, ([System.GUID]$item.schemaIDGUID).GUID)
             } #end ForEach
@@ -111,9 +100,6 @@
 
             Write-Verbose -Message '$Variables.GuidMap was empty. Adding values to it!'
             $Variables.GuidMap = $TmpMap
-
-            #Get-AttributeSchemaHashTable
-
         } catch {
             Write-Error -Message 'Something went wrong while trying to fill $Variables.GuidMap!'
             Throw
@@ -123,7 +109,6 @@
         Try {
             [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
             [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
-            [int32]$i = 0
 
             Write-Verbose -Message 'The Extended Rights map is null, empty, zero, or false.'
             Write-Verbose -Message 'Getting the GUID value of each Extended attribute'
@@ -137,16 +122,6 @@
 
             Write-Verbose -Message 'Processing all Extended attributes'
             ForEach ($Item in $AllExtended) {
-                $i ++
-
-                $Splat = @{
-                    Activity         = 'Adding {0} Extended attributes to Hashtable' -f $AllExtended.count
-                    Status           = 'Reading extended attribute number {0}  ' -f $i
-                    PercentComplete  = [math]::Round(($i / $AllExtended.Count) * 100, 2)
-                    CurrentOperation = '      Processing Extended Attribute...: {0}' -f $item.lDAPDisplayName
-                }
-                Write-Progress @Splat
-
                 # add current Guid to $TempMap
                 $TmpMap.Add($Item.displayName, ([system.guid]$Item.rightsGuid).GUID)
             } #end Foreach
@@ -156,8 +131,6 @@
 
             Write-Verbose -Message '$Variables.ExtendedRightsMap was empty. Adding values to it!'
             $Variables.ExtendedRightsMap = $TmpMap
-
-            #Get-ExtendedRightHashTable
         } Catch {
             Write-Error -Message 'Something went wrong while trying to fill $Variables.ExtendedRightsMap!'
             Throw
