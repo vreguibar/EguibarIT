@@ -1608,8 +1608,8 @@
         $RemoteWMI = Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' } -ErrorAction SilentlyContinue
         If (-not $RemoteWMI) {
             $Splat = @{
-                GroupScope    = DomainLocal
-                GroupCategory = Security
+                GroupScope    = 'DomainLocal'
+                GroupCategory = 'Security'
                 Name          = 'WinRMRemoteWMIUsers__'
                 Path          = $ItRightsOuDn
             }
