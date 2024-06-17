@@ -1393,7 +1393,6 @@
             [void]$ArrayList.Add($SL_GlobalAppAccUserRight)
         }
 
-        # Adding all Groups
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
 
 
