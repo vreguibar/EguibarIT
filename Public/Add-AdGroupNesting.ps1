@@ -80,7 +80,7 @@ function Add-AdGroupNesting {
             Foreach ($item in $Members) {
                 $item = Get-AdObjectType -Identity $item -ErrorAction Stop
 
-                If ($CurrentMembers -notcontains $item) {
+                If ($CurrentMembers.DistinguishedName -notcontains $item.DistinguishedName) {
 
                     Write-Verbose -Message ('Adding: {0}' -f $Item)
 

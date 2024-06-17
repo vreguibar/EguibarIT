@@ -321,12 +321,12 @@
 
 
         # Naming conventions hashtable
-        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix;
-            'sg'     = $confXML.n.NC.GlobalGroupPreffix;
-            'su'     = $confXML.n.NC.UniversalGroupPreffix;
-            'Delim'  = $confXML.n.NC.Delimiter;
-            'T0'     = $confXML.n.NC.AdminAccSufix0;
-            'T1'     = $confXML.n.NC.AdminAccSufix1;
+        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix
+            'sg'     = $confXML.n.NC.GlobalGroupPreffix
+            'su'     = $confXML.n.NC.UniversalGroupPreffix
+            'Delim'  = $confXML.n.NC.Delimiter
+            'T0'     = $confXML.n.NC.AdminAccSufix0
+            'T1'     = $confXML.n.NC.AdminAccSufix1
             'T2'     = $confXML.n.NC.AdminAccSufix2
         }
 
@@ -907,6 +907,31 @@
         Add-AdGroupNesting -Identity $DomainAdmins -Members $NewAdminExists
         Add-AdGroupNesting -Identity $EnterpriseAdmins -Members $NewAdminExists
         Add-AdGroupNesting -Identity $GPOCreatorsOwner -Members $NewAdminExists
+
+        # TODO: Error (Get-ADGroupMember): "The operation failed because of a bad parameter."
+        <#
+        Add-AdGroupNesting: C:\Program Files\WindowsPowerShell\Modules\EguibarIT\Public\New-CentralItOU.ps1:910:9
+        Line |
+        910 |          Add-AdGroupNesting -Identity $DeniedRODC -Members $NewAdminEx …
+            |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            | Failed to retrieve members of the group "". The operation failed because of a bad parameter.
+        Add-AdGroupNesting: C:\Program Files\WindowsPowerShell\Modules\EguibarIT\Public\New-CentralItOU.ps1:910:9
+        Line |
+        910 |          Add-AdGroupNesting -Identity $DeniedRODC -Members $NewAdminEx …
+            |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            | Failed to retrieve members of the group "". The operation failed because of a bad parameter.
+
+        PS>TerminatingError(Get-ADGroupMember): "The operation failed because of a bad parameter."
+        >> TerminatingError(Get-ADGroupMember): "The operation failed because of a bad parameter."
+        >> TerminatingError(Get-ADGroupMember): "The operation failed because of a bad parameter."
+        >> TerminatingError(Get-ADGroupMember): "The operation failed because of a bad parameter."
+        The operation failed because of a bad parameter.
+        Get-ADGroupMember: C:\Program Files\WindowsPowerShell\Modules\EguibarIT\Public\Add-AdGroupNesting.ps1:68:31
+        Line |
+        68 |  … ntMembers = Get-ADGroupMember -Identity $Identity -Recursive -ErrorAc …
+            |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            | The operation failed because of a bad parameter.
+        #>
         Add-AdGroupNesting -Identity $DeniedRODC -Members $NewAdminExists
 
         # http://blogs.msdn.com/b/muaddib/archive/2013/12/30/how-to-modify-security-inheritance-on-active-directory-objects.aspx
@@ -1262,14 +1287,12 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add($EnterpriseAdmins)
-        <#
         if ($null -ne $AdminName) {
             [void]$ArrayList.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
             [void]$ArrayList.Add($NewAdminExists)
         }
-        #>
         if ($null -ne $SG_InfraAdmins) {
             [void]$ArrayList.Add($SG_InfraAdmins)
         }
@@ -1287,15 +1310,6 @@
         }
         if ($null -ne $SG_Tier2Admins) {
             [void]$ArrayList.Add($SG_Tier2Admins)
-        }
-        if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
-        }
-        if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
-        }
-        if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
         }
         if ($null -ne $SG_Operations) {
             [void]$ArrayList.Add($SG_Operations)
@@ -1379,8 +1393,21 @@
             [void]$ArrayList.Add($SL_GlobalAppAccUserRight)
         }
 
+        # Adding all Groups
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
 
+
+
+        $ArrayList.Clear()
+        if ($null -ne $AdminName) {
+            [void]$ArrayList.Add($AdminName)
+        }
+        if ($null -ne $NewAdminExists) {
+            [void]$ArrayList.Add($NewAdminExists)
+        }
+
+        # Adding Users.
+        Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
 
         #endregion
         ###############################################################################
@@ -2099,6 +2126,22 @@
         Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPpath $ItAdminOuDn
         # Subnet Configuration Container
         # Create/Delete Subnet
+        # TODO:
+        <#
+        Error(Set-AclConstructor5): "Cannot validate argument on parameter 'LDAPpath'. The " Test-IsValidDN -ObjectDN $_ " validation script for the argument with value "cn=subnets,cn=Sites,CN=Configuration,DC=EguibarIT,DC=local" did not return a result of True. Determine why the validation script failed, and then try the command again."
+        Set-AclConstructor5: C:\Program Files\WindowsPowerShell\Modules\EguibarIT.DelegationPS\Public\AdTopology\Set-AdAclChangeSubnet.ps1:99:33
+        Line |
+        99 |              Set-AclConstructor5 @Splat
+            |                                  ~~~~~~
+            | Cannot validate argument on parameter 'LDAPpath'. The " Test-IsValidDN -ObjectDN $_ " validation script for the argument with value "cn=subnets,cn=Sites,CN=Configuration,DC=EguibarIT,DC=local" did not return a result of True. Determine why the validation script failed, and then try the command again.
+        Set-AclConstructor5: C:\Program Files\WindowsPowerShell\Modules\EguibarIT.DelegationPS\Public\AdTopology\Set-AdAclChangeSubnet.ps1:99:33
+        Line |
+        99 |              Set-AclConstructor5 @Splat
+            |                                  ~~~~~~
+            | Cannot validate argument on parameter 'LDAPpath'. The " Test-IsValidDN -ObjectDN $_ " validation script for the argument with value
+            | "cn=subnets,cn=Sites,CN=Configuration,DC=EguibarIT,DC=local" did not return a result of True. Determine why the validation script failed, and then try the command again.
+
+        #>
         Set-AdAclCreateDeleteSubnet -Group $SL_InfraRight
         # Site Configuration Container
         # Create/Delete Sites
@@ -2158,7 +2201,7 @@
 
         # Admin Area
         $Splat = @{
-            gpoDescription = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
+            gpoDescription = '{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
             gpoLinkPath    = $ItAdminOuDn
             GpoAdmin       = $sl_GpoAdminRight
         }
