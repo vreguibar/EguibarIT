@@ -1379,6 +1379,7 @@
             [void]$ArrayList.Add($SL_GlobalAppAccUserRight)
         }
 
+        # TODO: Fix error on when adding members
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
 
 
