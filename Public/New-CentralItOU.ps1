@@ -1477,12 +1477,6 @@
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add($EnterpriseAdmins)
 
-        if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName)
-        }
-        if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists)
-        }
         if ($null -ne $SG_InfraAdmins) {
             [void]$ArrayList.Add($SG_InfraAdmins)
         }
@@ -1500,15 +1494,6 @@
         }
         if ($null -ne $SG_Tier2Admins) {
             [void]$ArrayList.Add($SG_Tier2Admins)
-        }
-        if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
-        }
-        if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
-        }
-        if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
         }
         if ($null -ne $SG_Operations) {
             [void]$ArrayList.Add($SG_Operations)
@@ -1591,7 +1576,19 @@
         if ($null -ne $SL_GlobalAppAccUserRight) {
             [void]$ArrayList.Add($SL_GlobalAppAccUserRight)
         }
+        # Add groups
         Add-AdGroupNesting -Identity $DeniedRODC -Members $ArrayList
+
+        # Add Users
+        $ArrayList.Clear()
+        if ($null -ne $AdminName) {
+            [void]$ArrayList.Add($AdminName)
+        }
+        if ($null -ne $NewAdminExists) {
+            [void]$ArrayList.Add($NewAdminExists)
+        }
+        Add-AdGroupNesting -Identity $DeniedRODC -Members $ArrayList
+
 
         #endregion
         ###############################################################################
