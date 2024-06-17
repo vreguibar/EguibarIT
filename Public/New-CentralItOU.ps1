@@ -907,31 +907,6 @@
         Add-AdGroupNesting -Identity $DomainAdmins -Members $NewAdminExists
         Add-AdGroupNesting -Identity $EnterpriseAdmins -Members $NewAdminExists
         Add-AdGroupNesting -Identity $GPOCreatorsOwner -Members $NewAdminExists
-
-        # TODO: Error (Get-ADGroupMember): "The operation failed because of a bad parameter."
-        <#
-        Add-AdGroupNesting: C:\Program Files\WindowsPowerShell\Modules\EguibarIT\Public\New-CentralItOU.ps1:910:9
-        Line |
-        910 |          Add-AdGroupNesting -Identity $DeniedRODC -Members $NewAdminEx …
-            |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            | Failed to retrieve members of the group "". The operation failed because of a bad parameter.
-        Add-AdGroupNesting: C:\Program Files\WindowsPowerShell\Modules\EguibarIT\Public\New-CentralItOU.ps1:910:9
-        Line |
-        910 |          Add-AdGroupNesting -Identity $DeniedRODC -Members $NewAdminEx …
-            |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            | Failed to retrieve members of the group "". The operation failed because of a bad parameter.
-
-        PS>TerminatingError(Get-ADGroupMember): "The operation failed because of a bad parameter."
-        >> TerminatingError(Get-ADGroupMember): "The operation failed because of a bad parameter."
-        >> TerminatingError(Get-ADGroupMember): "The operation failed because of a bad parameter."
-        >> TerminatingError(Get-ADGroupMember): "The operation failed because of a bad parameter."
-        The operation failed because of a bad parameter.
-        Get-ADGroupMember: C:\Program Files\WindowsPowerShell\Modules\EguibarIT\Public\Add-AdGroupNesting.ps1:68:31
-        Line |
-        68 |  … ntMembers = Get-ADGroupMember -Identity $Identity -Recursive -ErrorAc …
-            |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            | The operation failed because of a bad parameter.
-        #>
         Add-AdGroupNesting -Identity $DeniedRODC -Members $NewAdminExists
 
         # http://blogs.msdn.com/b/muaddib/archive/2013/12/30/how-to-modify-security-inheritance-on-active-directory-objects.aspx
@@ -1287,12 +1262,6 @@
         $ArrayList.Clear()
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add($EnterpriseAdmins)
-        if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName)
-        }
-        if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists)
-        }
         if ($null -ne $SG_InfraAdmins) {
             [void]$ArrayList.Add($SG_InfraAdmins)
         }
@@ -1392,7 +1361,7 @@
         if ($null -ne $SL_GlobalAppAccUserRight) {
             [void]$ArrayList.Add($SL_GlobalAppAccUserRight)
         }
-
+        # Adding groups
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
 
 

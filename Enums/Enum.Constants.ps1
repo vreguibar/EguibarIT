@@ -9,6 +9,9 @@
 
     # New NewLine
     NL       = [System.Environment]::NewLine
+
+    # Regular Expression (RegEx) for SIDs
+    SidRegEx = [RegEx]::new('^S-1-(0|1|2|3|4|5|59)-\d+(-\d+)*$')
 }
 
 $Splat = @{
