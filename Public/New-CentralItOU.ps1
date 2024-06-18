@@ -238,16 +238,9 @@
         # These modules must be imported without checking and handling.
         Import-Module -Name ServerManager -Force -Verbose:$false
         Import-Module -Name GroupPolicy -Force -Verbose:$false
-
-        $AllModules = @(
-            'ActiveDirectory',
-            'EguibarIT',
-            'EguibarIT.DelegationPS'
-        )
-        foreach ($item in $AllModules) {
-            Import-MyModule -name $item
-        } #end ForEach
-
+        Import-Module -Name ActiveDirectory -Force -Verbose:$false
+        Import-Module -Name EguibarIT -Force -Verbose:$false
+        Import-Module -Name EguibarIT.DelegationPS -Force -Verbose:$false
 
         ################################################################################
         #region Declarations
