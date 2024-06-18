@@ -11,7 +11,7 @@
     NL        = [System.Environment]::NewLine
 
     # Regular Expression (RegEx) for SIDs
-    SidRegEx  = [RegEx]::new('^S-1-(0|1|2|3|4|5|59)-\d+(-\d+)*$')
+    SidRegEx  = [RegEx]::new('^S-1-(0|1|2|3|4|5|16|59)-\d+(-\d+)*$')
 
     # Regular Expression (RegEx) for DistinguishedName
     DnRegEx   = [RegEx]::new('^(?:(?<cn>CN=(?<name>(?:[^,]+|\,)+)),)?(?:(?<ou>OU=(?:[^,]+|\,)+,?)*)(?<dc>DC=(?:[^,]+|\,)+)(?:,DC=(?:[^,]+|\,)+)*$')
