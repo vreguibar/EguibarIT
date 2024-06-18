@@ -1,4 +1,5 @@
-﻿$Variables = [ordered] @{
+﻿[Hashtable]$Variables = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+$Variables = [ordered] @{
 
     # Active Directory DistinguishedName
     AdDN                       = $null
@@ -13,10 +14,10 @@
     DnsFqdn                    = $null
 
     # Hashtable containing the mappings between SchemaExtendedRights and GUID's
-    ExtendedRightsMap          = $null
+    ExtendedRightsMap          = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
     # Hashtable containing the mappings between ClassSchema/AttributeSchema and GUID's
-    GuidMap                    = $null
+    GuidMap                    = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
     # Naming Contexts
     namingContexts             = $null
@@ -31,7 +32,7 @@
     SchemaNamingContext        = $null
 
     # Well-Known SIDs
-    WellKnownSIDs              = $null
+    WellKnownSIDs              = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 }
 
 $Splat = @{
