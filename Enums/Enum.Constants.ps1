@@ -14,7 +14,9 @@
     SidRegEx  = [RegEx]::new('^S-1-(0|1|2|3|4|5|59)-\d+(-\d+)*$')
 
     # Regular Expression (RegEx) for DistinguishedName
-    DnRegEx   = [RegEx]::new('^(?:(?<cn>CN=(?<name>(?:[^,]+|\,)+)),)?(?:(?<ou>OU=(?:[^,]+|\,)+,?)*)(?<dc>DC=(?:[^,]+|\,)+)(?:,DC=(?:[^,]+|\,)+)*$')
+    #DnRegEx   = [RegEx]::new('^(?:(?<cn>CN=(?<name>(?:[^,]+|\,)+)),)?(?:(?<ou>OU=(?:[^,]+|\,)+,?)*)(?<dc>DC=(?:[^,]+|\,)+)(?:,DC=(?:[^,]+|\,)+)*$')
+    #DnRegEx   = [RegEx]::new('^(CN|OU|DC|O|L|ST|C|UID)=[^,=+<>#;"]+(,(CN|OU|DC|O|L|ST|C|UID)=[^,=+<>#;"]+)*$')
+    DnRegEx   = [RegEx]::new('^(?:[A-Za-z]{2}=[^,\\+<>#;]+(?:\\,[^,\\+<>#;]+)*,?)+$')
 
     # Regular Expression (RegEx) for GUID
     <# Define GUID Regex

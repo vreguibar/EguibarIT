@@ -2166,7 +2166,11 @@
             gpoScope = 'U'
             GpoAdmin = $sl_GpoAdminRight
         }
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItServiceAccountsOU.Name) -gpoLinkPath $ItServiceAccountsOuDn
+        $Splat1 = @{
+            gpoDescription =('{0}-Baseline' -f $confXML.n.Admin.OUs.ItServiceAccountsOU.Name)
+            gpoLinkPath =$ItServiceAccountsOuDn
+        }
+        New-DelegateAdGpo @Splat @Splat1
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT0OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.Name, $ItServiceAccountsOuDn)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT1OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT1OU.Name, $ItServiceAccountsOuDn)
         New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT2OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT2OU.Name, $ItServiceAccountsOuDn)
