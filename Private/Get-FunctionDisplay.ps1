@@ -35,7 +35,7 @@
             HelpMessage = 'Amount of Tabs to be used on the formatting.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
-        [PSDefaultValue(Help = 'Default Value is "4"')]
+        [PSDefaultValue(Help = 'Default Value is "2"')]
         [int]
         $TabCount = 2
     )
