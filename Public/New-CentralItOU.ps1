@@ -2084,22 +2084,6 @@
         Set-AdAclCreateDeleteOU -Group $SL_InfraRight -LDAPpath $ItAdminOuDn
         # Subnet Configuration Container
         # Create/Delete Subnet
-        # TODO:
-        <#
-        Error(Set-AclConstructor5): "Cannot validate argument on parameter 'LDAPpath'. The " Test-IsValidDN -ObjectDN $_ " validation script for the argument with value "cn=subnets,cn=Sites,CN=Configuration,DC=EguibarIT,DC=local" did not return a result of True. Determine why the validation script failed, and then try the command again."
-        Set-AclConstructor5: C:\Program Files\WindowsPowerShell\Modules\EguibarIT.DelegationPS\Public\AdTopology\Set-AdAclChangeSubnet.ps1:99:33
-        Line |
-        99 |              Set-AclConstructor5 @Splat
-            |                                  ~~~~~~
-            | Cannot validate argument on parameter 'LDAPpath'. The " Test-IsValidDN -ObjectDN $_ " validation script for the argument with value "cn=subnets,cn=Sites,CN=Configuration,DC=EguibarIT,DC=local" did not return a result of True. Determine why the validation script failed, and then try the command again.
-        Set-AclConstructor5: C:\Program Files\WindowsPowerShell\Modules\EguibarIT.DelegationPS\Public\AdTopology\Set-AdAclChangeSubnet.ps1:99:33
-        Line |
-        99 |              Set-AclConstructor5 @Splat
-            |                                  ~~~~~~
-            | Cannot validate argument on parameter 'LDAPpath'. The " Test-IsValidDN -ObjectDN $_ " validation script for the argument with value
-            | "cn=subnets,cn=Sites,CN=Configuration,DC=EguibarIT,DC=local" did not return a result of True. Determine why the validation script failed, and then try the command again.
-
-        #>
         Set-AdAclCreateDeleteSubnet -Group $SL_InfraRight
         # Site Configuration Container
         # Create/Delete Sites

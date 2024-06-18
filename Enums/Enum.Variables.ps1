@@ -1,5 +1,4 @@
-﻿[Hashtable]$Variables = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
-$Variables = [ordered] @{
+﻿$Variables = @{
 
     # Active Directory DistinguishedName
     AdDN                       = $null
