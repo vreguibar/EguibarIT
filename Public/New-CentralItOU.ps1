@@ -739,7 +739,7 @@
         Get-ADGroup -Identity 'RAS and IAS Servers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
         $DnsAdmins | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
         Get-ADGroup -Identity 'Cert Publishers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
-        Get-ADGroup -Identity 'Denied RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
+        Get-ADGroup -Identity $DeniedRODC | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
         $ProtectedUsers | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Cloneable Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Access-Denied Assistance Users' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
@@ -780,6 +780,7 @@
         $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
         $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
         $GPOCreatorsOwner = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
+        $DeniedRODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
         $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins'
         $ProtectedUsers = Get-ADGroup -Identity 'Protected Users'
 
