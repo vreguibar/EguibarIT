@@ -7,7 +7,8 @@
         as a "correct" within this function due the fact that group might already exist and operation
         should continue after writing a log.
     .EXAMPLE
-        New-AdDelegatedGroup -Name "Poor Admins" -GroupCategory Security -GroupScope DomainLocal -DisplayName "Poor Admins" -Path 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local' -Description 'New Admin Group'
+        New-AdDelegatedGroup -Name "Poor Admins" -GroupCategory Security -GroupScope DomainLocal
+        -DisplayName "Poor Admins" -Path 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local' -Description 'New Admin Group'
     .EXAMPLE
         $splat = @{
             Name                          = 'Poor Admins'
@@ -231,15 +232,10 @@
                     Write-Verbose -Message ('Group {0} created successfully.' -f $Name)
 
                 } catch {
-                    ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-
                     Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
                     throw
-                    Return
                 } #end Try-Catch
-
             } #end If
-
         } else {
             Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
 
@@ -262,21 +258,18 @@
                     if (-not $newGroup) {
                         Start-Sleep 2
                         $newGroup = Get-ADGroup $groupExists
-                    }
+                    } #end If
 
                     Write-Verbose -Message ('Existing group {0} modified.' -f $newGroup)
-                }
+                } #end If
 
                 If (-not($newGroup.DistinguishedName -contains $PSBoundParameters['path'])) {
                     # Move object to the corresponding OU
                     Move-ADObject -Identity $newGroup.DistinguishedName -TargetPath $PSBoundParameters['path'] -ErrorAction Stop
-                }
-
+                } #end If
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
                 Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
-                Return
             } #end Try-Catch
 
         } #end If-Else

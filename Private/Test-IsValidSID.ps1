@@ -60,7 +60,7 @@ function Test-IsValidSID {
                 } #end If
                 $isValid = $true
                 #return
-            } elseIf ($Constants.SidRegEx.IsMatch($ObjectSID)) {
+            } elseIf ($ObjectSID -match $Constants.SidRegEx) {
 
                 # Provide verbose output
                 if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
