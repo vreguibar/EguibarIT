@@ -18,6 +18,7 @@ function Add-AdGroupNesting {
         http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+
     Param (
         # Param1 Group which membership is to be changed
         [Parameter(Mandatory = $true,
@@ -84,12 +85,17 @@ function Add-AdGroupNesting {
 
                     Write-Verbose -Message ('Adding: {0}' -f $Item)
 
-                    If ($PSCmdlet.ShouldProcess($Identity.DistinguishedName, $confirmMessage)) {
+                    If ($PSCmdlet.ShouldProcess($Identity.DistinguishedName, "Add member $item")) {
                         $Splat = @{
-                            Identity = $Identity
-                            Members  = $item
+                            Identity    = $Identity
+                            Members     = $item
+                            ErrorAction = 'Stop'
                         }
-                        Add-ADGroupMember @Splat
+                        Try {
+                            Add-ADGroupMember @Splat
+                        } Catch {
+                            Write-Error -Message ('Failed to add member "{0}" to group "{1}". {2}' -f $item, $Identity, $_.Exception.Message)
+                        }
                     } #end If
                 } else {
                     Write-Verbose -Message ('{0} is already a member of {1} group' -f $item.SamAccountName, $Identity.SamAccountName)

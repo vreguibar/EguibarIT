@@ -272,12 +272,12 @@
 
 
         # Check if Backup needs to be imported
-        If ($PSBoundParameters['gpoBackupID']) {
+        If ($PSBoundParameters['gpoBackupID'] -and $PSBoundParameters['gpoBackupPath']) {
 
             # Import the Backup
             Write-Verbose -Message ('Importing GPO Backup {0} from path {1} to GPO {2}' -f $PSBoundParameters['gpoBackupID'], $PSBoundParameters['gpoBackupPath'], $gpoName)
 
-            If (Test-Path -Path ('{0}\{1}' -f $PSBoundParameters['gpoBackupPath'], ('{' + $PSBoundParameters['gpoBackupID'] + '}'))) {
+            Try {
                 $Splat = @{
                     BackupId   = $PSBoundParameters['gpoBackupID']
                     TargetGuid = $gpoAlreadyExist.Id
@@ -287,9 +287,9 @@
                 if ($PSCmdlet.ShouldProcess("Importing GPO Backup '$gpoBackupID' to GPO '$gpoName'", 'Confirm import')) {
                     Import-GPO @Splat
                 } #end If
-            } else {
+            } Catch {
                 Write-Warning -Message ('No valid backup was found on !!' -f $PSBoundParameters['gpoBackupPath'])
-            } #end If-Else
+            } #end Try-Catch
         } # End If
 
     } # End Process Section
