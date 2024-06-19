@@ -50,7 +50,7 @@ function Add-AdGroupNesting {
         ##############################
         # Variables Definition
 
-        Import-MyModule -Name ActiveDirectory -Verbose:$false
+        Import-MyModule -name ActiveDirectory -Verbose:$false
 
         # Define array lists
         $CurrentMembers = [System.Collections.ArrayList]::new()
@@ -79,17 +79,17 @@ function Add-AdGroupNesting {
             Write-Verbose -Message ('Adding members to group..: {0}' -f $Identity.SamAccountName)
 
             Foreach ($item in $Members) {
-                $item = Get-AdObjectType -Identity $item -ErrorAction Stop
+                $item = Get-AdObjectType -Identity $item
 
-                If ($CurrentMembers.DistinguishedName -notcontains $item.DistinguishedName) {
+                If (($null -ne $CurrentMembers) -and
+                ($CurrentMembers.DistinguishedName -notcontains $item.DistinguishedName)) {
 
                     Write-Verbose -Message ('Adding: {0}' -f $Item)
 
                     If ($PSCmdlet.ShouldProcess($Identity.DistinguishedName, "Add member $item")) {
                         $Splat = @{
-                            Identity    = $Identity
-                            Members     = $item
-                            ErrorAction = 'Stop'
+                            Identity = $Identity
+                            Members  = $item
                         }
                         Try {
                             Add-ADGroupMember @Splat
