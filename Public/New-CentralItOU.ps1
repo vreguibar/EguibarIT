@@ -1427,7 +1427,7 @@
         if ($null -ne $SG_Tier2ServiceAccount) {
             [void]$ArrayList.Add($SG_Tier2ServiceAccount)
         }
-
+        # todo: Fix error "The name reference is invalid."
         Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
 
         #endregion
@@ -3204,14 +3204,19 @@
 
 
         # Get the DN of 1st level OU underneath SERVERS area
-        $AllSubOu = Get-ADOrganizationalUnit -Filter * -SearchBase $ServersOuDn -SearchScope OneLevel | Select-Object -ExpandProperty DistinguishedName
+        $Splat = @{
+            Filter      = '*'
+            SearchBase  = $ServersOuDn
+            SearchScope = 'OneLevel'
+        }
+        $AllSubOu = Get-ADOrganizationalUnit @Splat | Select-Object -ExpandProperty DistinguishedName
 
         # Iterate through each sub OU and invoke delegation
         Foreach ($Item in $AllSubOu) {
             ###############################################################################
             # Delegation to SL_SvrAdmRight group to SERVERS area
 
-            Set-AdAclDelegateComputerAdmin -Group $SL_SvrAdmRight -LDAPpath $Item -QuarantineDN $ItQuarantinePcOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_SvrAdmRight -LDAPpath $Item
 
             ###############################################################################
             # Delegation to SL_SvrOpsRight group on SERVERS area

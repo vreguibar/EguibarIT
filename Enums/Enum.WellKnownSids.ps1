@@ -22,7 +22,7 @@
     'S-1-5-1'                                    = 'dialup'
     'S-1-5-2'                                    = 'network'
     'S-1-5-3'                                    = 'batch'
-    'S-1-5-19'                                   = 'nt authority (localservice)'
+    'S-1-5-19'                                   = 'local service'
     'S-1-5-18'                                   = 'LocalSystem'
     'S-1-5-20'                                   = 'network service'
     'S-1-5-21-4195037842-338827918-94892514-526' = 'key admins'
