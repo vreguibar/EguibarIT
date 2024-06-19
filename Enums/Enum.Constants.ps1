@@ -16,7 +16,8 @@
     # Regular Expression (RegEx) for DistinguishedName
     #DnRegEx   = [RegEx]::new('^(?:(?<cn>CN=(?<name>(?:[^,]+|\,)+)),)?(?:(?<ou>OU=(?:[^,]+|\,)+,?)*)(?<dc>DC=(?:[^,]+|\,)+)(?:,DC=(?:[^,]+|\,)+)*$')
     #DnRegEx   = [RegEx]::new('^(CN|OU|DC|O|L|ST|C|UID)=[^,=+<>#;"]+(,(CN|OU|DC|O|L|ST|C|UID)=[^,=+<>#;"]+)*$')
-    DnRegEx   = [RegEx]::new('^(?:[A-Za-z]{2}=[^,\\+<>#;]+(?:\\,[^,\\+<>#;]+)*,?)+$')
+    #DnRegEx   = [RegEx]::new('^(?:[A-Za-z]{2}=[^,\\+<>#;]+(?:\\,[^,\\+<>#;]+)*,?)+$')
+    DnRegEx   = [RegEx]::new('^(?:(CN=(?<name>(?:[^,\\]|\\.)+),)*)?(OU=(?<ou>(?:[^,\\]|\\.)+),)*(DC=(?<dc>(?:[^,\\]|\\.)+))(,DC=(?<dc>(?:[^,\\]|\\.)+))+?$')
 
     # Regular Expression (RegEx) for GUID
     <# Define GUID Regex
