@@ -129,7 +129,8 @@ function New-LocalLogonTask {
             # Register (create -> 6 ) the task
             $rootFolder.RegisterTaskDefinition( $name, $taskDefinition, 6, $null , $null , 0)
         } catch {
-            throw $error
+            Write-Error -Message 'Error when creating new logon task'
+            throw
         }
     }
     End {

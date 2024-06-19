@@ -52,8 +52,8 @@
 
         ################################################################################
         # Initializations
-        Import-MyModule -Name ActiveDirectory -Verbose:$false
-        Import-MyModule -Name EguibarIT.DelegationPS -Verbose:$false
+        Import-MyModule -name ActiveDirectory -Verbose:$false
+        Import-MyModule -name EguibarIT.DelegationPS -Verbose:$false
 
         ################################################################################
         #region Declarations
@@ -69,7 +69,7 @@
                 } #end if
             } #end if
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when reading XML file'
             throw
         }
 

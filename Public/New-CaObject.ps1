@@ -39,7 +39,7 @@
 
         ################################################################################
         # Initializations
-        Import-MyModule -Name EguibarIT.DelegationPS -Verbose:$false
+        Import-MyModule -name EguibarIT.DelegationPS -Verbose:$false
 
         #Get the OS Installation Type
         $OsInstalationType = Get-ItemProperty -Path 'HKLM:Software\Microsoft\Windows NT\CurrentVersion' | Select-Object -ExpandProperty InstallationType
@@ -57,6 +57,7 @@
                 } #end if
             } #end if
         } catch {
+            Write-Error -Message 'Error when reading XML file'
             throw
         }
 
@@ -105,7 +106,7 @@
         If (-not((Get-WindowsFeature -Name RSAT-AD-PowerShell).Installed)) {
             Install-WindowsFeature -Name RSAT-AD-PowerShell -IncludeAllSubFeature
         }
-        Import-MyModule -Name ActiveDirectory -Verbose:$false
+        Import-MyModule -name ActiveDirectory -Verbose:$false
 
         # AD CS Step by Step Guide: Two Tier PKI Hierarchy Deployment
         # https://social.technet.microsoft.com/wiki/contents/articles/15037.ad-cs-step-by-step-guide-two-tier-pki-hierarchy-deployment.aspx
@@ -187,7 +188,7 @@ LoadDefaultTemplates=0
                 Install-ADCSwebenrollment -Confirm
             } # End If
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when installing Certificate Authority'
             throw
         } # End Try-Catch
         finally {

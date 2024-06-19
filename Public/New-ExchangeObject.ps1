@@ -73,19 +73,19 @@ Function New-ExchangeObject {
                 } #end if
             } #end if
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when reading XML file'
             throw
         }
 
 
 
         # Naming conventions hashtable
-        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix;
-            'sg'     = $confXML.n.NC.GlobalGroupPreffix;
-            'su'     = $confXML.n.NC.UniversalGroupPreffix;
-            'Delim'  = $confXML.n.NC.Delimiter;
-            'T0'     = $confXML.n.NC.AdminAccSufix0;
-            'T1'     = $confXML.n.NC.AdminAccSufix1;
+        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix
+            'sg'     = $confXML.n.NC.GlobalGroupPreffix
+            'su'     = $confXML.n.NC.UniversalGroupPreffix
+            'Delim'  = $confXML.n.NC.Delimiter
+            'T0'     = $confXML.n.NC.AdminAccSufix0
+            'T1'     = $confXML.n.NC.AdminAccSufix1
             'T2'     = $confXML.n.NC.AdminAccSufix2
         }
 
@@ -241,7 +241,7 @@ Function New-ExchangeObject {
         # Nest Groups - Security for RODC
         # Avoid having privileged or semi-privileged groups copy to RODC
 
-        Add-AdGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SG_ExAdmins, $SL_ExRight
+        Add-ADGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SG_ExAdmins, $SL_ExRight
 
 
         ###############################################################################

@@ -104,7 +104,7 @@ function Add-AdGroupNesting {
 
             Write-Verbose -Message ('Members were added correctly to group {0}' -f $Identity.sAMAccountName)
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when adding group member'
             throw
         } #end Try-Catch
     } #end Process

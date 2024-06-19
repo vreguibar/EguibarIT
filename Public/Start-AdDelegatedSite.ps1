@@ -138,7 +138,7 @@ function Start-AdDelegateSite {
                 } #end if
             } #end if
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when reading XML file'
             throw
         }
 
@@ -318,7 +318,7 @@ function Start-AdDelegateSite {
         ###############################################################################
         #region PRINTQUEUE Site GAL Delegation
 
-        Set-AdAclChangePrintQueue -Group $SL_GALRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSitePrintQueue.name, $ouNameDN)
+        Set-AdAclChangePrintQueue -Group $SL_GALRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSitePrintQueue.name, $ouNameDN)
 
         #endregion PRINTQUEUE Site GAL Delegation
         ###############################################################################
@@ -328,7 +328,7 @@ function Start-AdDelegateSite {
         #region VOLUME Site Admin Delegation
 
         # Create/Delete Volume
-        Set-AdAclCreateDeleteVolume -Group $SL_SiteRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteShares.name, $ouNameDN)
+        Set-AdAclCreateDeleteVolume -Group $SL_SiteRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteShares.name, $ouNameDN)
 
         #endregion VOLUME Site Admin Delegation
         ###############################################################################
@@ -338,7 +338,7 @@ function Start-AdDelegateSite {
         #region VOLUME Site GAL Delegation
 
         # Change Volume Properties
-        Set-AdAclChangeVolume -Group $SL_GALRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteShares.name, $ouNameDN)
+        Set-AdAclChangeVolume -Group $SL_GALRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteShares.name, $ouNameDN)
 
         #endregion VOLUME Site GAL Delegation
         ###############################################################################
@@ -369,19 +369,19 @@ function Start-AdDelegateSite {
             Set-AdAclUserGroupMembership -Group $SL_SiteRight.SamAccountName -LDAPPath $OuSiteDefMailbox
 
             # Change Personal Information
-            Set-AdAclUserPersonalInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefMailbox
+            Set-AdAclUserPersonalInfo -Group $SL_GALRight.SamAccountName -LDAPpath $OuSiteDefMailbox
 
             # Change Public Information
-            Set-AdAclUserPublicInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefMailbox
+            Set-AdAclUserPublicInfo -Group $SL_GALRight.SamAccountName -LDAPpath $OuSiteDefMailbox
 
             # Change General Information
-            Set-AdAclUserGeneralInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefMailbox
+            Set-AdAclUserGeneralInfo -Group $SL_GALRight.SamAccountName -LDAPpath $OuSiteDefMailbox
 
             # Change Web Info
-            Set-AdAclUserWebInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefMailbox
+            Set-AdAclUserWebInfo -Group $SL_GALRight.SamAccountName -LDAPpath $OuSiteDefMailbox
 
             # Change Email Info
-            Set-AdAclUserEmailInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefMailbox
+            Set-AdAclUserEmailInfo -Group $SL_GALRight.SamAccountName -LDAPpath $OuSiteDefMailbox
 
             # GROUP Class
             # Create/Delete Groups
@@ -395,10 +395,10 @@ function Start-AdDelegateSite {
             Set-AdAclCreateDeleteContact -Group $SL_SiteRight.SamAccountName -LDAPPath $OuSiteDefContact
             #--------------------------------------------------
             # Change Personal Info
-            Set-AdAclContactPersonalInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefContact
+            Set-AdAclContactPersonalInfo -Group $SL_GALRight.SamAccountName -LDAPpath $OuSiteDefContact
 
             # Change Web Info
-            Set-AdAclContactWebInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefContact
+            Set-AdAclContactWebInfo -Group $SL_GALRight.SamAccountName -LDAPpath $OuSiteDefContact
         }
         #endregion Exchange Related delegation
         ###############################################################################

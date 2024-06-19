@@ -49,7 +49,7 @@ function ConvertTo-IntegerIPv4 {
             ([IPAddress]($bytes)).ToString()
 
         } Catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when converting Integer to IPv4'
             throw
         }
     } #end Process

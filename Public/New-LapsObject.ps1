@@ -56,10 +56,10 @@ Function New-LAPSobject {
 
         ################################################################################
         # Initializations
-        Import-MyModule -Name ActiveDirectory -Verbose:$false
-        Import-MyModule -Name EguibarIT.DelegationPS -Verbose:$false
-        Import-MyModule -Name AdmPwd.PS -Verbose:$false
-        Import-MyModule -Name LAPS -Verbose:$false
+        Import-MyModule -name ActiveDirectory -Verbose:$false
+        Import-MyModule -name EguibarIT.DelegationPS -Verbose:$false
+        Import-MyModule -name AdmPwd.PS -Verbose:$false
+        Import-MyModule -name LAPS -Verbose:$false
 
         ################################################################################
         #region Declarations
@@ -74,7 +74,7 @@ Function New-LAPSobject {
                 } #end if
             } #end if
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when reading XML file'
             throw
         }
 
@@ -207,7 +207,7 @@ Function New-LAPSobject {
                         Update-AdmPwdADSchema -Verbose
                         Update-LapsADSchema -Confirm:$false -Verbose
                     } catch {
-                        ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                        Write-Error -Message 'Error when updating LAPS schema'
                         throw
                     } finally {
                         # If Schema extension OK, remove user from Schema Admin
@@ -217,7 +217,7 @@ Function New-LAPSobject {
             }#end if
         }#end try
         catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when trying to update LAPS schema'
             throw
         } Finally {
             Write-Verbose -Message 'Schema was extended successfully for LAPS.'

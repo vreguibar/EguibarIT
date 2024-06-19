@@ -62,16 +62,16 @@
 
             # Perform the actual validation
             #$isValid = $ObjectDN -match $distinguishedNameRegex
-            $isValid = $Constants.GuidRegEx.IsMatch($ObjectGUID)
+            $isValid = $ObjectGUID -match $Constants.GuidRegEx
 
             # Provide verbose output
             if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
-                Write-Verbose -Message ('DistinguishedName validation result: {0}' -f $isValid)
+                Write-Verbose -Message ('GUID validation result: {0}' -f $isValid)
             } #end If
 
         } catch {
             # Handle exceptions gracefully
-            ## Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when validating GUID'
             throw
         } #end Try-Catch
 

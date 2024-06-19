@@ -111,7 +111,7 @@ function Set-AdAclDelegateGalAdmin {
                 Set-AdAclUserEmailInfo @Splat
             } #end If
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when cleaning OU'
             throw
         }
     } #end Process

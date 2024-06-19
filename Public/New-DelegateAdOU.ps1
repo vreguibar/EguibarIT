@@ -179,14 +179,8 @@ function New-DelegateAdOU {
         ##############################
         # Variables Definition
 
-
-        try {
-            # Sites OU Distinguished Name
-            $ouNameDN = 'OU={0},{1}' -f $PSBoundParameters['ouName'], $PSBoundParameters['ouPath']
-        } Catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-            throw
-        } #end Try-Catch
+        # Sites OU Distinguished Name
+        $ouNameDN = 'OU={0},{1}' -f $PSBoundParameters['ouName'], $PSBoundParameters['ouPath']
 
         $OUexists = [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]::New()
         $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)

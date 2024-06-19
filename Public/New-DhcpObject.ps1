@@ -72,7 +72,7 @@
                 } #end if
             } #end if
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when reading XML file'
             throw
         }
 

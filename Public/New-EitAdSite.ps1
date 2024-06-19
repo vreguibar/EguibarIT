@@ -65,7 +65,7 @@ function New-EitAdSite {
             TRY {
                 New-ADObject -Name $PSBoundParameters['NewSiteName'] -Path $ADSiteDN -Type Site
             } CATCH {
-                Write-Warning -Message ('An error occured while attempting to create the new site {0} in the AD Site Path: {1} `r ' -f $PSBoundParameters['NewSiteName'], $ADSiteDN)
+                Write-Error -Message ('An error occured while attempting to create the new site {0} in the AD Site Path: {1} `r ' -f $PSBoundParameters['NewSiteName'], $ADSiteDN)
                 ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                 throw
             }

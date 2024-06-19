@@ -106,7 +106,7 @@ Function Test-IsUniqueOID {
             # Handle errors and provide verbose output
             ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
-            Write-Verbose 'An error occurred while checking the Certificate Template OID uniqueness.'
+            Write-Error -Message 'An error occurred while checking the Certificate Template OID uniqueness.'
             return $false
         } #end Try-Catch
     } #end Process

@@ -79,7 +79,7 @@ function Start-AdCleanOU {
         Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
         Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
 
-        Import-MyModule -Name EguibarIT.DelegationPS -Verbose:$False
+        Import-MyModule -name EguibarIT.DelegationPS -Verbose:$False
 
         ##############################
         # Variables Definition

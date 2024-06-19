@@ -249,19 +249,19 @@
                 } #end if
             } #end if
         } Catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when reading XML file'
             throw
         }
 
 
         ####################
         # Naming conventions hashtable
-        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix;
-            'sg'     = $confXML.n.NC.GlobalGroupPreffix;
-            'su'     = $confXML.n.NC.UniversalGroupPreffix;
-            'Delim'  = $confXML.n.NC.Delimiter;
-            'T0'     = $confXML.n.NC.AdminAccSufix0;
-            'T1'     = $confXML.n.NC.AdminAccSufix1;
+        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix
+            'sg'     = $confXML.n.NC.GlobalGroupPreffix
+            'su'     = $confXML.n.NC.UniversalGroupPreffix
+            'Delim'  = $confXML.n.NC.Delimiter
+            'T0'     = $confXML.n.NC.AdminAccSufix0
+            'T1'     = $confXML.n.NC.AdminAccSufix1
             'T2'     = $confXML.n.NC.AdminAccSufix2
         }
 
@@ -356,7 +356,7 @@
         Write-Verbose -Message ('Create Site root OU {0}' -f $PSBoundParameters['ouName'])
 
         # Check if the Site OU exists
-        If (-not(Get-AdOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $Variables.AdDn)) {
+        If (-not(Get-ADOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $Variables.AdDn)) {
             $splat = @{
                 ouName           = $PSBoundParameters['ouName']
                 ouPath           = $SitesOuDn
@@ -373,7 +373,7 @@
         } else {
             Write-Warning -Message ('Site {0} already exist. Continue to cleanup.' -f $PSBoundParameters['ouName'])
             # If OU already exist, clean it.
-            Start-AdCleanOU -LDAPPath $ouNameDN -RemoveUnknownSIDs
+            Start-AdCleanOU -LDAPpath $ouNameDN -RemoveUnknownSIDs
         }
 
         Write-Verbose -Message 'Create SITE Sub-OU'
@@ -798,17 +798,17 @@
         ###############################################################################
         If ($PSBoundParameters['CreateLAPS']) {
             # Desktop LAPS delegation
-            Set-AdAclLaps -ResetGroup $SL_PwdRight.SamAccountName -ReadGroup $SL_PwdRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.Name, $ouNameDN)
+            Set-AdAclLaps -ResetGroup $SL_PwdRight.SamAccountName -ReadGroup $SL_PwdRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.Name, $ouNameDN)
 
             # Laptop LAPS delegation
-            Set-AdAclLaps -ResetGroup $SL_PwdRight.SamAccountName -ReadGroup $SL_PwdRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $ouNameDN)
+            Set-AdAclLaps -ResetGroup $SL_PwdRight.SamAccountName -ReadGroup $SL_PwdRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $ouNameDN)
 
             If ($PsBoundParameters['CreateSrvContainer']) {
                 # File-Print LAPS delegation
-                Set-AdAclLaps -ResetGroup $SL_LocalServerRight.SamAccountName -ReadGroup $SL_LocalServerRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteFilePrint.Name, $ouNameDN)
+                Set-AdAclLaps -ResetGroup $SL_LocalServerRight.SamAccountName -ReadGroup $SL_LocalServerRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteFilePrint.Name, $ouNameDN)
 
                 # Local Server LAPS delegation
-                Set-AdAclLaps -ResetGroup $SL_LocalServerRight.SamAccountName -ReadGroup $SL_LocalServerRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLocalServer.Name, $ouNameDN)
+                Set-AdAclLaps -ResetGroup $SL_LocalServerRight.SamAccountName -ReadGroup $SL_LocalServerRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLocalServer.Name, $ouNameDN)
             }
         }
     }

@@ -107,7 +107,7 @@
             } #end If
 
         } Catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when revoking inheritance'
             throw
         }
     } #end Process

@@ -114,7 +114,7 @@ function Set-AdAclDelegateUserAdmin {
                 Set-AdAclUserLogonInfo @Splat
             } #end Id
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when delegating User permissions'
             throw
         } #end Try-Catch
     } #end Process

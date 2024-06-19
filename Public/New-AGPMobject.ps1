@@ -63,8 +63,8 @@
         # Initializations
 
 
-        Import-MyModule -Name 'ActiveDirectory' -Force -Verbose:$false
-        Import-MyModule -Name 'EguibarIT.DelegationPS' -Force -Verbose:$false
+        Import-MyModule -name 'ActiveDirectory' -Force -Verbose:$false
+        Import-MyModule -name 'EguibarIT.DelegationPS' -Force -Verbose:$false
 
         ################################################################################
         #region Declarations
@@ -80,7 +80,7 @@
                 } #end if
             } #end if
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when reading XML file'
             throw
         } #end Try-Catch
 
@@ -205,7 +205,7 @@
             try {
                 New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                Write-Error -Message 'Error when creating AD Service Account'
                 throw
             }
         } else {

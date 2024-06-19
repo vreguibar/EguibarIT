@@ -81,7 +81,7 @@ function Grant-NTFSPermission {
 
             Set-Acl -Path $PSBoundParameters['path'] -AclObject $DirectorySecurity
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error granting NTFS permissions'
             throw
         }
     }

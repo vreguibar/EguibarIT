@@ -256,7 +256,7 @@
                 } #end if
             } #end if
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when reading XML file'
             throw
         } # End Try
 
@@ -307,7 +307,7 @@
                 $CreateLAPS = $False
             }
         } catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            Write-Error -Message 'Error when reading parameters'
             throw
         } # End Try
 
@@ -886,7 +886,7 @@
             Try {
                 New-ADUser @Splat
             } Catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                Write-Error -Message 'Error when creating new Admin account'
                 throw
             }
 
@@ -1197,7 +1197,7 @@
                 try {
                     New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
                 } catch {
-                    ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+                    Write-Error -Message 'Error when creating AD Scheduler service account.'
                     throw
                 } #end Try-Catch
             } else {
@@ -3396,7 +3396,7 @@
 
 
         ###############################################################################
-        # Check if Exchange objects have to be created. Proccess if TRUE
+        # Check if Exchange objects have to be created. Process if TRUE
         if ($CreateExchange) {
 
             Write-Verbose -Message 'Creating Exchange On-Prem objects and delegations'
@@ -3411,7 +3411,7 @@
         }
 
         ###############################################################################
-        # Check if DFS objects have to be created. Proccess if TRUE
+        # Check if DFS objects have to be created. Process if TRUE
         if ($CreateDfs) {
 
             Write-Verbose -Message 'Creating DFS objects and delegations'
@@ -3424,7 +3424,7 @@
         }
 
         ###############################################################################
-        # Check if Certificate Authority (PKI) objects have to be created. Proccess if TRUE
+        # Check if Certificate Authority (PKI) objects have to be created. Process if TRUE
         if ($CreateCa) {
 
             Write-Verbose -Message 'Creating CA Services, objects and delegations'
@@ -3433,7 +3433,7 @@
         }
 
         ###############################################################################
-        # Check if Advanced Group Policy Management (AGPM) objects have to be created. Proccess if TRUE
+        # Check if Advanced Group Policy Management (AGPM) objects have to be created. Process if TRUE
         if ($CreateAGPM) {
 
             Write-Verbose -Message 'Creating AGPM objects and delegations'
@@ -3442,7 +3442,7 @@
         }
 
         ###############################################################################
-        # Check if MS Local Administrator Password Service (LAPS) is to be used. Proccess if TRUE
+        # Check if MS Local Administrator Password Service (LAPS) is to be used. Process if TRUE
         if ($CreateLAPS) {
 
             Write-Verbose -Message 'Creating LAPS objects and delegations'
@@ -3452,7 +3452,7 @@
         }
 
         ###############################################################################
-        # Check if DHCP is to be used. Proccess if TRUE
+        # Check if DHCP is to be used. Process if TRUE
         if ($CreateDHCP) {
 
             Write-Verbose -Message 'Creating DHCP objects and delegations'
