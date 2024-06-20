@@ -73,6 +73,7 @@
             } #end if
         } catch {
             Write-Error -Message 'Error when reading XML file'
+            
             throw
         }
 
