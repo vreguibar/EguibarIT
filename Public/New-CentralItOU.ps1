@@ -2247,124 +2247,142 @@
         #------------------------------------------------------------------------------
 
         # Access this computer from the network
-        $ArrayList.Clear()
-        [void]$ArrayList.Add($Administrators)
-        [void]$ArrayList.Add('Authenticated Users')
-        [void]$ArrayList.Add('enterprise domain controllers')
-        $Splat = @{
-            GpoToModify  = 'C-Baseline'
-            NetworkLogon = $ArrayList.ToArray()
-        }
-        Set-GpoPrivilegeRight @Splat
-
+        $NetworkLogon = [System.Collections.Generic.List[object]]::New()
+        [void]$NetworkLogon.Add($Administrators)
+        [void]$NetworkLogon.Add('Authenticated Users')
+        [void]$NetworkLogon.Add('enterprise domain controllers')
 
         # Deny access to this computer from the network
-        $ArrayList.Clear()
-        [void]$ArrayList.Add('ANONYMOUS LOGON')
-        [void]$ArrayList.Add('Local Account')
-        [void]$ArrayList.Add('Local Account and member of administrators group')
-        $Splat = @{
-            GpoToModify      = 'C-Baseline'
-            DenyNetworkLogon = $ArrayList.ToArray()
-        }
-        Set-GpoPrivilegeRight @Splat
+        $DenyNetworkLogon = [System.Collections.Generic.List[object]]::New()
+        [void]$DenyNetworkLogon.Add('ANONYMOUS LOGON')
+        [void]$DenyNetworkLogon.Add('Local Account')
+        [void]$DenyNetworkLogon.Add('Local Account and member of administrators group')
 
         # Allow Logon Locally
-        # not defined
+        # $InteractiveLogon = [System.Collections.Generic.List[object]]::New()
 
         # Deny Logon Locally
-        $ArrayList.Clear()
-        [void]$ArrayList.Add('Guests')
+        $DenyInteractiveLogon = [System.Collections.Generic.List[object]]::New()
+        [void]$DenyInteractiveLogon.Add('Guests')
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
+            [void]$DenyInteractiveLogon.Add($SG_Tier0ServiceAccount)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
+            [void]$DenyInteractiveLogon.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
+            [void]$DenyInteractiveLogon.Add($SG_Tier2ServiceAccount)
         }
-        $Splat = @{
-            GpoToModify          = 'C-Baseline'
-            DenyInteractiveLogon = $ArrayList.ToArray()
-        }
-        Set-GpoPrivilegeRight @Splat
 
         # Allow Logon through RDS/TerminalServices
-        # not defined
+        # $RemoteInteractiveLogon = [System.Collections.Generic.List[object]]::New()
 
         # Deny logon through RDS/TerminalServices
-        $ArrayList.Clear()
-        [void]$ArrayList.Add('Local Account')
-        [void]$ArrayList.Add('Guests')
-        [void]$ArrayList.Add($AccountOperators)
-        [void]$ArrayList.Add('Backup Operators')
-        [void]$ArrayList.Add('Print Operators')
-        [void]$ArrayList.Add($ServerOperators)
-        [void]$ArrayList.Add('Domain Controllers')
-        [void]$ArrayList.Add('Read-Only Domain Controllers')
+        $DenyRemoteInteractiveLogon = [System.Collections.Generic.List[object]]::New()
+        [void]$DenyRemoteInteractiveLogon.Add('Local Account')
+        [void]$DenyRemoteInteractiveLogon.Add('Guests')
+        [void]$DenyRemoteInteractiveLogon.Add($AccountOperators)
+        [void]$DenyRemoteInteractiveLogon.Add('Backup Operators')
+        [void]$DenyRemoteInteractiveLogon.Add('Print Operators')
+        [void]$DenyRemoteInteractiveLogon.Add($ServerOperators)
+        [void]$DenyRemoteInteractiveLogon.Add('Domain Controllers')
+        [void]$DenyRemoteInteractiveLogon.Add('Read-Only Domain Controllers')
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
+            [void]$DenyRemoteInteractiveLogon.Add($SG_Tier0ServiceAccount)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
+            [void]$DenyRemoteInteractiveLogon.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
+            [void]$DenyRemoteInteractiveLogon.Add($SG_Tier2ServiceAccount)
         }
-        $Splat = @{
-            GpoToModify                = 'C-Baseline'
-            DenyRemoteInteractiveLogon = $ArrayList.ToArray()
-        }
-        Set-GpoPrivilegeRight @Splat
 
         # Allow Logon as a Batch job
-        # not implemented
+        # $BatchLogon = [System.Collections.Generic.List[object]]::New()
 
         # Deny Logon as a Batch job / Deny Logon as a Service
-        $ArrayList.Clear()
-        [void]$ArrayList.Add('Schema Admins')
-        [void]$ArrayList.Add($EnterpriseAdmins)
-        [void]$ArrayList.Add($DomainAdmins)
-        [void]$ArrayList.Add($Administrators)
-        [void]$ArrayList.Add($AccountOperators)
-        [void]$ArrayList.Add('Backup Operators')
-        [void]$ArrayList.Add('Print Operators')
-        [void]$ArrayList.Add($ServerOperators)
-        [void]$ArrayList.Add('Domain Controllers')
-        [void]$ArrayList.Add('Read-Only Domain Controllers')
-        [void]$ArrayList.Add($GPOCreatorsOwner)
-        [void]$ArrayList.Add('Cryptographic Operators')
-        [void]$ArrayList.Add('Guests')
+        $DenyBatchLogon = [System.Collections.Generic.List[object]]::New()
+        [void]$DenyBatchLogon.Add('Schema Admins')
+        [void]$DenyBatchLogon.Add($EnterpriseAdmins)
+        [void]$DenyBatchLogon.Add($DomainAdmins)
+        [void]$DenyBatchLogon.Add($Administrators)
+        [void]$DenyBatchLogon.Add($AccountOperators)
+        [void]$DenyBatchLogon.Add('Backup Operators')
+        [void]$DenyBatchLogon.Add('Print Operators')
+        [void]$DenyBatchLogon.Add($ServerOperators)
+        [void]$DenyBatchLogon.Add('Domain Controllers')
+        [void]$DenyBatchLogon.Add('Read-Only Domain Controllers')
+        [void]$DenyBatchLogon.Add($GPOCreatorsOwner)
+        [void]$DenyBatchLogon.Add('Cryptographic Operators')
+        [void]$DenyBatchLogon.Add('Guests')
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins)
+            [void]$DenyBatchLogon.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_Tier1Admins) {
-            [void]$ArrayList.Add($SG_Tier1Admins)
+            [void]$DenyBatchLogon.Add($SG_Tier1Admins)
         }
         if ($null -ne $SG_Tier2Admins) {
-            [void]$ArrayList.Add($SG_Tier2Admins)
+            [void]$DenyBatchLogon.Add($SG_Tier2Admins)
         }
         if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName)
+            [void]$DenyBatchLogon.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists)
+            [void]$DenyBatchLogon.Add($NewAdminExists)
         }
-        $Splat = @{
-            GpoToModify      = 'C-Baseline'
-            DenyBatchLogon   = $ArrayList.ToArray()
-            DenyServiceLogon = $ArrayList.ToArray()
-        }
-        Set-GpoPrivilegeRight @Splat
 
         # Logon as a Service
-        $ArrayList.Clear()
-        [void]$ArrayList.Add('Network Service')
-        [void]$ArrayList.Add('All Services')
+        $ServiceLogon = [System.Collections.Generic.List[object]]::New()
+        [void]$ServiceLogon.Add('Network Service')
+        [void]$ServiceLogon.Add('All Services')
+
+        <#
+        # NOT Modified for this GPO
+
+        $InteractiveLogon = [System.Collections.Generic.List[object]]::New()
+        $RemoteInteractiveLogon = [System.Collections.Generic.List[object]]::New()
+        $DenyBatchLogon = [System.Collections.Generic.List[object]]::New()
+        $DenyServiceLogon = [System.Collections.Generic.List[object]]::New()
+        $MachineAccount = [System.Collections.Generic.List[object]]::New()
+        $IncreaseQuota = [System.Collections.Generic.List[object]]::New()
+        $Backup = [System.Collections.Generic.List[object]]::New()
+        $ChangeNotify = [System.Collections.Generic.List[object]]::New()
+        $SystemTime = [System.Collections.Generic.List[object]]::New()
+        $TimeZone = [System.Collections.Generic.List[object]]::New()
+        $CreatePagefile = [System.Collections.Generic.List[object]]::New()
+        $CreateGlobal = [System.Collections.Generic.List[object]]::New()
+        $CreateSymbolicLink = [System.Collections.Generic.List[object]]::New()
+        $EnableDelegation = [System.Collections.Generic.List[object]]::New()
+        $RemoteShutdown = [System.Collections.Generic.List[object]]::New()
+        $Audit = [System.Collections.Generic.List[object]]::New()
+        $Impersonate = [System.Collections.Generic.List[object]]::New()
+        $IncreaseWorkingSet = [System.Collections.Generic.List[object]]::New()
+        $IncreaseBasePriority = [System.Collections.Generic.List[object]]::New()
+        $LoadDriver = [System.Collections.Generic.List[object]]::New()
+        $AuditSecurity = [System.Collections.Generic.List[object]]::New()
+        $Relabel = [System.Collections.Generic.List[object]]::New()
+        $SystemEnvironment = [System.Collections.Generic.List[object]]::New()
+        $DelegateSessionUserImpersonate = [System.Collections.Generic.List[object]]::New()
+        $ManageVolume = [System.Collections.Generic.List[object]]::New()
+        $ProfileSingleProcess = [System.Collections.Generic.List[object]]::New()
+        $SystemProfile = [System.Collections.Generic.List[object]]::New()
+        $Undock = [System.Collections.Generic.List[object]]::New()
+        $AssignPrimaryToken = [System.Collections.Generic.List[object]]::New()
+        $Restore = [System.Collections.Generic.List[object]]::New()
+        $Shutdown = [System.Collections.Generic.List[object]]::New()
+        $SyncAgent = [System.Collections.Generic.List[object]]::New()
+        $TakeOwnership = [System.Collections.Generic.List[object]]::New()
+
+        #>
+        # Modify all rights in one shot
         $Splat = @{
-            GpoToModify  = 'C-Baseline'
-            ServiceLogon = $ArrayList.ToArray()
+            GpoToModify                = 'C-Baseline'
+            NetworkLogon               = $NetworkLogon
+            DenyNetworkLogon           = $DenyNetworkLogon
+            DenyInteractiveLogon       = $DenyInteractiveLogon
+            DenyRemoteInteractiveLogon = $DenyRemoteInteractiveLogon
+            DenyBatchLogon             = $DenyBatchLogon
+            ServiceLogon               = $ServiceLogon
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2377,116 +2395,89 @@
         #------------------------------------------------------------------------------
 
         # Access this computer from the network
-        $ArrayList.Clear()
-        [void]$ArrayList.Add($Administrators)
-        [void]$ArrayList.Add('Authenticated Users')
-        [void]$ArrayList.Add('Enterprise Domain Controllers')
-        $Splat = @{
-            GpoToModify  = 'C-DomainControllers-Baseline'
-            NetworkLogon = $ArrayList.ToArray()
-        }
-        Set-GpoPrivilegeRight @Splat
-
-        # Deny Access this computer from the network
-        # Not Defined
+        $NetworkLogon = [System.Collections.Generic.List[object]]::New()
+        [void]$NetworkLogon.Add($Administrators)
+        [void]$NetworkLogon.Add('Authenticated Users')
+        [void]$NetworkLogon.Add('Enterprise Domain Controllers')
 
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices
-        $ArrayList.Clear()
-        [void]$ArrayList.Add('Schema Admins')
-        [void]$ArrayList.Add('Enterprise Admins')
-        [void]$ArrayList.Add($DomainAdmins)
-        [void]$ArrayList.Add($Administrators)
+        $InteractiveLogon = [System.Collections.Generic.List[object]]::New()
+        [void]$InteractiveLogon.Add('Schema Admins')
+        [void]$InteractiveLogon.Add('Enterprise Admins')
+        [void]$InteractiveLogon.Add($DomainAdmins)
+        [void]$InteractiveLogon.Add($Administrators)
         if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName)
+            [void]$InteractiveLogon.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists)
+            [void]$InteractiveLogon.Add($NewAdminExists)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins)
+            [void]$InteractiveLogon.Add($SG_Tier0Admins)
         }
-        $Splat = @{
-            GpoToModify            = 'C-DomainControllers-Baseline'
-            InteractiveLogon       = $ArrayList.ToArray()
-            RemoteInteractiveLogon = $ArrayList.ToArray()
-        }
-        Set-GpoPrivilegeRight @Splat
+        $RemoteInteractiveLogon = [System.Collections.Generic.List[object]]::New()
+        $RemoteInteractiveLogon = $InteractiveLogon
+
 
         # Deny Logon Locally / Deny Logon throug RDP/TerminalServices
-        $ArrayList.Clear()
-        [void]$ArrayList.Add($AccountOperators)
-        [void]$ArrayList.Add('Backup Operators')
-        [void]$ArrayList.Add('Print Operators')
-        [void]$ArrayList.Add('Guests')
+        $DenyInteractiveLogon = [System.Collections.Generic.List[object]]::New()
+        [void]$DenyInteractiveLogon.Add($AccountOperators)
+        [void]$DenyInteractiveLogon.Add('Backup Operators')
+        [void]$DenyInteractiveLogon.Add('Print Operators')
+        [void]$DenyInteractiveLogon.Add('Guests')
         if ($null -ne $SG_Tier1Admins) {
-            [void]$ArrayList.Add($SG_Tier1Admins)
+            [void]$DenyInteractiveLogon.Add($SG_Tier1Admins)
         }
         if ($null -ne $SG_Tier2Admins) {
-            [void]$ArrayList.Add($SG_Tier2Admins)
+            [void]$DenyInteractiveLogon.Add($SG_Tier2Admins)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
+            [void]$DenyInteractiveLogon.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
+            [void]$DenyInteractiveLogon.Add($SG_Tier2ServiceAccount)
         }
-        $Splat = @{
-            GpoToModify                = 'C-DomainControllers-Baseline'
-            DenyInteractiveLogon       = $ArrayList.ToArray()
-            DenyRemoteInteractiveLogon = $ArrayList.ToArray()
-        }
-        Set-GpoPrivilegeRight @Splat
-
-        # Logon as a Batch job / Logon as a Service
-        $splat = @{
-            GpoToModify  = 'C-DomainControllers-Baseline'
-            BatchLogon   = $SG_Tier0ServiceAccount, 'Performance Log Users'
-            ServiceLogon = $SG_Tier0ServiceAccount, 'Network Service'
-        }
-        Set-GpoPrivilegeRight @splat
-
+        $DenyRemoteInteractiveLogon = [System.Collections.Generic.List[object]]::New()
+        $DenyRemoteInteractiveLogon = $DenyInteractiveLogon
 
 
         # Deny Logon as a Batch job / Deny Logon as a Service
-        $ArrayList.Clear()
-        [void]$ArrayList.Add('Schema Admins')
-        [void]$ArrayList.Add('Enterprise Admins')
-        [void]$ArrayList.Add($DomainAdmins)
-        [void]$ArrayList.Add($Administrators)
-        [void]$ArrayList.Add($AccountOperators)
-        [void]$ArrayList.Add('Backup Operators')
-        [void]$ArrayList.Add('Print Operators')
-        [void]$ArrayList.Add($ServerOperators)
-        [void]$ArrayList.Add($GPOCreatorsOwner)
-        [void]$ArrayList.Add('Cryptographic Operators')
-        [void]$ArrayList.Add('Guests')
+        $DenyBatchLogon = [System.Collections.Generic.List[object]]::New()
+        [void]$DenyBatchLogon.Add('Schema Admins')
+        [void]$DenyBatchLogon.Add('Enterprise Admins')
+        [void]$DenyBatchLogon.Add($DomainAdmins)
+        [void]$DenyBatchLogon.Add($Administrators)
+        [void]$DenyBatchLogon.Add($AccountOperators)
+        [void]$DenyBatchLogon.Add('Backup Operators')
+        [void]$DenyBatchLogon.Add('Print Operators')
+        [void]$DenyBatchLogon.Add($ServerOperators)
+        [void]$DenyBatchLogon.Add($GPOCreatorsOwner)
+        [void]$DenyBatchLogon.Add('Cryptographic Operators')
+        [void]$DenyBatchLogon.Add('Guests')
         if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName)
+            [void]$DenyBatchLogon.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists)
+            [void]$DenyBatchLogon.Add($NewAdminExists)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins)
+            [void]$DenyBatchLogon.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_Tier1Admins) {
-            [void]$ArrayList.Add($SG_Tier1Admins)
+            [void]$DenyBatchLogon.Add($SG_Tier1Admins)
         }
         if ($null -ne $SG_Tier2Admins) {
-            [void]$ArrayList.Add($SG_Tier2Admins)
+            [void]$DenyBatchLogon.Add($SG_Tier2Admins)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
+            [void]$DenyBatchLogon.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
+            [void]$DenyBatchLogon.Add($SG_Tier2ServiceAccount)
         }
-        $Splat = @{
-            GpoToModify      = 'C-DomainControllers-Baseline'
-            DenyBatchLogon   = $ArrayList.ToArray()
-            DenyServiceLogon = $ArrayList.ToArray()
-        }
-        Set-GpoPrivilegeRight @Splat
+        $DenyServiceLogon = [System.Collections.Generic.List[object]]::New()
+        $DenyServiceLogon = $DenyBatchLogon
+
 
         # Back up files and directories / Bypass traverse checking / Create Global Objects / Create symbolic links
         # Change System Time / Change Time Zone / Force shutdown from a remote system
@@ -2496,129 +2487,120 @@
         # Modify firmware environment values / Perform volume maintenance tasks
         # Profile single process / Profile system performance / Restore files and directories
         # Shut down the system / Take ownership of files or other objects
-        $ArrayList.Clear()
-        [void]$ArrayList.Add($Administrators)
+        $Backup = [System.Collections.Generic.List[object]]::New()
+        [void]$Backup.Add($Administrators)
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins)
+            [void]$Backup.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_AdAdmins) {
-            [void]$ArrayList.Add($SG_AdAdmins)
+            [void]$Backup.Add($SG_AdAdmins)
         }
+
+        <#
+        # Not modified for this GPO
+
+            $DenyNetworkLogon = [System.Collections.Generic.List[object]]::New()
+            $MachineAccount = [System.Collections.Generic.List[object]]::New()
+            $IncreaseQuota = [System.Collections.Generic.List[object]]::New()
+            $CreateGlobal = [System.Collections.Generic.List[object]]::New()
+            $Audit = [System.Collections.Generic.List[object]]::New()
+            $IncreaseWorkingSet = [System.Collections.Generic.List[object]]::New()
+            $Relabel = [System.Collections.Generic.List[object]]::New()
+            $DelegateSessionUserImpersonate = [System.Collections.Generic.List[object]]::New()
+            $Undock = [System.Collections.Generic.List[object]]::New()
+            $SyncAgent = [System.Collections.Generic.List[object]]::New()
+        #>
+
+        # Modify all rights in one shot
         $Splat = @{
-            GpoToModify          = 'C-DomainControllers-Baseline'
-            Backup               = $ArrayList.ToArray()
-            ChangeNotify         = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE'
-            CreateGlobal         = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE'
-            Systemtime           = $ArrayList.ToArray(), 'LOCAL SERVICE'
-            TimeZone             = $ArrayList.ToArray()
-            CreatePagefile       = $ArrayList.ToArray()
-            CreateSymbolicLink   = $ArrayList.ToArray()
-            EnableDelegation     = $ArrayList.ToArray()
-            RemoteShutDown       = $ArrayList.ToArray()
-            Impersonate          = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
-            IncreaseBasePriority = $ArrayList.ToArray()
-            LoadDriver           = $ArrayList.ToArray()
-            AuditSecurity        = $ArrayList.ToArray()
-            SystemEnvironment    = $ArrayList.ToArray()
-            ManageVolume         = $ArrayList.ToArray()
-            ProfileSingleProcess = $ArrayList.ToArray()
-            SystemProfile        = $ArrayList.ToArray()
-            Restore              = $ArrayList.ToArray()
-            Shutdown             = $ArrayList.ToArray()
-            TakeOwnership        = $ArrayList.ToArray()
+            GpoToModify                = 'C-DomainControllers-Baseline'
+            NetworkLogon               = $NetworkLogon
+            InteractiveLogon           = $InteractiveLogon
+            RemoteInteractiveLogon     = $RemoteInteractiveLogon
+            DenyRemoteInteractiveLogon = $DenyRemoteInteractiveLogon
+            DenyInteractiveLogon       = $DenyInteractiveLogon
+            BatchLogon                 = $SG_Tier0ServiceAccount, 'Performance Log Users'
+            ServiceLogon               = $SG_Tier0ServiceAccount, 'Network Service'
+            DenyServiceLogon           = $DenyServiceLogon
+            DenyBatchLogon             = $DenyBatchLogon
+            Backup                     = $Backup
+            ChangeNotify               = $Backup, 'LOCAL SERVICE', 'NETWORK SERVICE'
+            CreateGlobal               = $Backup, 'LOCAL SERVICE', 'NETWORK SERVICE'
+            Systemtime                 = $Backup, 'LOCAL SERVICE'
+            TimeZone                   = $Backup
+            CreatePagefile             = $Backup
+            CreateSymbolicLink         = $Backup
+            EnableDelegation           = $Backup
+            RemoteShutDown             = $Backup
+            Impersonate                = $Backup, 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
+            IncreaseBasePriority       = $Backup
+            LoadDriver                 = $Backup
+            AuditSecurity              = $Backup
+            SystemEnvironment          = $Backup
+            ManageVolume               = $Backup
+            ProfileSingleProcess       = $Backup
+            SystemProfile              = $Backup
+            AssignPrimaryToken         = 'LOCAL SERVICE', 'NETWORK SERVICE'
+            Restore                    = $Backup
+            Shutdown                   = $Backup
+            TakeOwnership              = $Backup
         }
         Set-GpoPrivilegeRight @Splat
-
-        # Generate security audits / Replace a process level token
-        $Splat = @{
-            GpoToModify        = 'C-DomainControllers-Baseline'
-            ChangeNotify       = 'LOCAL SERVICE', 'NETWORK SERVICE'
-            AssignPrimaryToken = 'LOCAL SERVICE', 'NETWORK SERVICE'
-        }
-        Set-GpoPrivilegeRight @Splat
-
-
-
 
 
         # Admin Area
         #------------------------------------------------------------------------------
 
-        # Access this computer from the network
-        # Not Defined
-
-        # Deny Access this computer from the network
-        # Not Defined
-
-        # Allow Logon Locally / Allow Logon throug RDP/TerminalServices
-        # Not Defined
-
-        # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
-        # Not Defined
-
         # Logon as a Batch job / Logon as a Service
-        $ArrayList.Clear()
-        [void]$ArrayList.Add('Network Service')
-        [void]$ArrayList.Add('All Services')
+        $BatchLogon = [System.Collections.Generic.List[object]]::New()
+
+        [void]$BatchLogon.Add('Network Service')
+        [void]$BatchLogon.Add('All Services')
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
+            [void]$BatchLogon.Add($SG_Tier0ServiceAccount)
         }
-        $Splat = @{
-            GpoToModify  = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
-            BatchLogon   = $ArrayList.ToArray()
-            ServiceLogon = $ArrayList.ToArray()
-        }
-        Set-GpoPrivilegeRight @Splat
+        $ServiceLogon = [System.Collections.Generic.List[object]]::New()
+        $ServiceLogon = $BatchLogon
 
         # Deny Logon as a Batch job / Deny Logon as a Service
-        $ArrayList.Clear()
-        [void]$ArrayList.Add('Schema Admins')
-        [void]$ArrayList.Add('Enterprise Admins')
-        [void]$ArrayList.Add($DomainAdmins)
-        [void]$ArrayList.Add($Administrators)
-        [void]$ArrayList.Add($AccountOperators)
-        [void]$ArrayList.Add('Backup Operators')
-        [void]$ArrayList.Add('Print Operators')
-        [void]$ArrayList.Add($ServerOperators)
-        [void]$ArrayList.Add('Read-Only Domain Controllers')
-        [void]$ArrayList.Add($GPOCreatorsOwner)
-        [void]$ArrayList.Add('Cryptographic Operators')
-        [void]$ArrayList.Add('Guests')
+        $DenyBatchLogon = [System.Collections.Generic.List[object]]::New()
+        [void]$DenyBatchLogon.Add('Schema Admins')
+        [void]$DenyBatchLogon.Add('Enterprise Admins')
+        [void]$DenyBatchLogon.Add($DomainAdmins)
+        [void]$DenyBatchLogon.Add($Administrators)
+        [void]$DenyBatchLogon.Add($AccountOperators)
+        [void]$DenyBatchLogon.Add('Backup Operators')
+        [void]$DenyBatchLogon.Add('Print Operators')
+        [void]$DenyBatchLogon.Add($ServerOperators)
+        [void]$DenyBatchLogon.Add('Read-Only Domain Controllers')
+        [void]$DenyBatchLogon.Add($GPOCreatorsOwner)
+        [void]$DenyBatchLogon.Add('Cryptographic Operators')
+        [void]$DenyBatchLogon.Add('Guests')
         if ($null -ne $AdminName) {
-            [void]$ArrayList.Add($AdminName)
+            [void]$DenyBatchLogon.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
-            [void]$ArrayList.Add($NewAdminExists)
+            [void]$DenyBatchLogon.Add($NewAdminExists)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins)
+            [void]$DenyBatchLogon.Add($SG_Tier0Admins)
         }
         if ($null -ne $SG_Tier1Admins) {
-            [void]$ArrayList.Add($SG_Tier1Admins)
+            [void]$DenyBatchLogon.Add($SG_Tier1Admins)
         }
         if ($null -ne $SG_Tier2Admins) {
-            [void]$ArrayList.Add($SG_Tier2Admins)
+            [void]$DenyBatchLogon.Add($SG_Tier2Admins)
         }
         if ($null -ne $SG_Tier1ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier1ServiceAccount)
+            [void]$DenyBatchLogon.Add($SG_Tier1ServiceAccount)
         }
         if ($null -ne $SG_Tier2ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier2ServiceAccount)
+            [void]$DenyBatchLogon.Add($SG_Tier2ServiceAccount)
         }
-        $Splat = @{
-            GpoToModify      = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
-            DenyBatchLogon   = $ArrayList.ToArray()
-            DenyServiceLogon = $ArrayList.ToArray()
-        }
-        Set-GpoPrivilegeRight @Splat
+        $DenyServiceLogon = [System.Collections.Generic.List[object]]::New()
+        $DenyServiceLogon = $DenyBatchLogon
 
-        # Add workstations to domain / Backup files and directories / Create symbolic links
-        # Change System Time / Change Time Zone / Force shutdown from a remote system
-        # Create Page File / Load and unload device drivers
-        # Increase scheduling priority / Manage auditing and security log
-        # Modify firmware environment values / Perform volume maintenance tasks
-        # Profile single process / Profile system performance / Restore files and directories
-        # Shut down the system / Take ownership of files or other objects
+
         $ArrayList.Clear()
         [void]$ArrayList.Add($Administrators)
         if ($null -ne $SG_Tier0Admins) {
@@ -2627,15 +2609,21 @@
         if ($null -ne $SG_AdAdmins) {
             [void]$ArrayList.Add($SG_AdAdmins)
         }
+
+
         $Splat = @{
             GpoToModify          = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
+            BatchLogon           = $BatchLogon
+            ServiceLogon         = $ServiceLogon
+            DenyBatchLogon       = $DenyBatchLogon
+            DenyServiceLogon     = $DenyServiceLogon
             MachineAccount       = $ArrayList.ToArray()
             Backup               = $ArrayList.ToArray()
-            Systemtime           = $ArrayList.ToArray(), 'LOCAL SERVICE'
+            SystemTime           = $ArrayList.ToArray(), 'LOCAL SERVICE'
             TimeZone             = $ArrayList.ToArray()
             CreatePagefile       = $ArrayList.ToArray()
             CreateSymbolicLink   = $ArrayList.ToArray()
-            RemoteShutDown       = $ArrayList.ToArray()
+            RemoteShutdown       = $ArrayList.ToArray()
             IncreaseBasePriority = $ArrayList.ToArray()
             LoadDriver           = $ArrayList.ToArray()
             AuditSecurity        = $ArrayList.ToArray()
