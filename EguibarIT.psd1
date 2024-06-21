@@ -27,7 +27,7 @@
     CompanyName          = 'EguibarIT'
 
     # Copyright statement for this module
-    Copyright            = 'All rights reserved (c) 2022 - EguibarIT.'
+    Copyright            = 'All rights reserved (c) 2024 - EguibarIT.'
 
     # Description of the functionality provided by this module
     Description          = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory.'

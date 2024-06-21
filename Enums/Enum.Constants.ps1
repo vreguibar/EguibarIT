@@ -14,9 +14,6 @@
     SidRegEx  = [RegEx]::new('^S-1-(0|1|2|3|4|5|16|59)-\d+(-\d+)*$')
 
     # Regular Expression (RegEx) for DistinguishedName
-    #DnRegEx   = [RegEx]::new('^(?:(?<cn>CN=(?<name>(?:[^,]+|\,)+)),)?(?:(?<ou>OU=(?:[^,]+|\,)+,?)*)(?<dc>DC=(?:[^,]+|\,)+)(?:,DC=(?:[^,]+|\,)+)*$')
-    #DnRegEx   = [RegEx]::new('^(CN|OU|DC|O|L|ST|C|UID)=[^,=+<>#;"]+(,(CN|OU|DC|O|L|ST|C|UID)=[^,=+<>#;"]+)*$')
-    #DnRegEx   = [RegEx]::new('^(?:[A-Za-z]{2}=[^,\\+<>#;]+(?:\\,[^,\\+<>#;]+)*,?)+$')
     DnRegEx   = [RegEx]::new('^(?:(CN=(?<name>(?:[^,\\]|\\.)+),)*)?(OU=(?<ou>(?:[^,\\]|\\.)+),)*(DC=(?<dc>(?:[^,\\]|\\.)+))(,DC=(?<dc>(?:[^,\\]|\\.)+))+?$')
 
     # Regular Expression (RegEx) for GUID
@@ -32,7 +29,6 @@
         $ asserts the end of the string.
     #>
     GuidRegEx = [RegEx]::new('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
-
 }
 
 $Splat = @{
