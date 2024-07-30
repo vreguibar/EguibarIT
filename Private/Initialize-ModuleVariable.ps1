@@ -44,30 +44,33 @@
 
     Process {
 
-        # Active Directory DistinguishedName
-        $Variables.AdDN = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
+        try {
+            # Active Directory DistinguishedName
+            $Variables.AdDN = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
 
-        # Configuration Naming Context
-        $Variables.configurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
+            # Configuration Naming Context
+            $Variables.configurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
 
-        # Active Directory DistinguishedName
-        $Variables.defaultNamingContext = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
+            # Active Directory DistinguishedName
+            $Variables.defaultNamingContext = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
 
-        # Get current DNS domain name
-        $Variables.DnsFqdn = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().Name
+            # Get current DNS domain name
+            $Variables.DnsFqdn = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().Name
 
-        # Naming Contexts
-        $Variables.namingContexts = ([ADSI]'LDAP://RootDSE').namingContexts
+            # Naming Contexts
+            $Variables.namingContexts = ([ADSI]'LDAP://RootDSE').namingContexts
 
-        # Partitions Container
-        $Variables.PartitionsContainer = (([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString())
+            # Partitions Container
+            $Variables.PartitionsContainer = (([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString())
 
-        # Root Domain Naming Context
-        $Variables.rootDomainNamingContext = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
+            # Root Domain Naming Context
+            $Variables.rootDomainNamingContext = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
 
-        # Schema Naming Context
-        $Variables.SchemaNamingContext = ([ADSI]'LDAP://RootDSE').SchemaNamingContext.ToString()
-
+            # Schema Naming Context
+            $Variables.SchemaNamingContext = ([ADSI]'LDAP://RootDSE').SchemaNamingContext.ToString()
+        } Catch {
+            Write-Error -Message 'Something went wrong while trying to fill $Variables!'
+        }
         # Well-Known SIDs
         #. "$PSScriptRoot\Enum.WellKnownSids.ps1"
         #Get-AdWellKnownSID -SID 'S-1-5-18' | Out-Null  # Just to ensure it's loaded and callable
@@ -102,7 +105,6 @@
             $Variables.GuidMap = $TmpMap
         } catch {
             Write-Error -Message 'Something went wrong while trying to fill $Variables.GuidMap!'
-            Throw
         }
 
         # Hashtable containing the mappings between SchemaExtendedRights and GUID's
@@ -133,7 +135,6 @@
             $Variables.ExtendedRightsMap = $TmpMap
         } Catch {
             Write-Error -Message 'Something went wrong while trying to fill $Variables.ExtendedRightsMap!'
-            Throw
         }
 
 

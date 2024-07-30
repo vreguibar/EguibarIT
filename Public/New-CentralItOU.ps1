@@ -380,11 +380,17 @@
             # Administrator
             $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
             # Administrators
-            $Administrators = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-32-544' }
+            $Administrators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-544' }
             # Domain Admins
             $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
             # Enterprise Admins
             $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+            # Schema Admins
+            $SchemaAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-518' }
+            # DomainControllers
+            $DomainControllers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-516' }
+            # RODC
+            $RODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-521' }
             # Group Policy Creators Owner
             $GPOCreatorsOwner = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
             # Denied RODC Password Replication Group
@@ -708,6 +714,7 @@
         ###############################################################################
         #region  Move Built-In Admin user & Groups (Builtin OU groups can't be moved)
 
+        Write-Verbose -Message $Constants.NewRegionMessage
         Write-Verbose -Message 'Moving objects...'
 
         # Move, and if needed, rename the Admin account
@@ -724,10 +731,10 @@
 
         $DomainAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         $EnterpriseAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
-        Get-ADGroup -Identity 'Schema Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
-        Get-ADGroup -Identity 'Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity $SchemaAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity $DomainControllers | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity $GPOCreatorsOwner | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
-        Get-ADGroup -Identity 'Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity $RODC | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Enterprise Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
 
         Get-ADGroup -Identity 'DnsUpdateProxy' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $CurrentDC
@@ -790,6 +797,7 @@
         ###############################################################################
         #region Creating Secured Admin accounts
 
+        Write-Verbose -Message $Constants.NewRegionMessage
         Write-Verbose -Message 'Creating and securing Admin accounts...'
 
         #try {
@@ -894,6 +902,9 @@
             # 'msDS-SupportedEncryptionTypes'= Kerberos DES Encryption = 2, Kerberos AES 128 = 8, Kerberos AES 256 = 16
         } #end else-if new user created
         #$newAdminName = Get-ADUser -Identity $confXML.n.Admin.users.NEWAdmin.name
+        # Move AD object
+        Get-ADUser -Identity $newAdminName | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
+        #refresh object
         $NewAdminExists = Get-ADUser -Identity $newAdminName
 
         # Set the Protect against accidental deletions attribute
@@ -953,6 +964,9 @@
 
         ###############################################################################
         #region Create Admin groups
+
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Creating groups...'
 
         # Iterate through all Admin-LocalGroups child nodes
         Foreach ($Node in $confXML.n.Admin.LG.ChildNodes) {
@@ -1138,6 +1152,9 @@
         ###############################################################################
         #region Create Group Managed Service Account
 
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Create Group Managed Service Account'
+
         # Get the current OS build
         # Create the KDS Root Key (only once per domain).  This is used by the KDS service
         # on DCs (along with other information) to generate passwords
@@ -1220,6 +1237,9 @@
 
         ###############################################################################
         #region Create a New Fine Grained Password Policy for Admins Accounts
+
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Create a New Fine Grained Password Policy for Admins Accounts...'
 
         $PSOexists = $null
 
@@ -1381,6 +1401,9 @@
         ###############################################################################
         #region Create a New Fine Grained Password Policy for Service Accounts
 
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Create a New Fine Grained Password Policy for Service Accounts...'
+
         $PSOexists = $null
 
 
@@ -1437,6 +1460,7 @@
         #region Nest Groups - Security for RODC
         # Avoid having privileged or semi-privileged groups copy to RODC
 
+        Write-Verbose -Message $Constants.NewRegionMessage
         Write-Verbose -Message 'Nesting groups...'
 
         $ArrayList.Clear()
@@ -1563,6 +1587,9 @@
         ###############################################################################
         #region Enabling Management Accounts to Modify the Membership of Protected Groups
 
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Enabling Management Accounts to Modify the Membership of Protected Groups...'
+
         # Enable PUM to manage Privileged Accounts (Reset PWD, enable/disable Administrator built-in account)
         Set-AdAclMngPrivilegedAccount -Group $SL_PUM
 
@@ -1578,6 +1605,8 @@
         # http://blogs.technet.com/b/lrobins/archive/2011/06/23/quot-admin-free-quot-active-directory-and-windows-part-1-understanding-privileged-groups-in-ad.aspx
         # http://blogs.msmvps.com/acefekay/2012/01/06/using-group-nesting-strategy-ad-best-practices-for-group-strategy/
 
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Nest Groups - Delegate Rights through Builtin groups...'
 
         Add-AdGroupNesting -Identity $CryptoOperators -Members $SG_AdAdmins
 
@@ -1605,7 +1634,8 @@
                 Name          = 'WinRMRemoteWMIUsers__'
                 Path          = $ItRightsOuDn
             }
-            $RemoteWMI = New-ADGroup @Splat
+            New-ADGroup @Splat
+            $RemoteWMI = Get-AdGroup 'WinRMRemoteWMIUsers__'
         }
         Add-AdGroupNesting -Identity $RemoteWMI -Members $SG_AdAdmins, $SG_Tier0Admins
 
@@ -1668,6 +1698,9 @@
         ###############################################################################
         #region Nest Groups - Extend Rights through delegation model groups
         # http://blogs.msmvps.com/acefekay/2012/01/06/using-group-nesting-strategy-ad-best-practices-for-group-strategy/
+
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Nest Groups - Extend Rights through delegation model groups...'
 
         # InfraAdmins as member of InfraRight
         $Splat = @{
@@ -1854,6 +1887,9 @@
         ###############################################################################
         #region redirect Users & Computers containers
 
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'redirect Users & Computers containers...'
+
         $Splat = @{
             ouName                   = $ItQuarantinePcOu
             ouPath                   = $Variables.AdDn
@@ -1930,7 +1966,8 @@
         ###############################################################################
         #region Delegation to ADMIN area (Tier 0)
 
-        Write-Verbose -Message 'Delegate Admin Area...'
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Delegate Admin Area (Tier 0)...'
 
         # Computer objects within this ares MUST have read access, otherwise GPO will not apply
 
@@ -2097,7 +2134,7 @@
         # Create/Delete Site-Link
         Set-AdAclCreateDeleteSiteLink -Group $SL_InfraRight
         # Transfer FSMO roles
-        Set-AdAclFSMOtransfer -Group $SL_TransferFSMOright -FSMOroles 'Schema', 'Infrastructure', 'DomainNaming', 'RID', 'PDC'
+        Set-AdAclFMSOtransfer -Group $SL_TransferFSMOright -FSMOroles 'Schema', 'Infrastructure', 'DomainNaming', 'RID', 'PDC'
 
 
 
@@ -2123,6 +2160,7 @@
         ###############################################################################
         #region Create Baseline GPO
 
+        Write-Verbose -Message $Constants.NewRegionMessage
         Write-Verbose -Message 'Creating Baseline GPOs and configure them accordingly...'
 
         # Domain
@@ -2242,6 +2280,9 @@
 
         ###############################################################################
         # Configure GPO Restrictions based on Tier Model
+
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Configure GPO Restrictions based on Tier Model...'
 
         # Domain
         #------------------------------------------------------------------------------
@@ -2915,7 +2956,8 @@
         ###############################################################################
         #region SERVERS OU (area)
 
-        Write-Verbose -Message 'Creating Servers Area...'
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Creating Servers Area (Tier 1)...'
 
         ###############################################################################
         # Create Servers and Sub OUs
@@ -3141,7 +3183,8 @@
         ###############################################################################
         #region Create Sites OUs (Area)
 
-        Write-Verbose -Message 'Creating Sites Area...'
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Creating Sites Area (Tier 2)...'
 
         New-DelegateAdOU -ouName $SitesOu -ouPath $Variables.AdDn -ouDescription $confXML.n.Sites.OUs.SitesOU.Description
 
@@ -3310,6 +3353,7 @@
         # Check if Exchange objects have to be created. Process if TRUE
         if ($CreateExchange) {
 
+            Write-Verbose -Message $Constants.NewRegionMessage
             Write-Verbose -Message 'Creating Exchange On-Prem objects and delegations'
 
             # Get the Config.xml file
@@ -3325,6 +3369,7 @@
         # Check if DFS objects have to be created. Process if TRUE
         if ($CreateDfs) {
 
+            Write-Verbose -Message $Constants.NewRegionMessage
             Write-Verbose -Message 'Creating DFS objects and delegations'
             # Get the Config.xml file
             $param = @{
@@ -3338,6 +3383,7 @@
         # Check if Certificate Authority (PKI) objects have to be created. Process if TRUE
         if ($CreateCa) {
 
+            Write-Verbose -Message $Constants.NewRegionMessage
             Write-Verbose -Message 'Creating CA Services, objects and delegations'
 
             New-CaObject -ConfigXMLFile $ConfXML
@@ -3347,6 +3393,7 @@
         # Check if Advanced Group Policy Management (AGPM) objects have to be created. Process if TRUE
         if ($CreateAGPM) {
 
+            Write-Verbose -Message $Constants.NewRegionMessage
             Write-Verbose -Message 'Creating AGPM objects and delegations'
 
             New-AGPMObject -ConfigXMLFile $ConfXML
@@ -3356,6 +3403,7 @@
         # Check if MS Local Administrator Password Service (LAPS) is to be used. Process if TRUE
         if ($CreateLAPS) {
 
+            Write-Verbose -Message $Constants.NewRegionMessage
             Write-Verbose -Message 'Creating LAPS objects and delegations'
             #To-Do
             #New-LAPSobjects -PawOuDn $ItPawOuDn -ServersOuDn $ServersOuDn -SitesOuDn $SitesOuDn
@@ -3366,6 +3414,7 @@
         # Check if DHCP is to be used. Process if TRUE
         if ($CreateDHCP) {
 
+            Write-Verbose -Message $Constants.NewRegionMessage
             Write-Verbose -Message 'Creating DHCP objects and delegations'
 
             #
