@@ -564,7 +564,9 @@
     Process {
         ###############################################################################
         # Create IT Admin and Sub OUs
+        Write-Verbose -Message $Constants.NewRegionMessage
         Write-Verbose -Message 'Create Admin Area and related structure...'
+
         $Splat = @{
             ouName        = $ItAdminOu
             ouPath        = $Variables.AdDn
@@ -621,6 +623,9 @@
 
         ###############################################################################
         #region Create Sub-OUs for admin
+
+        Write-Verbose -Message $Constants.NewRegionMessage
+        Write-Verbose -Message 'Create Sub-OUs for Admin(Tier0)...'
 
         $Splat = @{
             ouPath   = $ItAdminOuDn
@@ -715,7 +720,7 @@
         #region  Move Built-In Admin user & Groups (Builtin OU groups can't be moved)
 
         Write-Verbose -Message $Constants.NewRegionMessage
-        Write-Verbose -Message 'Moving objects...'
+        Write-Verbose -Message 'Moving objects to Admin (Tier 0)...'
 
         # Move, and if needed, rename the Admin account
         If ($AdminName -ne $confXML.n.Admin.users.Admin.Name) {
@@ -966,7 +971,7 @@
         #region Create Admin groups
 
         Write-Verbose -Message $Constants.NewRegionMessage
-        Write-Verbose -Message 'Creating groups...'
+        Write-Verbose -Message 'Creating Admin groups...'
 
         # Iterate through all Admin-LocalGroups child nodes
         Foreach ($Node in $confXML.n.Admin.LG.ChildNodes) {
