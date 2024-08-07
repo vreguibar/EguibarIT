@@ -74,14 +74,19 @@ function Set-AdAclLaps {
     )
 
     begin {
-        Write-Verbose -Message '|=> ************************************************************************ <=|'
-        Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        $txt = ($constants.Header -f
+            (Get-Date).ToShortDateString(),
+            $MyInvocation.Mycommand,
+            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+        )
+        Write-Verbose -Message $txt
 
-        Import-MyModule -name 'AdmPwd.PS' -Force -Verbose:$false
-        Import-MyModule -name 'LAPS' -Force -Verbose:$false
-        Import-MyModule -name 'EguibarIT.DelegationPS' -Force -Verbose:$false
+        ##############################
+        # Module imports
+
+        Import-Module -Name 'AdmPwd.PS' -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-Module -Name 'LAPS' -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-Module -Name 'EguibarIT.DelegationPS' -SkipEditionCheck -Force -Verbose:$false | Out-Null
 
         ##############################
         # Variables Definition

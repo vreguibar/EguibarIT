@@ -1,5 +1,4 @@
-function Get-IniContent
-{
+function Get-IniContent {
   <#
       .Synopsis
       Gets the content of an INI file
@@ -54,15 +53,17 @@ function Get-IniContent
   [OutputType([System.Collections.Hashtable])]
   Param(
     [ValidateNotNullOrEmpty()]
-    [Parameter(ValueFromPipeline = $true,HelpMessage = 'Path and Filename to the ini file to be read',Mandatory = $true)]
+    [Parameter(ValueFromPipeline = $true, HelpMessage = 'Path and Filename to the ini file to be read', Mandatory = $true)]
     [string]$FilePath
   )
 
   Begin {
-    Write-Verbose -Message '|=> ************************************************************************ <=|'
-    Write-Verbose -Message (Get-Date).ToShortDateString()
-    Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-    Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
+    $txt = ($constants.Header -f
+            (Get-Date).ToShortDateString(),
+      $MyInvocation.Mycommand,
+            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+    )
+    Write-Verbose -Message $txt
 
     ##############################
     # Variables Definition
@@ -72,50 +73,45 @@ function Get-IniContent
     Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Processing file: $PSBoundParameters['FilePath']"
 
     Try {
-    $ini = @{}
-    switch -regex -file $PSBoundParameters['FilePath']     {
-      '^\[(.+)\]$' # Section
-      {
-        $section = $matches[1]
-        $ini[$section] = @{}
-        $CommentCount = 0
-      }
-      '^(;.*)$' # Comment
-      {
-        if (!($section))
-        {
-          $section = 'No-Section'
+      $ini = @{}
+      switch -regex -file $PSBoundParameters['FilePath'] {
+        '^\[(.+)\]$' { # Section
+          $section = $matches[1]
           $ini[$section] = @{}
+          $CommentCount = 0
         }
-        $value = $matches[1]
-        $CommentCount = $CommentCount + 1
-        $name = 'Comment' + $CommentCount
-        $ini[$section][$name] = $value
-      }
-      '(.+?)\s*=\s*(.*)' # Key
-      {
-        if (!($section))
-        {
-          $section = 'No-Section'
-          $ini[$section] = @{}
+        '^(;.*)$' { # Comment
+          if (!($section)) {
+            $section = 'No-Section'
+            $ini[$section] = @{}
+          }
+          $value = $matches[1]
+          $CommentCount = $CommentCount + 1
+          $name = 'Comment' + $CommentCount
+          $ini[$section][$name] = $value
         }
-        $name, $value = $matches[1..2]
-        $ini[$section][$name] = $value
-      }
-    } #end Switch
-    } catch{
-        Write-Error -Message "An error occurred while processing the file: $_"
-        throw
+        '(.+?)\s*=\s*(.*)' { # Key
+          if (!($section)) {
+            $section = 'No-Section'
+            $ini[$section] = @{}
+          }
+          $name, $value = $matches[1..2]
+          $ini[$section][$name] = $value
+        }
+      } #end Switch
+    } catch {
+      Write-Error -Message "An error occurred while processing the file: $_"
+      throw
     } #end Try-Catch
     Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Finished Processing file: $PSBoundParameters['FilePath']"
 
   } # End Process
 
-    End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished reading content from $PSBoundParameters['FilePath'] file."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-        Return $ini
-    } #end End
+  End {
+    Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished reading content from $PSBoundParameters['FilePath'] file."
+    Write-Verbose -Message ''
+    Write-Verbose -Message '-------------------------------------------------------------------------------'
+    Write-Verbose -Message ''
+    Return $ini
+  } #end End
 }

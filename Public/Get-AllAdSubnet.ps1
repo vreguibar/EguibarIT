@@ -21,17 +21,22 @@ function Get-AllAdSubnet {
     Param ()
 
     Begin {
-        Write-Verbose -Message '|=> ************************************************************************ <=|'
-        Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        $txt = ($constants.Header -f
+            (Get-Date).ToShortDateString(),
+            $MyInvocation.Mycommand,
+            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+        )
+        Write-Verbose -Message $txt
+
+        ##############################
+        # Module imports
+
+        Import-Module -Name ServerManager -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-Module -Name ActiveDirectory -SkipEditionCheck -Force -Verbose:$false | Out-Null
 
         ##############################
         # Variables Definition
 
-
-        Import-Module -Name ServerManager -Verbose:$false
-        Import-MyModule -name ActiveDirectory -Verbose:$false
     }
     Process {
         #Get a reference to the RootDSE of the current domain

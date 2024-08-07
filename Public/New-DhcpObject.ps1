@@ -45,22 +45,21 @@
     Begin {
         $error.Clear()
 
-        Write-Verbose -Message '|=> ************************************************************************ <=|'
-        Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        $txt = ($constants.Header -f
+            (Get-Date).ToShortDateString(),
+            $MyInvocation.Mycommand,
+            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+        )
+        Write-Verbose -Message $txt
+
+        ##############################
+        # Module imports
+
+        Import-Module ActiveDirectory -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-Module EguibarIT.DelegationPS -SkipEditionCheck -Force -Verbose:$false | Out-Null
 
         ##############################
         # Variables Definition
-
-
-        ################################################################################
-        # Initializations
-        Import-MyModule ActiveDirectory -Verbose:$false
-        Import-MyModule EguibarIT.DelegationPS -Verbose:$false
-
-        ################################################################################
-        #region Declarations
 
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
@@ -73,7 +72,7 @@
             } #end if
         } catch {
             Write-Error -Message 'Error when reading XML file'
-            
+
             throw
         }
 

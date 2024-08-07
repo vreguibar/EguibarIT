@@ -20,13 +20,21 @@ Function Publish-CertificateTemplate {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
         #>
-    [CmdletBinding(SupportsShouldProcess=$true)]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     Param (
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$CertDisplayName
     )
 
     begin {
+        $txt = ($constants.Header -f
+            (Get-Date).ToShortDateString(),
+            $MyInvocation.Mycommand,
+            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+        )
+        Write-Verbose -Message $txt
+
+        ######################
         # Initialize variables
         $Server = (Get-ADDomainController -Discover -ForceDiscover -Writable).HostName[0]
         $ConfigNC = (Get-ADRootDSE -Server $Server).configurationNamingContext
@@ -41,7 +49,7 @@ Function Publish-CertificateTemplate {
 
             if ($PSCmdlet.ShouldProcess("Certificate Template: $TemplateToAdd", "Publish to CA: $CAIdentity")) {
                 try {
-                    Set-ADObject -Identity $CAIdentity -Add @{certificateTemplates=$TemplateToAdd} -Server $Server -ErrorAction Stop
+                    Set-ADObject -Identity $CAIdentity -Add @{certificateTemplates = $TemplateToAdd } -Server $Server -ErrorAction Stop
                     Write-Verbose "Certificate template '$TemplateToAdd' published to CA: $CAIdentity"
                 } catch {
                     Write-Error "Failed to publish certificate template to CA: $CAIdentity. $_"

@@ -21,22 +21,27 @@ function Get-AllAdSiteLink {
     Param ()
 
     Begin {
-        Write-Verbose -Message '|=> ************************************************************************ <=|'
-        Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        $txt = ($constants.Header -f
+            (Get-Date).ToShortDateString(),
+            $MyInvocation.Mycommand,
+            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+        )
+        Write-Verbose -Message $txt
+
+        ##############################
+        # Module imports
+
+        Import-Module -Name ServerManager -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-Module -Name ActiveDirectory -SkipEditionCheck -Force -Verbose:$false | Out-Null
 
         ##############################
         # Variables Definition
-
-
-        Import-Module -Name ServerManager -Verbose:$false
-        Import-MyModule -Name ActiveDirectory -Verbose:$false
 
         $ADSiteDN = 'CN=Sites,{0}' -f ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
         #$SubnetsDN     = 'CN=Subnets,{0}' -f $ADSiteDN
         #$ADSiteLinksDN = 'CN=IP,CN=Inter-Site Transports,{0}' -f $ADSiteDN
     }
+
     Process {
         Write-Verbose -Message "Get List of AD Site Links `r"
 
@@ -46,6 +51,7 @@ function Get-AllAdSiteLink {
 
         Write-Output -InputObject ("There are {0} AD Site Links in {1} `r" -f $ADSiteLinksCount, $env:USERDNSDOMAIN)
     }
+
     End {
 
         Return $ADSiteLinks

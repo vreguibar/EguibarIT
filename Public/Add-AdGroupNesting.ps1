@@ -42,15 +42,21 @@ function Add-AdGroupNesting {
     )
 
     Begin {
-        Write-Verbose -Message '|=> ************************************************************************ <=|'
-        Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        $txt = ($constants.Header -f
+            (Get-Date).ToShortDateString(),
+            $MyInvocation.Mycommand,
+            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+        )
+        Write-Verbose -Message $txt
+
+        ##############################
+        # Module imports
+
+        Import-Module -Name ActiveDirectory -SkipEditionCheck -Force -Verbose:$false | Out-Null
 
         ##############################
         # Variables Definition
 
-        Import-MyModule -name ActiveDirectory -Verbose:$false
 
         # Define array lists
         $CurrentMembers = [System.Collections.ArrayList]::new()

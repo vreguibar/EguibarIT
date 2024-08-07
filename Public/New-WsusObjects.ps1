@@ -21,18 +21,20 @@
 
     Begin {
 
-        Write-Verbose -Message '|=> ************************************************************************ <=|'
-        Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        $txt = ($constants.Header -f
+            (Get-Date).ToShortDateString(),
+            $MyInvocation.Mycommand,
+            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+        )
+        Write-Verbose -Message $txt
+
+        ##############################
+        # Module imports
+
+        Import-Module ActiveDirectory -SkipEditionCheck -Force -Verbose:$false | Out-Null
 
         ##############################
         # Variables Definition
-
-
-        ################################################################################
-        # Initializations
-        Import-MyModule ActiveDirectory -Verbose:$false
 
         #Get the OS Installation Type
         $OsInstalationType = Get-ItemProperty -Path 'HKLM:Software\Microsoft\Windows NT\CurrentVersion' | Select-Object -ExpandProperty InstallationType
@@ -119,8 +121,8 @@
 
 
 
-        # Cannot be imported in the bigin section due features installation
-        Import-MyModule -Name WebAdministration -Force -Verbose:$false
+        # Cannot be imported in the begin section due features installation
+        Import-Module -Name WebAdministration -SkipEditionCheck -Force -Verbose:$false | Out-Null
 
 
 
