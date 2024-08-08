@@ -16,8 +16,9 @@ function Get-AllAdSiteLink {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
         #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([array])]
+
     Param ()
 
     Begin {
@@ -37,10 +38,10 @@ function Get-AllAdSiteLink {
         ##############################
         # Variables Definition
 
-        $ADSiteDN = 'CN=Sites,{0}' -f ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
+        $ADSiteDN = 'CN=Sites,{0}' -f $Variables.configurationNamingContext
         #$SubnetsDN     = 'CN=Subnets,{0}' -f $ADSiteDN
         #$ADSiteLinksDN = 'CN=IP,CN=Inter-Site Transports,{0}' -f $ADSiteDN
-    }
+    } #end Begin
 
     Process {
         Write-Verbose -Message "Get List of AD Site Links `r"
@@ -50,14 +51,14 @@ function Get-AllAdSiteLink {
         $ADSiteLinksCount = $ADSiteLinks.Count
 
         Write-Output -InputObject ("There are {0} AD Site Links in {1} `r" -f $ADSiteLinksCount, $env:USERDNSDOMAIN)
-    }
+    } #end Process
 
     End {
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'getting SiteLinks.'
+        )
+        Write-Verbose -Message $txt
 
         Return $ADSiteLinks
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting SiteLinks."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+    } #end End
+} #end Function

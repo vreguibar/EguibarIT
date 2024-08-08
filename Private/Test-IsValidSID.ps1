@@ -41,6 +41,18 @@ function Test-IsValidSID {
     )
 
     Begin {
+        $txt = ($constants.Header -f
+            (Get-Date).ToShortDateString(),
+            $MyInvocation.Mycommand,
+            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+        )
+        Write-Verbose -Message $txt
+
+        ##############################
+        # Module imports
+
+        ##############################
+        # Variables Definition
 
         # Ensure only account is used (remove anything before \ if exist)
         $ObjectSID = ($PSBoundParameters['ObjectSID']).Split('\')[1]
@@ -72,7 +84,7 @@ function Test-IsValidSID {
 
                 # Provide verbose output
                 if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
-                    Write-Verbose -Message ('[WARNING] The SID {0} is NOT valid!.' -f $ObjectSID)
+                    Write-Warning -Message ('[WARNING] The SID {0} is NOT valid!.' -f $ObjectSID)
                 } #end If
                 $isValid = $false
             } #end If-Else
@@ -102,6 +114,11 @@ function Test-IsValidSID {
     } #end Process
 
     end {
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'testing SecurityIdentifier (SID).'
+        )
+        Write-Verbose -Message $txt
+
         return $isValid
     } #end End
 

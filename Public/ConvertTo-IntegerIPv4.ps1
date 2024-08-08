@@ -18,8 +18,9 @@ function ConvertTo-IntegerIPv4 {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([System.Net.IpAddress])]
+
     Param     (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
@@ -41,10 +42,9 @@ function ConvertTo-IntegerIPv4 {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
+
     } #end Begin
 
     Process {
@@ -62,9 +62,10 @@ function ConvertTo-IntegerIPv4 {
     } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'converting Integer to IPv4.'
+        )
+        Write-Verbose -Message $txt
     } #end End
+
 } #end Function

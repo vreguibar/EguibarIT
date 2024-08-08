@@ -139,11 +139,14 @@
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
-    [OutputType([String])]
-    Param
-    (
+    [OutputType([void])]
+
+    Param (
         # Param1 Site Name
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Name of the OU corresponding to the SITE root',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
@@ -151,20 +154,29 @@
         $ouName,
 
         # Param2 OU Description
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Description of the OU',
             Position = 1)]
         [string]
         $ouDescription,
 
         # Param3 OU City
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             Position = 2)]
         [string]
         $ouCity,
 
         # Param4 OU Country
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             Position = 3)]
         [ValidatePattern('[a-zA-Z]*')]
         [ValidateLength(2, 2)]
@@ -172,46 +184,67 @@
         $ouCountry,
 
         # Param5 OU Street Address
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             Position = 4)]
         [string]
         $ouStreetAddress,
 
         # Param6 OU State
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             Position = 5)]
         [string]
         $ouState,
 
         # Param7 OU Postal Code
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             Position = 6)]
         [string]
         $ouZIPCode,
 
         # Param8 Create Exchange Objects
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed Exchange objects and containers.',
             Position = 7)]
         [switch]
         $CreateExchange,
 
         # Param9 Create LAPS Objects
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed LAPS objects, containers and delegations.',
             Position = 8)]
         [switch]
         $CreateLAPS,
 
         # PARAM10 full path to the configuration.xml file
-        [Parameter(Mandatory = $false, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $True,
+            ValueFromPipelineByPropertyName = $True,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to theGPO backup files',
             Position = 9)]
         [string]
         $GpoBackupPath,
 
         # PARAM11 full path to the configuration.xml file
-        [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $True,
+            ValueFromPipelineByPropertyName = $True,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 10)]
         [string]
@@ -345,12 +378,10 @@
 
 
         # parameters variable for splatting the CMDlets
-        $splat = $null
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
+    } #end Begin
 
-        # END variables
-        #------------------------------------------------------------------------------
-    }
     Process {
         # Checking if the OU exist is done prior calling this function.
 
@@ -380,6 +411,8 @@
         Write-Verbose -Message 'Create SITE Sub-OU'
         ###############################################################################
         #region Create SITE Sub-OU
+
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Creating Site sub-OUs')
 
         # --- USER CLASS ---
         $splat = @{
@@ -432,15 +465,17 @@
 
 
 
-        Write-Verbose -Message ('Create requiered groups for the site {0}' -f $PSBoundParameters['ouName'])
+        Write-Verbose -Message ('Create required groups for the site {0}' -f $PSBoundParameters['ouName'])
 
         ###############################################################################
         #region Create the required Right's Local Domain groups
 
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Creating the required Rights Local Domain groups')
+
         # Iterate through all Site-LocalGroups child nodes
         Foreach ($node in $confXML.n.Sites.LG.ChildNodes) {
             Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']))
-            $parameters = @{
+            $Splat = @{
                 Name                          = '{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
                 GroupCategory                 = 'Security'
                 GroupScope                    = 'DomainLocal'
@@ -453,7 +488,7 @@
                 RemovePreWin2000              = $True
             }
 
-            New-Variable -Name "$('SL{0}{1}' -f $NC['Delim'], $node.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
+            New-Variable -Name "$('SL{0}{1}' -f $NC['Delim'], $node.LocalName)" -Value (New-AdDelegatedGroup @Splat) -Force
         }
 
         #endregion
@@ -462,11 +497,12 @@
         ###############################################################################
         #region Create the required Admin Global groups
 
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Creating the required Admin Global groups')
 
         # Iterate through all Site-GlobalGroups child nodes
         Foreach ($node in $confXML.n.Sites.GG.ChildNodes) {
             Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']))
-            $parameters = @{
+            $Splat = @{
                 Name                          = '{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
                 GroupCategory                 = 'Security'
                 GroupScope                    = 'Global'
@@ -478,7 +514,7 @@
                 RemoveEveryone                = $True
                 RemovePreWin2000              = $True
             }
-            New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $node.LocalName)" -Value (New-AdDelegatedGroup @parameters) -Force
+            New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $node.LocalName)" -Value (New-AdDelegatedGroup @Splat) -Force
         }
 
         #endregion
@@ -490,6 +526,8 @@
         Write-Verbose -Message 'Add group membership & nesting'
         ###############################################################################
         #region Add group membership & nesting
+
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Adding group membership & nesting')
 
         #region NESTING Global groups into Domain Local Groups -> order Less privileged to more privileged
 
@@ -541,6 +579,8 @@
         ###############################################################################
         #region Create basic GPO
 
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Creating basic GPO')
+
         # Create Desktop Baseline
         $splat = @{
             gpoDescription = '{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name
@@ -574,6 +614,8 @@
         Write-Verbose -Message 'Configure GPO'
         ###############################################################################
         #region Configure GPO
+
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Configuring GPO')
 
         # Configure Users
         If ($confXML.n.Sites.OUs.OuSiteUser.backupID) {
@@ -713,6 +755,8 @@
         ###############################################################################
         #region Delegate GPO
 
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Delegating GPO')
+
         # Give Rights to SG_SiteAdmin_XXXX to $ouName + -Desktop
         Write-Verbose -Message ('Add Local Admin to new {0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name)
         $splat = @{
@@ -810,13 +854,15 @@
 
                 # Local Server LAPS delegation
                 Set-AdAclLaps -ResetGroup $SL_LocalServerRight.SamAccountName -ReadGroup $SL_LocalServerRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLocalServer.Name, $ouNameDN)
-            }
-        }
-    }
+            } #end If
+        } #end If
+    } #end Process
+
     End {
-        Write-Verbose -Message ("Function $($MyInvocation.InvocationName) finished creating creating Site {0}" -f $PSBoundParameters['ouName'])
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating Site OU structure.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+
+} #end Function

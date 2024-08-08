@@ -37,16 +37,22 @@ function Set-AdAclDelegateGalAdmin {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param (
         # PARAM1 STRING for the Delegated Group Name
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
         $Group,
 
         # PARAM2 Distinguished Name of the OU where given group will manage a User GAL.
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Distinguished Name of the OU where given group will manage a User GAL.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
@@ -55,13 +61,16 @@ function Set-AdAclDelegateGalAdmin {
         $LDAPpath,
 
         # PARAM3 SWITCH If present, the access rule will be removed.
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'If present, the access rule will be removed.',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Switch]
         $RemoveRule
     )
+
     begin {
         $error.Clear()
 
@@ -90,6 +99,7 @@ function Set-AdAclDelegateGalAdmin {
         }
 
     } #end Begin
+
     Process {
         try {
             # Check if RemoveRule switch is present.
@@ -118,14 +128,16 @@ function Set-AdAclDelegateGalAdmin {
                 Set-AdAclUserEmailInfo @Splat
             } #end If
         } catch {
-            Write-Error -Message 'Error when cleaning OU'
+            Write-Error -Message 'Error when delegating GAL amin'
             throw
         }
     } #end Process
+
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating GAL Admin."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'delegating GAL Admin.'
+        )
+        Write-Verbose -Message $txt
     } #end End
+
 } #end Function

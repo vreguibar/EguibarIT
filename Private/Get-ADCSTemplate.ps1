@@ -25,7 +25,9 @@ Function Get-ADCSTemplate {
         .NOTES
             https://www.powershellgallery.com/packages/ADCSTemplate/1.0.1.0/Content/ADCSTemplate.psm1
     #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [OutputType([Microsoft.ActiveDirectory.Management.ADEntity])]
+
     param(
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $true,
@@ -43,6 +45,7 @@ Function Get-ADCSTemplate {
         [string]
         $Server
     )
+
     Begin {
         $txt = ($constants.Header -f
             (Get-Date).ToShortDateString(),
@@ -54,10 +57,10 @@ Function Get-ADCSTemplate {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
+
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         if (-not $Server) {
             $Server = (Get-ADDomainController -Discover -ForceDiscover -Writable).HostName[0]
@@ -69,24 +72,35 @@ Function Get-ADCSTemplate {
             $LDAPFilter = '(objectClass=pKICertificateTemplate)'
         } #end If
     } #end Begin
+
     Process {
-        $ConfigNC = $((Get-ADRootDSE -Server $Server).configurationNamingContext)
 
-        $TemplatePath = ('CN=Certificate Templates,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC)
+        $TemplatePath = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,{0}' -f $Variables.configurationNamingContext
 
-        $result = Get-ADObject -SearchScope Subtree -SearchBase $TemplatePath -LDAPFilter $LDAPFilter -Properties * -Server $Server
+        $Splat = @{
+            SearchScope = 'Subtree'
+            SearchBase  = $TemplatePath
+            LDAPFilter  = $LDAPFilter
+            Properties  = '*'
+            Server      = $Server
+        }
+        $result = Get-ADObject @Splat
 
         # Output verbose information
         foreach ($item in $result) {
             Write-Verbose -Message ('Template Name: {0}' -f $item.Name)
             Write-Verbose -Message ('Created: {0}, Modified: {1}' -f $item.Created, $item.Modified)
         } #end ForEach
+
     } #end Process
+
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'getting Cert Template.'
+        )
+        Write-Verbose -Message $txt
+
         return $result
     } #end End
+
 } #end Function

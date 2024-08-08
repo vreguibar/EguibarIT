@@ -16,8 +16,9 @@ function New-EitAdSite {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
-    [OutputType([string])]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param
     (
         # Param1 New Site name
@@ -56,11 +57,12 @@ function New-EitAdSite {
         $ADConfigurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
 
         # Get the Sites container
-        $ADSiteDN = "CN=Sites,$ADConfigurationNamingContext"
+        $ADSiteDN = 'CN=Sites,{0}' -f $variables.configurationNamingContext
 
         Write-Verbose -Message "Set necessary site variables `r "
         $NewADSiteDN = 'CN={0},{1}' -f $PSBoundParameters['NewSiteName'], $ADSiteDN
-    }
+    } #end Begin
+
     Process {
         If (Test-Path -Path AD:$NewADSiteDN) {
             Write-Warning -Message ('The site {0} already exist. Please review the name and try again' -f $PSBoundParameters['NewSiteName'])
@@ -97,11 +99,12 @@ function New-EitAdSite {
                 }
             }#end elseIf
         }#end elseIf
-    }
+    } #end Process
+
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating new AD Site."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating new AD Site.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+} #end Function

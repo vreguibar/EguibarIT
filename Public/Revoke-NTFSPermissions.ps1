@@ -19,10 +19,13 @@ function Revoke-NTFSPermissions {
     http://www.eguibarit.com
 #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param
     (
         # Param1 path to the resource|folder
-        [Parameter(Mandatory = $true, HelpMessage = 'Add help message for user',
+        [Parameter(Mandatory = $true,
+            HelpMessage = 'Add help message for user',
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
@@ -33,7 +36,8 @@ function Revoke-NTFSPermissions {
         $path,
 
         # Param2 object or SecurityPrincipal
-        [Parameter(Mandatory = $true, HelpMessage = 'Add help message for user',
+        [Parameter(Mandatory = $true,
+            HelpMessage = 'Add help message for user',
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
@@ -44,7 +48,8 @@ function Revoke-NTFSPermissions {
         $object,
 
         # Param3 permission
-        [Parameter(Mandatory = $true, HelpMessage = 'Add help message for user',
+        [Parameter(Mandatory = $true,
+            HelpMessage = 'Add help message for user',
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
@@ -54,6 +59,7 @@ function Revoke-NTFSPermissions {
         [string]
         $permission
     )
+
     Begin {
         $error.Clear()
 
@@ -67,33 +73,32 @@ function Revoke-NTFSPermissions {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
 
-    }
+        $FileSystemRights = [Security.AccessControl.FileSystemRights]$permission
+        $InheritanceFlag = [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
+        $PropagationFlag = [Security.AccessControl.PropagationFlags]'None'
+        $AccessControlType = [Security.AccessControl.AccessControlType]::Allow
+        $Account = New-Object -TypeName System.Security.Principal.NTAccount -ArgumentList ($object)
+        $FileSystemAccessRule = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList ($Account, $FileSystemRights, $InheritanceFlag, $PropagationFlag, $AccessControlType)
+        $DirectorySecurity = Get-Acl -Path $path
+    } #end Begin
 
     Process {
         Try {
-            $FileSystemRights = [Security.AccessControl.FileSystemRights]$permission
-            $InheritanceFlag = [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
-            $PropagationFlag = [Security.AccessControl.PropagationFlags]'None'
-            $AccessControlType = [Security.AccessControl.AccessControlType]::Allow
-            $Account = New-Object -TypeName System.Security.Principal.NTAccount -ArgumentList ($object)
-            $FileSystemAccessRule = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList ($Account, $FileSystemRights, $InheritanceFlag, $PropagationFlag, $AccessControlType)
-            $DirectorySecurity = Get-Acl -Path $path
             $DirectorySecurity.RemoveAccessRuleAll($FileSystemAccessRule)
             Set-Acl -Path $path -AclObject $DirectorySecurity
         } Catch {
             Write-Error -Message 'Error when revoking NTFS permissions'
             throw
-        }
-    }
+        } #end Try-Catch
+    } #end Process
+
     End {
-        Write-Verbose -Message ('The User/Group {0} was removed {1} from folder {2}.' -f $object, $permission, $path)
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'removing User/Group from folder.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+} #end Function

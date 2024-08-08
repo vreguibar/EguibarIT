@@ -29,6 +29,7 @@ function ConvertTo-WmiFilter {
             http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
 
     Param (
         [Microsoft.ActiveDirectory.Management.ADObject[]] $ADObject
@@ -102,9 +103,9 @@ function ConvertTo-WmiFilter {
     } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished converting the WMI filter."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'converting the WMI filter.'
+        )
+        Write-Verbose -Message $txt
     } #end Function
-}
+} #end Function

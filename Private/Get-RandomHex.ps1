@@ -28,7 +28,9 @@ Function Get-RandomHex {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $False)]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [OutputType([string])]
+
     param (
         [parameter(Mandatory = $true,
             HelpMessage = 'Specify the length of the hexadecimal string.')]
@@ -36,24 +38,50 @@ Function Get-RandomHex {
         [int]$Length
     )
 
-    try {
+    Begin {
+        $txt = ($constants.Header -f
+            (Get-Date).ToShortDateString(),
+            $MyInvocation.Mycommand,
+            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+        )
+        Write-Verbose -Message $txt
+
+        ##############################
+        # Module imports
+
+        ##############################
+        # Variables Definition
+
         # Generating random hexadecimal string
         $Hex = '0123456789ABCDEF'
         [string]$Return = $null
 
-        for ($i = 1; $i -le $Length; $i++) {
-            $Return += $Hex.Substring((Get-Random -Minimum 0 -Maximum 16), 1)
-        }
+    } #end Begin
 
-        # Displaying verbose output
-        Write-Verbose "Generated random hexadecimal string: $Return"
+    Process {
+        try {
+            for ($i = 1; $i -le $Length; $i++) {
+                $Return += $Hex.Substring((Get-Random -Minimum 0 -Maximum 16), 1)
+            } #end For
+
+            # Displaying verbose output
+            Write-Verbose -Message ('Generated random hexadecimal string: {0}' -f $Return)
+
+        } catch {
+            # Handling exceptions
+            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
+            throw
+        } #end Try
+    } #end Process
+
+    End {
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'generating random hexadecimal string.'
+        )
+        Write-Verbose -Message $txt
 
         # Returning the generated string
         $Return
-    }
-    catch {
-        # Handling exceptions
-        ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-        throw
-    } #end Try
+    } #end End
+
 } #end Function

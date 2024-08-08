@@ -34,7 +34,7 @@ Function ConvertTo-IPv4NetworkAddress {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([System.Net.IpAddress])]
 
     Param (
@@ -86,7 +86,8 @@ Function ConvertTo-IPv4NetworkAddress {
         $IntegerIPv4SubnetMask = 0
         $IntegerNetworkAddress = 0
         [IpAddress]$NetworkAddress
-    }
+    } #end Begin
+
     Process {
         # Get IPv4 address as an Integer
         $IntegerIPv4Address = ConvertTo-IPv4Integer -Ipv4Address $IPv4Address
@@ -107,14 +108,14 @@ Function ConvertTo-IPv4NetworkAddress {
         # Convert Integer to Network Address
         $NetworkAddress = ConvertTo-IntegerIPv4 -Integer $IntegerNetworkAddress
         Write-Verbose -Message ('Network Address {0} to Integer: {1}' -f $NetworkAddress, $IntegerNetworkAddress)
-    }
+    } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'finding network address based on IP Address and Subnet Mask.'
+        )
+        Write-Verbose -Message $txt
 
         return $NetworkAddress
-    }
-}
+    } #end End
+} #end Function

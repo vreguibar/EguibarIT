@@ -29,6 +29,8 @@
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param
     (
         # PARAM1 full path to the configuration.xml file
@@ -109,11 +111,7 @@
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-        #endregion Declarations
-        ################################################################################
-
-
-    }
+    } #end Begin
 
     Process {
         ###############################################################################
@@ -171,12 +169,12 @@
         # Dynamic Host Configuration Protocol (DHCP)
         Set-AdAclFullControlDHCP -Group $SL_DHCPRight.SamAccountName
 
-    }
+    } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) created DHCP objects and Delegations successfully."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating DHCP objects and Delegations.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+} #end Function

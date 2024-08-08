@@ -174,10 +174,10 @@
     } # End Process Section
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD object type."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'getting AD object type.'
+        )
+        Write-Verbose -Message $txt
 
         if ($null -ne $ReturnValue) {
             Write-Output $ReturnValue

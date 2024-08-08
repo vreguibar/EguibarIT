@@ -322,10 +322,10 @@
     } # End Process section
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating Delegated Group."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating Delegated Group.'
+        )
+        Write-Verbose -Message $txt
 
         #Return the group object.
         return $newGroup

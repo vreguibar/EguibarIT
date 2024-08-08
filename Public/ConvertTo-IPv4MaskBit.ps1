@@ -18,8 +18,9 @@ function ConvertTo-IPv4MaskBit {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([System.Int32])]
+
     Param
     (
         [Parameter(Mandatory = $true,
@@ -31,6 +32,7 @@ function ConvertTo-IPv4MaskBit {
         [String]
         $MaskString
     )
+
     Begin {
         $txt = ($constants.Header -f
             (Get-Date).ToShortDateString(),
@@ -42,22 +44,22 @@ function ConvertTo-IPv4MaskBit {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
-    }
+    } #end Begin
+
     Process {
         $mask = ([IPAddress] $MaskString).Address
         for ( $bitCount = 0; $mask -ne 0; $bitCount++ ) {
             $mask = $mask -band ($mask - 1)
         }
         $bitCount
-    }
+    } #end Process
+
     End {
-        Write-Verbose -Message ('Function {0} finished.' -f $MyInvocation.InvocationName)
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'returning the bits in a bitmask IPv4.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+} #end Function

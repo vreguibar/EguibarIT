@@ -20,7 +20,9 @@ Function Publish-CertificateTemplate {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
         #>
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [OutputType([void])]
+
     Param (
         [Parameter(Mandatory = $true)]
         [string]$CertDisplayName
@@ -36,11 +38,11 @@ Function Publish-CertificateTemplate {
 
         ######################
         # Initialize variables
+
         $Server = (Get-ADDomainController -Discover -ForceDiscover -Writable).HostName[0]
-        $ConfigNC = (Get-ADRootDSE -Server $Server).configurationNamingContext
-        $EnrollmentPath = "CN=Enrollment Services,CN=Public Key Services,CN=Services,$ConfigNC"
+        $EnrollmentPath = 'CN=Enrollment Services,CN=Public Key Services,CN=Services,{0}' -f $variables.configurationNamingContext
         $CAs = Get-ADObject -SearchBase $EnrollmentPath -SearchScope OneLevel -Filter * -Server $Server
-    }
+    } #end Begin
 
     process {
         foreach ($CA in $CAs) {
@@ -59,6 +61,9 @@ Function Publish-CertificateTemplate {
     } #end Process
 
     end {
-
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'publishing Cert Template.'
+        )
+        Write-Verbose -Message $txt
     } #end End
 } #end Function

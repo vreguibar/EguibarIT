@@ -27,7 +27,7 @@ function Test-RegistryValue {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
   #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([Bool])]
 
     Param (
@@ -63,10 +63,9 @@ function Test-RegistryValue {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
+
     } #end Begin
 
     Process {
@@ -79,10 +78,10 @@ function Test-RegistryValue {
     } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished testing registry."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'testing registry.'
+        )
+        Write-Verbose -Message $txt
     } #end End
 
 } #end Function

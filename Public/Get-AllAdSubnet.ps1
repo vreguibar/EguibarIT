@@ -16,8 +16,9 @@ function Get-AllAdSubnet {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([array])]
+
     Param ()
 
     Begin {
@@ -37,7 +38,8 @@ function Get-AllAdSubnet {
         ##############################
         # Variables Definition
 
-    }
+    } #end Begin
+
     Process {
         #Get a reference to the RootDSE of the current domain
         $ADConfigurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext
@@ -45,13 +47,14 @@ function Get-AllAdSubnet {
         [array] $ADSubnets = Get-ADObject -Filter {
             objectclass -eq 'subnet'
         } -SearchBase $ADConfigurationNamingContext -Properties *
-    }
+    } #end Process
+
     End {
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'getting AD Subnets.'
+        )
+        Write-Verbose -Message $txt
 
         Return $ADSubnets
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD Subnets."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+    } #end End
+} #end Function

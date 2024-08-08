@@ -35,7 +35,7 @@ Function New-TemplateOID {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([System.Collections.Hashtable])]
 
     Param(
@@ -103,17 +103,17 @@ Function New-TemplateOID {
     } # End PROCESS Section
 
     End {
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating new Template OID.'
+        )
+        Write-Verbose -Message $txt
+
         $result = @{
             TemplateOID  = $msPKICertTemplateOID
             TemplateName = $Name
         }
-
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) adding members to the group."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-
         Return $result
 
     } # End END Section
+
 } # End Function New-TemplateOID

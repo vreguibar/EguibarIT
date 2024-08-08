@@ -25,6 +25,8 @@
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+
+
     Param(
         # PARAM1 full path to the configuration.xml file
         [Parameter(Mandatory = $true,
@@ -43,6 +45,7 @@
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Path to all the scripts and files needed by this function',
             Position = 1)]
+        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\"')]
         [string]
         $DMscripts = 'C:\PsScripts\'
     )
@@ -112,14 +115,15 @@
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-        #endregion Declarations
-        ################################################################################
-    }
+    } #end Begin
+
     Process {
         ###############################################################################
         #region Creating Service account
+
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Creating Service account')
 
         # Create the new Temporary Service Account with special values
         # This TEMP SA will be used for AGMP Server setup. Afterwards will be replaced by a MSA
@@ -154,8 +158,12 @@
         #http://blogs.msdn.com/b/openspecification/archive/2011/05/31/windows-configurations-for-kerberos-supported-encryption-type.aspx
         # 'msDS-SupportedEncryptionTypes'= Kerberos DES Encryption = 2, Kerberos AES 128 = 8, Kerberos AES 256 = 16
 
+        $Splat = @{
+            Identity = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name)
+            Members  = $SA_AGPM
+        }
         # Make it member of Tier 0 ServiceAccount groups
-        Add-AdGroupNesting -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name) -Members $SA_AGPM
+        Add-AdGroupNesting @Splat
 
         # http://blogs.msdn.com/b/muaddib/archive/2013/12/30/how-to-modify-security-inheritance-on-active-directory-objects.aspx
 
@@ -221,6 +229,8 @@
         ###############################################################################
         #region Create AGPM groups
 
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Create AGPM groups')
+
         # AdminRights group is created by default on CentralItOU procedure. Is the default delegated Admin for OUs
 
         #New-ADGroup -Name "SG_AllSiteAdmins"      -SamAccountName SG_AllSiteAdmins      -GroupCategory Security -GroupScope Global      -DisplayName "All Sites Admins"        -Path $ItPGOuDn -Description "Members of this group are Site Administrators of all sites"
@@ -271,14 +281,21 @@
         ###############################################################################
 
         # Apply the PSO to the corresponding Groups
-        Add-ADFineGrainedPasswordPolicySubject -Identity $confXML.n.Admin.PSOs.ItAdminsPSO.Name -Subjects $SL_GpoApproverRight, $SL_GpoEditorRight, $SL_GpoReviewerRight
+        $Splat = @{
+            Identity = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
+            Subjects = $SL_GpoApproverRight, $SL_GpoEditorRight, $SL_GpoReviewerRight
+        }
+        Add-ADFineGrainedPasswordPolicySubject @Splat
 
 
         ###############################################################################
         # Nest Groups - Security for RODC
         # Avoid having privileged or semi-privileged groups copy to RODC
-
-        Add-ADGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SL_GpoApproverRight, $SL_GpoEditorRight, $SL_GpoReviewerRight
+        $Splat = @{
+            Identity = 'Denied RODC Password Replication Group'
+            Members  = $SL_GpoApproverRight, $SL_GpoEditorRight, $SL_GpoReviewerRight
+        }
+        Add-ADGroupMember @Splat
 
 
         ###############################################################################
@@ -306,10 +323,10 @@
     } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) created objects and Delegations successfully."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating objects and Delegations.'
+        )
+        Write-Verbose -Message $txt
     }#end End
 
 } #end Function

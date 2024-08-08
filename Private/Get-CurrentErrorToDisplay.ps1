@@ -27,6 +27,7 @@ function Get-CurrentErrorToDisplay {
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([System.String])]
+
     Param (
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $true,
@@ -143,10 +144,13 @@ function Get-CurrentErrorToDisplay {
         $result = $OutputError.ToString()
         Write-Verbose -Message 'Cleaning the $error variable'
         $error.Clear()
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'getting Displaying current error.'
+        )
+        Write-Verbose -Message $txt
+
         return $result
     } # End END section
+
 } # End Function

@@ -20,10 +20,15 @@ function Grant-NTFSPermission {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param (
         # Param1 path to the resource|folder
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Absolute path to the object',
             Position = 0)]
         [ValidateNotNull()]
@@ -32,7 +37,10 @@ function Grant-NTFSPermission {
         $path,
 
         # Param2 object or SecurityPrincipal
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Name of the Identity getting the permission.',
             Position = 1)]
         [ValidateNotNull()]
@@ -41,7 +49,10 @@ function Grant-NTFSPermission {
         $object,
 
         # Param3 permission
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Permission of the object',
             Position = 2)]
         [ValidateNotNull()]
@@ -49,6 +60,7 @@ function Grant-NTFSPermission {
         [string]
         $permission
     )
+
     Begin {
         $error.Clear()
 
@@ -62,11 +74,8 @@ function Grant-NTFSPermission {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
-
 
         # Possible values for FileSystemRights are:
         # ReadAndExecute, AppendData, CreateFiles, read, write, Modify, FullControl
@@ -75,7 +84,8 @@ function Grant-NTFSPermission {
         $InheritanceFlag = [Security.AccessControl.InheritanceFlags]'ContainerInherit, ObjectInherit'
         $PropagationFlag = [Security.AccessControl.PropagationFlags]::None
         $AccessControlType = [Security.AccessControl.AccessControlType]::Allow
-    }
+    } #end Begin
+
     Process {
         Try {
             $Account = New-Object -TypeName System.Security.Principal.NTAccount -ArgumentList $PSBoundParameters['object']
@@ -90,12 +100,14 @@ function Grant-NTFSPermission {
         } catch {
             Write-Error -Message 'Error granting NTFS permissions'
             throw
-        }
-    }
+        } #end Try-Catch
+    } #end Process
+
     End {
-        Write-Verbose -Message ('The User/Group {0} was given {1} to folder {2}.' -f $PSBoundParameters['object'], $PSBoundParameters['permission'], $PSBoundParameters['path'])
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'changing NTFS permissions.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+
+} #end Function

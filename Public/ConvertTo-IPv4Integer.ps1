@@ -18,8 +18,9 @@ function ConvertTo-IPv4Integer {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([System.UInt32])]
+
     Param
     (
         [Parameter(Mandatory = $true,
@@ -42,13 +43,12 @@ function ConvertTo-IPv4Integer {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
-    }
+    } #end Begin
 
     Process {
+
         Try {
             $ipAddress = [IPAddress]::Parse($IPv4Address)
 
@@ -60,13 +60,15 @@ function ConvertTo-IPv4Integer {
 
         } Catch {
             Write-Error -Exception $_.Exception -Category $_.CategoryInfo.Category
-        }
-    }
+        } #end Try-Catch
+
+    } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'converting IPv4 to Integer.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+
+} #end Function

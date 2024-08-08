@@ -37,17 +37,23 @@ function Set-AdAclDelegateUserAdmin {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param
     (
         # PARAM1 STRING for the Delegated Group Name
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
         $Group,
 
         # PARAM2 Distinguished Name of the OU where given group can read the User password
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Distinguished Name of the OU where given group will fully manage a User object',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
@@ -56,13 +62,16 @@ function Set-AdAclDelegateUserAdmin {
         $LDAPpath,
 
         # PARAM3 SWITCH If present, the access rule will be removed.
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'If present, the access rule will be removed.',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Switch]
         $RemoveRule
     )
+
     begin {
         $error.Clear()
 
@@ -76,8 +85,6 @@ function Set-AdAclDelegateUserAdmin {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
 
@@ -89,7 +96,9 @@ function Set-AdAclDelegateUserAdmin {
             Group    = $CurrentGroup
             LDAPPath = $PSBoundParameters['LDAPpath']
         }
+
     } #end Begin
+
     Process {
         try {
             # Check if RemoveRule switch is present.
@@ -126,9 +135,10 @@ function Set-AdAclDelegateUserAdmin {
         } #end Try-Catch
     } #end Process
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating User Admin."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'delegating User Admin.'
+        )
+        Write-Verbose -Message $txt
     } #end End
+
 } #end Function

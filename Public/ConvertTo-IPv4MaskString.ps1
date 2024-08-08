@@ -18,7 +18,9 @@ function ConvertTo-IPv4MaskString {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [OutputType([string])]
+
     Param
     (
         [Parameter(Mandatory = $true,
@@ -30,6 +32,7 @@ function ConvertTo-IPv4MaskString {
         [System.Int32]
         $MaskBits
     )
+
     Begin {
         $txt = ($constants.Header -f
             (Get-Date).ToShortDateString(),
@@ -41,21 +44,22 @@ function ConvertTo-IPv4MaskString {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
 
-    }
+    } #end Begin
+
     Process {
         $mask = ([Math]::Pow(2, $MaskBits) - 1) * [Math]::Pow(2, (32 - $MaskBits))
         $bytes = [BitConverter]::GetBytes([UInt32] $mask)
         (($bytes.Count - 1)..0 | ForEach-Object { [String] $bytes[$_] }) -join '.'
-    }
+    } #end Process
+
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'converting bits to a networkmask string.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+
+} #end Function

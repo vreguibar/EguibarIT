@@ -78,8 +78,6 @@
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
 
@@ -120,9 +118,9 @@
     } #end Process
 
     End {
-        Write-Verbose -Message ('The object {0} was removed inheritance.' -f $PSBoundParameters['LDAPpath'])
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'removing inheritance.'
+        )
+        Write-Verbose -Message $txt
     } #end End
 }

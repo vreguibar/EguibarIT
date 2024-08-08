@@ -1,5 +1,5 @@
 ﻿Function Out-IniFile {
-  <#
+    <#
       .Synopsis
       Write hash content to INI file
 
@@ -77,78 +77,93 @@
       .Link
       Get-IniContent
   #>
-  [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
-  Param(
-    [switch]$Append,
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [OutputType([void])]
 
-    [ValidateSet('Unicode', 'UTF7', 'UTF8', 'UTF32', 'ASCII', 'BigEndianUnicode', 'Default', 'OEM', ignorecase = $false)]
-    [string]$Encoding = 'Unicode',
+    Param(
+        [switch]$Append,
 
-    [ValidateNotNullOrEmpty()]
-    [Parameter(Mandatory = $true, HelpMessage = 'Path and Filename to write the file to.')]
-    [string]$FilePath,
+        [ValidateSet('Unicode', 'UTF7', 'UTF8', 'UTF32', 'ASCII', 'BigEndianUnicode', 'Default', 'OEM', ignorecase = $false)]
+        [PSDefaultValue(Help = 'Default Value is "Unicode"')]
+        [string]$Encoding = 'Unicode',
 
-    [switch]$Force,
+        [ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory = $true, HelpMessage = 'Path and Filename to write the file to.')]
+        [string]$FilePath,
 
-    [ValidateNotNullOrEmpty()]
-    [Parameter(ValueFromPipeline = $true, HelpMessage = 'The HashTable object name to create the file from', Mandatory = $true)]
-    [Hashtable]$InputObject,
+        [switch]$Force,
 
-    [switch]$Passthru
-  )
+        [ValidateNotNullOrEmpty()]
+        [Parameter(ValueFromPipeline = $true,
+            HelpMessage = 'The HashTable object name to create the file from',
+            Mandatory = $true)]
+        [Hashtable]$InputObject,
 
-  Begin {
-    Write-Verbose -Message '|=> ************************************************************************ <=|'
-    Write-Verbose -Message (Get-Date).ToShortDateString()
-    Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-    Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay $PsBoundParameters -Verbose:$False))
+        [switch]$Passthru
+    )
 
-    ##############################
-    # Variables Definition
-  }
+    Begin {
+        $txt = ($constants.Header -f
+            (Get-Date).ToShortDateString(),
+            $MyInvocation.Mycommand,
+            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+        )
+        Write-Verbose -Message $txt
 
-  Process {
-    Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing to file: $PSBoundParameters['FilePath']"
+        ##############################
+        # Variables Definition
 
-    if ($PSBoundParameters['Append']) {
-      $outfile = Get-Item -Path $PSBoundParameters['FilePath']
-    } else {
-      $outfile = New-Item -ItemType file -Path $PSBoundParameters['FilePath'] -Force:$PSBoundParameters['Force']
-    }
-    if (!($outfile)) {
-      Throw 'Could not create File'
-    }
-    foreach ($i in $InputObject.keys) {
-      if (!($($InputObject[$i].GetType().Name) -eq 'Hashtable')) {
-        #No Sections
-        Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing key: $i"
-        Add-Content -Path $outfile -Value "$i=$($InputObject[$i])" -Encoding $PSBoundParameters['Encoding']
-      } else {
-        #Sections
-        Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing Section: [$i]"
-        Add-Content -Path $outfile -Value "[$i]" -Encoding $PSBoundParameters['Encoding']
-        Foreach ($j in $($InputObject[$i].keys | Sort-Object)) {
-          if ($j -match '^Comment[\d]+') {
-            Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing comment: $j"
-            Add-Content -Path $outfile -Value "$($InputObject[$i][$j])" -Encoding $PSBoundParameters['Encoding']
-          } else {
-            Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing key: $j"
-            Add-Content -Path $outfile -Value "$j=$($InputObject[$i][$j])" -Encoding $PSBoundParameters['Encoding']
-          }
+    } #end Begin
+
+    Process {
+
+        if ($PSBoundParameters['Append']) {
+            $outfile = Get-Item -Path $PSBoundParameters['FilePath']
+        } else {
+            $outfile = New-Item -ItemType file -Path $PSBoundParameters['FilePath'] -Force:$PSBoundParameters['Force']
+        } #end If-Else
+
+        if (!($outfile)) {
+            Throw 'Could not create File'
+        } #end If
+
+        foreach ($i in $InputObject.keys) {
+
+            if (!($($InputObject[$i].GetType().Name) -eq 'Hashtable')) {
+                #No Sections
+                Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing key: $i"
+                Add-Content -Path $outfile -Value "$i=$($InputObject[$i])" -Encoding $PSBoundParameters['Encoding']
+            } else {
+                #Sections
+                Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing Section: [$i]"
+                Add-Content -Path $outfile -Value "[$i]" -Encoding $PSBoundParameters['Encoding']
+
+                Foreach ($j in $($InputObject[$i].keys | Sort-Object)) {
+
+                    if ($j -match '^Comment[\d]+') {
+                        Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing comment: $j"
+                        Add-Content -Path $outfile -Value "$($InputObject[$i][$j])" -Encoding $PSBoundParameters['Encoding']
+                    } else {
+                        Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing key: $j"
+                        Add-Content -Path $outfile -Value "$j=$($InputObject[$i][$j])" -Encoding $PSBoundParameters['Encoding']
+                    } #end If-Else
+
+                } #end Foreach
+
+                Add-Content -Path $outfile -Value '' -Encoding $PSBoundParameters['Encoding']
+            } #end If-Else
+        } #end Foreach
+
+        if ($PSBoundParameters['Passthru']) {
+            Return $outfile
         }
-        Add-Content -Path $outfile -Value '' -Encoding $PSBoundParameters['Encoding']
-      }
-    }
-    Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Finished Writing to file: $path"
-    if ($PSBoundParameters['Passthru']) {
-      Return $outfile
-    }
-  }
+    } #end Process
 
-  End {
-    Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished writing to $PSBoundParameters['FilePath'] INI file."
-    Write-Verbose -Message ''
-    Write-Verbose -Message '-------------------------------------------------------------------------------'
-    Write-Verbose -Message ''
-  }
-}
+    End {
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'writing to INI file.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+
+} #end Function

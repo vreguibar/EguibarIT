@@ -48,16 +48,22 @@ function Set-AdAclDelegateComputerAdmin {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param (
         # PARAM1 STRING for the Delegated Group Name
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
         $Group,
 
         # PARAM2 Distinguished Name of the OU where given group can read the computer password
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Distinguished Name of the OU where given group will fully manage a computer object',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
@@ -67,7 +73,9 @@ function Set-AdAclDelegateComputerAdmin {
         $LDAPpath,
 
         # PARAM3 SWITCH If present, the access rule will be removed.
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'If present, the access rule will be removed.',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
@@ -75,6 +83,7 @@ function Set-AdAclDelegateComputerAdmin {
         $RemoveRule
 
     )
+
     begin {
         $error.Clear()
 
@@ -87,8 +96,6 @@ function Set-AdAclDelegateComputerAdmin {
 
         ##############################
         # Module imports
-
-
 
         ##############################
         # Variables Definition
@@ -103,6 +110,7 @@ function Set-AdAclDelegateComputerAdmin {
         }
 
     } #end Begin
+
     Process {
 
         # Check if RemoveRule switch is present.
@@ -117,95 +125,87 @@ function Set-AdAclDelegateComputerAdmin {
             try {
                 Set-AdAclCreateDeleteComputer @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating Create/Delete computer permission'
             } #end Try-Catch
 
             # Reset Computer Password
             try {
                 Set-AdAclResetComputerPassword @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating computer password reset permission'
             } #end Try-Catch
 
             # Change Computer Password
             try {
                 Set-AdAclChangeComputerPassword @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating change computer password permission'
             } #end Try-Catch
 
             # Validated write to DNS host name
             try {
                 Set-AdAclValidateWriteDnsHostName @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating computer validate write host DNS permission'
             } #end Try-Catch
 
             # Validated write to SPN
             try {
                 Set-AdAclValidateWriteSPN @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating computer validate write SPN permission'
             } #end Try-Catch
 
             # Change Computer Account Restriction
             try {
                 Set-AdAclComputerAccountRestriction @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating computer account restriction permission'
             } #end Try-Catch
 
             # Change DNS Hostname Info
             try {
                 Set-AdAclDnsInfo @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating computer DNS info permission'
             } #end Try-Catch
 
             # Change MS TerminalServices info
             try {
                 Set-AdAclMsTsGatewayInfo @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating computer MS TS gateway permission'
             } #end Try-Catch
 
             # Access to BitLocker & TMP info
             try {
                 Set-AdAclBitLockerTPM @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating computer Bitlocker & TPM permission'
             } #end Try-Catch
 
             # Grant the right to delete computers from default container. Move Computers
             try {
                 Set-DeleteOnlyComputer @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating delete computer permission'
             } #end Try-Catch
 
             # Set LAPS
             try {
                 Set-AdAclLaps -ResetGroup $CurrentGroup -ReadGroup $CurrentGroup -LDAPpath $PSBoundParameters['LDAPpath']
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating LAPS reset group permission'
             } #end Try-Catch
         } #end If
+
     } #end Process
+
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating Computer Admin."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'delegating Computer Admin.'
+        )
+        Write-Verbose -Message $txt
     } #end End
+
 } #end Function

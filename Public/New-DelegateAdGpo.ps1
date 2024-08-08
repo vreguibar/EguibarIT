@@ -298,10 +298,10 @@
 
     } # End Process Section
     End {
-        Write-Verbose -Message ('Function New-DelegateAdGpo Finished creating {0} GPO' -f $gpoName)
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating GPO.'
+        )
+        Write-Verbose -Message $txt
 
         return $gpoAlreadyExist
     } # End END Section

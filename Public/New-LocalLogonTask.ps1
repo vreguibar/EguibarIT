@@ -14,11 +14,14 @@ function New-LocalLogonTask {
             Eguibar Information Technology S.L.
             http://www.eguibarit.com
 #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param
     (
         # Param1 help description
-        [Parameter(Mandatory = $true, HelpMessage = 'Add help message for user',
+        [Parameter(Mandatory = $true,
+            HelpMessage = 'Add help message for user',
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
@@ -28,7 +31,8 @@ function New-LocalLogonTask {
         $name,
 
         # Param2 help description
-        [Parameter(Mandatory = $true, HelpMessage = 'Add help message for user',
+        [Parameter(Mandatory = $true,
+            HelpMessage = 'Add help message for user',
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
@@ -38,7 +42,8 @@ function New-LocalLogonTask {
         $Description,
 
         # Param3 help description
-        [Parameter(Mandatory = $true, HelpMessage = 'Add help message for user',
+        [Parameter(Mandatory = $true,
+            HelpMessage = 'Add help message for user',
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
@@ -48,7 +53,8 @@ function New-LocalLogonTask {
         $Author,
 
         # Param4 help description
-        [Parameter(Mandatory = $true, HelpMessage = 'Add help message for user',
+        [Parameter(Mandatory = $true,
+            HelpMessage = 'Add help message for user',
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
@@ -87,12 +93,11 @@ function New-LocalLogonTask {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
 
-    }
+    } #end Begin
+
     Process {
         # https://msdn.microsoft.com/en-us/library/windows/desktop/aa383607(v=vs.85).aspx
         try {
@@ -139,11 +144,12 @@ function New-LocalLogonTask {
             Write-Error -Message 'Error when creating new logon task'
             throw
         }
-    }
+    } #end Process
+
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating new task."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating new task.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+} #end Process

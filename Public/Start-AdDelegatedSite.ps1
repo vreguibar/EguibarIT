@@ -64,6 +64,8 @@ function Start-AdDelegateSite {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium', DefaultParameterSetName = 'ParamOptions')]
+    [OutputType([void])]
+
     param (
         # PARAM1 full path to the configuration.xml file
         [Parameter(Mandatory = $true,
@@ -111,6 +113,7 @@ function Start-AdDelegateSite {
         [switch]
         $CreateExchange
     )
+
     begin {
         $error.Clear()
 
@@ -124,16 +127,12 @@ function Start-AdDelegateSite {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
 
 
         Write-Verbose -Message 'Delegate Rights Site Groups'
 
-        ################################################################################
-        #region Declarations
 
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
@@ -164,9 +163,6 @@ function Start-AdDelegateSite {
         # SG_PAWM_T0
 
 
-        ###############################################################################
-        #region Get all newly created Groups and store on variable
-
         # Iterate through all Site-DomainLocalGroups child nodes
         Foreach ($node in $confXML.n.Sites.LG.ChildNodes) {
 
@@ -176,9 +172,6 @@ function Start-AdDelegateSite {
 
             New-Variable -Name "$($TempName)" -Value (Get-ADGroup $TempName) -Force
         }
-
-        #endregion
-        ###############################################################################
 
 
         # Sites OU Distinguished Name
@@ -194,83 +187,86 @@ function Start-AdDelegateSite {
         $OuSiteDefContact = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteContact.name, $ouNameDN
 
         # parameters variable for splatting CMDlets
-        $parameters = $null
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-        #endregion
-        ###############################################################################
-    }
+    } #end Begin
+
     process {
-        Write-Verbose -Message 'START USER Site Delegation'
+
         ###############################################################################
-        #region USER Site Administrator Delegation
+        # USER Site Administrator Delegation
+
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'USER Site Delegation')
 
         $OuSiteDefUser = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteUser.name, $ouNameDN
 
-        $parameters = @{
+        $Splat = @{
             Group    = $SL_PwdRight.SamAccountName
             LDAPPath = $OuSiteDefUser
         }
 
         # Reset User Password
-        Set-AdAclResetUserPassword @parameters
+        Set-AdAclResetUserPassword @Splat
         #Set-AdAclResetUserPassword -Group $SL_CreateUserRight.SamAccountName -LDAPPath $OuSiteDefUser
 
         # Change User Password
-        Set-AdAclChangeUserPassword @parameters
+        Set-AdAclChangeUserPassword @Splat
 
         # Unlock user account
-        Set-AdAclUnlockUser @parameters
+        Set-AdAclUnlockUser @Splat
 
 
-        $parameters = @{
+        $Splat = @{
             Group    = $SL_CreateUserRight.SamAccountName
             LDAPPath = $OuSiteDefUser
         }
 
         # Create/Delete Users
-        Set-AdAclCreateDeleteUser @parameters
+        Set-AdAclCreateDeleteUser @Splat
 
         # Enable and/or Disable user right
-        Set-AdAclEnableDisableUser @parameters
+        Set-AdAclEnableDisableUser @Splat
 
         # Change User Restrictions
-        Set-AdAclUserAccountRestriction @parameters
+        Set-AdAclUserAccountRestriction @Splat
 
         # Change User Account Logon Info
-        Set-AdAclUserLogonInfo @parameters
+        Set-AdAclUserLogonInfo @Splat
 
 
         #### GAL
 
-        $parameters = @{
+        $Splat = @{
             Group    = $SL_GALRight.SamAccountName
             LDAPPath = $OuSiteDefUser
         }
 
         # Change Group Membership
-        Set-AdAclUserGroupMembership @parameters
+        Set-AdAclUserGroupMembership @Splat
 
         # Change Personal Information
-        Set-AdAclUserPersonalInfo @parameters
+        Set-AdAclUserPersonalInfo @Splat
 
         # Change Public Information
-        Set-AdAclUserPublicInfo @parameters
+        Set-AdAclUserPublicInfo @Splat
 
         # Change General Information
-        Set-AdAclUserGeneralInfo @parameters
+        Set-AdAclUserGeneralInfo @Splat
 
         # Change Web Info
-        Set-AdAclUserWebInfo @parameters
+        Set-AdAclUserWebInfo @Splat
 
         # Change Email Info
-        Set-AdAclUserEmailInfo @parameters
+        Set-AdAclUserEmailInfo @Splat
 
-        #endregion USER Site Delegation
-        ###############################################################################
 
-        Write-Verbose -Message 'START COMPUTER Site Delegation'
+
+
+
         ###############################################################################
-        #region COMPUTER Site Admin Delegation
+        # COMPUTER Site Admin Delegation
+
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'COMPUTER Site Delegation')
 
         # Create/Delete Computers
         Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName -LDAPpath $OuSiteDefComputer -QuarantineDN $PSBoundParameters['QuarantineDN']
@@ -292,13 +288,10 @@ function Start-AdDelegateSite {
 
 
 
-
-        #endregion COMPUTER Site Delegation
         ###############################################################################
+        # GROUP Site Admin Delegation
 
-        Write-Verbose -Message 'START GROUP Site Delegation'
-        ###############################################################################
-        #region GROUP Site Admin Delegation
+        Write-Verbose -Message ($Constants.NewRegionMessage -f 'GROUP Site Delegation')
 
         # Create/Delete Groups
         Set-AdAclCreateDeleteGroup -Group $SL_GroupRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteGroup.name, $ouNameDN)
@@ -308,47 +301,42 @@ function Start-AdDelegateSite {
         # Change Group Properties
         Set-AdAclChangeGroup -Group $SL_GroupRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteGroup.name, $ouNameDN)
 
-        #endregion GROUP Site Delegation
-        ###############################################################################
+
+
 
         Write-Verbose -Message 'START PRINTQUEUE Site Admin Delegation'
         ###############################################################################
-        #region PRINTQUEUE Site Admin Delegation
+        # PRINTQUEUE Site Admin Delegation
 
         # Create/Delete Print Queue
         Set-AdAclCreateDeletePrintQueue -Group $SL_SiteRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSitePrintQueue.name, $ouNameDN)
 
-        #endregion PRINTQUEUE Site Admin Delegation
-        ###############################################################################
+
 
         Write-Verbose -Message 'START PRINTQUEUE Site GAL Delegation'
         ###############################################################################
-        #region PRINTQUEUE Site GAL Delegation
+        # PRINTQUEUE Site GAL Delegation
 
         Set-AdAclChangePrintQueue -Group $SL_GALRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSitePrintQueue.name, $ouNameDN)
 
-        #endregion PRINTQUEUE Site GAL Delegation
-        ###############################################################################
 
         Write-Verbose -Message 'START VOLUME Site Admin Delegation'
         ###############################################################################
-        #region VOLUME Site Admin Delegation
+        # VOLUME Site Admin Delegation
 
         # Create/Delete Volume
         Set-AdAclCreateDeleteVolume -Group $SL_SiteRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteShares.name, $ouNameDN)
 
-        #endregion VOLUME Site Admin Delegation
-        ###############################################################################
+
 
         Write-Verbose -Message 'START VOLUME Site GAL Delegation'
         ###############################################################################
-        #region VOLUME Site GAL Delegation
+        # VOLUME Site GAL Delegation
 
         # Change Volume Properties
         Set-AdAclChangeVolume -Group $SL_GALRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteShares.name, $ouNameDN)
 
-        #endregion VOLUME Site GAL Delegation
-        ###############################################################################
+
 
         Write-Verbose -Message 'START Exchange Related delegation'
         ###############################################################################
@@ -409,11 +397,13 @@ function Start-AdDelegateSite {
         }
         #endregion Exchange Related delegation
         ###############################################################################
-    }
+    } #end Process
+
     end {
-        Write-Verbose -Message ('Site delegation was completed succesfully to {0}' -f $PSBoundParameters['ouName'])
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'Site delegation.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+
+} #end Function

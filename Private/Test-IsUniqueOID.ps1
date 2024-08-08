@@ -21,7 +21,7 @@ Function Test-IsUniqueOID {
             Test-IsUniqueOID -cn "MyTemplate" -TemplateOID "1.2.3.4" -Server "ADServer01" -ConfigNC "DC=example,DC=com"
             Checks if the Certificate Template with the specified OID is unique in the given context.
     #>
-    [CmdletBinding(ConfirmImpact = 'low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([System.Boolean])]
 
     param (
@@ -73,8 +73,6 @@ Function Test-IsUniqueOID {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
 
@@ -119,9 +117,10 @@ Function Test-IsUniqueOID {
     } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished checking the Certificate Template OID uniqueness."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'checking the Certificate Template OID uniqueness.'
+        )
+        Write-Verbose -Message $txt
     } #end End
+
 } #end Function

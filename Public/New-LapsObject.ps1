@@ -30,6 +30,8 @@ Function New-LAPSobject {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param
     (
         # PARAM1 full path to the configuration.xml file
@@ -39,9 +41,11 @@ Function New-LAPSobject {
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
+        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Confix.xml"')]
         [System.IO.FileInfo]
-        $ConfigXMLFile
+        $ConfigXMLFile = 'C:\PsScripts\Config.xml'
     )
+
     Begin {
         $error.Clear()
 
@@ -188,7 +192,6 @@ Function New-LAPSobject {
         $SitesOuDn = 'OU={0},{1}' -f $SitesOu, $Variables.AdDn
 
         #endregion Declarations
-        ################################################################################
 
         # Check if schema is extended for LAPS. Extend it if not.
         Try {
@@ -221,7 +224,7 @@ Function New-LAPSobject {
         } Finally {
             Write-Verbose -Message 'Schema was extended successfully for LAPS.'
         }#end finally
-    }
+    } #end Begin
 
     Process {
         # Make Infrastructure Servers modifications
@@ -272,11 +275,12 @@ Function New-LAPSobject {
                 #>
             }
         }#end foreach
-    }
+    } #end Process
+
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) created LAPS and Delegations successfully."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating LAPS and Delegations.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+} #end Function

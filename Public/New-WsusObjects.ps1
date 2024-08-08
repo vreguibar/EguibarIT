@@ -16,7 +16,9 @@
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param ( )
 
     Begin {
@@ -36,8 +38,11 @@
         ##############################
         # Variables Definition
 
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+
         #Get the OS Installation Type
-        $OsInstalationType = Get-ItemProperty -Path 'HKLM:Software\Microsoft\Windows NT\CurrentVersion' | Select-Object -ExpandProperty InstallationType
+        $RegPath = 'HKLM:Software\Microsoft\Windows NT\CurrentVersion'
+        $OsInstalationType = Get-ItemProperty -Path $RegPath | Select-Object -ExpandProperty InstallationType
 
     } # End Begin
 
@@ -80,7 +85,16 @@
 
         # Download Microsoft System CLR Types for SQL Server 2012
         $URL = 'http://download.microsoft.com/download/F/E/D/FEDB200F-DE2A-46D8-B661-D019DFE9D470/ENU/x64/SQLSysClrTypes.msi'
-        Start-BitsTransfer -Source $URL -Destination $env:TEMP -Priority High -TransferType Download -RetryInterval 60 -RetryTimeout 180 -ErrorVariable err
+        $Splat = @{
+            Source        = $UR
+            Destination   = $env:TEMP
+            Priority      = 'High'
+            TransferType  = 'Download'
+            RetryInterval = 60
+            RetryTimeout  = 180
+            ErrorVariable = 'err'
+        }
+        Start-BitsTransfer @Splat
         if ($err) {
             Write-Error -Message 'Microsoft Microsoft System CLR Types for SQL Server 2014 could not be downloaded!. Please download and install it manually to use WSUS Reports.'
         }
@@ -90,7 +104,7 @@
 
         # Download MICROSOFT� REPORT VIEWER 2012 RUNTIME
         $URL = 'https://download.microsoft.com/download/F/B/7/FB728406-A1EE-4AB5-9C56-74EB8BDDF2FF/ReportViewer.msi'
-        Start-BitsTransfer -Source $URL -Destination $env:TEMP -Priority High -TransferType Download -RetryInterval 60 -RetryTimeout 180 -ErrorVariable err
+        Start-BitsTransfer @Splat
         if ($err) {
             Write-Error -Message 'Microsoft REPORT VIEWER 2015 RUNTIME could not be downloaded!. Please download and install it manually to use WSUS Reports.'
         }
@@ -268,6 +282,7 @@
                 'Visual Studio 2017',
                 'Windows 10, version 1809 and later, Upgrade & Servicing Drivers',
                 'Windows 10',
+                'Windows 11',
                 'Windows Admin Center',
                 'Windows Defender',
                 'Windows Dictionary Updates',
@@ -349,11 +364,8 @@
     } # End Process
 
     End {
-
-        Write-Verbose -Message ('Function {0} created Wsus objects and Delegations successfully.' -f $MyInvocation.InvocationName)
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating Wsus objects and Delegations.'
+        )
     } # End end
 } # end function New-WsusObjects

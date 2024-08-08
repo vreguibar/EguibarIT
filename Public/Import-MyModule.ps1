@@ -26,6 +26,7 @@ Function Import-MyModule {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
 
     Param (
 
@@ -41,6 +42,11 @@ Function Import-MyModule {
         $name,
 
         # Indicates whether to force the import of the module
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $false,
+            Position = 1)]
         [switch]
         $Force
     )
@@ -55,8 +61,6 @@ Function Import-MyModule {
 
         ##############################
         # Module imports
-
-
 
         ##############################
         # Variables Definition
@@ -99,9 +103,9 @@ Function Import-MyModule {
     } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished importing module."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'importing module.'
+        )
+        Write-Verbose -Message $txt
     } #end End
-}
+} #end Function

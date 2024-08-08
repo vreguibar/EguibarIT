@@ -9,7 +9,10 @@ function Test-IPv4MaskString {
         .EXAMPLE
             Test-IPv4MaskString -MaskString "255.255.255.0"
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [OutputType([bool])]
+
     Param (
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $true,
@@ -17,7 +20,8 @@ function Test-IPv4MaskString {
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Specifies the IPv4 network mask string (e.g., 255.255.255.0)',
             Position = 1)]
-        [String] $MaskString
+        [String]
+        $MaskString
     )
 
     Begin {
@@ -31,7 +35,6 @@ function Test-IPv4MaskString {
         ##############################
         # Module imports
 
-
     } #end Begin
 
     Process {
@@ -44,10 +47,10 @@ function Test-IPv4MaskString {
     } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'testing whether an IPv4 network mask string.'
+        )
+        Write-Verbose -Message $txt
     } #end End
 
 } #end Function

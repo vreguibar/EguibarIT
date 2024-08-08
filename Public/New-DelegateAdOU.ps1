@@ -177,7 +177,7 @@ function New-DelegateAdOU {
         ##############################
         # Module imports
 
-        Import-Module -name 'EguibarIT.DelegationPS' -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-Module -Name 'EguibarIT.DelegationPS' -SkipEditionCheck -Force -Verbose:$false | Out-Null
 
 
         ##############################
@@ -268,11 +268,11 @@ function New-DelegateAdOU {
     } #end Process
 
     End {
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating new delegated OU.'
+        )
+        Write-Verbose -Message $txt
 
-        Write-Verbose -Message ('Function New-DelegateAdOU finished {0}' -f $ouNameDN)
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
         return $OUexists
     } #end End
 } #end Function

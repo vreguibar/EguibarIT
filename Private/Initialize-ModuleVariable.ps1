@@ -146,9 +146,10 @@
     } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished initializing Variables."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'initializing Variables.'
+        )
+        Write-Verbose -Message $txt
     } #end End
-}
+
+} #end Function

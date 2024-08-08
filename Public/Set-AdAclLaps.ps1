@@ -41,21 +41,27 @@ function Set-AdAclLaps {
     [CmdletBinding(ConfirmImpact = 'Low')]
     Param (
         # PARAM1 STRING for the Delegated Group Name
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Identity of the group getting being able to READ the password.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
         $ReadGroup,
 
         # PARAM2 STRING for the Delegated Group Name
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Identity of the group getting being able to RESET the password.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
         $ResetGroup,
 
         # PARAM3 Distinguished Name of the OU where given group can read the computer password
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Distinguished Name of the OU where LAPS will apply to computer object',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
@@ -65,7 +71,9 @@ function Set-AdAclLaps {
         $LDAPpath,
 
         # PARAM4 SWITCH If present, the access rule will be removed.
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'If present, the access rule will be removed.',
             Position = 3)]
         [ValidateNotNullOrEmpty()]
@@ -124,10 +132,10 @@ function Set-AdAclLaps {
     } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished delegating LAPS Admin."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'delegating LAPS Admin.'
+        )
+        Write-Verbose -Message $txt
     } #end End
 
 } #end Function

@@ -18,9 +18,14 @@
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param (
         # PARAM1 full path to the configuration.xml file
-        [Parameter(Mandatory = $true, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True, ValueFromRemainingArguments = $false,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $True,
+            ValueFromPipelineByPropertyName = $True,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [string]
@@ -45,9 +50,6 @@
 
         #Get the OS Installation Type
         $OsInstalationType = Get-ItemProperty -Path 'HKLM:Software\Microsoft\Windows NT\CurrentVersion' | Select-Object -ExpandProperty InstallationType
-
-        ################################################################################
-        #region Declarations
 
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
@@ -97,7 +99,7 @@
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         #endregion Declarations
         ################################################################################
@@ -332,14 +334,22 @@ LoadDefaultTemplates=0
         $SL_PkiTemplRight = New-AdDelegatedGroup @Splat
 
         # Apply the PSO to the corresponding Groups
-        Add-ADFineGrainedPasswordPolicySubject -Identity $confXML.n.Admin.PSOs.ItAdminsPSO.Name -Subjects $SG_PkiAdmins, $SG_PkiTemplAdmins, $SL_PkiRight, $SL_PkiTemplRight
+        $Splat = @{
+            Identity = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
+            Subjects = $SG_PkiAdmins, $SG_PkiTemplAdmins, $SL_PkiRight, $SL_PkiTemplRight
+        }
+        Add-ADFineGrainedPasswordPolicySubject @Splat
 
 
         ###############################################################################
         # Nest Groups - Security for RODC
         # Avoid having privileged or semi-privileged groups copy to RODC
 
-        Add-ADGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SG_PkiAdmins, $SG_PkiTemplAdmins, $SL_PkiRight, $SL_PkiTemplRight
+        $Splat = @{
+            Identity = 'Denied RODC Password Replication Group'
+            Members  = $SG_PkiAdmins, $SG_PkiTemplAdmins, $SL_PkiRight, $SL_PkiTemplRight
+        }
+        Add-ADGroupMember @Splat
 
 
         ###############################################################################
@@ -576,14 +586,13 @@ Invoke-Command -ComputerName $GatewayServerName -ScriptBlock {
 
 #>
 
-
     } #end Process
 
     End {
-        Write-Verbose -Message ('Function {0} created Certificate Authority objects and Delegations successfully.' -f $MyInvocation.InvocationName)
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating created Certificate Authority objects and Delegations.'
+        )
+        Write-Verbose -Message $txt
     } #end End
 
 } #end Function

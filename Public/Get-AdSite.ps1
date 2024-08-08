@@ -16,8 +16,9 @@ function Get-AdSite {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([array])]
+
     Param ()
 
     Begin {
@@ -36,19 +37,19 @@ function Get-AdSite {
 
         ##############################
         # Variables Definition
-    }
+    } #end Begin
 
     Process {
         Write-Verbose -Message "Get AD Site List `r"
         [array] $ADSites = [DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest().Sites
-    }
+    } #end Process
 
     End {
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'getting AD Sites.'
+        )
+        Write-Verbose -Message $txt
 
         Return $ADSites
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished getting AD Sites."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+    } #end End
+} #end Function

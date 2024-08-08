@@ -36,6 +36,8 @@ Function New-Template {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [OutputType([void])]
+
     Param(
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
@@ -129,9 +131,10 @@ Function New-Template {
     } # End PROCESS section
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) adding new PKI template."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    } # End PROCESS section
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'adding new PKI template.'
+        )
+        Write-Verbose -Message $txt
+    } #end End section
+
 } # End Function New-Template

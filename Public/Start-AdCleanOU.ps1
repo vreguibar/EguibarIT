@@ -48,9 +48,13 @@ function Start-AdCleanOU {
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     param (
         #PARAM1 Distinguished name of the OU to be cleaned
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Distinguished name of the OU to be cleaned.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
@@ -59,14 +63,18 @@ function Start-AdCleanOU {
         $LDAPpath,
 
         #PARAM2 Remove Authenticated Users
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Remove Authenticated Users.',
             Position = 1)]
         [switch]
         $RemoveAuthenticatedUsers,
 
         #PARAM3 Remove Unknown SIDs
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
             HelpMessage = 'Remove Unknown SIDs.',
             Position = 2)]
         [switch]
@@ -108,80 +116,70 @@ function Start-AdCleanOU {
             try {
                 Set-AdAclCreateDeleteUser @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating user Create/Delete cleanup permission'
             } #end Try-Catch
 
             # Remove the Account Operators group from ACL to Create/Delete Computers
             try {
                 Set-AdAclCreateDeleteComputer @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating computer cleanup permission'
             } #end Try-Catch
 
             # Remove the Account Operators group from ACL to Create/Delete Groups
             try {
                 Set-AdAclCreateDeleteGroup @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating group cleanup permission'
             } #end Try-Catch
 
             # Remove the Account Operators group from ACL to Create/Delete Contacts
             try {
                 Set-AdAclCreateDeleteContact @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating contact cleanup permission'
             } #end Try-Catch
 
             # Remove the Account Operators group from ACL to Create/Delete inetOrgPerson
             try {
                 Set-CreateDeleteInetOrgPerson @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating InetOrg cleanup permission'
             } #end Try-Catch
 
             # Remove the Print Operators group from ACL to Create/Delete PrintQueues
             try {
                 Set-AdAclCreateDeletePrintQueue @Splat
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating PrintQueue Create/Delete cleanup permission'
             } #end Try-Catch
 
             # Remove Pre-Windows 2000 Compatible Access group from Admin-User
             try {
                 Remove-PreWin2000 -LDAPPath $PSBoundParameters['LDAPPath']
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating Pre-Win2000 cleanup permission'
             } #end Try-Catch
 
             # Remove Pre-Windows 2000 Access group from OU
             try {
                 Remove-PreWin2000FromOU -LDAPPath $PSBoundParameters['LDAPPath']
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating Pre-Win2000 cleanup from OU permission'
             } #end Try-Catch
 
             # Remove ACCOUNT OPERATORS 2000 Access group from OU
             try {
                 Remove-AccountOperator -LDAPPath $PSBoundParameters['LDAPPath']
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating AccountOperators cleanup permission'
             } #end Try-Catch
 
             # Remove PRINT OPERATORS 2000 Access group from OU
             try {
                 Remove-PrintOperator -LDAPPath $PSBoundParameters['LDAPPath']
             } catch {
-                ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                throw
+                Write-Error -Message 'Error when delegating PrintOperators cleanup permission'
             } #end Try-Catch
 
             If ($PsBoundParameters['RemoveAuthenticatedUsers']) {
@@ -189,8 +187,7 @@ function Start-AdCleanOU {
                 try {
                     Remove-AuthUser -LDAPPath $PSBoundParameters['LDAPPath']
                 } catch {
-                    ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                    throw
+                    Write-Error -Message 'Error when delegating Authenticated Users cleanup permission'
                 } #end Try-Catch
 
                 Write-Verbose -Message 'Removing Authenticated Users'
@@ -201,8 +198,7 @@ function Start-AdCleanOU {
                 try {
                     Remove-UnknownSID -LDAPPath $PSBoundParameters['LDAPPath'] -RemoveSID
                 } catch {
-                    ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-                    throw
+                    Write-Error -Message 'Error when removing Unknown SIDs'
                 } #end Try-Catch
 
                 Write-Verbose -Message 'Remove Un-Resolvable / Unknown SIDs'
@@ -212,10 +208,10 @@ function Start-AdCleanOU {
     } #end Process
 
     end {
-        Write-Verbose -Message('Builtin groups were removed correctly from object {0}.' -f $PSBoundParameters['LDAPPath'])
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'removing Builtin groups.'
+        )
+        Write-Verbose -Message $txt
     } #end End
 
 } #end Function

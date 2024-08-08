@@ -16,7 +16,9 @@ Function New-TimePolicyGPO {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
+
     Param
     (
         # Param1 GPO Name
@@ -96,18 +98,14 @@ Function New-TimePolicyGPO {
         ##############################
         # Module imports
 
-
-
         ##############################
         # Variables Definition
-
-
 
         $msWMIAuthor = (Get-ADUser -Identity $env:USERNAME).Name
 
         # Create WMI Filter
         $WMIGUID = [string]'{' + ([Guid]::NewGuid()) + '}'
-        $WMIDN = 'CN=' + $WMIGUID + ',CN=SOM,CN=WMIPolicy,CN=System,{0}' -f ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
+        $WMIDN = 'CN={0},CN=SOM,CN=WMIPolicy,CN=System,{1}' -f $WMIGUID, $Variables.defaultNamingContext
         $WMICN = $WMIGUID
         $WMIdistinguishedname = $WMIDN
         $WMIID = $WMIGUID
@@ -134,7 +132,7 @@ Function New-TimePolicyGPO {
             'msWMI-CreationDate'     = $msWMICreationDate
         }
 
-        $WMIPath = ('CN=SOM,CN=WMIPolicy,CN=System,{0}' -f ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString())
+        $WMIPath = 'CN=SOM,CN=WMIPolicy,CN=System,{0}' -f $Variables.defaultNamingContext
 
         $ExistingWMIFilters = Get-ADObject -Filter 'objectClass -eq "msWMI-Som"' -Properties 'msWMI-Name', 'msWMI-Parm1', 'msWMI-Parm2'
         $array = @()
@@ -147,14 +145,14 @@ Function New-TimePolicyGPO {
             }
         } Else {
             $array += 'no filters'
-        }
+        } #end If-Else
 
         if ($array -notcontains $msWMIName) {
             Write-Output ('Creating the {0} WMI Filter...' -f $msWMIName)
             $WMIFilterADObject = New-ADObject -name $WMICN -type 'msWMI-Som' -Path $WMIPath -OtherAttributes $Attr
         } Else {
             Write-Warning -Message ('The {0} WMI Filter already exists.' -f $msWMIName)
-        }
+        } #end If-Else
 
         $WMIFilterADObject = $null
 
@@ -220,14 +218,13 @@ Function New-TimePolicyGPO {
             Write-Warning -Message ('The {0} Group Policy Object already exists.' -f $PSBoundParameters['gpoName'])
             Write-Output ('Adding the {0} WMI Filter...' -f $msWMIName)
             $ExistingGPO.WmiFilter = ConvertTo-WmiFilter $WMIFilterADObject
-        }
-    }
+        } #end If-Else
+    } #end Process
 
     End {
-        Write-Output "Completed.`n"
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating the Time Policy GPO."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating the Time Policy GPO.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+} #end Function

@@ -18,6 +18,7 @@ Function New-ExchangeObject {
       http://www.eguibarit.com
   #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
 
     Param(
         # PARAM1 full path to the configuration.xml file
@@ -41,6 +42,7 @@ Function New-ExchangeObject {
         [string]
         $DMscripts = 'C:\PsScripts\'
     )
+
     Begin {
         $error.Clear()
 
@@ -184,9 +186,8 @@ Function New-ExchangeObject {
         # Quarantine OU Distinguished Name
         $ItQuarantineOuDn = 'OU={0},{1}' -f $ItQuarantineOu, $Variables.AdDn
 
-        #endregion Declarations
-        ################################################################################
-    }
+    } #end Begin
+
     Process {
         ###############################################################################
         # Create Sub-OUs for admin
@@ -353,11 +354,12 @@ Function New-ExchangeObject {
 
         # Configure EDGE GPO
         #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExEdge.backupID    -TargetName ('C-{0}-Baseline' -f $ExEdgeOuDn) -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
-    }
+    } #end Process
+
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) finished creating Exchange containers and objects."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '-------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
-    }
-}
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'creating Exchange containers and objects.'
+        )
+        Write-Verbose -Message $txt
+    } #end End
+} #end Function

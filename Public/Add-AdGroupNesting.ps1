@@ -18,6 +18,7 @@ function Add-AdGroupNesting {
         http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [OutputType([void])]
 
     Param (
         # Param1 Group which membership is to be changed
@@ -57,10 +58,9 @@ function Add-AdGroupNesting {
         ##############################
         # Variables Definition
 
-
         # Define array lists
         $CurrentMembers = [System.Collections.ArrayList]::new()
-        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         # Check if Identity is a group. Retrieve the object if not Microsoft.ActiveDirectory.Management.AdGroup.
         $Identity = Get-AdObjectType -Identity $Identity
@@ -116,9 +116,10 @@ function Add-AdGroupNesting {
     } #end Process
 
     End {
-        Write-Verbose -Message "Function $($MyInvocation.InvocationName) adding members to the group."
-        Write-Verbose -Message ''
-        Write-Verbose -Message '--------------------------------------------------------------------------------'
-        Write-Verbose -Message ''
+        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+            'adding members to the group.'
+        )
+        Write-Verbose -Message $txt
     } #end End
+
 } #end Function
