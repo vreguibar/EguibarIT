@@ -132,7 +132,7 @@ Function New-Template {
 
     End {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'adding new PKI template.'
+            'adding new PKI template (Private Function).'
         )
         Write-Verbose -Message $txt
     } #end End section

@@ -86,7 +86,7 @@ function Test-IsValidDN {
 
     end {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'testing DistinguishedName (DN).'
+            'testing DistinguishedName (DN) (Private Function).'
         )
         Write-Verbose -Message $txt
 

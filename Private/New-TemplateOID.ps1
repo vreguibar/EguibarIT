@@ -104,7 +104,7 @@ Function New-TemplateOID {
 
     End {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'creating new Template OID.'
+            'creating new Template OID (Private Function).'
         )
         Write-Verbose -Message $txt
 

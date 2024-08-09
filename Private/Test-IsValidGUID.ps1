@@ -84,7 +84,7 @@
 
     end {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'testing Global Unique Identifier (GUID).'
+            'testing Global Unique Identifier (GUID) (Private Function).'
         )
         Write-Verbose -Message $txt
 

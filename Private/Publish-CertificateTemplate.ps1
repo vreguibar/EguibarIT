@@ -62,7 +62,7 @@ Function Publish-CertificateTemplate {
 
     end {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'publishing Cert Template.'
+            'publishing Cert Template (Private Function).'
         )
         Write-Verbose -Message $txt
     } #end End

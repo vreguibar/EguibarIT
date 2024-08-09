@@ -175,7 +175,7 @@
 
     End {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'getting AD object type.'
+            'getting AD object type (Private Function).'
         )
         Write-Verbose -Message $txt
 

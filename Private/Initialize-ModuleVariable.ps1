@@ -147,7 +147,7 @@
 
     End {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'initializing Variables.'
+            'initializing Variables (Private Function).'
         )
         Write-Verbose -Message $txt
     } #end End

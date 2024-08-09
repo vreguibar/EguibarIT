@@ -76,7 +76,7 @@ Function Get-RandomHex {
 
     End {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'generating random hexadecimal string.'
+            'generating random hexadecimal string (Private Function).'
         )
         Write-Verbose -Message $txt
 

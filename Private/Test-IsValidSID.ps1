@@ -115,7 +115,7 @@ function Test-IsValidSID {
 
     end {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'testing SecurityIdentifier (SID).'
+            'testing SecurityIdentifier (SID) (Private Function).'
         )
         Write-Verbose -Message $txt
 

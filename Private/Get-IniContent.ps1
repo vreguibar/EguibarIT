@@ -113,7 +113,7 @@ function Get-IniContent {
 
     End {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            ('reading content from {0} file.' -f $PSBoundParameters['FilePath'])
+            ('reading content from {0} file  (Private Function).' -f $PSBoundParameters['FilePath'])
         )
         Write-Verbose -Message $txt
 

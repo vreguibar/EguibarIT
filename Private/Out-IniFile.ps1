@@ -161,7 +161,7 @@
 
     End {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'writing to INI file.'
+            'writing to INI file (Private Function).'
         )
         Write-Verbose -Message $txt
     } #end End

@@ -96,7 +96,7 @@ Function Get-ADCSTemplate {
 
     End {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'getting Cert Template.'
+            'getting Cert Template (Private Function).'
         )
         Write-Verbose -Message $txt
 

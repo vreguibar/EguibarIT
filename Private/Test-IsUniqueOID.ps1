@@ -118,7 +118,7 @@ Function Test-IsUniqueOID {
 
     End {
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'checking the Certificate Template OID uniqueness.'
+            'checking the Certificate Template OID uniqueness (Private Function).'
         )
         Write-Verbose -Message $txt
     } #end End

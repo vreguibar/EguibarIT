@@ -146,7 +146,7 @@ function Get-CurrentErrorToDisplay {
         $error.Clear()
 
         $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
-            'getting Displaying current error.'
+            'getting Displaying current error (Private Function).'
         )
         Write-Verbose -Message $txt
 
