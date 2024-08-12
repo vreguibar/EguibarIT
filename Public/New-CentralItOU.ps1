@@ -2961,35 +2961,44 @@
         }
 
         $Splat1 = @{
-            ouName        = $confXML.n.Servers.OUs.SqlOU.Name
-            ouDescription = $confXML.n.Servers.OUs.SqlOU.Description
-        }
-        New-DelegateAdOU @Splat @Splat1
-        $Splat = @{
-            ouName        = $confXML.n.Servers.OUs.WebOU.Name
-            ouDescription = $confXML.n.Servers.OUs.WebOU.Description
-        }
-        New-DelegateAdOU @Splat @Splat1
-        $Splat = @{
-            ouName        = $confXML.n.Servers.OUs.FileOU.Name
-            ouDescription = $confXML.n.Servers.OUs.FileOU.Description
-        }
-        New-DelegateAdOU @Splat @Splat1
-        $Splat = @{
             ouName        = $confXML.n.Servers.OUs.ApplicationOU.Name
             ouDescription = $confXML.n.Servers.OUs.ApplicationOU.Description
         }
         New-DelegateAdOU @Splat @Splat1
-        $Splat = @{
+        $Splat1 = @{
+            ouName        = $confXML.n.Servers.OUs.FileOU.Name
+            ouDescription = $confXML.n.Servers.OUs.FileOU.Description
+        }
+        New-DelegateAdOU @Splat @Splat1
+        $Splat1 = @{
             ouName        = $confXML.n.Servers.OUs.HypervOU.Name
             ouDescription = $confXML.n.Servers.OUs.HypervOU.Description
         }
         New-DelegateAdOU @Splat @Splat1
-        $Splat = @{
+        $Splat1 = @{
+            ouName        = $confXML.n.Servers.OUs.LinuxOU.Name
+            ouDescription = $confXML.n.Servers.OUs.LinuxOU.Description
+        }
+        New-DelegateAdOU @Splat @Splat1
+        $Splat1 = @{
             ouName        = $confXML.n.Servers.OUs.RemoteDesktopOU.Name
             ouDescription = $confXML.n.Servers.OUs.RemoteDesktopOU.Description
         }
         New-DelegateAdOU @Splat @Splat1
+        $Splat1 = @{
+            ouName        = $confXML.n.Servers.OUs.SqlOU.Name
+            ouDescription = $confXML.n.Servers.OUs.SqlOU.Description
+        }
+        New-DelegateAdOU @Splat @Splat1
+        $Splat1 = @{
+            ouName        = $confXML.n.Servers.OUs.WebOU.Name
+            ouDescription = $confXML.n.Servers.OUs.WebOU.Description
+        }
+        New-DelegateAdOU @Splat @Splat1
+
+
+
+
 
 
 

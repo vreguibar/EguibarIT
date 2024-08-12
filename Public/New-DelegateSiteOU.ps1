@@ -39,7 +39,7 @@
                 Start-AdDelegateSite                   | EguibarIT
                 Start-AdCleanOU                        | EguibarIT
                 Set-AdAclLaps                          | EguibarIT
-                Set-GpoPrivilegeRights                 | EguibarIT.DelegationPS
+                Set-GpoPrivilegeRight                  | EguibarIT.DelegationPS
                 Get-ADGroup                            | ActiveDirectory
                 Get-AdOrganizationalUnit               | ActiveDirectory
                 Import-GPO                             | GroupPolicy
@@ -309,7 +309,7 @@
         # Groups
         $SG_AllSiteAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AllSiteAdmins.Name)
         $SG_AllGALAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AllGALAdmins.Name)
-
+        $GpoAdmin = = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
 
         ####################
         # OU DistinguishedNames
@@ -586,7 +586,7 @@
             gpoDescription = '{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name
             gpoScope       = $confXML.n.Sites.OUs.OuSiteComputer.Scope
             gpoLinkPath    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.Name, $ouNameDN
-            GpoAdmin       = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
+            GpoAdmin       = $GpoAdmin
         }
         New-DelegateAdGpo @splat
 
@@ -595,7 +595,7 @@
             gpoDescription = '{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name
             gpoScope       = $confXML.n.Sites.OUs.OuSiteLaptop.Scope
             gpoLinkPath    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $ouNameDN
-            GpoAdmin       = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
+            GpoAdmin       = $GpoAdmin
         }
         New-DelegateAdGpo @splat
 
@@ -604,7 +604,7 @@
             gpoDescription = '{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteUser.Name
             gpoScope       = $confXML.n.Sites.OUs.OuSiteUser.Scope
             gpoLinkPath    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteUser.Name, $ouNameDN
-            GpoAdmin       = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
+            GpoAdmin       = $GpoAdmin
         }
         New-DelegateAdGpo @splat
 
@@ -651,7 +651,7 @@
             $confXML.n.Admin.users.Admin.name,
             $confXML.n.Admin.users.newAdmin.name
         )
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name) -DenyNetworkLogon $splat
+        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name) -DenyNetworkLogon $splat
 
         $splat = @(
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
@@ -660,7 +660,7 @@
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name),
             'Guests'
         )
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name) -DenyInteractiveLogon $splat -DenyRemoteInteractiveLogon $splat
+        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name) -DenyInteractiveLogon $splat -DenyRemoteInteractiveLogon $splat
 
         $splat = @(
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
@@ -680,10 +680,10 @@
             $confXML.n.Admin.users.Admin.name,
             $confXML.n.Admin.users.newAdmin.name
         )
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
+        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
 
         $splat = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name) -BatchLogon $splat -ServiceLogon $splat
+        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name) -BatchLogon $splat -ServiceLogon $splat
 
 
 
@@ -710,7 +710,7 @@
             $confXML.n.Admin.users.Admin.name,
             $confXML.n.Admin.users.newAdmin.name
         )
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name) -DenyNetworkLogon $splat
+        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name) -DenyNetworkLogon $splat
 
         $splat = @(
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
@@ -719,7 +719,7 @@
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name),
             'Guests'
         )
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name) -DenyInteractiveLogon $splat -DenyRemoteInteractiveLogon $splat
+        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name) -DenyInteractiveLogon $splat -DenyRemoteInteractiveLogon $splat
 
         $splat = @(
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
@@ -739,10 +739,10 @@
             $confXML.n.Admin.users.Admin.name,
             $confXML.n.Admin.users.newAdmin.name
         )
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
+        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
 
         $splat = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name
-        Set-GpoPrivilegeRights -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name) -BatchLogon $splat -ServiceLogon $splat
+        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name) -BatchLogon $splat -ServiceLogon $splat
 
 
 
@@ -821,7 +821,7 @@
                 gpoDescription = '{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteMailbox.Name
                 gpoScope       = 'U'
                 gpoLinkPath    = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteMailbox.Name, $ouNameDN
-                GpoAdmin       = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
+                GpoAdmin       = $GpoAdmin
             }
             New-DelegateAdGpo @splat
 
