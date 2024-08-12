@@ -33,7 +33,7 @@
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -589,7 +589,7 @@ Invoke-Command -ComputerName $GatewayServerName -ScriptBlock {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating created Certificate Authority objects and Delegations.'
         )
         Write-Verbose -Message $txt

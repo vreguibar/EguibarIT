@@ -47,7 +47,7 @@ Function Get-ADCSTemplate {
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -95,7 +95,7 @@ Function Get-ADCSTemplate {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'getting Cert Template (Private Function).'
         )
         Write-Verbose -Message $txt

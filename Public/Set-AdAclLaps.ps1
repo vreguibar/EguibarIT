@@ -82,7 +82,7 @@ function Set-AdAclLaps {
     )
 
     begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -132,7 +132,7 @@ function Set-AdAclLaps {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'delegating LAPS Admin.'
         )
         Write-Verbose -Message $txt

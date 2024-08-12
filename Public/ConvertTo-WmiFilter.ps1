@@ -37,7 +37,7 @@ function ConvertTo-WmiFilter {
 
     Begin {
         $error.Clear()
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -103,7 +103,7 @@ function ConvertTo-WmiFilter {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'converting the WMI filter.'
         )
         Write-Verbose -Message $txt

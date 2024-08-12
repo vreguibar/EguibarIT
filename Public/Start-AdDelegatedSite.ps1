@@ -117,7 +117,7 @@ function Start-AdDelegateSite {
     begin {
         $error.Clear()
 
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -400,7 +400,7 @@ function Start-AdDelegateSite {
     } #end Process
 
     end {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'Site delegation.'
         )
         Write-Verbose -Message $txt

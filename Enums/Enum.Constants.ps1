@@ -2,19 +2,19 @@
 
     # Null GUID which is considered as "All"
     #$guidNull  = New-Object -TypeName Guid -ArgumentList 00000000-0000-0000-0000-000000000000
-    guidNull         = [System.guid]::New('00000000-0000-0000-0000-000000000000')
+    guidNull  = [System.guid]::New('00000000-0000-0000-0000-000000000000')
 
     # Horizontal Tab
-    HTab             = "`t"
+    HTab      = "`t"
 
     # New NewLine
-    NL               = [System.Environment]::NewLine
+    NL        = [System.Environment]::NewLine
 
     # Regular Expression (RegEx) for SIDs
-    SidRegEx         = [RegEx]::new('^S-1-(0|1|2|3|4|5|16|59)-\d+(-\d+)*$')
+    SidRegEx  = [RegEx]::new('^S-1-(0|1|2|3|4|5|16|59)-\d+(-\d+)*$')
 
     # Regular Expression (RegEx) for DistinguishedName
-    DnRegEx          = [RegEx]::new('^(?:(CN=(?<name>(?:[^,\\]|\\.)+),)*)?(OU=(?<ou>(?:[^,\\]|\\.)+),)*(DC=(?<dc1>(?:[^,\\]|\\.)+))(,DC=(?<dc2>(?:[^,\\]|\\.)+))+?$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    DnRegEx   = [RegEx]::new('^(?:(CN=(?<name>(?:[^,\\]|\\.)+),)*)?(OU=(?<ou>(?:[^,\\]|\\.)+),)*(DC=(?<dc1>(?:[^,\\]|\\.)+))(,DC=(?<dc2>(?:[^,\\]|\\.)+))+?$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
 
     # Regular Expression (RegEx) for GUID
     <# Define GUID Regex
@@ -28,46 +28,7 @@
         {12} specifies that the preceding character class should appear exactly 12 times.
         $ asserts the end of the string.
     #>
-    GuidRegEx        = [RegEx]::new('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
-
-    # Message header for new regions. Used on NewCentralItOu to easily identify regions on transcript
-    NewRegionMessage = @'
-
-    ████████████████████████████████████████████████████████████████████████████████████████████████████
-    █                                                                                                  █
-    █             ╔══════════════════════════════════════════════════════════════════════╗             █
-    █             ║                                                                      ║             █
-    █             ║                        New Region Start                              ║             █
-    █             ║                                                                      ║             █
-    █             ╚══════════════════════════════════════════════════════════════════════╝             █
-    █                                                                                                  █
-    ████████████████████████████████████████████████████████████████████████████████████████████████████
-
-        REGION: {0}
-
-'@
-
-    # Standard header used on each function on the Begin section
-    Header           = @'
-
-    ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-    ┃                                        EguibarIT module                                          ┃
-    ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
-            Date:     {0}
-            Starting: {1}
-
-    Parameters used by the function... {2}
-
-'@
-
-    # Standard footer used on each function on the Begin section
-    Footer           = @'
-
-        Function {0} finished {1}"
-
-    ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-
-'@
+    GuidRegEx = [RegEx]::new('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
 
 }
 

@@ -43,7 +43,7 @@ function Add-AdGroupNesting {
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -116,7 +116,7 @@ function Add-AdGroupNesting {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'adding members to the group.'
         )
         Write-Verbose -Message $txt

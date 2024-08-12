@@ -46,7 +46,7 @@ Function New-ExchangeObject {
     Begin {
         $error.Clear()
 
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -357,7 +357,7 @@ Function New-ExchangeObject {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating Exchange containers and objects.'
         )
         Write-Verbose -Message $txt

@@ -83,7 +83,7 @@ function New-LocalLogonTask {
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -147,7 +147,7 @@ function New-LocalLogonTask {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating new task.'
         )
         Write-Verbose -Message $txt

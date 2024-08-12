@@ -64,7 +64,7 @@ function Grant-NTFSPermission {
     Begin {
         $error.Clear()
 
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -104,7 +104,7 @@ function Grant-NTFSPermission {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'changing NTFS permissions.'
         )
         Write-Verbose -Message $txt

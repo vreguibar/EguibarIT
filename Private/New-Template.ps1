@@ -60,7 +60,7 @@ Function New-Template {
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -131,7 +131,7 @@ Function New-Template {
     } # End PROCESS section
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'adding new PKI template (Private Function).'
         )
         Write-Verbose -Message $txt

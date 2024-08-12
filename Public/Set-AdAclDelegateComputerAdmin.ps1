@@ -87,7 +87,7 @@ function Set-AdAclDelegateComputerAdmin {
     begin {
         $error.Clear()
 
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -202,7 +202,7 @@ function Set-AdAclDelegateComputerAdmin {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'delegating Computer Admin.'
         )
         Write-Verbose -Message $txt

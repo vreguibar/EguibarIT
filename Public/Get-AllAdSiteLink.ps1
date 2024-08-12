@@ -22,7 +22,7 @@ function Get-AllAdSiteLink {
     Param ()
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -54,7 +54,7 @@ function Get-AllAdSiteLink {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'getting SiteLinks.'
         )
         Write-Verbose -Message $txt

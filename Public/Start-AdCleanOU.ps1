@@ -82,7 +82,7 @@ function Start-AdCleanOU {
     )
 
     begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -208,7 +208,7 @@ function Start-AdCleanOU {
     } #end Process
 
     end {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'removing Builtin groups.'
         )
         Write-Verbose -Message $txt

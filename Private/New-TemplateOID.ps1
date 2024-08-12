@@ -61,7 +61,7 @@ Function New-TemplateOID {
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -103,7 +103,7 @@ Function New-TemplateOID {
     } # End PROCESS Section
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating new Template OID (Private Function).'
         )
         Write-Verbose -Message $txt

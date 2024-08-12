@@ -25,7 +25,7 @@ function Test-IPv4MaskString {
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -47,7 +47,7 @@ function Test-IPv4MaskString {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'testing whether an IPv4 network mask string.'
         )
         Write-Verbose -Message $txt

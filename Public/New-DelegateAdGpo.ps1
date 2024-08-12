@@ -139,7 +139,7 @@
     Begin {
         $error.Clear()
 
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -298,7 +298,7 @@
 
     } # End Process Section
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating GPO.'
         )
         Write-Verbose -Message $txt

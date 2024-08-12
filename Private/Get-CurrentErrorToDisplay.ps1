@@ -39,7 +39,7 @@ function Get-CurrentErrorToDisplay {
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -145,7 +145,7 @@ function Get-CurrentErrorToDisplay {
         Write-Verbose -Message 'Cleaning the $error variable'
         $error.Clear()
 
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'getting Displaying current error (Private Function).'
         )
         Write-Verbose -Message $txt

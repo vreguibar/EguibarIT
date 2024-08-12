@@ -34,7 +34,7 @@ function ConvertTo-IPv4MaskBit {
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -57,7 +57,7 @@ function ConvertTo-IPv4MaskBit {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'returning the bits in a bitmask IPv4.'
         )
         Write-Verbose -Message $txt

@@ -63,7 +63,7 @@ Function Test-IsUniqueOID {
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -117,7 +117,7 @@ Function Test-IsUniqueOID {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'checking the Certificate Template OID uniqueness (Private Function).'
         )
         Write-Verbose -Message $txt

@@ -46,7 +46,7 @@ function Test-IsValidDN {
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -85,7 +85,7 @@ function Test-IsValidDN {
     } #end Process
 
     end {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'testing DistinguishedName (DN) (Private Function).'
         )
         Write-Verbose -Message $txt

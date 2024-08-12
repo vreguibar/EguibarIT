@@ -63,7 +63,7 @@ function Revoke-NTFSPermissions {
     Begin {
         $error.Clear()
 
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -96,7 +96,7 @@ function Revoke-NTFSPermissions {
     } #end Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'removing User/Group from folder.'
         )
         Write-Verbose -Message $txt

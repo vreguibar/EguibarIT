@@ -29,7 +29,7 @@ Function Publish-CertificateTemplate {
     )
 
     begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -61,7 +61,7 @@ Function Publish-CertificateTemplate {
     } #end Process
 
     end {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'publishing Cert Template (Private Function).'
         )
         Write-Verbose -Message $txt

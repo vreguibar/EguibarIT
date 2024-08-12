@@ -59,7 +59,7 @@ function Get-IniContent {
     )
 
     Begin {
-        $txt = ($constants.Header -f
+        $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
@@ -112,7 +112,7 @@ function Get-IniContent {
     } # End Process
 
     End {
-        $txt = ($Constants.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             ('reading content from {0} file  (Private Function).' -f $PSBoundParameters['FilePath'])
         )
         Write-Verbose -Message $txt
