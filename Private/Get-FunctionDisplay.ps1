@@ -24,14 +24,19 @@
     [OutputType([String])]
 
     Param (
-        [Parameter(Mandatory = $true, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $true,
             HelpMessage = 'Hashtable variable from calling function containing PsBoundParameters to format accordingly',
             Position = 0)]
-        [ValidateNotNullOrEmpty()]
         [Hashtable]
         $HashTable,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $true,
             HelpMessage = 'Amount of Tabs to be used on the formatting.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
@@ -41,7 +46,6 @@
     )
 
     Begin {
-
     } # end Begin
 
     Process {
@@ -61,11 +65,11 @@
             $display = 'No PsBoundParameters to display.'
         } #end If
         $display += $Constants.NL
-        $display += $Constants.NL
 
     } # end Process
 
     End {
         Return $display
     } #end END
+
 } #end Function

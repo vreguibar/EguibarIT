@@ -223,10 +223,18 @@
 
         $error.clear()
 
+
+        Write-Verbose -Message '|=> ************************************************************************ <=|'
+        Write-Verbose -Message (Get-Date).ToShortDateString()
+        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
+        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False))
+
+
+
         $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
-            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
         )
         Write-Verbose -Message $txt
 

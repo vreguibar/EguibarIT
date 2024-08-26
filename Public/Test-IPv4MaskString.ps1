@@ -17,7 +17,7 @@ function Test-IPv4MaskString {
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $false,
+            ValueFromRemainingArguments = $true,
             HelpMessage = 'Specifies the IPv4 network mask string (e.g., 255.255.255.0)',
             Position = 1)]
         [String]
@@ -28,7 +28,7 @@ function Test-IPv4MaskString {
         $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
-            (Get-FunctionDisplay $PsBoundParameters -Verbose:$False)
+            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
         )
         Write-Verbose -Message $txt
 
