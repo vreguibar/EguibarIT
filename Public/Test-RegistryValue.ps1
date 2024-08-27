@@ -34,7 +34,7 @@ function Test-RegistryValue {
         [parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $false,
+            ValueFromRemainingArguments = $true,
             HelpMessage = 'Registry path to be tested',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
@@ -44,7 +44,7 @@ function Test-RegistryValue {
         [parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $false,
+            ValueFromRemainingArguments = $true,
             HelpMessage = 'Registry value to be tested',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
