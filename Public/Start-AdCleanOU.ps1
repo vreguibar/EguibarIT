@@ -92,7 +92,7 @@ function Start-AdCleanOU {
         ##############################
         # Module imports
 
-        Import-Module -Name EguibarIT.DelegationPS -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
 
         ##############################
         # Variables Definition

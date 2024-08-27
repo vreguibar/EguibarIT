@@ -136,7 +136,7 @@
 
 
         # Cannot be imported in the begin section due features installation
-        Import-Module -Name WebAdministration -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule -Name 'WebAdministration' -Verbose:$false
 
 
 

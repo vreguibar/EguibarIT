@@ -43,7 +43,7 @@
         ##############################
         # Module imports
 
-        Import-Module -Name EguibarIT.DelegationPS -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
 
         ##############################
         # Variables Definition
@@ -110,7 +110,7 @@
         If (-not((Get-WindowsFeature -Name RSAT-AD-PowerShell).Installed)) {
             Install-WindowsFeature -Name RSAT-AD-PowerShell -IncludeAllSubFeature
         }
-        Import-Module -Name ActiveDirectory -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
 
         # AD CS Step by Step Guide: Two Tier PKI Hierarchy Deployment
         # https://social.technet.microsoft.com/wiki/contents/articles/15037.ad-cs-step-by-step-guide-two-tier-pki-hierarchy-deployment.aspx
@@ -136,7 +136,7 @@
                 # Install PSPKI module for managing Certification Authority
                 Install-PackageProvider -Name NuGet -Force
                 Install-Module -Name PSPKI -Force
-                Import-Module -Name PSPKI -SkipEditionCheck -Force -Verbose:$false | Out-Null
+                Import-MyModule -Name 'PSPKI' -Verbose:$false
 
                 #Define PKI Cname
                 $PkiServer = ('pki.{0}' -f $env:USERDNSDOMAIN)

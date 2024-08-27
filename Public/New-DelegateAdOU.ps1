@@ -177,7 +177,7 @@ function New-DelegateAdOU {
         ##############################
         # Module imports
 
-        Import-Module -Name 'EguibarIT.DelegationPS' -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
 
 
         ##############################

@@ -53,7 +53,7 @@ function Add-AdGroupNesting {
         ##############################
         # Module imports
 
-        Import-Module -Name ActiveDirectory -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
 
         ##############################
         # Variables Definition

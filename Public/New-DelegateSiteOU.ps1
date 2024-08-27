@@ -265,10 +265,10 @@
         ##############################
         # Module imports
 
-        Import-Module -Name ServerManager -SkipEditionCheck -Force -Verbose:$false | Out-Null
-        Import-Module -Name ActiveDirectory -SkipEditionCheck -Force -Verbose:$false | Out-Null
-        Import-Module -Name GroupPolicy -SkipEditionCheck -Force -Verbose:$false | Out-Null
-        Import-Module -Name EguibarIT.DelegationPS -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule -Name 'ServerManager' -Verbose:$false
+        Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
+        Import-MyModule -Name 'GroupPolicy' -Verbose:$false
+        Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
 
         ##############################
         # Variables Definition
@@ -310,6 +310,10 @@
         $SG_AllSiteAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AllSiteAdmins.Name)
         $SG_AllGALAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AllGALAdmins.Name)
         $GpoAdmin = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
+        $SG_ServiceDesk = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.ServiceDesk.Name)
+        $SG_GlobalGroupAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalGroupAdmins.Name)
+        $SG_GlobalPcAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalPcAdmins.Name)
+        $SG_GlobalUserAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalUserAdmins.Name)
 
         ####################
         # OU DistinguishedNames
@@ -474,9 +478,10 @@
 
         # Iterate through all Site-LocalGroups child nodes
         Foreach ($node in $confXML.n.Sites.LG.ChildNodes) {
-            Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']))
+            [String]$Name = '{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
+            Write-Verbose -Message ('Create group {0}' -f $Name)
             $Splat = @{
-                Name                          = '{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
+                Name                          = $Name
                 GroupCategory                 = 'Security'
                 GroupScope                    = 'DomainLocal'
                 DisplayName                   = '{0} {1}' -f $PSBoundParameters['ouName'], $node.DisplayName
@@ -488,7 +493,7 @@
                 RemovePreWin2000              = $True
             }
 
-            New-Variable -Name "$('SL{0}{1}' -f $NC['Delim'], $node.LocalName)" -Value (New-AdDelegatedGroup @Splat) -Force
+            New-Variable -Name "$('SL_{0}' -f $node.LocalName)" -Value (New-AdDelegatedGroup @Splat) -Force
         }
 
         #endregion
@@ -501,9 +506,10 @@
 
         # Iterate through all Site-GlobalGroups child nodes
         Foreach ($node in $confXML.n.Sites.GG.ChildNodes) {
-            Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']))
+            [String]$Name = '{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
+            Write-Verbose -Message ('Create group {0}' -f $Name)
             $Splat = @{
-                Name                          = '{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
+                Name                          = $Name
                 GroupCategory                 = 'Security'
                 GroupScope                    = 'Global'
                 DisplayName                   = '{0} {1}' -f $PSBoundParameters['ouName'], $node.DisplayName
@@ -514,7 +520,7 @@
                 RemoveEveryone                = $True
                 RemovePreWin2000              = $True
             }
-            New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $node.LocalName)" -Value (New-AdDelegatedGroup @Splat) -Force
+            New-Variable -Name "$('SG_{0}' -f $node.LocalName)" -Value (New-AdDelegatedGroup @Splat) -Force
         }
 
         #endregion
@@ -547,13 +553,13 @@
 
         #region NESTING Global groups into Global Groups -> order Less privileged to more privileged
 
-        Add-AdGroupNesting -Identity $SG_PwdAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.ServiceDesk.Name)
+        Add-AdGroupNesting -Identity $SG_PwdAdmins -Members $SG_ServiceDesk
 
-        Add-AdGroupNesting -Identity $SG_ComputerAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalPcAdmins.Name)
+        Add-AdGroupNesting -Identity $SG_ComputerAdmins -Members $SG_GlobalPcAdmins
 
-        Add-AdGroupNesting -Identity $SG_GroupAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalGroupAdmins.Name)
+        Add-AdGroupNesting -Identity $SG_GroupAdmins -Members $SG_GlobalGroupAdmins
 
-        Add-AdGroupNesting -Identity $SG_UserAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalUserAdmins.Name)
+        Add-AdGroupNesting -Identity $SG_UserAdmins -Members $SG_GlobalUserAdmins
 
         Add-AdGroupNesting -Identity $SG_GALAdmins -Members $SG_AllGALAdmins
 

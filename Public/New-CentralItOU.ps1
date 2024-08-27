@@ -241,11 +241,11 @@
         ##############################
         # Module imports
         # These modules must be imported without checking and handling.
-        Import-Module -Name ServerManager -SkipEditionCheck -Force -Verbose:$false | Out-Null
-        Import-Module -Name GroupPolicy -SkipEditionCheck -Force -Verbose:$false | Out-Null
-        Import-Module -Name ActiveDirectory -SkipEditionCheck -Force -Verbose:$false | Out-Null
-        Import-Module -Name EguibarIT -SkipEditionCheck -Force -Verbose:$false | Out-Null
-        Import-Module -Name EguibarIT.DelegationPS -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule -Name 'ServerManager' -Verbose:$false
+        Import-MyModule -Name 'GroupPolicy' -Verbose:$false
+        Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
+        Import-MyModule -Name 'EguibarIT' -Verbose:$false
+        Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
 
 
         ##############################

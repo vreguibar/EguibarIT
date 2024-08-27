@@ -92,9 +92,9 @@ function Set-AdAclLaps {
         ##############################
         # Module imports
 
-        Import-Module -Name 'AdmPwd.PS' -SkipEditionCheck -Force -Verbose:$false | Out-Null
-        Import-Module -Name 'LAPS' -SkipEditionCheck -Force -Verbose:$false | Out-Null
-        Import-Module -Name 'EguibarIT.DelegationPS' -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule -Name 'AdmPwd.PS' -Verbose:$false
+        Import-MyModule -Name 'LAPS' -Verbose:$false
+        Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
 
         ##############################
         # Variables Definition

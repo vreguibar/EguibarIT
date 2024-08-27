@@ -47,7 +47,7 @@ function ConvertTo-WmiFilter {
         ##############################
         # Module imports
 
-        Import-Module -Name 'GroupPolicy' -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule -Name 'GroupPolicy' -Verbose:$false
 
         ##############################
         # Variables Definition

@@ -32,8 +32,8 @@ function Get-AllAdSiteLink {
         ##############################
         # Module imports
 
-        Import-Module -Name ServerManager -SkipEditionCheck -Force -Verbose:$false | Out-Null
-        Import-Module -Name ActiveDirectory -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule -Name 'ServerManager' -Verbose:$false
+        Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
 
         ##############################
         # Variables Definition
