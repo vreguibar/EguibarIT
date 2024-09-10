@@ -33,6 +33,15 @@
     # Well-Known SIDs
     WellKnownSIDs              = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
+    LogConfig                  = @{
+        LogName          = 'EguibarIT-Events'
+        Source           = 'EguibarIT-PowerShellModule'
+        MaximumKilobytes = 16384  # 16 MB default
+        RetentionDays    = 30
+    }
+
+    EventLogInitialized        = $false
+
     # Message header for new regions. Used on NewCentralItOu to easily identify regions on transcript
     NewRegionMessage           = @'
 
