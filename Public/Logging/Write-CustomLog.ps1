@@ -66,7 +66,7 @@
             Used Functions:
                 Name                          | Module
                 ------------------------------|--------------------------
-                Mask-SensitiveData            | EguibarIT
+                Remove-SensitiveData          | EguibarIT
                 Initialize-EventLogging       | EguibarIT
                 Write-EventLog                | Microsoft.PowerShell.Management
                 Write-Error                   | Microsoft.PowerShell.Utility.Activities
@@ -180,7 +180,7 @@
         $ErrorActionPreference = 'Stop'
 
         # Mask sensitive data
-        $maskedMessage = Mask-SensitiveData -Message $Message
+        $maskedMessage = Remove-SensitiveData -Message $Message
 
         # Initialize event logging
         Initialize-EventLogging -MaximumKilobytes $MaximumKilobytes -RetentionDays $RetentionDays
