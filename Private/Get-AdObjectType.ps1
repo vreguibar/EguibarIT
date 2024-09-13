@@ -53,6 +53,7 @@
                 http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'low')]
+    # return type will be different on each case.
 
     Param (
         # Param1
@@ -68,7 +69,7 @@
     )
 
     Begin {
-        $txt = ($Variables.Header -f
+        $txt = ($Variables.HeaderHousekeeping -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
@@ -95,9 +96,10 @@
             if ($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount] -or
                 $Identity -is [Microsoft.ActiveDirectory.Management.ADComputer] -or
                 $Identity -is [Microsoft.ActiveDirectory.Management.ADGroup] -or
-                $Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]) {
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit] -or
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADServiceAccount]) {
 
-                Write-Verbose -Message (' ┝━━━━━━►  Known AD Object Type: {0}' -f $Identity.GetType().Name)
+                Write-Verbose -Message (' ┝━━━━━━► Known AD Object Type: {0}' -f $Identity.GetType().Name)
                 $ReturnValue = $Identity
 
             } elseif ($Identity -is [string]) {
@@ -137,27 +139,32 @@
                 Switch ($newObject.ObjectClass) {
 
                     'user' {
-                        Write-Verbose -Message '# ┝━━━━━━►  AD User Object from STRING'
+                        Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD User Object from STRING'
                         [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = Get-ADUser -Identity $newObject
                     }
 
                     'group' {
-                        Write-Verbose -Message '# ┝━━━━━━►  AD Group Object from STRING'
+                        Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Group Object from STRING'
                         [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = Get-ADGroup -Identity $newObject
                     }
 
                     'computer' {
-                        Write-Verbose -Message '# ┝━━━━━━►  AD Computer Object from STRING'
+                        Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Computer Object from STRING'
                         [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = Get-ADComputer -Identity $newObject
                     }
 
                     'organizationalUnit' {
-                        Write-Verbose -Message '# ┝━━━━━━►  AD Organizational Unit Object from STRING'
+                        Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Organizational Unit Object from STRING'
                         [Microsoft.ActiveDirectory.Management.organizationalUnit]$ReturnValue = Get-ADOrganizationalUnit -Identity $newObject
                     }
 
+                    'msDS-GroupManagedServiceAccount' {
+                        Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Group Managed Service Account from STRING'
+                        [Microsoft.ActiveDirectory.Management.ADServiceAccount]$ReturnValue = Get-ADServiceAccount -Identity $newObject
+                    }
+
                     Default {
-                        Write-Error -Message ('# ┝━━━━━━►  Unknown object type for identity: {0}' -f $Identity)
+                        Write-Error -Message ('#     ┝━━━━━━━━━━►  Unknown object type for identity: {0}' -f $Identity)
 
                         return $null
                     }
@@ -165,7 +172,7 @@
 
             } #end If
         } catch {
-            Write-Error -Message "An error occurred: $_"
+            Write-Error -Message ('An error occurred: {0}' -f $_)
             $ReturnValue = $null
         }
 
@@ -173,7 +180,7 @@
     } # End Process Section
 
     End {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+        $txt = ($Variables.FooterHousekeeping -f $MyInvocation.InvocationName,
             'getting AD object type (Private Function).'
         )
         Write-Verbose -Message $txt
