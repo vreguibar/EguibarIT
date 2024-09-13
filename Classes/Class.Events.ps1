@@ -125,25 +125,50 @@ public enum EventID
     TaskStarted = 1002,
     TaskCompleted = 1003,
 
+    FunctionCalled = 2100,
+    GetGroupMembership = 2200,
+    SetGroupMembership = 2300,
+
+
+
+
+
     // Warning events (10000-19999)
     ////////////////////////////////////////////////////////////////////////////////
     LowDiskSpace = 10000,
     SlowPerformance = 10001,
+
+    InvalidSID = 10005,
+
+
+
+
 
     // Error events (20000-29999)
     ////////////////////////////////////////////////////////////////////////////////
     DatabaseConnectionFailed = 20000,
     AuthenticationFailed = 20001,
 
+    FailedGetGroupMembership = 20200,
+    FailedSetGroupMembership = 20300,
+
+
+
+
+
     // Critical events (30000-39999)
     ////////////////////////////////////////////////////////////////////////////////
     ServiceCrashed = 30000,
     DataCorruption = 30001
 
+
+
+
+
     // Other Not-Defined events (40000-65535)
     ////////////////////////////////////////////////////////////////////////////////
 
-}
+} //end Enum
 
 
 
@@ -198,7 +223,7 @@ public class EventIDInfo
         this.Category = category;
         this.DefaultSeverity = severity;
     }
-}
+} //end Class
 
 
 
@@ -210,6 +235,10 @@ public class EventIDInfo
 /// </summary>
 public static class EventIDs
 {
+
+    // Information
+    ////////////////////////////////////////////////////////////////////////////////
+
     public static readonly EventIDInfo UserLogin = new EventIDInfo(
         EventID.UserLogin,
         "UserLogin",
@@ -234,6 +263,30 @@ public static class EventIDs
         EventSeverity.Information
     );
 
+    public static readonly EventIDInfo GetGroupMembership = new EventIDInfo(
+        EventID.GetGroupMembership,
+        "Get Group Membership",
+        "Getting group membership successfully.",
+        EventCategory.UserActivity,
+        EventSeverity.Information
+    );
+
+    public static readonly EventIDInfo SetGroupMembership = new EventIDInfo(
+        EventID.SetGroupMembership,
+        "Set Group Membership",
+        "Setting group membership successfully.",
+        EventCategory.UserActivity,
+        EventSeverity.Information
+    );
+
+
+
+
+
+
+    // Warning
+    ////////////////////////////////////////////////////////////////////////////////
+
     public static readonly EventIDInfo LowDiskSpace = new EventIDInfo(
         EventID.LowDiskSpace,
         "LowDiskSpace",
@@ -249,6 +302,22 @@ public static class EventIDs
         EventCategory.Performance,
         EventSeverity.Warning
     );
+
+    public static readonly EventIDInfo InvalidSID = new EventIDInfo(
+        EventID.InvalidSID,
+        "InvalidSID",
+        "The SID provided is not valid.",
+        EventCategory.Security,
+        EventSeverity.Warning
+    );
+
+
+
+
+
+
+    // Error
+    ////////////////////////////////////////////////////////////////////////////////
 
     public static readonly EventIDInfo DatabaseConnectionFailed = new EventIDInfo(
         EventID.DatabaseConnectionFailed,
@@ -281,7 +350,24 @@ public static class EventIDs
         EventCategory.DataManagement,
         EventSeverity.Error
     );
-}
+
+    public static readonly EventIDInfo FailedGetGroupMembership = new EventIDInfo(
+        EventID.FailedGetGroupMembership,
+        "Failed to get Group Membership",
+        "Error while getting group membership",
+        EventCategory.UserActivity,
+        EventSeverity.Error
+    );
+
+    public static readonly EventIDInfo FailedSetGroupMembership = new EventIDInfo(
+        EventID.FailedSetGroupMembership,
+        "Failed to set Group Membership",
+        "Error while setting group membership",
+        EventCategory.UserActivity,
+        EventSeverity.Error
+    );
+
+} //end Class
 
 
 '@

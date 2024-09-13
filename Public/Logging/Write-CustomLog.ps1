@@ -59,8 +59,10 @@
             We create the event to log by providing the required parameters.
 
         .NOTES
-            Ensure that the necessary custom types (EventIDInfo, EventID, EventCategory, EventSeverity) are defined
-            before using this function. These types should be defined on Class.Events.ps1 file under Classes folder.
+            Ensure necessary event types (EventIDs, EventCategory, etc.) are defined on Class.Events.ps1 file
+            located under Classes folder.
+            This file is written in C# (CSharp) language and compiled in runtime when module is imported. This is
+            due visibility and compatibility issues on modules when using just PowerShell code.
 
         .NOTES
             Used Functions:
@@ -108,7 +110,6 @@
             HelpMessage = 'Name of the event.',
             Position = 2,
             ParameterSetName = 'Custom')]
-        [ValidatePattern('^[A-Za-z]+$')]
         [string]
         $EventName,
 
@@ -220,7 +221,6 @@
         $sb.AppendLine("Event          : $eventName") | Out-Null
         $sb.AppendLine("Event Category : $eventCategory") | Out-Null
         $sb.AppendLine("Details        : $maskedMessage") | Out-Null
-        $detailedMessage = $sb.ToString()
 
     } #end Begin
 
@@ -236,9 +236,29 @@
                     EntryType = $entryType
                     EventId   = $eventId
                     Category  = [int]([Enum]::Parse([EventCategory], $eventCategory))  # Convert EventCategory to int
-                    Message   = $detailedMessage
+                    Message   = $sb.ToString()
                 }
                 Write-EventLog @Splat
+
+                # https://learn.microsoft.com/en-us/dotnet/api/system.diagnostics.eventlog.writeentry?view=net-8.0
+                <# [System.Diagnostics.EventLog]::WriteEntry (string source,
+                                                          string message,
+                                                          System.Diagnostics.EventLogEntryType type,
+                                                          int eventID,
+                                                          short category,
+                                                          byte[] rawData)
+
+                $params = @(
+                    $Source,
+                    $Message,
+                    $eventType,
+                    $EventId
+                )
+
+                [System.Diagnostics.EventLog]::WriteEntry($params)
+                #>
+
+
 
                 # Log to JSON
                 if ($LogAsJson) {

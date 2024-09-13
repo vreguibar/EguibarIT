@@ -54,6 +54,8 @@ function Test-IsValidSID {
         ##############################
         # Variables Definition
 
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+
         # Ensure only account is used (remove anything before \ if exist)
         $ObjectSID = ($PSBoundParameters['ObjectSID']).Split('\')[1]
 
@@ -84,14 +86,20 @@ function Test-IsValidSID {
 
                 # Provide verbose output
                 if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
-                    Write-Warning -Message ('[WARNING] The SID {0} is NOT valid!.' -f $ObjectSID)
+
+                    $Splat = @{
+                        CreateWindowsEvent = $true
+                        EventInfo          = ([EventIDs]::InvalidSID)
+                        Message            = ('SID {0} is NOT valid!.' -f $ObjectSID)
+                    }
+                    Write-CustomWarning @Splat
                 } #end If
                 $isValid = $false
             } #end If-Else
 
         } catch {
             # Handle exceptions gracefully
-            Write-Error -Message ('An error occurred when validating the SID: {0}' -f $_)
+            Write-Error -Message ('An error occurred when validating the SID: { 0 }' -f $_)
         } #end Try-Catch
 
         <#

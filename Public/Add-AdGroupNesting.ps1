@@ -43,12 +43,30 @@ function Add-AdGroupNesting {
     )
 
     Begin {
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+
         $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
         )
         Write-Verbose -Message $txt
+
+        # Build the message of the event
+        $sb = [System.Text.StringBuilder]::new()
+        $sb.AppendLine('Function "{0}" was called successfully.' -f $MyInvocation.Mycommand) | Out-Null
+        $sb.AppendLine('Parameters used by the function: ') | Out-Null
+        $sb.AppendLine((Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)) | Out-Null
+
+        $Splat = @{
+            CustomEventId  = ([EventID]::FunctionCalled)
+            EventName      = ('Call to {0}' -f $MyInvocation.Mycommand)
+            EventCategory  = [EventCategory]::Initialization
+            Message        = $sb.ToString()
+            CustomSeverity = [EventSeverity]::Information
+            Verbose        = $PSBoundParameters['Verbose']
+        }
+        Write-CustomLog @Splat
 
         ##############################
         # Module imports
@@ -60,7 +78,7 @@ function Add-AdGroupNesting {
 
         # Define array lists
         $CurrentMembers = [System.Collections.ArrayList]::new()
-        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+
 
         # Check if Identity is a group. Retrieve the object if not Microsoft.ActiveDirectory.Management.AdGroup.
         $Identity = Get-AdObjectType -Identity $Identity
@@ -74,9 +92,16 @@ function Add-AdGroupNesting {
             Write-Verbose -Message ('Getting members of group {0}' -f $Identity)
             $CurrentMembers = Get-ADGroupMember -Identity $Identity -Recursive -ErrorAction SilentlyContinue
 
+            Write-CustomLog -EventInfo ([EventIDs]::GetGroupMembership) -Message ('Got members from group {0}' -f $Identity)
+
         } Catch {
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
-            Write-Error -Message ('Failed to retrieve members of the group "{0}". {1}' -f $Group.SamAccountName, $_)
+
+            Write-CustomError -CreateWindowsEvent -EventInfo ([EventIDs]::FailedGetGroupMembership) -Message ('
+                Failed to retrieve members of the group "{0}".
+                {1}' -f
+                $Group.SamAccountName, $_
+            )
+
             throw
         } #end Try-Catch
 
@@ -99,12 +124,28 @@ function Add-AdGroupNesting {
                         }
                         Try {
                             Add-ADGroupMember @Splat
+
+                            Write-CustomLog -EventInfo ([EventIDs]::SetGroupMembership) -Message ('
+                                Set members on group {0}' -f $Identity
+                            )
+
                         } Catch {
-                            Write-Error -Message ('Failed to add member "{0}" to group "{1}". {2}' -f $item, $Identity, $_.Exception.Message)
+
+                            Write-CustomError -CreateWindowsEvent -EventInfo ([EventIDs]::FailedSetGroupMembership) -Message ('
+                                Failed to add member "{0}"
+                                to group "{1}".
+                                {2}' -f
+                                $item, $Identity, $_.Exception.Message
+                            )
+
                         }
                     } #end If
                 } else {
-                    Write-Verbose -Message ('{0} is already a member of {1} group' -f $item.SamAccountName, $Identity.SamAccountName)
+                    Write-Verbose -Message ('
+                        {0} is already a member
+                        of {1} group' -f
+                        $item.SamAccountName, $Identity.SamAccountName
+                    )
                 } #end If-Else
             }
 
