@@ -109,22 +109,22 @@
                 if (Test-IsValidDN -ObjectDN $Identity) {
 
                     Write-Verbose -Message 'Looking for DistinguishedName'
-                    $newObject = Get-ADObject -Filter { DistinguishedName -eq $Identity }
+                    $newObject = Get-ADObject -Filter { DistinguishedName -like $Identity }
 
                 } elseif (Test-IsValidSID -ObjectSID $Identity) {
 
                     Write-Verbose -Message 'Looking for ObjectSID'
-                    $newObject = Get-ADObject -Filter { ObjectSID -eq $Identity }
+                    $newObject = Get-ADObject -Filter { ObjectSID -like $Identity }
 
                 } elseif (Test-IsValidGUID -ObjectGUID $Identity) {
 
                     Write-Verbose -Message 'Looking for ObjectGUID'
-                    $newObject = Get-ADObject -Filter { ObjectGUID -eq $Identity }
+                    $newObject = Get-ADObject -Filter { ObjectGUID -like $Identity }
 
                 } else {
 
                     Write-Verbose -Message 'Looking for SamAccountName'
-                    $newObject = Get-ADObject -Filter { SamAccountName -eq $Identity }
+                    $newObject = Get-ADObject -Filter { (Name -like $identity) -or (SamAccountName -like $identity) }
                 } #end If-ElseIf-Else
             } else {
                 throw "Unsupported Identity type: $($Identity.GetType().Name)"
