@@ -416,7 +416,7 @@
         ###############################################################################
         #region Create SITE Sub-OU
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Creating Site sub-OUs')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating Site sub-OUs')
 
         # --- USER CLASS ---
         $splat = @{
@@ -474,7 +474,7 @@
         ###############################################################################
         #region Create the required Right's Local Domain groups
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Creating the required Rights Local Domain groups')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating the required Rights Local Domain groups')
 
         # Iterate through all Site-LocalGroups child nodes
         Foreach ($node in $confXML.n.Sites.LG.ChildNodes) {
@@ -502,7 +502,7 @@
         ###############################################################################
         #region Create the required Admin Global groups
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Creating the required Admin Global groups')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating the required Admin Global groups')
 
         # Iterate through all Site-GlobalGroups child nodes
         Foreach ($node in $confXML.n.Sites.GG.ChildNodes) {
@@ -533,7 +533,7 @@
         ###############################################################################
         #region Add group membership & nesting
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Adding group membership & nesting')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Adding group membership & nesting')
 
         #region NESTING Global groups into Domain Local Groups -> order Less privileged to more privileged
 
@@ -585,7 +585,7 @@
         ###############################################################################
         #region Create basic GPO
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Creating basic GPO')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating basic GPO')
 
         # Create Desktop Baseline
         $splat = @{
@@ -621,7 +621,7 @@
         ###############################################################################
         #region Configure GPO
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Configuring GPO')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Configuring GPO')
 
         # Configure Users
         If ($confXML.n.Sites.OUs.OuSiteUser.backupID) {
@@ -761,7 +761,7 @@
         ###############################################################################
         #region Delegate GPO
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Delegating GPO')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Delegating GPO')
 
         # Give Rights to SG_SiteAdmin_XXXX to $ouName + -Desktop
         Write-Verbose -Message ('Add Local Admin to new {0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name)

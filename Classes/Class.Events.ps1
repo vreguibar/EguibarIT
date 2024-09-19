@@ -129,6 +129,9 @@ public enum EventID
     GetGroupMembership = 2200,
     SetGroupMembership = 2300,
 
+    CreateScheduledTask = 2400,
+    ChangeScheduledTask = 2410,
+    DeleteScheduledTask = 2420,
 
 
 

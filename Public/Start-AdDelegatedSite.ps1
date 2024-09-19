@@ -196,7 +196,7 @@ function Start-AdDelegateSite {
         ###############################################################################
         # USER Site Administrator Delegation
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'USER Site Delegation')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'USER Site Delegation')
 
         $OuSiteDefUser = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteUser.name, $ouNameDN
 
@@ -266,7 +266,7 @@ function Start-AdDelegateSite {
         ###############################################################################
         # COMPUTER Site Admin Delegation
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'COMPUTER Site Delegation')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'COMPUTER Site Delegation')
 
         # Create/Delete Computers
         Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName -LDAPpath $OuSiteDefComputer -QuarantineDN $PSBoundParameters['QuarantineDN']
@@ -291,7 +291,7 @@ function Start-AdDelegateSite {
         ###############################################################################
         # GROUP Site Admin Delegation
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'GROUP Site Delegation')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'GROUP Site Delegation')
 
         # Create/Delete Groups
         Set-AdAclCreateDeleteGroup -Group $SL_GroupRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteGroup.name, $ouNameDN)

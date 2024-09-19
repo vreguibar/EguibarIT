@@ -123,7 +123,7 @@
         ###############################################################################
         #region Creating Service account
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Creating Service account')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating Service account')
 
         # Create the new Temporary Service Account with special values
         # This TEMP SA will be used for AGMP Server setup. Afterwards will be replaced by a MSA
@@ -229,7 +229,7 @@
         ###############################################################################
         #region Create AGPM groups
 
-        Write-Verbose -Message ($Constants.NewRegionMessage -f 'Create AGPM groups')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Create AGPM groups')
 
         # AdminRights group is created by default on CentralItOU procedure. Is the default delegated Admin for OUs
 
