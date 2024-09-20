@@ -20,7 +20,6 @@ Function New-LAPSobject {
                 Add-ADGroupMember                      | ActiveDirectory
                 Get-AdOrganizationalUnit               | ActiveDirectory
                 Remove-ADGroupMember                   | ActiveDirectory
-                Update-AdmPwdADSchema                  | AdmPwd.PS
         .NOTES
             Version:         1.1
             DateModified:    11/Feb/2019
@@ -61,7 +60,7 @@ Function New-LAPSobject {
 
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
-        Import-MyModule -Name 'AdmPwd.PS' -Verbose:$false
+        #Import-MyModule -Name 'AdmPwd.PS' -Verbose:$false
         Import-MyModule -Name 'LAPS' -Verbose:$false
 
         ##############################
@@ -195,8 +194,10 @@ Function New-LAPSobject {
 
         # Check if schema is extended for LAPS. Extend it if not.
         Try {
-            if ($null -eq $Variables.GuidMap['ms-Mcs-AdmPwd']) {
-                Write-Verbose -Message 'LAPS is NOT supported on this environment. Proceeding to configure it by extending the Schema.'
+            if ($null -eq $Variables.GuidMap['msLAPS-Password']) {
+                Write-Verbose -Message '
+                    LAPS is NOT supported on this environment.
+                    Proceeding to configure it by extending the Schema.'
 
                 # Check if user can change schema
                 if (-not ((Get-ADUser $env:UserName -Properties memberof).memberof -like 'CN=Schema Admins*')) {
@@ -206,7 +207,7 @@ Function New-LAPSobject {
                     # Modify Schema
                     try {
                         Write-Verbose -Message 'Modify the schema...!'
-                        Update-AdmPwdADSchema -Verbose
+                        #Update-AdmPwdADSchema -Verbose
                         Update-LapsADSchema -Confirm:$false -Verbose
                     } catch {
                         Write-Error -Message 'Error when updating LAPS schema'

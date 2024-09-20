@@ -3405,7 +3405,7 @@
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating LAPS objects and delegations')
             #To-Do
             #New-LAPSobjects -PawOuDn $ItPawOuDn -ServersOuDn $ServersOuDn -SitesOuDn $SitesOuDn
-            New-LAPSobject -ConfigXMLFile $ConfXML
+            New-LAPSobject -ConfigXMLFile $PSBoundParameters['ConfigXMLFile']
         }
 
         ###############################################################################

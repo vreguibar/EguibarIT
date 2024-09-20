@@ -78,6 +78,7 @@
         "Delim",
         "Descendents",
         "Inet",
+        "memberof",
         "Oroles",
         "Passthru",
         "sitelink",

@@ -200,8 +200,8 @@
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
-        Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
+        Import-MyModule -Name 'ActiveDirectory'
+        Import-MyModule -Name 'EguibarIT.DelegationPS'
 
         ##############################
         # Variables Definition

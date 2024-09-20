@@ -92,7 +92,7 @@ function Set-AdAclLaps {
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'AdmPwd.PS' -Verbose:$false
+        #Import-MyModule -Name 'AdmPwd.PS' -Verbose:$false
         Import-MyModule -Name 'LAPS' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
 

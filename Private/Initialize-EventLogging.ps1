@@ -73,12 +73,16 @@
     )
 
     Begin {
-        $txt = ($Variables.Header -f
+
+        # Show ONLY if not Initialized.
+        If (-not $Variables.EventLogInitialized) {
+            $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
+                $MyInvocation.Mycommand,
             (Get-FunctionDisplay -Hashtable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Variables Definition
@@ -142,9 +146,12 @@
     } #end Process
 
     End {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'initializing Event Logging.'
-        )
-        Write-Verbose -Message $txt
+        # Show ONLY if not Initialized.
+        If (-not $Variables.EventLogInitialized) {
+            $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+                'initializing Event Logging.'
+            )
+            Write-Verbose -Message $txt
+        } #end If
     } #end End
 } #end Function
