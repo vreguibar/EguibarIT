@@ -61,7 +61,7 @@ Function New-LAPSobject {
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
         #Import-MyModule -Name 'AdmPwd.PS' -Verbose:$false
-        Import-MyModule -Name 'LAPS' -Verbose:$false
+        Import-Module -Name 'LAPS' -Verbose:$false
 
         ##############################
         # Variables Definition

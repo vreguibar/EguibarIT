@@ -41,7 +41,7 @@ function Test-IsValidSID {
     )
 
     Begin {
-        $txt = ($Variables.Header -f
+        $txt = ($Variables.HeaderDelegation -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
@@ -53,11 +53,13 @@ function Test-IsValidSID {
 
         ##############################
         # Variables Definition
-
-        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
-
         # Ensure only account is used (remove anything before \ if exist)
-        $ObjectSID = ($PSBoundParameters['ObjectSID']).Split('\')[1]
+        If ($PSBoundParameters['ObjectSID'] -contains '\') {
+            $ObjectSID = ($PSBoundParameters['ObjectSID']).Split('\')[1]
+        } else {
+            # Account does not contains \
+            $ObjectSID = $PSBoundParameters['ObjectSID']
+        } #end If-Else
 
         [bool]$isValid = $false
 
@@ -66,7 +68,8 @@ function Test-IsValidSID {
     Process {
         # try RegEx
         Try {
-            if ($Variables.WellKnownSIDs -Contains $ObjectSID) {
+            #if ($Variables.WellKnownSIDs -Contains $ObjectSID) {
+            If ($Variables.WellKnownSIDs.Keys.Contains($ObjectSID)) {
 
                 # Provide verbose output
                 if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
@@ -86,20 +89,14 @@ function Test-IsValidSID {
 
                 # Provide verbose output
                 if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
-
-                    $Splat = @{
-                        CreateWindowsEvent = $true
-                        EventInfo          = ([EventIDs]::InvalidSID)
-                        Message            = ('SID {0} is NOT valid!.' -f $ObjectSID)
-                    }
-                    Write-CustomWarning @Splat
+                    Write-Verbose -Message ('[WARNING] The SID {0} is NOT valid!.' -f $ObjectSID)
                 } #end If
                 $isValid = $false
             } #end If-Else
 
         } catch {
             # Handle exceptions gracefully
-            Write-Error -Message ('An error occurred when validating the SID: { 0 }' -f $_)
+            Write-Error -Message ('An error occurred when validating the SID: {0}' -f $_)
         } #end Try-Catch
 
         <#
@@ -122,8 +119,8 @@ function Test-IsValidSID {
     } #end Process
 
     end {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'testing SecurityIdentifier (SID) (Private Function).'
+        $txt = ($Variables.FooterDelegation -f $MyInvocation.InvocationName,
+            'testing SID (Private Function).'
         )
         Write-Verbose -Message $txt
 

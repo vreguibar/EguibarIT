@@ -1,75 +1,47 @@
-﻿function Get-AdObjectType {
+﻿function Test-IsValidSID {
     <#
-    .SYNOPSIS
-        This function retrieves the type of an Active Directory object based on the provided identity.
+        .SYNOPSIS
+            Cmdlet will check if the input string is a valid SID.
 
-    .DESCRIPTION
-        The Get-AdObjectType function determines the type of an Active Directory object based on the given identity.
-        It supports various object types, including AD users, computers, and groups. The function provides verbose output.
+        .DESCRIPTION
+            Cmdlet will check if the input string is a valid SID.
 
-    .PARAMETER Identity
-        Specifies the identity of the Active Directory object. This parameter is mandatory.
+            Cmdlet is intended as a diagnostic tool for input validation
 
-        Possible values are:
-          ADAccount object
-          ADComputer object
-          ADGroup object
-          ADOrganizationalUnit object
-          String representing DistinguishedName
-          String representing SID
-          String representing samAccountName
+        .PARAMETER ObjectSID
+            A string representing the object Security Identifier (SID).
 
+        .EXAMPLE
+            Test-IsValidDN -ObjectSID 'S-1-5-21-2562450185-1914323539-512974444-1234'
 
-    .EXAMPLE
-        Get-AdObjectType -Identity "davader"
-        Retrieves the type of the Active Directory object with the SamAccountName "davader".
-
-    .EXAMPLE
-        Get-AdObjectType -Identity "CN=davade,OU=Users,OU=BAAD,OU=Sites,DC=EguibarIT,DC=local"
-        Retrieves the type of the Active Directory object with the
-        DistinguishedName "CN=davade,OU=Users,OU=BAAD,OU=Sites,DC=EguibarIT,DC=local".
-
-    .EXAMPLE
-        Get-AdObjectType -Identity "S-1-5-21-3484526001-1877030748-1169500100-1646"
-        Retrieves the type of the Active Directory object with the
-        SID "S-1-5-21-3484526001-1877030748-1169500100-1646".
-
-    .EXAMPLE
-        Get-AdObjectType -Identity "35b764b7-06df-4509-a54f-8fd4c26a0805"
-        Retrieves the type of the Active Directory object with the GUID
-        "35b764b7-06df-4509-a54f-8fd4c26a0805".
-
-    .OUTPUTS
-        Microsoft.ActiveDirectory.Management.ADAccount or
-        Microsoft.ActiveDirectory.Management.ADComputer or
-        Microsoft.ActiveDirectory.Management.AdGroup
-
-    .NOTES
-        Version:         1.2
-            DateModified:    31/May/2024
+        .NOTES
+            https://pscustomobject.github.io/powershell/howto/identity%20management/PowerShell-Check-If-String-Is-A-DN/
+            Version:         1.0
+            DateModified:    08/Oct/2021
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'low')]
-    # return type will be different on each case.
+    [CmdletBinding(ConfirmImpact = 'Low', SupportsShouldProcess = $false)]
+    [OutputType([bool])]
 
-    Param (
-        # Param1
+    param
+    (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $false,
-            HelpMessage = 'Identity of the object',
+            ValueFromRemainingArguments = $true,
+            HelpMessage = 'String to be validated as SID',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [Alias('ID', 'SamAccountName', 'DistinguishedName', 'DN', 'SID')]
-        $Identity
+        [Alias('SID', 'SecurityIdentifier')]
+        [string]
+        $ObjectSID
     )
 
     Begin {
-        $txt = ($Variables.HeaderHousekeeping -f
+        $txt = ($Variables.HeaderDelegation -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
@@ -79,115 +51,80 @@
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
-
         ##############################
         # Variables Definition
+        # Ensure only account is used (remove anything before \ if exist)
+        If ($PSBoundParameters['ObjectSID'] -contains '\') {
+            $ObjectSID = ($PSBoundParameters['ObjectSID']).Split('\')[1]
+        } else {
+            # Account does not contains \
+            $ObjectSID = $PSBoundParameters['ObjectSID']
+        } #end If-Else
 
-        $ReturnValue = $null
-        $newObject = $null
+        [bool]$isValid = $false
 
-    } # End Begin Section
+    } #end Begin
 
     Process {
+        # try RegEx
+        Try {
+            #if ($Variables.WellKnownSIDs -Contains $ObjectSID) {
+            If ($Variables.WellKnownSIDs.Keys.Contains($ObjectSID)) {
 
-        try {
-            # Known Identities OR AD Objects
-            if ($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount] -or
-                $Identity -is [Microsoft.ActiveDirectory.Management.ADComputer] -or
-                $Identity -is [Microsoft.ActiveDirectory.Management.ADGroup] -or
-                $Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit] -or
-                $Identity -is [Microsoft.ActiveDirectory.Management.ADServiceAccount]) {
+                # Provide verbose output
+                if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
+                    Write-Verbose -Message ('The SID {0} is a WellKnownSid.' -f $ObjectSID)
+                } #end If
+                $isValid = $true
+                #return
+            } elseIf ($ObjectSID -match $Constants.SidRegEx) {
 
-                Write-Verbose -Message (' ┝━━━━━━► Known AD Object Type: {0}' -f $Identity.GetType().Name)
-                $ReturnValue = $Identity
-
-            } elseif ($Identity -is [string]) {
-
-                Write-Verbose -Message ('Identity is a string: {0}. Trying to resolve it!' -f $Identity)
-
-                if (Test-IsValidDN -ObjectDN $Identity) {
-
-                    Write-Verbose -Message 'Looking for DistinguishedName'
-                    $newObject = Get-ADObject -Filter { DistinguishedName -like $Identity }
-
-                } elseif (Test-IsValidSID -ObjectSID $Identity) {
-
-                    Write-Verbose -Message 'Looking for ObjectSID'
-                    $newObject = Get-ADObject -Filter { ObjectSID -like $Identity }
-
-                } elseif (Test-IsValidGUID -ObjectGUID $Identity) {
-
-                    Write-Verbose -Message 'Looking for ObjectGUID'
-                    $newObject = Get-ADObject -Filter { ObjectGUID -like $Identity }
-
-                } else {
-
-                    Write-Verbose -Message 'Looking for SamAccountName'
-                    $newObject = Get-ADObject -Filter { (Name -like $identity) -or (SamAccountName -like $identity) }
-                } #end If-ElseIf-Else
+                # Provide verbose output
+                if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
+                    Write-Verbose -Message ('The SID {0} is valid.' -f $ObjectSID)
+                } #end If
+                $isValid = $true
+                #return
             } else {
-                throw "Unsupported Identity type: $($Identity.GetType().Name)"
-                return $null
-            } #end If-ElseIf-Else
 
+                # Provide verbose output
+                if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
+                    Write-Verbose -Message ('[WARNING] The SID {0} is NOT valid!.' -f $ObjectSID)
+                } #end If
+                $isValid = $false
+            } #end If-Else
 
-
-
-            If ($newObject -and (-not $ReturnValue)) {
-                # once we have the object, lets get it from AD
-                Switch ($newObject.ObjectClass) {
-
-                    'user' {
-                        Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD User Object from STRING'
-                        [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = Get-ADUser -Identity $newObject
-                    }
-
-                    'group' {
-                        Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Group Object from STRING'
-                        [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = Get-ADGroup -Identity $newObject
-                    }
-
-                    'computer' {
-                        Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Computer Object from STRING'
-                        [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = Get-ADComputer -Identity $newObject
-                    }
-
-                    'organizationalUnit' {
-                        Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Organizational Unit Object from STRING'
-                        [Microsoft.ActiveDirectory.Management.organizationalUnit]$ReturnValue = Get-ADOrganizationalUnit -Identity $newObject
-                    }
-
-                    'msDS-GroupManagedServiceAccount' {
-                        Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Group Managed Service Account from STRING'
-                        [Microsoft.ActiveDirectory.Management.ADServiceAccount]$ReturnValue = Get-ADServiceAccount -Identity $newObject
-                    }
-
-                    Default {
-                        Write-Error -Message ('#     ┝━━━━━━━━━━►  Unknown object type for identity: {0}' -f $Identity)
-
-                        return $null
-                    }
-                } # End Switch
-
-            } #end If
         } catch {
-            Write-Error -Message ('An error occurred: {0}' -f $_)
-            $ReturnValue = $null
-        }
+            # Handle exceptions gracefully
+            Write-Error -Message ('An error occurred when validating the SID: {0}' -f $_)
+        } #end Try-Catch
 
+        <#
+        # try Native SID
+        Try {
+            # Perform the actual validation
+            [System.Security.Principal.SecurityIdentifier]$sid = $Sid
+            $isValid = $True
 
-    } # End Process Section
+            # Provide verbose output
+            if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
+                Write-Verbose "objectSID validation result by [SecurityIdentifier]: $isValid"
+            } #end If
 
-    End {
-        $txt = ($Variables.FooterHousekeeping -f $MyInvocation.InvocationName,
-            'getting AD object type (Private Function).'
+        } catch {
+            # Handle exceptions gracefully
+            Write-Error "An error occurred on [SecurityIdentifier] comparison: $_"
+        } #end Try-Catch
+         #>
+    } #end Process
+
+    end {
+        $txt = ($Variables.FooterDelegation -f $MyInvocation.InvocationName,
+            'testing SID (Private Function).'
         )
         Write-Verbose -Message $txt
 
-        if ($null -ne $ReturnValue) {
-            Write-Output $ReturnValue
-        } #end If
-    } # End End Section
+        return $isValid
+    } #end End
 
 } #end Function

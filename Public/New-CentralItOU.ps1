@@ -223,14 +223,6 @@
 
         $error.clear()
 
-
-        Write-Verbose -Message '|=> ************************************************************************ <=|'
-        Write-Verbose -Message (Get-Date).ToShortDateString()
-        Write-Verbose -Message ('  Starting: {0}' -f $MyInvocation.Mycommand)
-        Write-Verbose -Message ('Parameters used by the function... {0}' -f (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False))
-
-
-
         $txt = ($Variables.Header -f
             (Get-Date).ToShortDateString(),
             $MyInvocation.Mycommand,
@@ -1636,7 +1628,7 @@
                 Path          = $ItRightsOuDn
             }
             New-ADGroup @Splat
-            $RemoteWMI = Get-AdGroup 'WinRMRemoteWMIUsers__'
+            $RemoteWMI = Get-ADGroup 'WinRMRemoteWMIUsers__'
         }
         Add-AdGroupNesting -Identity $RemoteWMI -Members $SG_AdAdmins, $SG_Tier0Admins
 
@@ -2232,30 +2224,107 @@
             gpoScope = 'C'
             GpoAdmin = $sl_GpoAdminRight
         }
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name) -gpoLinkPath $ItPawOuDn -gpoBackupID $confXML.n.Admin.GPOs.PAWbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn) -gpoBackupID $confXML.n.Admin.GPOs.PawT0baseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT1OU.Name, $ItPawOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT2OU.Name, $ItPawOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name, $ItPawOuDn) -gpoBackupID $confXML.n.Admin.GPOs.PawStagingbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
+        $Splat1 = @{
+            gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name)
+            gpoLinkPath    = $ItPawOuDn
+            gpoBackupID    = $confXML.n.Admin.GPOs.PAWbaseline.backupID
+            gpoBackupPath  = (Join-Path $DMscripts SecTmpl)
+        }
+        New-DelegateAdGpo @Splat @Splat1
+
+        $Splat1 = @{
+            gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name)
+            gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn)
+            gpoBackupID    = $confXML.n.Admin.GPOs.PawT0baseline.backupID
+            gpoBackupPath  = (Join-Path $DMscripts SecTmpl)
+        }
+        New-DelegateAdGpo @Splat @Splat1
+
+        $Splat1 = @{
+            gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name)
+            gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT1OU.Name, $ItPawOuDn)
+        }
+        New-DelegateAdGpo @Splat @Splat1
+
+        $Splat1 = @{
+            gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name)
+            gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT2OU.Name, $ItPawOuDn)
+        }
+        New-DelegateAdGpo @Splat @Splat1
+
+        $Splat1 = @{
+            gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name)
+            gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name, $ItPawOuDn)
+            gpoBackupID    = $confXML.n.Admin.GPOs.PawStagingbaseline.backupID
+            gpoBackupPath  = (Join-Path $DMscripts SecTmpl)
+        }
+        New-DelegateAdGpo @Splat @Splat1
 
         # Infrastructure Servers
         $Splat = @{
             gpoScope = 'C'
             GpoAdmin = $sl_GpoAdminRight
         }
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name) -gpoLinkPath $ItInfraOuDn -gpoBackupID $confXML.n.Admin.GPOs.INFRAbaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name, $ItInfraOuDn) -gpoBackupID $confXML.n.Admin.GPOs.INFRAT0baseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT1Ou.Name, $ItInfraOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2Ou.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT2Ou.Name, $ItInfraOuDn)
-        New-DelegateAdGpo @Splat -gpoDescription ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name) -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn) -gpoBackupID $confXML.n.Admin.GPOs.INFRAStagingBaseline.backupID -gpoBackupPath (Join-Path $DMscripts SecTmpl)
+        $Splat1 = @{
+            gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name)
+            gpoLinkPath    = $ItInfraOuDn
+            gpoBackupID    = $confXML.n.Admin.GPOs.INFRAbaseline.backupID
+            gpoBackupPath  = (Join-Path $DMscripts SecTmpl)
+        }
+        New-DelegateAdGpo @Splat @Spla1
+
+        $Splat1 = @{
+            gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name)
+            gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name, $ItInfraOuDn)
+            gpoBackupID    = $confXML.n.Admin.GPOs.INFRAT0baseline.backupID
+            gpoBackupPath  = (Join-Path $DMscripts SecTmpl)
+        }
+        New-DelegateAdGpo @Splat @Splat1
+
+        $Splat1 = @{
+            gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1Ou.Name)
+            gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT1Ou.Name, $ItInfraOuDn)
+        }
+        New-DelegateAdGpo @Splat @Splat1
+
+        $Splat1 = @{
+            gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2Ou.Name)
+            gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT2Ou.Name, $ItInfraOuDn)
+        }
+        New-DelegateAdGpo @Splat @Splat1
+
+        $Splat1 = @{
+            gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name)
+            gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn)
+            gpoBackupID    = $confXML.n.Admin.GPOs.INFRAStagingBaseline.backupID
+            gpoBackupPath  = (Join-Path $DMscripts SecTmpl)
+        }
+        New-DelegateAdGpo @Splat @Splat1
 
         # redirected containers (X-Computers & X-Users)
-        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name) -gpoScope C -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name, $Variables.AdDn) -GpoAdmin $sl_GpoAdminRight
-        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name) -gpoScope U -gpoLinkPath ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name, $Variables.AdDn) -GpoAdmin $sl_GpoAdminRight
+        $Splat = @{
+            gpoDescription = ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name)
+            gpoScope       = 'C'
+            gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name, $Variables.AdDn)
+            GpoAdmin       = $sl_GpoAdminRight
+        }
+        New-DelegateAdGpo @Splat
+        $Splat = @{
+            gpoDescription = ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name)
+            gpoScope       = 'U'
+            gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name, $Variables.AdDn)
+            GpoAdmin       = $sl_GpoAdminRight
+        }
+        New-DelegateAdGpo @Splat
 
         # Housekeeping
-        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItHousekeepingOU.Name) -gpoScope U -gpoLinkPath $ItHousekeepingOuDn -GpoAdmin $sl_GpoAdminRight
-        New-DelegateAdGpo -gpoDescription ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItHousekeepingOU.Name) -gpoScope C -gpoLinkPath $ItHousekeepingOuDn -GpoAdmin $sl_GpoAdminRight
+        $Splat = @{
+            gpoDescription = ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItHousekeepingOU.Name)
+            gpoLinkPath    = $ItHousekeepingOuDn
+            GpoAdmin       = $sl_GpoAdminRight
+        }
+        New-DelegateAdGpo -gpoScope 'U' @Splat
+        New-DelegateAdGpo -gpoScope 'C' @Splat
 
 
         ###############################################################################
@@ -2322,8 +2391,8 @@
         [void]$DenyRemoteInteractiveLogon.Add('Backup Operators')
         [void]$DenyRemoteInteractiveLogon.Add('Print Operators')
         [void]$DenyRemoteInteractiveLogon.Add($ServerOperators)
-        [void]$DenyRemoteInteractiveLogon.Add('Domain Controllers')
-        [void]$DenyRemoteInteractiveLogon.Add('Read-Only Domain Controllers')
+        [void]$DenyRemoteInteractiveLogon.Add($DomainControllers)
+        [void]$DenyRemoteInteractiveLogon.Add($RODC)
         if ($null -ne $SG_Tier0ServiceAccount) {
             [void]$DenyRemoteInteractiveLogon.Add($SG_Tier0ServiceAccount)
         }
@@ -2339,7 +2408,7 @@
 
         # Deny Logon as a Batch job / Deny Logon as a Service
         $DenyBatchLogon = [System.Collections.Generic.List[object]]::New()
-        [void]$DenyBatchLogon.Add('Schema Admins')
+        [void]$DenyBatchLogon.Add($SchemaAdmins)
         [void]$DenyBatchLogon.Add($EnterpriseAdmins)
         [void]$DenyBatchLogon.Add($DomainAdmins)
         [void]$DenyBatchLogon.Add($Administrators)
@@ -2347,10 +2416,10 @@
         [void]$DenyBatchLogon.Add('Backup Operators')
         [void]$DenyBatchLogon.Add('Print Operators')
         [void]$DenyBatchLogon.Add($ServerOperators)
-        [void]$DenyBatchLogon.Add('Domain Controllers')
-        [void]$DenyBatchLogon.Add('Read-Only Domain Controllers')
+        [void]$DenyBatchLogon.Add($DomainControllers)
+        [void]$DenyBatchLogon.Add($RODC)
         [void]$DenyBatchLogon.Add($GPOCreatorsOwner)
-        [void]$DenyBatchLogon.Add('Cryptographic Operators')
+        [void]$DenyBatchLogon.Add($CryptoOperators)
         [void]$DenyBatchLogon.Add('Guests')
         if ($null -ne $SG_Tier0Admins) {
             [void]$DenyBatchLogon.Add($SG_Tier0Admins)
@@ -2439,8 +2508,8 @@
 
         # Allow Logon Locally / Allow Logon through RDP/TerminalServices
         $InteractiveLogon = [System.Collections.Generic.List[object]]::New()
-        [void]$InteractiveLogon.Add('Schema Admins')
-        [void]$InteractiveLogon.Add('Enterprise Admins')
+        [void]$InteractiveLogon.Add($SchemaAdmins)
+        [void]$InteractiveLogon.Add($EnterpriseAdmins)
         [void]$InteractiveLogon.Add($DomainAdmins)
         [void]$InteractiveLogon.Add($Administrators)
         if ($null -ne $AdminName) {
@@ -2480,8 +2549,8 @@
 
         # Deny Logon as a Batch job / Deny Logon as a Service
         $DenyBatchLogon = [System.Collections.Generic.List[object]]::New()
-        [void]$DenyBatchLogon.Add('Schema Admins')
-        [void]$DenyBatchLogon.Add('Enterprise Admins')
+        [void]$DenyBatchLogon.Add($SchemaAdmins)
+        [void]$DenyBatchLogon.Add($EnterpriseAdmins)
         [void]$DenyBatchLogon.Add($DomainAdmins)
         [void]$DenyBatchLogon.Add($Administrators)
         [void]$DenyBatchLogon.Add($AccountOperators)
@@ -2489,7 +2558,7 @@
         [void]$DenyBatchLogon.Add('Print Operators')
         [void]$DenyBatchLogon.Add($ServerOperators)
         [void]$DenyBatchLogon.Add($GPOCreatorsOwner)
-        [void]$DenyBatchLogon.Add('Cryptographic Operators')
+        [void]$DenyBatchLogon.Add($CryptoOperators)
         [void]$DenyBatchLogon.Add('Guests')
         if ($null -ne $AdminName) {
             [void]$DenyBatchLogon.Add($AdminName)
@@ -2601,17 +2670,17 @@
 
         # Deny Logon as a Batch job / Deny Logon as a Service
         $DenyBatchLogon = [System.Collections.Generic.List[object]]::New()
-        [void]$DenyBatchLogon.Add('Schema Admins')
-        [void]$DenyBatchLogon.Add('Enterprise Admins')
+        [void]$DenyBatchLogon.Add($SchemaAdmins)
+        [void]$DenyBatchLogon.Add($EnterpriseAdmins)
         [void]$DenyBatchLogon.Add($DomainAdmins)
         [void]$DenyBatchLogon.Add($Administrators)
         [void]$DenyBatchLogon.Add($AccountOperators)
         [void]$DenyBatchLogon.Add('Backup Operators')
         [void]$DenyBatchLogon.Add('Print Operators')
         [void]$DenyBatchLogon.Add($ServerOperators)
-        [void]$DenyBatchLogon.Add('Read-Only Domain Controllers')
+        [void]$DenyBatchLogon.Add($RODC)
         [void]$DenyBatchLogon.Add($GPOCreatorsOwner)
-        [void]$DenyBatchLogon.Add('Cryptographic Operators')
+        [void]$DenyBatchLogon.Add($CryptoOperators)
         [void]$DenyBatchLogon.Add('Guests')
         if ($null -ne $AdminName) {
             [void]$DenyBatchLogon.Add($AdminName)
@@ -3072,7 +3141,7 @@
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices / Deny Logon as a Batch job / Deny Logon as a Service
         $DenyLogon = [System.Collections.Generic.List[object]]::New()
-        [void]$DenyLogon.Add('Schema Admins')
+        [void]$DenyLogon.Add($SchemaAdmins)
         [void]$DenyLogon.Add($EnterpriseAdmins)
         [void]$DenyLogon.Add($DomainAdmins)
         [void]$DenyLogon.Add($Administrators)
@@ -3208,7 +3277,7 @@
         #------------------------------------------------------------------------------
 
         $DenyLogon = [System.Collections.Generic.List[object]]::New()
-        [void]$DenyLogon.Add('Schema Admins')
+        [void]$DenyLogon.Add($SchemaAdmins)
         [void]$DenyLogon.Add($EnterpriseAdmins)
         [void]$DenyLogon.Add($DomainAdmins)
         [void]$DenyLogon.Add($Administrators)

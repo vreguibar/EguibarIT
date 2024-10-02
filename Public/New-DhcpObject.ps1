@@ -57,8 +57,8 @@
         ##############################
         # Module imports
 
-        Import-Module ActiveDirectory -SkipEditionCheck -Force -Verbose:$false | Out-Null
-        Import-Module EguibarIT.DelegationPS -SkipEditionCheck -Force -Verbose:$false | Out-Null
+        Import-MyModule 'ActiveDirectory' -Verbose:$false
+        Import-MyModule 'EguibarIT.DelegationPS' -Verbose:$false
 
         ##############################
         # Variables Definition

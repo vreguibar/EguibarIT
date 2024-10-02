@@ -144,6 +144,9 @@ Function Import-MyModule {
         ##############################
         # Variables Definition
 
+        $Preference = $VerbosePreference
+        $VerbosePreference = 'SilentlyContinue'
+
         $functionName = $MyInvocation.MyCommand.Name
 
         # Get Hashtable with corresponding parameters to import module
@@ -226,7 +229,7 @@ Function Import-MyModule {
             $availableModule = Get-Module -Name $Name -ErrorAction SilentlyContinue -Verbose:$PSBoundParameters['Verbose']
 
             if (-not $availableModule) {
-                throw ('Module "{0}" is not installed. Please install the module before importing.' -f $Name)
+                Write-Error -Message ('Module "{0}" is not installed. Please install the module before importing.' -f $Name)
             } #end If
 
 
@@ -262,12 +265,14 @@ Function Import-MyModule {
 
         } catch {
             Write-Error -Message ('[{0}] Error importing module {1}: {2}' -f $functionName, $Name, $_)
-            throw
+            #throw
         } #end Try-Catch
 
     } #end Process
 
     End {
+        $VerbosePreference = $Preference
+
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'importing module.'
         )

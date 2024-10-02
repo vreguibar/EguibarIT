@@ -1,67 +1,4 @@
-﻿<#
-    .SYNOPSIS
-        Logs custom events to a Windows Event Log with predefined categories and severities,
-        along with flexible options for customization.
-
-    .DESCRIPTION
-        The EventLogging module provides the ability to log predefined or custom events to a Windows Event Log.
-        This module includes various event categories and severity levels to match common use cases such as User Activity,
-        System Health, Error Handling, and more.
-        The logging mechanism is flexible, allowing users to log events with predefined settings or custom ones.
-        It also supports additional logging in JSON format to a local file.
-
-    .PARAMETER EventInfo
-        Predefined event metadata from the EventIDs class (for predefined events).
-
-    .PARAMETER CustomEventId
-        The custom event ID to use when logging a custom event.
-
-    .PARAMETER EventName
-        Name of the custom event when using the Custom parameter set.
-
-    .PARAMETER EventCategory
-        The category of the event, either predefined or custom.
-
-    .PARAMETER Message
-        The message to log in the event. This will be the detailed description shown in the event log entry.
-
-    .PARAMETER Severity
-        The severity level of the event (Information, Warning, Error, etc.), predefined or custom.
-
-    .PARAMETER LogAsJson
-        Switch to log the event in JSON format to a local file (for centralized logging or integration).
-
-    .PARAMETER MaximumKilobytes
-        Optional. The maximum size (in KB) of the event log before it overwrites older logs. Default is 16384 KB (16 MB).
-
-    .PARAMETER RetentionDays
-        Optional. The number of days to retain log entries. Default is 30 days.
-
-    .EXAMPLE
-        # Predefined event log example:
-        Write-CustomLog -EventInfo ([EventIDs]::UserLogin) -Message "User logged in successfully" -Verbose
-
-    .EXAMPLE
-        # Custom event log example:
-        Write-CustomLog -CustomEventId ([EventID]::LowDiskSpace) -EventName "LowDiskSpace" `
-        -EventCategory SystemHealth -Message "Low disk space on C: drive" `
-        -CustomSeverity Warning -WhatIf
-
-    .EXAMPLE
-        # Log event to JSON file:
-        Write-CustomLog -CustomEventId ([EventID]::AuthenticationFailed) `
-        -EventName "AuthFailure" -EventCategory Security `
-        -Message "Authentication failure for user JohnDoe" `
-        -CustomSeverity Error -LogAsJson
-
-    .NOTES
-        This module is designed for use in environments where detailed event logging is required for auditing and monitoring.
-        It supports event log retention and overwriting old entries based on user-defined limits.
-        Sensitive information is masked before logging to prevent leaks of confidential data.
-#>
-
-Add-Type -Language CSharp -TypeDefinition @'
-
+﻿
 using System;
 using System.Diagnostics;
 
@@ -372,5 +309,3 @@ public static class EventIDs
 
 } //end Class
 
-
-'@
