@@ -73,7 +73,7 @@ function New-DelegateAdOU {
             HelpMessage = 'LDAP path where this ou will be created',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ })]
+        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')] -ObjectDN $_ })]
         [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [string]
         $ouPath,

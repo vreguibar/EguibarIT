@@ -42,7 +42,7 @@
             HelpMessage = 'Distinguished Name of the object (or container).',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ })]
+        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')] -ObjectDN $_ })]
         [Alias('DN', 'DistinguishedName')]
         [String]
         $LDAPpath,
