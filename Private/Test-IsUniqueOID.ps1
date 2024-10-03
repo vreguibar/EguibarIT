@@ -63,12 +63,6 @@ Function Test-IsUniqueOID {
     )
 
     Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
 
         ##############################
         # Module imports
@@ -117,10 +111,6 @@ Function Test-IsUniqueOID {
     } #end Process
 
     End {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'checking the Certificate Template OID uniqueness (Private Function).'
-        )
-        Write-Verbose -Message $txt
     } #end End
 
 } #end Function

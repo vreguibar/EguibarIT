@@ -45,12 +45,6 @@
     )
 
     Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
 
         ##############################
         # Module imports
@@ -83,10 +77,6 @@
     } #end Process
 
     end {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'testing Global Unique Identifier (GUID) (Private Function).'
-        )
-        Write-Verbose -Message $txt
 
         return $isValid
     } #end End

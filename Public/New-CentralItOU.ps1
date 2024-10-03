@@ -1398,7 +1398,7 @@
         ###############################################################################
         #region Create a New Fine Grained Password Policy for Service Accounts
 
-        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Create a New Fine Grained Password Policy for Service Accounts...')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Create a New Fine Grained Password Policy for Service Accounts.')
 
         $PSOexists = $null
 
@@ -1582,7 +1582,9 @@
         ###############################################################################
         #region Enabling Management Accounts to Modify the Membership of Protected Groups
 
-        Write-Verbose -Message ($Variables.NewRegionMessage -f 'Enabling Management Accounts to Modify the Membership of Protected Groups...')
+        Write-Verbose -Message ($Variables.NewRegionMessage -f
+            'Enabling Management Accounts to Modify the Membership of Protected Groups...'
+        )
 
         # Enable PUM to manage Privileged Accounts (Reset PWD, enable/disable Administrator built-in account)
         Set-AdAclMngPrivilegedAccount -Group $SL_PUM

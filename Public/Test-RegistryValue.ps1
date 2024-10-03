@@ -53,12 +53,6 @@ function Test-RegistryValue {
     )
 
     Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
 
         ##############################
         # Module imports
@@ -78,10 +72,7 @@ function Test-RegistryValue {
     } #end Process
 
     End {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'testing registry.'
-        )
-        Write-Verbose -Message $txt
+
     } #end End
 
 } #end Function

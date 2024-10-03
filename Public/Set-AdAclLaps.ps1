@@ -7,16 +7,12 @@ function Set-AdAclLaps {
             The function will consolidate all rights used for LAPS on a given container.
         .EXAMPLE
             Set-AdAclLaps -ResetGroup "SG_SiteAdmins_XXXX" -ReadGroup "SG_GalAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
-        .EXAMPLE
-            Set-AdAclLaps -ResetGroup "SG_SiteAdmins_XXXX" -ReadGroup "SG_GalAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
         .PARAMETER ReadGroup
             Identity of the group getting being able to READ the password
         .PARAMETER ResetGroup
             Identity of the group getting being able to RESET the password
         .PARAMETER LDAPPath
             Distinguished Name of the OU where LAPS will apply to computer object.
-        .PARAMETER RemoveRule
-            If present, the access rule will be removed
         .NOTES
             Used Functions:
                 Name                                   | Module
@@ -38,7 +34,10 @@ function Set-AdAclLaps {
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
     #>
+
     [CmdletBinding(ConfirmImpact = 'Low')]
+    [OutputType([void])]
+
     Param (
         # PARAM1 STRING for the Delegated Group Name
         [Parameter(Mandatory = $true,
@@ -65,20 +64,10 @@ function Set-AdAclLaps {
             HelpMessage = 'Distinguished Name of the OU where LAPS will apply to computer object',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
-        [validateScript({ Test-IsValidDN -ObjectDN $_ })]
+        [ValidateScript({ Test-IsValidDN -ObjectDN $_ })]
         [Alias('DN', 'DistinguishedName')]
         [String]
-        $LDAPpath,
-
-        # PARAM4 SWITCH If present, the access rule will be removed.
-        [Parameter(Mandatory = $false,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'If present, the access rule will be removed.',
-            Position = 3)]
-        [ValidateNotNullOrEmpty()]
-        [Switch]
-        $RemoveRule
+        $LDAPpath
     )
 
     begin {
@@ -91,10 +80,7 @@ function Set-AdAclLaps {
 
         ##############################
         # Module imports
-
-        #Import-MyModule -Name 'AdmPwd.PS' -Verbose:$false
         Import-Module -Name 'LAPS' -Verbose:$false
-        Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
 
         ##############################
         # Variables Definition
@@ -108,11 +94,7 @@ function Set-AdAclLaps {
     } #end Begin
 
     Process {
-
-        Write-Verbose -Message 'LAPS is supported on this environment. We can proceed to configure it.'
-
         <#
-
         LEGACY LAPS not used anymore.
 
         if ($Variables.guidmap['ms-Mcs-AdmPwd']) {
@@ -123,17 +105,20 @@ function Set-AdAclLaps {
         } else {
             Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for legacy LAPS.'
         } #end If-Else
-
         #>
 
         if ($Variables.GuidMap['ms-Mcs-AdmPwdExpirationTime']) {
+
+            Write-Verbose -Message 'LAPS is supported on this environment. We can proceed to configure it.'
+
             # LAPS CMDlets
             Set-LapsADComputerSelfPermission -Identity $LDAPpath
             Set-LapsADReadPasswordPermission -AllowedPrincipals $currentReadGroup.SID -Identity $PSBoundParameters['LDAPpath']
             Set-LapsADResetPasswordPermission -AllowedPrincipals $currentResetGroup.SID -Identity $PSBoundParameters['LDAPpath']
+            Set-LapsADPasswordExpirationTime -Identity $LDAPpath
 
         } else {
-            Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for new Windows LAPS.'
+            Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for Windows LAPS.'
         } #end If-Else
     } #end Process
 

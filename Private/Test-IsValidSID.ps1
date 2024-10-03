@@ -41,12 +41,6 @@ function Test-IsValidSID {
     )
 
     Begin {
-        $txt = ($Variables.HeaderDelegation -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
 
         ##############################
         # Module imports
@@ -68,32 +62,28 @@ function Test-IsValidSID {
     Process {
         # try RegEx
         Try {
-            #if ($Variables.WellKnownSIDs -Contains $ObjectSID) {
-            If ($Variables.WellKnownSIDs.Keys.Contains($ObjectSID)) {
+            # Provide verbose output
+            if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
 
-                # Provide verbose output
-                if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
+                #if ($Variables.WellKnownSIDs -Contains $ObjectSID) {
+                If ($Variables.WellKnownSIDs.Keys.Contains($ObjectSID)) {
+
                     Write-Verbose -Message ('The SID {0} is a WellKnownSid.' -f $ObjectSID)
-                } #end If
-                $isValid = $true
-                #return
-            } elseIf ($ObjectSID -match $Constants.SidRegEx) {
+                    $isValid = $true
 
-                # Provide verbose output
-                if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
+                } elseIf ($ObjectSID -match $Constants.SidRegEx) {
+
                     Write-Verbose -Message ('The SID {0} is valid.' -f $ObjectSID)
-                } #end If
-                $isValid = $true
-                #return
-            } else {
+                    $isValid = $true
 
-                # Provide verbose output
-                if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
+                } else {
+
                     Write-Verbose -Message ('[WARNING] The SID {0} is NOT valid!.' -f $ObjectSID)
-                } #end If
-                $isValid = $false
-            } #end If-Else
+                    $isValid = $false
 
+                } #end If-Else
+
+            } #end If VERBOSE
         } catch {
             # Handle exceptions gracefully
             Write-Error -Message ('An error occurred when validating the SID: {0}' -f $_)
@@ -119,11 +109,6 @@ function Test-IsValidSID {
     } #end Process
 
     end {
-        $txt = ($Variables.FooterDelegation -f $MyInvocation.InvocationName,
-            'testing SID (Private Function).'
-        )
-        Write-Verbose -Message $txt
-
         return $isValid
     } #end End
 
