@@ -2273,7 +2273,7 @@
             gpoBackupID    = $confXML.n.Admin.GPOs.INFRAbaseline.backupID
             gpoBackupPath  = (Join-Path $DMscripts SecTmpl)
         }
-        New-DelegateAdGpo @Splat @Spla1
+        New-DelegateAdGpo @Splat @Splat1
 
         $Splat1 = @{
             gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name)
@@ -2632,15 +2632,15 @@
             DenyServiceLogon           = $DenyServiceLogon
             DenyBatchLogon             = $DenyBatchLogon
             Backup                     = $Backup
-            ChangeNotify               = $Backup.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE'
-            CreateGlobal               = $Backup.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE'
-            Systemtime                 = $Backup.ToArray(), 'LOCAL SERVICE'
+            ChangeNotify               = $Backup, 'LOCAL SERVICE', 'NETWORK SERVICE'
+            CreateGlobal               = $Backup, 'LOCAL SERVICE', 'NETWORK SERVICE'
+            Systemtime                 = $Backup, 'LOCAL SERVICE'
             TimeZone                   = $Backup
             CreatePagefile             = $Backup
             CreateSymbolicLink         = $Backup
             EnableDelegation           = $Backup
             RemoteShutDown             = $Backup
-            Impersonate                = $Backup.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
+            Impersonate                = $Backup, 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
             IncreaseBasePriority       = $Backup
             LoadDriver                 = $Backup
             AuditSecurity              = $Backup

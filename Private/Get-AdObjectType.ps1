@@ -106,11 +106,13 @@
 
         try {
             # Known Identities OR AD Objects
-            if ($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount] -or
+            if (
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADAccount] -or
                 $Identity -is [Microsoft.ActiveDirectory.Management.ADComputer] -or
                 $Identity -is [Microsoft.ActiveDirectory.Management.ADGroup] -or
                 $Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit] -or
-                $Identity -is [Microsoft.ActiveDirectory.Management.ADServiceAccount]) {
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADServiceAccount]
+            ) {
 
                 Write-Verbose -Message (' ┝━━━━━━► Known AD Object Type: {0}' -f $Identity.GetType().Name)
                 $ReturnValue = $Identity
@@ -119,53 +121,41 @@
 
                 Write-Verbose -Message ('Identity is a string: {0}. Trying to resolve it!' -f $Identity)
 
-                if (Test-IsValidDN -ObjectDN $Identity) {
+                # Check if it's a well-known SID name (including Foreign Security Principals)
+                $sid = Test-NameIsWellKnownSid -Name $Identity
 
-                    Write-Verbose -Message 'Looking for DistinguishedName'
-                    $newObject = Get-ADObject -Filter { DistinguishedName -like $Identity }
+                if ($sid) {
+                    Write-Verbose -Message ('Found well-known SID for name: {0}. Returning SecurityIdentifier object.' -f $Identity)
+                    $ReturnValue = $sid
+                } else {
+                    if (Test-IsValidDN -ObjectDN $Identity) {
 
-                } elseif (Test-IsValidSID -ObjectSID $Identity) {
+                        Write-Verbose -Message 'Looking for DistinguishedName'
+                        $newObject = Get-ADObject -Filter { DistinguishedName -like $Identity }
 
-                    Write-Verbose -Message 'Looking for ObjectSID'
+                    } elseif (Test-IsValidSID -ObjectSID $Identity) {
 
-                    # Check if given SID is a Well-Known SID
-                    If ($Variables.WellKnownSIDs.Keys.Contains($Identity)) {
-
-                        # Get AdObject using Well-Known SID
-                        Write-Verbose -Message 'Identified as Well-Known SID'
-                        $newObject = Get-ADObject -Filter { ObjectSID -like $Variables.WellKnownSIDs[$Identity] }
-
-                    } else {
-
+                        Write-Verbose -Message 'Looking for ObjectSID'
                         $newObject = Get-ADObject -Filter { ObjectSID -like $Identity }
 
-                    } #end If-Else
+                    } elseif (Test-IsValidGUID -ObjectGUID $Identity) {
 
-                } elseif (Test-IsValidGUID -ObjectGUID $Identity) {
+                        Write-Verbose -Message 'Looking for ObjectGUID'
+                        $newObject = Get-ADObject -Filter { ObjectGUID -like $Identity }
 
-                    Write-Verbose -Message 'Looking for ObjectGUID'
-                    $newObject = Get-ADObject -Filter { ObjectGUID -like $Identity }
-
-                } else {
-
-                    Write-Verbose -Message 'Looking for SamAccountName'
-
-                    # Check if given Name is a Well-Known SID name
-                    if ($Variables.WellKnownSIDs.Values.Contains($Identity)) {
-
-                        Write-Verbose 'Identified as Well-Known SID name'
-                        $wellKnownSID = $Variables.WellKnownSIDs.Keys.Where({ $Variables.WellKnownSIDs[$_] -eq $Identity })[0]
-
-                        $newObject = Get-ADObject -Filter { ObjectSID -like $wellKnownSID }
                     } else {
+
+                        Write-Verbose -Message 'Looking for SamAccountName'
                         $newObject = Get-ADObject -Filter { (Name -like $identity) -or (SamAccountName -like $identity) }
-                    }
-                } #end If-ElseIf-Else
+
+                    } #end If-ElseIf-Else
+
+                } #end If WellKnownSid
 
             } #end If-ElseIf Identity
 
         } Catch {
-            throw "Unsupported Identity type: $($Identity.GetType().Name)"
+            throw ('Unsupported Identity type: {0}' -f $Identity.GetType().Name)
             return $null
         } #end If-ElseIf-Else
 

@@ -64,7 +64,7 @@ function Set-AdAclLaps {
             HelpMessage = 'Distinguished Name of the OU where LAPS will apply to computer object',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')] -ObjectDN $_ })]
+        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')]
         [Alias('DN', 'DistinguishedName')]
         [String]
         $LDAPpath
@@ -115,7 +115,6 @@ function Set-AdAclLaps {
             Set-LapsADComputerSelfPermission -Identity $LDAPpath
             Set-LapsADReadPasswordPermission -AllowedPrincipals $currentReadGroup.SID -Identity $PSBoundParameters['LDAPpath']
             Set-LapsADResetPasswordPermission -AllowedPrincipals $currentResetGroup.SID -Identity $PSBoundParameters['LDAPpath']
-            Set-LapsADPasswordExpirationTime -Identity $LDAPpath
 
         } else {
             Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for Windows LAPS.'

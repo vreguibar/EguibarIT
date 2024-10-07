@@ -57,7 +57,7 @@ function Set-AdAclDelegateUserAdmin {
             HelpMessage = 'Distinguished Name of the OU where given group will fully manage a User object',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')] -ObjectDN $_ })]
+        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')]
         [String]
         $LDAPpath,
 

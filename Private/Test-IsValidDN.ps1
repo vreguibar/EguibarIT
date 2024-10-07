@@ -1,4 +1,4 @@
-function Test-IsValidDN {
+﻿function Test-IsValidDN {
     <#
         .SYNOPSIS
             Validates if the input string is a valid distinguished name (DN).
@@ -49,11 +49,10 @@ function Test-IsValidDN {
 
         ##############################
         # Module imports
-
         # Initialize a boolean variable to store validation result
         [bool]$isValid = $false
 
-        Write-Verbose 'Begin block: Regex pattern for DN validation initialized.'
+        Write-Verbose -Message 'Begin block: Regex pattern for DN validation initialized.'
 
     } #end Begin
 
@@ -73,7 +72,7 @@ function Test-IsValidDN {
         } catch {
             # Handle exceptions gracefully
             Write-Error -Message 'Error when validating DistinguishedName'
-            throw
+            Get-ErrorDetail -ErrorRecord $_
         } #end Try-Catch
 
     } #end Process
@@ -81,5 +80,4 @@ function Test-IsValidDN {
     end {
         return $isValid
     } #end End
-
 } #end Function

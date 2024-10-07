@@ -49,6 +49,9 @@
         ##############################
         # Module imports
 
+        ##############################
+        # Variables Definition
+
         $isValid = $false
 
         Write-Verbose 'Begin block: Regex pattern for GUID validation initialized.'
@@ -71,13 +74,12 @@
         } catch {
             # Handle exceptions gracefully
             Write-Error -Message 'Error when validating GUID'
-            throw
+            Get-ErrorDetail -ErrorRecord $_
         } #end Try-Catch
 
     } #end Process
 
     end {
-
         return $isValid
     } #end End
 } #end Function

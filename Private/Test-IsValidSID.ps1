@@ -1,4 +1,4 @@
-function Test-IsValidSID {
+﻿function Test-IsValidSID {
     <#
         .SYNOPSIS
             Cmdlet will check if the input string is a valid SID.
@@ -87,6 +87,7 @@ function Test-IsValidSID {
         } catch {
             # Handle exceptions gracefully
             Write-Error -Message ('An error occurred when validating the SID: {0}' -f $_)
+            Get-ErrorDetail -ErrorRecord $_
         } #end Try-Catch
 
         <#

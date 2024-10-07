@@ -98,7 +98,7 @@ function Start-AdDelegateSite {
             HelpMessage = 'Enter the Name new redirected OU for computers',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')] -ObjectDN $_ })]
+        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')]
         [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [String]
         $QuarantineDN,
