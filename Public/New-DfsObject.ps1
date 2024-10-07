@@ -107,10 +107,8 @@
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-        #endregion Declarations
-        ################################################################################
     } #end Begin
 
     Process {
@@ -153,7 +151,11 @@
         $SL_DfsRight = New-AdDelegatedGroup @Splat
 
         # Apply the PSO to the SL_DfsRights and SG_DfsAdmin Group
-        Add-ADFineGrainedPasswordPolicySubject -Identity $confXML.n.Admin.PSOs.ItAdminsPSO.Name -Subjects $SG_DfsAdmins, $SL_DfsRight
+        $Splat = @{
+            Identity = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
+            Subjects = $SG_DfsAdmins, $SL_DfsRight
+        }
+        Add-ADFineGrainedPasswordPolicySubject @Splat
 
 
         ###############################################################################
@@ -166,9 +168,17 @@
         ###############################################################################
         # Nest Groups - Extend Rights through delegation model groups
 
-        Add-AdGroupNesting -Identity $SL_DfsRight -Members $SG_DfsAdmins
+        $Splat = @{
+            Identity = $SL_DfsRight
+            Members  = $SG_DfsAdmins
+        }
+        Add-AdGroupNesting @Splat
 
-        Add-AdGroupNesting -Identity $SG_DfsAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AdAdmins.Name)
+        $Splat = @{
+            Identity = $SG_DfsAdmins
+            Members  = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AdAdmins.Name)
+        }
+        Add-AdGroupNesting @Splat
 
         ###############################################################################
         # START Delegation to SL_InfraRights group on ADMIN area
