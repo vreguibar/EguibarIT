@@ -2725,23 +2725,23 @@
             ServiceLogon         = $ServiceLogon
             DenyBatchLogon       = $DenyBatchLogon
             DenyServiceLogon     = $DenyServiceLogon
-            MachineAccount       = $ArrayList.ToArray()
-            Backup               = $ArrayList.ToArray()
-            SystemTime           = $ArrayList.ToArray(), 'LOCAL SERVICE'
-            TimeZone             = $ArrayList.ToArray()
-            CreatePagefile       = $ArrayList.ToArray()
-            CreateSymbolicLink   = $ArrayList.ToArray()
-            RemoteShutdown       = $ArrayList.ToArray()
-            IncreaseBasePriority = $ArrayList.ToArray()
-            LoadDriver           = $ArrayList.ToArray()
-            AuditSecurity        = $ArrayList.ToArray()
-            SystemEnvironment    = $ArrayList.ToArray()
-            ManageVolume         = $ArrayList.ToArray()
-            ProfileSingleProcess = $ArrayList.ToArray()
-            SystemProfile        = $ArrayList.ToArray()
-            Restore              = $ArrayList.ToArray()
-            Shutdown             = $ArrayList.ToArray()
-            TakeOwnership        = $ArrayList.ToArray()
+            MachineAccount       = $ArrayList
+            Backup               = $ArrayList
+            SystemTime           = $ArrayList, 'LOCAL SERVICE'
+            TimeZone             = $ArrayList
+            CreatePagefile       = $ArrayList
+            CreateSymbolicLink   = $ArrayList
+            RemoteShutdown       = $ArrayList
+            IncreaseBasePriority = $ArrayList
+            LoadDriver           = $ArrayList
+            AuditSecurity        = $ArrayList
+            SystemEnvironment    = $ArrayList
+            ManageVolume         = $ArrayList
+            ProfileSingleProcess = $ArrayList
+            SystemProfile        = $ArrayList
+            Restore              = $ArrayList
+            Shutdown             = $ArrayList
+            TakeOwnership        = $ArrayList
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2814,25 +2814,25 @@
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0OU.Name
             InteractiveLogon       = $InteractiveLogon
             RemoteInteractiveLogon = $RemoteInteractiveLogon
-            MachineAccount         = $ArrayList.ToArray()
-            Backup                 = $ArrayList.ToArray()
-            CreateGlobal           = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE'
-            SystemTime             = $ArrayList.ToArray(), 'LOCAL SERVICE'
-            TimeZone               = $ArrayList.ToArray()
-            CreatePagefile         = $ArrayList.ToArray()
-            CreateSymbolicLink     = $ArrayList.ToArray()
-            RemoteShutdown         = $ArrayList.ToArray()
-            Impersonate            = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
-            IncreaseBasePriority   = $ArrayList.ToArray()
-            LoadDriver             = $ArrayList.ToArray()
-            AuditSecurity          = $ArrayList.ToArray()
-            SystemEnvironment      = $ArrayList.ToArray()
-            ManageVolume           = $ArrayList.ToArray()
-            ProfileSingleProcess   = $ArrayList.ToArray()
-            SystemProfile          = $ArrayList.ToArray()
-            Restore                = $ArrayList.ToArray()
-            Shutdown               = $ArrayList.ToArray()
-            TakeOwnership          = $ArrayList.ToArray()
+            MachineAccount         = $ArrayList
+            Backup                 = $ArrayList
+            CreateGlobal           = $ArrayList, 'LOCAL SERVICE', 'NETWORK SERVICE'
+            SystemTime             = $ArrayList, 'LOCAL SERVICE'
+            TimeZone               = $ArrayList
+            CreatePagefile         = $ArrayList
+            CreateSymbolicLink     = $ArrayList
+            RemoteShutdown         = $ArrayList
+            Impersonate            = $ArrayList, 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
+            IncreaseBasePriority   = $ArrayList
+            LoadDriver             = $ArrayList
+            AuditSecurity          = $ArrayList
+            SystemEnvironment      = $ArrayList
+            ManageVolume           = $ArrayList
+            ProfileSingleProcess   = $ArrayList
+            SystemProfile          = $ArrayList
+            Restore                = $ArrayList
+            Shutdown               = $ArrayList
+            TakeOwnership          = $ArrayList
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2922,8 +2922,8 @@
         }
         $Splat = @{
             GpoToModify            = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.name)
-            InteractiveLogon       = $ArrayList.ToArray()
-            RemoteInteractiveLogon = $ArrayList.ToArray()
+            InteractiveLogon       = $ArrayList
+            RemoteInteractiveLogon = $ArrayList
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -3188,25 +3188,25 @@
             DenyRemoteInteractiveLogon = $DenyLogon
             DenyBatchLogon             = $SG_Tier0ServiceAccount, $SG_Tier2ServiceAccount
             DenyServiceLogon           = $SG_Tier0ServiceAccount, $SG_Tier2ServiceAccount
-            Backup                     = $ArrayList.ToArray()
-            MachineAccount             = $ArrayList.ToArray()
-            CreateGlobal               = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE'
-            Systemtime                 = $ArrayList.ToArray(), 'LOCAL SERVICE'
-            TimeZone                   = $ArrayList.ToArray()
-            CreatePagefile             = $ArrayList.ToArray()
-            CreateSymbolicLink         = $ArrayList.ToArray()
-            RemoteShutDown             = $ArrayList.ToArray()
-            Impersonate                = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
-            IncreaseBasePriority       = $ArrayList.ToArray()
-            LoadDriver                 = $ArrayList.ToArray()
-            AuditSecurity              = $ArrayList.ToArray()
-            SystemEnvironment          = $ArrayList.ToArray()
-            ManageVolume               = $ArrayList.ToArray()
-            ProfileSingleProcess       = $ArrayList.ToArray()
-            SystemProfile              = $ArrayList.ToArray()
-            Restore                    = $ArrayList.ToArray()
-            Shutdown                   = $ArrayList.ToArray()
-            TakeOwnership              = $ArrayList.ToArray()
+            Backup                     = $ArrayList
+            MachineAccount             = $ArrayList
+            CreateGlobal               = $ArrayList, 'LOCAL SERVICE', 'NETWORK SERVICE'
+            Systemtime                 = $ArrayList, 'LOCAL SERVICE'
+            TimeZone                   = $ArrayList
+            CreatePagefile             = $ArrayList
+            CreateSymbolicLink         = $ArrayList
+            RemoteShutDown             = $ArrayList
+            Impersonate                = $ArrayList, 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
+            IncreaseBasePriority       = $ArrayList
+            LoadDriver                 = $ArrayList
+            AuditSecurity              = $ArrayList
+            SystemEnvironment          = $ArrayList
+            ManageVolume               = $ArrayList
+            ProfileSingleProcess       = $ArrayList
+            SystemProfile              = $ArrayList
+            Restore                    = $ArrayList
+            Shutdown                   = $ArrayList
+            TakeOwnership              = $ArrayList
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -3324,25 +3324,25 @@
             ServiceLogon               = $SG_Tier2ServiceAccount
             InteractiveLogon           = $SG_Tier2Admins
             RemoteInteractiveLogon     = $SG_Tier2Admins
-            Backup                     = $ArrayList.ToArray()
-            MachineAccount             = $ArrayList.ToArray()
-            CreateGlobal               = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE'
-            Systemtime                 = $ArrayList.ToArray(), 'LOCAL SERVICE'
-            TimeZone                   = $ArrayList.ToArray()
-            CreatePagefile             = $ArrayList.ToArray()
-            CreateSymbolicLink         = $ArrayList.ToArray()
-            RemoteShutDown             = $ArrayList.ToArray()
-            Impersonate                = $ArrayList.ToArray(), 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
-            IncreaseBasePriority       = $ArrayList.ToArray()
-            LoadDriver                 = $ArrayList.ToArray()
-            AuditSecurity              = $ArrayList.ToArray()
-            SystemEnvironment          = $ArrayList.ToArray()
-            ManageVolume               = $ArrayList.ToArray()
-            ProfileSingleProcess       = $ArrayList.ToArray()
-            SystemProfile              = $ArrayList.ToArray()
-            Restore                    = $ArrayList.ToArray()
-            Shutdown                   = $ArrayList.ToArray()
-            TakeOwnership              = $ArrayList.ToArray()
+            Backup                     = $ArrayList
+            MachineAccount             = $ArrayList
+            CreateGlobal               = $ArrayList, 'LOCAL SERVICE', 'NETWORK SERVICE'
+            Systemtime                 = $ArrayList, 'LOCAL SERVICE'
+            TimeZone                   = $ArrayList
+            CreatePagefile             = $ArrayList
+            CreateSymbolicLink         = $ArrayList
+            RemoteShutDown             = $ArrayList
+            Impersonate                = $ArrayList, 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
+            IncreaseBasePriority       = $ArrayList
+            LoadDriver                 = $ArrayList
+            AuditSecurity              = $ArrayList
+            SystemEnvironment          = $ArrayList
+            ManageVolume               = $ArrayList
+            ProfileSingleProcess       = $ArrayList
+            SystemProfile              = $ArrayList
+            Restore                    = $ArrayList
+            Shutdown                   = $ArrayList
+            TakeOwnership              = $ArrayList
         }
         Set-GpoPrivilegeRight @Splat
 
