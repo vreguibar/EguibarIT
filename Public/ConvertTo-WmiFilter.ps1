@@ -32,7 +32,17 @@ function ConvertTo-WmiFilter {
     [OutputType([void])]
 
     Param (
-        [Microsoft.ActiveDirectory.Management.ADObject[]] $ADObject
+
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            ValueFromRemainingArguments = $False,
+            HelpMessage = 'Provide an ADObject instances representing the Active Directory objects to convert to WMI filter',
+            Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [Microsoft.ActiveDirectory.Management.ADObject[]]
+        $ADObject
+
     )
 
     Begin {
@@ -47,7 +57,8 @@ function ConvertTo-WmiFilter {
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'GroupPolicy' -Verbose:$false
+        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Force -Verbose:$false
+
 
         ##############################
         # Variables Definition
@@ -56,7 +67,8 @@ function ConvertTo-WmiFilter {
         # written by Bin Yi from Microsoft. I have modified it to allow for the challenges of
         # Active Directory replication. It will return the WMI filter as an object of type
         # "Microsoft.GroupPolicy.WmiFilter".
-        $gpDomain = New-Object -TypeName Microsoft.GroupPolicy.GPDomain
+        #$gpDomain = New-Object -TypeName Microsoft.GroupPolicy.GPDomain
+        $gpDomain = [Microsoft.GroupPolicy.GPDomain]::New()
 
     } #end Begin
 

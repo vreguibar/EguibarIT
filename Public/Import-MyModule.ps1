@@ -216,13 +216,13 @@ Function Import-MyModule {
         try {
 
             If ($Name -eq 'GroupPolicy') {
-                $x = 'C:\Windows\system32\WindowsPowerShell\v1.0\Modules\GroupPolicy\GroupPolicy.psd1'
-                Import-Module $x -Verbose:$PSBoundParameters['Verbose']
+                $GroupPolicy = 'C:\Windows\system32\WindowsPowerShell\v1.0\Modules\GroupPolicy\GroupPolicy.psd1'
+                Import-Module -Name $GroupPolicy @importParams
             }
 
             If ($Name -eq 'ServerManager') {
-                $x = 'C:\Windows\system32\WindowsPowerShell\v1.0\Modules\ServerManager\ServerManager.psd1'
-                Import-Module $x -Verbose:$PSBoundParameters['Verbose']
+                $ServerManager = 'C:\Windows\system32\WindowsPowerShell\v1.0\Modules\ServerManager\ServerManager.psd1'
+                Import-Module -Name $ServerManager @importParams
             }
 
             # Change this part to correctly check for module availability
