@@ -150,7 +150,7 @@
         # Module imports
 
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
-        Import-MyModule -Name 'GroupPolicy' -Verbose:$false
+        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
 
         ##############################
         # Variables Definition
@@ -178,16 +178,12 @@
 
             Write-Verbose -Message ('Policy: Create policy object {0}' -f $gpoName)
             $Splat = @{
-                Name        = $gpoName
-                Comment     = $gpoName
-                Server      = $dcServer
-                ErrorAction = 'SilentlyContinue'
-                Verbose     = $true
+                Name    = $gpoName
+                Comment = $gpoName
+                Server  = $dcServer
             }
             if ($PSCmdlet.ShouldProcess("Creating GPO '$gpoName'", 'Confirm creation?')) {
                 $gpoAlreadyExist = New-GPO @Splat
-
-                Write-Verbose -Message '1 second pause to give AD a chance to catch up'
                 Start-Sleep -Seconds 1
             } #end If
 
@@ -200,8 +196,6 @@
                 TargetName      = $GpoAdmin
                 TargetType      = 'group'
                 Server          = $dcServer
-                ErrorAction     = 'SilentlyContinue'
-                Verbose         = $true
             }
             if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", 'Confirm giving permissions?')) {
                 Set-GPPermissions @Splat
@@ -222,17 +216,15 @@
             }
 
             Write-Verbose -Message 'Add GPO-link to corresponding OU'
-            If ( Test-IsValidDN -ObjectDN $PSBoundParameters['gpoLinkPath'] ) {
-                $Splat = @{
-                    GUID        = $gpoAlreadyExist.Id
-                    Target      = $PSBoundParameters['gpoLinkPath']
-                    LinkEnabled = 'Yes'
-                    Server      = $dcServer
-                }
-                if ($PSCmdlet.ShouldProcess("Linking GPO '$gpoName'", 'Link GPO?')) {
-                    New-GPLink @Splat
-                } #end If
-            } # End If
+            $Splat = @{
+                GUID        = $gpoAlreadyExist.Id
+                Target      = $PSBoundParameters['gpoLinkPath']
+                LinkEnabled = 'Yes'
+                Server      = $dcServer
+            }
+            if ($PSCmdlet.ShouldProcess("Linking GPO '$gpoName'", 'Link GPO?')) {
+                New-GPLink @Splat
+            } #end If
 
             # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             # Adding settings
@@ -243,7 +235,11 @@
             #Set-GPRegistryValue -Name $gpoName -key "HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop" -ValueName ScreenSaveActive -Type String -value 1
 
         } else {
-            Write-Verbose -Message ('{0} Policy already exist. Changing Permissions and disabling corresponding settings (User or Computer).' -f $gpoName)
+            Write-Verbose -Message ('
+                {0} Policy already exist.
+                Changing Permissions and disabling corresponding settings (User or Computer).' -f
+                $gpoName
+            )
 
             # Give Rights to SL_GpoAdminRight
             Write-Verbose -Message ('Add GpoAdminRight to {0}' -f $gpoName)
@@ -253,8 +249,6 @@
                 TargetName      = $GpoAdmin
                 TargetType      = 'group'
                 Server          = $dcServer
-                ErrorAction     = 'SilentlyContinue'
-                Verbose         = $true
             }
             if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", 'Confirm giving permissions?')) {
                 Set-GPPermissions @Splat
@@ -279,20 +273,24 @@
         If ($PSBoundParameters['gpoBackupID'] -and $PSBoundParameters['gpoBackupPath']) {
 
             # Import the Backup
-            Write-Verbose -Message ('Importing GPO Backup {0} from path {1} to GPO {2}' -f $PSBoundParameters['gpoBackupID'], $PSBoundParameters['gpoBackupPath'], $gpoName)
+            Write-Verbose -Message ('
+                Importing GPO Backup {0}
+                from path {1}
+                to GPO {2}' -f
+                $PSBoundParameters['gpoBackupID'], $PSBoundParameters['gpoBackupPath'], $gpoName
+            )
 
             Try {
                 $Splat = @{
                     BackupId   = $PSBoundParameters['gpoBackupID']
                     TargetGuid = $gpoAlreadyExist.Id
                     path       = $PSBoundParameters['gpoBackupPath']
-                    Verbose    = $true
                 }
                 if ($PSCmdlet.ShouldProcess("Importing GPO Backup '$gpoBackupID' to GPO '$gpoName'", 'Confirm import')) {
                     Import-GPO @Splat
                 } #end If
             } Catch {
-                Write-Warning -Message ('No valid backup was found on !!' -f $PSBoundParameters['gpoBackupPath'])
+                Write-Error -Message ('No valid backup was found on {0}!' -f $PSBoundParameters['gpoBackupPath'])
             } #end Try-Catch
         } # End If
 
