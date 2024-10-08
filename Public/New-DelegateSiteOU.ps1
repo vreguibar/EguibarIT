@@ -649,26 +649,38 @@
         }
 
         # Desktop Baseline Tiering Restrictions
-        $splat = @(
-            'Schema Admins',
-            'Enterprise Admins',
-            'Domain Admins',
-            'Guests',
-            $confXML.n.Admin.users.Admin.name,
-            $confXML.n.Admin.users.newAdmin.name
-        )
-        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name) -DenyNetworkLogon $splat
+        $Splat = @{
+            GpoToModify      = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name)
+            DenyNetworkLogon = @(
+                'Schema Admins',
+                'Enterprise Admins',
+                'Domain Admins',
+                'Guests',
+                $confXML.n.Admin.users.Admin.name,
+                $confXML.n.Admin.users.newAdmin.name
+            )
+        }
+        Set-GpoPrivilegeRight @Splat
 
-        $splat = @(
+
+
+        $ArrayList = @(
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name),
             'Guests'
         )
-        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name) -DenyInteractiveLogon $splat -DenyRemoteInteractiveLogon $splat
+        $Splat = @{
+            GpoToModify                = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name)
+            DenyInteractiveLogon       = $ArrayList
+            DenyRemoteInteractiveLogon = $ArrayList
+        }
+        Set-GpoPrivilegeRight @Splat
 
-        $splat = @(
+
+
+        $ArrayList = @(
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
@@ -686,10 +698,20 @@
             $confXML.n.Admin.users.Admin.name,
             $confXML.n.Admin.users.newAdmin.name
         )
-        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
+        $Splat = @{
+            GpoToModify      = ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name)
+            DenyBatchLogon   = $ArrayList
+            DenyServiceLogon = $ArrayList
+        }
+        Set-GpoPrivilegeRight @Splat
 
-        $splat = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name
-        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name) -BatchLogon $splat -ServiceLogon $splat
+
+        $Splat = @{
+            GpoToModify  = ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name)
+            BatchLogon   = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name
+            ServiceLogon = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name
+        }
+        Set-GpoPrivilegeRight @Splat
 
 
 
@@ -708,26 +730,38 @@
         }
 
         # Laptop Baseline Tiering Restrictions
-        $splat = @(
-            'Schema Admins',
-            'Enterprise Admins',
-            'Domain Admins',
-            'Guests',
-            $confXML.n.Admin.users.Admin.name,
-            $confXML.n.Admin.users.newAdmin.name
-        )
-        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name) -DenyNetworkLogon $splat
+        $Splat = @{
+            GpoToModify      = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name)
+            DenyNetworkLogon = @(
+                'Schema Admins',
+                'Enterprise Admins',
+                'Domain Admins',
+                'Guests',
+                $confXML.n.Admin.users.Admin.name,
+                $confXML.n.Admin.users.newAdmin.name
+            )
+        }
+        Set-GpoPrivilegeRight @Splat
 
-        $splat = @(
+
+
+        $ArrayList = @(
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name),
             'Guests'
         )
-        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name) -DenyInteractiveLogon $splat -DenyRemoteInteractiveLogon $splat
+        $Splat = @{
+            GpoToModify                = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name)
+            DenyInteractiveLogon       = $ArrayList
+            DenyRemoteInteractiveLogon = $ArrayList
+        }
+        Set-GpoPrivilegeRight @Splat
 
-        $splat = @(
+
+
+        $ArrayList = @(
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
@@ -745,10 +779,21 @@
             $confXML.n.Admin.users.Admin.name,
             $confXML.n.Admin.users.newAdmin.name
         )
-        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name) -DenyBatchLogon $splat -DenyServiceLogon $splat
+        $Splat = @{
+            GpoToModify      = ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name)
+            DenyBatchLogon   = $ArrayList
+            DenyServiceLogon = $ArrayList
+        }
+        Set-GpoPrivilegeRight @Splat
 
-        $splat = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name
-        Set-GpoPrivilegeRight -GpoToModify ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name) -BatchLogon $splat -ServiceLogon $splat
+
+
+        $Splat = @{
+            GpoToModify  = ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name)
+            BatchLogon   = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name
+            ServiceLogon = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name
+        }
+        Set-GpoPrivilegeRight @Splat
 
 
 
@@ -764,22 +809,28 @@
         Write-Verbose -Message ($Variables.NewRegionMessage -f 'Delegating GPO')
 
         # Give Rights to SG_SiteAdmin_XXXX to $ouName + -Desktop
-        Write-Verbose -Message ('Add Local Admin to new {0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name)
+        Write-Verbose -Message ('
+            Add Local Admin to new {0}-{1}' -f
+            $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name
+        )
         $splat = @{
             Name            = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name)
             PermissionLevel = 'GpoEdit'
-            TargetName      = $SG_SiteAdmins.SamAccountName
+            TargetName      = $SG_SiteAdmins
             TargetType      = 'group'
             ErrorAction     = 'SilentlyContinue'
             Verbose         = $true
         }
         Set-GPPermissions @splat
 
-        Write-Verbose -Message ('Add Local Admin to new {0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name)
+        Write-Verbose -Message ('
+            Add Local Admin to new {0}-{1}' -f
+            $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name
+        )
         $splat = @{
             Name            = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name)
             PermissionLevel = 'GpoEdit'
-            TargetName      = $SG_SiteAdmins.SamAccountName
+            TargetName      = $SG_SiteAdmins
             TargetType      = 'group'
             ErrorAction     = 'SilentlyContinue'
             Verbose         = $true
@@ -789,11 +840,14 @@
 
 
 
-        Write-Verbose -Message ('Add Local Admin to new {0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteUser.Name)
+        Write-Verbose -Message ('
+            Add Local Admin to new {0}-{1}' -f
+            $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteUser.Name
+        )
         $splat = @{
             Name            = ('U-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteUser.Name)
             PermissionLevel = 'GpoEdit'
-            TargetName      = $SG_SiteAdmins.SamAccountName
+            TargetName      = $SG_SiteAdmins
             TargetType      = 'group'
             ErrorAction     = 'SilentlyContinue'
             Verbose         = $true

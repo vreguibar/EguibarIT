@@ -201,7 +201,7 @@ function Start-AdDelegateSite {
         $OuSiteDefUser = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteUser.name, $ouNameDN
 
         $Splat = @{
-            Group    = $SL_PwdRight.SamAccountName
+            Group    = $SL_PwdRight
             LDAPPath = $OuSiteDefUser
         }
 
@@ -217,7 +217,7 @@ function Start-AdDelegateSite {
 
 
         $Splat = @{
-            Group    = $SL_CreateUserRight.SamAccountName
+            Group    = $SL_CreateUserRight
             LDAPPath = $OuSiteDefUser
         }
 
@@ -237,7 +237,7 @@ function Start-AdDelegateSite {
         #### GAL
 
         $Splat = @{
-            Group    = $SL_GALRight.SamAccountName
+            Group    = $SL_GALRight
             LDAPPath = $OuSiteDefUser
         }
 
@@ -269,21 +269,21 @@ function Start-AdDelegateSite {
         Write-Verbose -Message ($Variables.NewRegionMessage -f 'COMPUTER Site Delegation')
 
         # Create/Delete Computers
-        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName -LDAPpath $OuSiteDefComputer -QuarantineDN $PSBoundParameters['QuarantineDN']
-        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight.SamAccountName -LDAPpath $OuSiteDefLaptop -QuarantineDN $PSBoundParameters['QuarantineDN']
+        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight -LDAPpath $OuSiteDefComputer
+        Set-AdAclDelegateComputerAdmin -Group $SL_PcRight -LDAPpath $OuSiteDefLaptop
 
         # Grant the right to delete computers from default container. Move Computers
-        Set-DeleteOnlyComputer -Group $SL_PcRight.SamAccountName -LDAPPath $PSBoundParameters['QuarantineDN']
+        Set-DeleteOnlyComputer -Group $SL_PcRight -LDAPPath $PSBoundParameters['QuarantineDN']
 
         #### GAL
 
         # Change Personal Info
-        Set-AdAclComputerPersonalInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefComputer
-        Set-AdAclComputerPersonalInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefLaptop
+        Set-AdAclComputerPersonalInfo -Group $SL_GALRight -LDAPPath $OuSiteDefComputer
+        Set-AdAclComputerPersonalInfo -Group $SL_GALRight -LDAPPath $OuSiteDefLaptop
 
         # Change Public Info
-        Set-AdAclComputerPublicInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefComputer
-        Set-AdAclComputerPublicInfo -Group $SL_GALRight.SamAccountName -LDAPPath $OuSiteDefLaptop
+        Set-AdAclComputerPublicInfo -Group $SL_GALRight -LDAPPath $OuSiteDefComputer
+        Set-AdAclComputerPublicInfo -Group $SL_GALRight -LDAPPath $OuSiteDefLaptop
 
 
 
@@ -294,12 +294,20 @@ function Start-AdDelegateSite {
         Write-Verbose -Message ($Variables.NewRegionMessage -f 'GROUP Site Delegation')
 
         # Create/Delete Groups
-        Set-AdAclCreateDeleteGroup -Group $SL_GroupRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteGroup.name, $ouNameDN)
+        $Splat = @{
+            Group    = $SL_GroupRight
+            LDAPPath = ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteGroup.name, $ouNameDN)
+        }
+        Set-AdAclCreateDeleteGroup @Splat
 
         #### GAL
 
         # Change Group Properties
-        Set-AdAclChangeGroup -Group $SL_GroupRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteGroup.name, $ouNameDN)
+        $Splat = @{
+            Group    = $SL_GroupRight
+            LDAPPath = ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteGroup.name, $ouNameDN)
+        }
+        Set-AdAclChangeGroup @Splat
 
 
 
@@ -309,7 +317,11 @@ function Start-AdDelegateSite {
         # PRINTQUEUE Site Admin Delegation
 
         # Create/Delete Print Queue
-        Set-AdAclCreateDeletePrintQueue -Group $SL_SiteRight.SamAccountName -LDAPPath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSitePrintQueue.name, $ouNameDN)
+        $Splat = @{
+            Group    = $SL_SiteRight
+            LDAPPath = ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSitePrintQueue.name, $ouNameDN)
+        }
+        Set-AdAclCreateDeletePrintQueue @Splat
 
 
 
@@ -317,7 +329,11 @@ function Start-AdDelegateSite {
         ###############################################################################
         # PRINTQUEUE Site GAL Delegation
 
-        Set-AdAclChangePrintQueue -Group $SL_GALRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSitePrintQueue.name, $ouNameDN)
+        $Splat = @{
+            Group    = $SL_GALRight
+            LDAPpath = ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSitePrintQueue.name, $ouNameDN)
+        }
+        Set-AdAclChangePrintQueue @Splat
 
 
         Write-Verbose -Message 'START VOLUME Site Admin Delegation'
@@ -325,7 +341,11 @@ function Start-AdDelegateSite {
         # VOLUME Site Admin Delegation
 
         # Create/Delete Volume
-        Set-AdAclCreateDeleteVolume -Group $SL_SiteRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteShares.name, $ouNameDN)
+        $Splat = @{
+            Group    = $SL_SiteRight
+            LDAPpath = ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteShares.name, $ouNameDN)
+        }
+        Set-AdAclCreateDeleteVolume @Splat
 
 
 
@@ -334,7 +354,11 @@ function Start-AdDelegateSite {
         # VOLUME Site GAL Delegation
 
         # Change Volume Properties
-        Set-AdAclChangeVolume -Group $SL_GALRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteShares.name, $ouNameDN)
+        $Splat = @{
+            Group    = $SL_GALRight
+            LDAPpath = ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteShares.name, $ouNameDN)
+        }
+        Set-AdAclChangeVolume @Splat
 
 
 
