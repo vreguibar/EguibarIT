@@ -1242,7 +1242,7 @@
 
         [String]$PsoName = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
 
-        $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -eq $PsoName }
+        $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -like $PsoName }
 
         if (-not($PSOexists)) {
             Write-Verbose -Message ('Creating {0} PSO.' -f $PsoName)
@@ -1265,7 +1265,7 @@
 
             $PSOexists = New-ADFineGrainedPasswordPolicy @Splat
             If ( -not $PSOexists ) {
-                $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -eq $PsoName }
+                $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -like $PsoName }
             }
 
         } # End If PSO exists
@@ -1405,7 +1405,7 @@
 
         [String]$PsoName = $confXML.n.Admin.PSOs.ServiceAccountsPSO.Name
 
-        $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -eq $PsoName }
+        $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -like $PsoName }
 
         if (-not($PSOexists)) {
             Write-Verbose -Message ('Creating {0} PSO.' -f $PsoName)
@@ -1427,7 +1427,7 @@
             }
             $PSOexists = New-ADFineGrainedPasswordPolicy @Splat
             If (-not $PSOexists) {
-                $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { cn -eq $PsoName }
+                $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -like $PsoName }
             }
 
             #$PSOexists = Get-ADFineGrainedPasswordPolicy -Identity $PsoName
