@@ -2,19 +2,19 @@
 
     # Null GUID which is considered as "All"
     #$guidNull  = New-Object -TypeName Guid -ArgumentList 00000000-0000-0000-0000-000000000000
-    guidNull  = [System.guid]::New('00000000-0000-0000-0000-000000000000')
+    guidNull   = [System.guid]::New('00000000-0000-0000-0000-000000000000')
 
     # Horizontal Tab
-    HTab      = "`t"
+    HTab       = "`t"
 
     # New NewLine
-    NL        = [System.Environment]::NewLine
+    NL         = [System.Environment]::NewLine
 
     # Regular Expression (RegEx) for SIDs
-    SidRegEx  = [RegEx]::new('^S-1-(0|1|2|3|4|5|16|59)-\d+(-\d+)*$')
+    SidRegEx   = [RegEx]::new('^S-1-(0|1|2|3|4|5|16|59)-\d+(-\d+)*$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
 
     # Regular Expression (RegEx) for DistinguishedName
-    DnRegEx   = [RegEx]::new('^(?:(CN=(?<name>(?:[^,\\]|\\.)+),)*)?(OU=(?<ou>(?:[^,\\]|\\.)+),)*(DC=(?<dc1>(?:[^,\\]|\\.)+))(,DC=(?<dc2>(?:[^,\\]|\\.)+))+?$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    DnRegEx    = [RegEx]::new('^(?:(CN=(?<name>(?:[^,\\]|\\.)+),)*)?(OU=(?<ou>(?:[^,\\]|\\.)+),)*(DC=(?<dc1>(?:[^,\\]|\\.)+))(,DC=(?<dc2>(?:[^,\\]|\\.)+))+?$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
 
     # Regular Expression (RegEx) for GUID
     <# Define GUID Regex
@@ -28,8 +28,10 @@
         {12} specifies that the preceding character class should appear exactly 12 times.
         $ asserts the end of the string.
     #>
-    GuidRegEx = [RegEx]::new('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+    GuidRegEx  = [RegEx]::new('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
 
+    # Regular Expression (RegEx) for Email
+    EmailRegEx = [RegEx]::new("^(?("")("".+?""@)|(([0-9a-zA-Z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-zA-Z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,6}))$", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
 }
 
 $Splat = @{

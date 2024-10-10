@@ -816,7 +816,7 @@
         $splat = @{
             Name            = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name)
             PermissionLevel = 'GpoEdit'
-            TargetName      = $SG_SiteAdmins
+            TargetName      = $SG_SiteAdmins.SamAccountName
             TargetType      = 'group'
             ErrorAction     = 'SilentlyContinue'
             Verbose         = $true
@@ -830,7 +830,7 @@
         $splat = @{
             Name            = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name)
             PermissionLevel = 'GpoEdit'
-            TargetName      = $SG_SiteAdmins
+            TargetName      = $SG_SiteAdmins.SamAccountName
             TargetType      = 'group'
             ErrorAction     = 'SilentlyContinue'
             Verbose         = $true
@@ -847,7 +847,7 @@
         $splat = @{
             Name            = ('U-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteUser.Name)
             PermissionLevel = 'GpoEdit'
-            TargetName      = $SG_SiteAdmins
+            TargetName      = $SG_SiteAdmins.SamAccountName
             TargetType      = 'group'
             ErrorAction     = 'SilentlyContinue'
             Verbose         = $true
@@ -903,18 +903,20 @@
         ###############################################################################
         If ($PSBoundParameters['CreateLAPS']) {
             # Desktop LAPS delegation
-            Set-AdAclLaps -ResetGroup $SL_PwdRight.SamAccountName -ReadGroup $SL_PwdRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.Name, $ouNameDN)
+            $Splat = @{
+                ResetGroup = $SL_PwdRight
+                ReadGroup  = $SL_PwdRight
+                LDAPpath   = ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.Name, $ouNameDN)
+            }
+            Set-AdAclLaps @Splat
 
             # Laptop LAPS delegation
-            Set-AdAclLaps -ResetGroup $SL_PwdRight.SamAccountName -ReadGroup $SL_PwdRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $ouNameDN)
-
-            If ($PsBoundParameters['CreateSrvContainer']) {
-                # File-Print LAPS delegation
-                Set-AdAclLaps -ResetGroup $SL_LocalServerRight.SamAccountName -ReadGroup $SL_LocalServerRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteFilePrint.Name, $ouNameDN)
-
-                # Local Server LAPS delegation
-                Set-AdAclLaps -ResetGroup $SL_LocalServerRight.SamAccountName -ReadGroup $SL_LocalServerRight.SamAccountName -LDAPpath ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLocalServer.Name, $ouNameDN)
-            } #end If
+            $Splat = @{
+                ResetGroup = $SL_PwdRight
+                ReadGroup  = $SL_PwdRight
+                LDAPpath   = ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $ouNameDN)
+            }
+            Set-AdAclLaps @Splat
         } #end If
     } #end Process
 

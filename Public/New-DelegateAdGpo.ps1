@@ -246,12 +246,22 @@
             $Splat = @{
                 GUID            = $gpoAlreadyExist.Id
                 PermissionLevel = 'GpoEditDeleteModifySecurity'
-                TargetName      = $GpoAdmin
+                TargetName      = $GpoAdmin.SamAccountName
                 TargetType      = 'group'
                 Server          = $dcServer
             }
             if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", 'Confirm giving permissions?')) {
                 Set-GPPermissions @Splat
+
+                # WmiFilterFullControl
+                # StarterGpoFullControl
+                # SomWmiFilterFullControl
+                # SomCreateGpo
+                # SomCreateStarterGpo
+                # SomLogging
+                # SomPlanning  #
+                SomLink
+
             }  #end If
 
             # Disable the corresponding Settings section of the GPO

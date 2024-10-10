@@ -1230,6 +1230,10 @@
             Write-Warning -Message ('Service Account {0} already exists.' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name)
         }# End If-Else
 
+
+        # Ensure the gMSA is member of Tier0 ServiceAccount group. This group will be configured on the Rights assignment.
+        Add-AdGroupNesting -Identity $SG_Tier0ServiceAccount -Members $gMSASamAccountName
+
         #endregion
         ###############################################################################
 
