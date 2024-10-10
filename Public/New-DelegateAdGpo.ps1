@@ -259,8 +259,8 @@
                 # SomCreateGpo
                 # SomCreateStarterGpo
                 # SomLogging
-                # SomPlanning  #
-                SomLink
+                # SomPlanning
+                # SomLink
 
             }  #end If
 
