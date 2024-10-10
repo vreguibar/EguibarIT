@@ -1234,6 +1234,9 @@
         # Ensure the gMSA is member of Tier0 ServiceAccount group. This group will be configured on the Rights assignment.
         Add-AdGroupNesting -Identity $SG_Tier0ServiceAccount -Members $gMSASamAccountName
 
+        #Configure gMSA so all members of group "Domain Controllers" can retrieve the password
+        Set-ADServiceAccount $gMSASamAccountName -PrincipalsAllowedToRetrieveManagedPassword 'Domain Controllers'
+
         #endregion
         ###############################################################################
 
