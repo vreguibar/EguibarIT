@@ -181,7 +181,8 @@
         $ErrorActionPreference = 'Stop'
 
         # Mask sensitive data
-        $maskedMessage = Remove-SensitiveData -Message $Message
+        #$maskedMessage = Remove-SensitiveData -Message $Message
+        $maskedMessage = $Message
 
         # Initialize event logging
         Initialize-EventLogging -MaximumKilobytes $MaximumKilobytes -RetentionDays $RetentionDays
