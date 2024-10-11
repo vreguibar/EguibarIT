@@ -233,8 +233,8 @@
         ##############################
         # Module imports
         # These modules must be imported without checking and handling.
-        Import-MyModule -Name 'ServerManager' -Verbose:$false
-        Import-MyModule -Name 'GroupPolicy' -Verbose:$false
+        Import-MyModule -Name 'ServerManager' -SkipEditionCheck -Verbose:$false
+        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
@@ -1232,7 +1232,7 @@
 
 
         # Ensure the gMSA is member of Tier0 ServiceAccount group. This group will be configured on the Rights assignment.
-        Add-AdGroupNesting -Identity $SG_Tier0ServiceAccount -Members $gMSASamAccountName
+        # Add-AdGroupNesting -Identity $SG_Tier0ServiceAccount -Members $gMSASamAccountName
 
         #Configure gMSA so all members of group "Domain Controllers" can retrieve the password
         Set-ADServiceAccount $gMSASamAccountName -PrincipalsAllowedToRetrieveManagedPassword 'Domain Controllers'

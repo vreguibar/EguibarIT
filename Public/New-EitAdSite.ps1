@@ -46,7 +46,7 @@ function New-EitAdSite {
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'ServerManager' -Verbose:$false
+        Import-MyModule -Name 'ServerManager' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
 
         ##############################

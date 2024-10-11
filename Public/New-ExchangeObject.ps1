@@ -56,9 +56,9 @@ Function New-ExchangeObject {
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'ServerManager' -Verbose:$false
+        Import-MyModule -Name 'ServerManager' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
-        Import-MyModule -Name 'GroupPolicy' -Verbose:$false
+        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
 
         ##############################

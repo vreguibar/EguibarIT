@@ -102,7 +102,7 @@ function Add-AdGroupNesting {
                 $Group.SamAccountName, $_
             )
 
-            throw
+            #throw
         } #end Try-Catch
 
 
