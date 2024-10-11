@@ -193,7 +193,7 @@
             $Splat = @{
                 GUID            = $gpoAlreadyExist.Id
                 PermissionLevel = 'GpoEditDeleteModifySecurity'
-                TargetName      = $GpoAdmin
+                TargetName      = $GpoAdmin.SamAccountName
                 TargetType      = 'group'
                 Server          = $dcServer
             }
