@@ -107,7 +107,7 @@ function Set-AdAclLaps {
         } #end If-Else
         #>
 
-        if ($Variables.GuidMap['ms-Mcs-AdmPwdExpirationTime']) {
+        if ($Variables.GuidMap['msLAPS-Password']) {
 
             Write-Verbose -Message 'LAPS is supported on this environment. We can proceed to configure it.'
 
