@@ -13,6 +13,8 @@
 
 ![GitHub Sponsors](https://img.shields.io/github/sponsors/vreguibar)
 
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-VicenteRodriguezEguibar-0077B5.svg?logo=LinkedIn)](https://www.linkedin.com/in/VicenteRodriguezEguibar)
+
 Root module for creating Tier Model / Delegation Model on Active Directory
 
 More information on this can be found on:
