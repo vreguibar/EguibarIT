@@ -16,6 +16,8 @@ More information on this can be found on:
 
 This module contains the basic functions used to create the Delegation Model / Tier Model / RBAC model for Active Directory.
 
+## Overview
+
 The module includes functions for managing roles, permissions, and delegation across different organizational units, improving Active Directory security and delegation management. Ideal for organizations implementing a tiered administrative model or requiring efficient RBAC practices.
 
 It is a collection of advanced administrative tools designed to streamline the management of Active Directory environments by helping implement the Delegation Model and Tier Model. This module offers a suite of automation capabilities for such implementation, while adhering to best practices in PowerShell development and security.
@@ -54,7 +56,7 @@ Install and use the module for all users.
 
 ```powershell
 
-To install the EguibarIT.HousekeepingPS module, you can download it from the PowerShellGallery (or Github by cloning) and import it into your PowerShell session:
+To install the EguibarIT module, you can download it from the PowerShellGallery (or Github by cloning) and import it into your PowerShell session:
 
 Find-Module EguibarIT | InstallModule -Scope AllUsers -Force
 
