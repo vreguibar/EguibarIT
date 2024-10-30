@@ -144,8 +144,18 @@
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
-        [string]
-        $ConfigXMLFile,
+        [ValidateScript({
+                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                    throw 'The Path argument must be a file. Folder paths are not allowed.'
+                }
+                if ($_ -notmatch '(\.xml)') {
+                    throw 'The file specified in the path argument must be of type XML'
+                }
+                return $true
+            })]
+        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Config.xml"')]
+        [System.IO.FileInfo]
+        $ConfigXMLFile = 'C:\PsScripts\Config.xml',
 
         # Param2 If present It will create all needed Exchange objects, containers and delegations
         [Parameter(Mandatory = $false,
@@ -1824,6 +1834,13 @@
         }
         Add-AdGroupNesting @Splat
 
+        # AdAdmins as member of DcManagement
+        $Splat = @{
+            Identity = $SL_DcManagement
+            Members  = $SG_AdAdmins
+        }
+        Add-AdGroupNesting @Splat
+
 
 
         # Tier0Admins as member of DcManagement
@@ -2039,7 +2056,8 @@
 
         # DC_Management - Domain Controllers Management
         Set-AdAclDelegateComputerAdmin -Group $SL_DcManagement -LDAPpath $DCsOuDn
-
+        # DC_Management - Service Control Management (Permission to services)
+        Add-GroupToSCManager -Group $SL_DcManagement
 
 
 
@@ -2879,6 +2897,12 @@
             RemoteInteractiveLogon = $RemoteInteractiveLogon
             BatchLogon             = $BatchLogon
             ServiceLogon           = $ServiceLogon
+            RemoteShutdown         = $InteractiveLogon
+            SystemTime             = $InteractiveLogon
+            ChangeNotify           = $InteractiveLogon
+            ManageVolume           = $InteractiveLogon
+            SystemProfile          = $InteractiveLogon
+            Shutdown               = $InteractiveLogon
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2894,6 +2918,12 @@
             RemoteInteractiveLogon = $SG_Tier1Admins
             BatchLogon             = $SG_Tier1ServiceAccount
             ServiceLogon           = $SG_Tier1ServiceAccount
+            RemoteShutdown         = $SG_Tier1Admins
+            SystemTime             = $SG_Tier1Admins
+            ChangeNotify           = $SG_Tier1Admins
+            ManageVolume           = $SG_Tier1Admins
+            SystemProfile          = $SG_Tier1Admins
+            Shutdown               = $SG_Tier1Admins
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2909,6 +2939,12 @@
             RemoteInteractiveLogon = $SG_Tier2Admins
             BatchLogon             = $SG_Tier2ServiceAccount
             ServiceLogon           = $SG_Tier2ServiceAccount
+            RemoteShutdown         = $SG_Tier2Admins
+            SystemTime             = $SG_Tier2Admins
+            ChangeNotify           = $SG_Tier2Admins
+            ManageVolume           = $SG_Tier2Admins
+            SystemProfile          = $SG_Tier2Admins
+            Shutdown               = $SG_Tier2Admins
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2932,6 +2968,12 @@
             GpoToModify            = ('C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.name)
             InteractiveLogon       = $ArrayList
             RemoteInteractiveLogon = $ArrayList
+            RemoteShutdown         = $ArrayList
+            SystemTime             = $ArrayList
+            ChangeNotify           = $ArrayList
+            ManageVolume           = $ArrayList
+            SystemProfile          = $ArrayList
+            Shutdown               = $ArrayList
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2955,6 +2997,12 @@
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name
             InteractiveLogon       = $SL_PAWM, $Administrators
             RemoteInteractiveLogon = $SL_PAWM
+            RemoteShutdown         = $SL_PAWM
+            SystemTime             = $SL_PAWM
+            ChangeNotify           = $SL_PAWM
+            ManageVolume           = $SL_PAWM
+            SystemProfile          = $SL_PAWM
+            Shutdown               = $SL_PAWM
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2967,6 +3015,7 @@
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
         # Deny Logon as a Batch job / Deny Logon as a Service
+        $SystemProfile
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name
             InteractiveLogon           = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
@@ -2977,6 +3026,12 @@
             DenyRemoteInteractiveLogon = $SG_Tier1Admins, $SG_Tier2Admins
             DenyBatchLogon             = $SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount
             DenyServiceLogon           = $SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount
+            RemoteShutdown             = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
+            SystemTime                 = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
+            ChangeNotify               = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
+            ManageVolume               = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
+            SystemProfile              = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
+            Shutdown                   = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2998,6 +3053,12 @@
             DenyRemoteInteractiveLogon = $SG_Tier0Admins, $SG_Tier2Admins
             DenyBatchLogon             = $SG_Tier0ServiceAccount, $SG_Tier2ServiceAccount
             DenyServiceLogon           = $SG_Tier0ServiceAccount, $SG_Tier2ServiceAccount
+            RemoteShutdown             = $SG_Tier1Admins
+            SystemTime                 = $SG_Tier1Admins
+            ChangeNotify               = $SG_Tier1Admins
+            ManageVolume               = $SG_Tier1Admins
+            SystemProfile              = $SG_Tier1Admins
+            Shutdown                   = $SG_Tier1Admins
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -3019,6 +3080,12 @@
             DenyRemoteInteractiveLogon = $SG_Tier0Admins, $SG_Tier1Admins
             DenyBatchLogon             = $SG_Tier0ServiceAccount, $SG_Tier1ServiceAccount
             DenyServiceLogon           = $SG_Tier0ServiceAccount, $SG_Tier1ServiceAccount
+            RemoteShutdown             = $SG_Tier2Admins
+            SystemTime                 = $SG_Tier2Admins
+            ChangeNotify               = $SG_Tier2Admins
+            ManageVolume               = $SG_Tier2Admins
+            SystemProfile              = $SG_Tier2Admins
+            Shutdown                   = $SG_Tier2Admins
         }
         Set-GpoPrivilegeRight @Splat
 

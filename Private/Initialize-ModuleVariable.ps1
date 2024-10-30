@@ -34,7 +34,20 @@
         ##############################
         # Module imports
 
-        Import-Module 'ActiveDirectory' -Force -Verbose:$false | Out-Null
+        # Check if ActiveDirectory module is available
+        $adModuleAvailable = Get-Module -ListAvailable -Name 'ActiveDirectory'
+
+        try {
+            if ($adModuleAvailable) {
+
+                Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false | Out-Null
+
+            } else {
+                Write-Warning -Message 'ActiveDirectory module is not available. Skipping AD-related functionality.'
+            }
+        } catch {
+            Write-Error -Message ('Failed to import ActiveDirectory module: {0}' -f $_ )
+        }
 
         ##############################
         # Variables Definition

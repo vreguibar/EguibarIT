@@ -26,6 +26,9 @@
         .PARAMETER EventCategory
             Custom event category for the event.
 
+        .OUTPUTS
+            No output.
+
         .EXAMPLE
             # Write a simple verbose message
             Write-CustomVerbose -Message "Starting process" -Verbose
@@ -53,6 +56,20 @@
             located under Classes folder.
             This file is written in C# (CSharp) language and compiled in runtime when module is imported. This is
             due visibility and compatibility issues on modules when using just PowerShell code.
+
+        .NOTES
+            Version:         1.0
+            Link:            http://www.eguibarit.com
+            DateModified:    18/Oct/2024
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                vicente@eguibar.com
+                Eguibar Information Technology S.L.
+
+        .LINK
+            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Logging/Write-CustomDebug.ps1
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = 'Default')]

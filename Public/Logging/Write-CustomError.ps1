@@ -53,6 +53,15 @@
             located under Classes folder.
             This file is written in C# (CSharp) language and compiled in runtime when module is imported. This is
             due visibility and compatibility issues on modules when using just PowerShell code.
+
+        .NOTES
+            Version:         1.0
+            DateModified:    18/Oct/2024
+            LastModifiedBy:   Vicente Rodriguez Eguibar
+                vicente@eguibar.com
+                Eguibar Information Technology S.L.
+                http://www.eguibarit.com
+
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = 'Default')]

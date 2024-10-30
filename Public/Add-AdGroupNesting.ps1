@@ -13,9 +13,9 @@ function Add-AdGroupNesting {
         Version:         1.3
         DateModified:    24/Jan/2024
         LastModifiedBy:   Vicente Rodriguez Eguibar
-        vicente@eguibar.com
-        Eguibar Information Technology S.L.
-        http://www.eguibarit.com
+            vicente@eguibar.com
+            Eguibar Information Technology S.L.
+            http://www.eguibarit.com
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]

@@ -75,6 +75,14 @@
                 Write-Verbose                 | Microsoft.PowerShell.Utility.Activities
                 Write-Warning                 | Microsoft.PowerShell.Utility.Activities
 
+        .NOTES
+            Version:         1.0
+            DateModified:    18/Oct/2024
+            LastModifiedBy:   Vicente Rodriguez Eguibar
+                vicente@eguibar.com
+                Eguibar Information Technology S.L.
+                http://www.eguibarit.com
+
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = 'Predefined')]
