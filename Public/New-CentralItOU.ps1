@@ -2058,7 +2058,10 @@
         Set-AdAclDelegateComputerAdmin -Group $SL_DcManagement -LDAPpath $DCsOuDn
         # DC_Management - Service Control Management (Permission to services)
         Add-GroupToSCManager -Group $SL_DcManagement
-
+        # DC_Management - Give permissions on each service
+        Foreach ($item in (Get-Service)) {
+            Add-ServiceAcl -Group $SL_DcManagement -Service $Item.Name
+        }
 
 
 
