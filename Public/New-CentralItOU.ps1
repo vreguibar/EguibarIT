@@ -2380,7 +2380,7 @@
 
         Write-Verbose -Message ($Variables.NewRegionMessage -f 'Configure GPO Restrictions based on Tier Model...')
 
-        # Domain
+        #region Domain
         #------------------------------------------------------------------------------
 
         # Access this computer from the network
@@ -2523,12 +2523,14 @@
         }
         Set-GpoPrivilegeRight @Splat
 
+        #endregion
 
 
 
 
 
-        # Domain Controllers
+
+        #region Domain Controllers
         #------------------------------------------------------------------------------
 
         # Access this computer from the network
@@ -2685,7 +2687,21 @@
         Set-GpoPrivilegeRight @Splat
 
 
-        # Admin Area
+        # Additional configuration for File permissions and Registry permissions
+        # these settings are intended to "delegate" software maintenance tasks to Dc_Management group
+
+        # File Security
+        Set-GpoFileSecurity -GpoToModify 'C-DomainControllers-Baseline' -Group $SL_DcManagement -Verbose
+        # Registry Keys
+        Set-GpoRegistryKey -GpoToModify 'C-DomainControllers-Baseline' -Group $SL_DcManagement -Verbose
+
+        #endregion
+
+
+
+
+
+        #region Admin Area
         #------------------------------------------------------------------------------
 
         # Logon as a Batch job / Logon as a Service
@@ -2914,7 +2930,7 @@
         # Admin Area = Tier1 Infrastructure
         #------------------------------------------------------------------------------
 
-        # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
+        # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1OU.Name
             InteractiveLogon       = $SG_Tier1Admins, $Administrators
@@ -2935,7 +2951,7 @@
         # Admin Area = Tier2 Infrastructure
         #------------------------------------------------------------------------------
 
-        # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
+        # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2OU.Name
             InteractiveLogon       = $SG_Tier2Admins, $Administrators
@@ -2957,7 +2973,7 @@
         # Admin Area = Staging Infrastructure
         #------------------------------------------------------------------------------
 
-        # Allow Logon Locally / Allow Logon throug RDP/TerminalServices
+        # Allow Logon Locally / Allow Logon through RDP/TerminalServices
         $ArrayList.Clear()
         [void]$ArrayList.Add($DomainAdmins)
         [void]$ArrayList.Add($Administrators)
@@ -2984,7 +3000,7 @@
 
 
 
-        # Admin Area = PAWs
+        #region Admin Area = PAWs
         #------------------------------------------------------------------------------
 
         # Not Defined
@@ -2995,7 +3011,7 @@
         # Admin Area = Staging PAWs
         #------------------------------------------------------------------------------
 
-        # Allow Logon Locally / Allow Logon throug RDP/TerminalServices
+        # Allow Logon Locally / Allow Logon through RDP/TerminalServices
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name
             InteractiveLogon       = $SL_PAWM, $Administrators
@@ -3015,8 +3031,8 @@
         # Admin Area = Tier0 PAWs
         #------------------------------------------------------------------------------
 
-        # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
-        # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
+        # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
+        # Deny Allow Logon Locally / Deny Allow Logon through RDP/TerminalServices
         # Deny Logon as a Batch job / Deny Logon as a Service
         $SystemProfile
         $Splat = @{
@@ -3043,8 +3059,8 @@
         # Admin Area = Tier1 PAWs
         #------------------------------------------------------------------------------
 
-        # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
-        # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
+        # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
+        # Deny Allow Logon Locally / Deny Allow Logon through RDP/TerminalServices
         # Deny Logon as a Batch job / Deny Logon as a Service
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name
@@ -3070,8 +3086,8 @@
         # Admin Area = Tier2 PAWs
         #------------------------------------------------------------------------------
 
-        # Allow Logon Locally / Allow Logon throug RDP/TerminalServices / Logon as a Batch job / Logon as a Service
-        # Deny Allow Logon Locally / Deny Allow Logon throug RDP/TerminalServices
+        # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
+        # Deny Allow Logon Locally / Deny Allow Logon through RDP/TerminalServices
         # Deny Logon as a Batch job / Deny Logon as a Service
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name
@@ -3091,6 +3107,10 @@
             Shutdown                   = $SG_Tier2Admins
         }
         Set-GpoPrivilegeRight @Splat
+
+        #endregion
+
+        #endregion
 
 
         #endregion
