@@ -236,7 +236,7 @@ Function Import-MyModule {
             # Check if the module is already imported
             $importedModule = Get-Module -Name $Name -ErrorAction SilentlyContinue -Verbose:$PSBoundParameters['Verbose']
 
-            if ($null -ne $module -and -not $Force) {
+            if ($null -ne $importedModule -and -not $Force) {
                 Write-Verbose -Message ('[{0}] Module {1} is already imported.' -f $functionName, $Name)
 
                 if ($PassThru) {
