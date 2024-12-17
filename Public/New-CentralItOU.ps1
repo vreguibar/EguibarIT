@@ -2378,7 +2378,12 @@
         ###############################################################################
         # Configure Kerberos Claims
 
-        Enable-KerberosClaimSupport -DomainDNSName $env:USERDNSDOMAIN
+        $Splat = @{
+            DomainDNSName       = $env:USERDNSDOMAIN
+            GeneralGPO          = 'C-Baseline'
+            DomainControllerGPO = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Name
+        }
+        Enable-KerberosClaimSupport @Splat
 
 
 
@@ -2661,7 +2666,7 @@
 
         # Modify all rights in one shot
         $Splat = @{
-            GpoToModify                = 'C-DomainControllers-Baseline'
+            GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Name
             NetworkLogon               = $NetworkLogon
             InteractiveLogon           = $InteractiveLogon
             RemoteInteractiveLogon     = $RemoteInteractiveLogon
