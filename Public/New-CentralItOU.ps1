@@ -2376,6 +2376,15 @@
 
 
         ###############################################################################
+        # Configure Kerberos Claims
+
+        Enable-KerberosClaimSupport -DomainDNSName $env:USERDNSDOMAIN
+
+
+
+
+
+        ###############################################################################
         # Configure GPO Restrictions based on Tier Model
 
         Write-Verbose -Message ($Variables.NewRegionMessage -f 'Configure GPO Restrictions based on Tier Model...')

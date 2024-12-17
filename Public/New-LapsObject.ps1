@@ -245,7 +245,12 @@ Function New-LAPSobject {
 
         # Make Sites Modifications
         # Get the DN of 1st level OU underneath SERVERS area
-        $AllSubOu = Get-ADOrganizationalUnit -Filter * -SearchBase $SitesOuDn -SearchScope OneLevel | Select-Object -ExpandProperty DistinguishedName
+        $Splat = @{
+            Filter      = '*'
+            SearchBase  = $SitesOuDn
+            SearchScope = OneLevel
+        }
+        $AllSubOu = Get-ADOrganizationalUnit @Splat | Select-Object -ExpandProperty DistinguishedName
 
         # Iterate through each sub OU and invoke delegation
         Foreach ($Item in $AllSubOu) {

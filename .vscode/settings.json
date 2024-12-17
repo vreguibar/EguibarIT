@@ -203,5 +203,8 @@
     },
     "github-actions.workflows.pinned.workflows": [
         ".github/workflows/pipeline.yml"
+    ],
+    "cSpell.words": [
+        "Cbac"
     ]
 }

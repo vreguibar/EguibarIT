@@ -49,7 +49,8 @@
         # Variables Definition
 
         #Get the OS Installation Type
-        $OsInstalationType = Get-ItemProperty -Path 'HKLM:Software\Microsoft\Windows NT\CurrentVersion' | Select-Object -ExpandProperty InstallationType
+        $RegKey = 'HKLM:Software\Microsoft\Windows NT\CurrentVersion'
+        $OsInstalationType = Get-ItemProperty -Path $RegKey | Select-Object -ExpandProperty InstallationType
 
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
