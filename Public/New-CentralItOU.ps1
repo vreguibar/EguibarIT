@@ -428,7 +428,7 @@
             $ProtectedUsers = Get-ADGroup -Identity 'Protected Users'
 
         } catch {
-            Write-Error -Message 'One or some of the User/Groups was not able to be retrived. Please check'
+            Write-Error -Message 'One or some of the User/Groups was not able to be retrieved. Please check'
         } #end Try-Catch
         #endregion Users
 
@@ -2376,7 +2376,7 @@
 
 
         ###############################################################################
-        # Configure Kerberos Claims
+        # Configure Kerberos Claims and Authentication Policies/Silos
 
         $Splat = @{
             DomainDNSName       = $env:USERDNSDOMAIN
@@ -2386,6 +2386,9 @@
         Enable-KerberosClaimSupport @Splat
 
 
+        $SL_PAWs
+        $SL_InfrastructureServers
+        $DCs = Get-ADGroup -Identity 'Domain Controllers'
 
 
 
