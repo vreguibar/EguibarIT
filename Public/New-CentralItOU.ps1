@@ -2386,9 +2386,133 @@
         Enable-KerberosClaimSupport @Splat
 
 
-        $SL_PAWs
-        $SL_InfrastructureServers
-        $DCs = Get-ADGroup -Identity 'Domain Controllers'
+        # https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/authentication-policies-and-authentication-policy-silos
+
+        # Build SDDL
+
+        # Add Owner SYSTEM
+        $AllowToAutenticateFromSDDL = 'O:SY'
+        # Add PrimaryFroup Administrators
+        $AllowToAutenticateFromSDDL += 'G:SY'
+        # Add DACL having DCs
+        $AllowToAutenticateFromSDDL += 'D:(XA;OICI;CR;;;WD;((Member_of {SID(ED)})'
+        # Add our groups using OR ||
+        $AllowToAutenticateFromSDDL += " || (Member_of_any {SID($($SL_PAWs.SID.value))}) "
+        $AllowToAutenticateFromSDDL += "|| (Member_of_any {SID($($SL_InfrastructureServers.SID.value))})))"
+
+
+        # Create AuditOnly Policies
+        # Computer AUDIT
+        $Splat = @{
+            Name                            = 'T0_AuditOnly_Computers'
+            Description                     = 'This Kerberos Authentication policy used to AUDIT interactive logon from untrusted computers'
+            ComputerAllowedToAuthenticateTo = $AllowToAutenticateFromSDDL
+            ComputerTGTLifetimeMins         = 120
+            #ProtectedFromAccidentalDeletion = $true
+        }
+        New-ADAuthenticationPolicy @Splat
+
+
+
+        # User AUDIT
+        $Splat = @{
+            Name                          = 'T0_AuditOnly_Users'
+            Description                   = 'This Kerberos Authentication policy used to AUDIT interactive logon from untrusted users'
+            UserAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
+            UserAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
+            UserTGTLifetimeMins           = 240
+            #UserAllowedToAuthenticateFrom = $authFromSddl
+        }
+        New-ADAuthenticationPolicy @Splat
+
+        # ServiceAccounts AUDIT
+        $Splat = @{
+            Name                             = 'T0_AuditOnly_ServiceAccounts'
+            Description                      = 'This Kerberos Authentication policy used to AUDIT interactive logon from untrusted users'
+            ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
+            ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
+            ServiceTGTLifetimeMins           = 120
+            #UserAllowedToAuthenticateFrom = $authFromSddl
+        }
+        New-ADAuthenticationPolicy @Splat
+
+
+
+
+
+        # Create ENFORCE policies
+        # Computer ENFORCE
+        $Splat = @{
+            Name                            = 'T0_Enforce_Computers'
+            Description                     = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted computers'
+            ComputerAllowedToAuthenticateTo = $AllowToAutenticateFromSDDL
+            ComputerTGTLifetimeMins         = 120
+            Enforce                         = $true
+        }
+        New-ADAuthenticationPolicy @Splat
+
+        # User Enforce
+        $Splat = @{
+            Name                          = 'T0_Enforce_Users'
+            Description                   = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted users'
+            UserAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
+            UserAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
+            UserTGTLifetimeMins           = 240
+            Enforce                       = $true
+        }
+        New-ADAuthenticationPolicy @Splat
+
+        # ServiceAccounts ENFORCE
+        $Splat = @{
+            Name                             = 'T0_Enforce_ServiceAccounts'
+            Description                      = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted users'
+            ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
+            ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
+            ServiceTGTLifetimeMins           = 120
+            Enforce                          = $true
+        }
+        New-ADAuthenticationPolicy @Splat
+
+
+
+
+
+        #region Audit-only authentication policy silo and assigning policies
+
+        $Splat = @{
+            ComputerAuthenticationPolicy = (Get-ADAuthenticationPolicy -Identity 'T0_AuditOnly_Computers')
+            ServiceAuthenticationPolicy  = (Get-ADAuthenticationPolicy -Identity 'T0_AuditOnly_ServiceAccounts')
+            UserAuthenticationPolicy     = (Get-ADAuthenticationPolicy -Identity 'T0_AuditOnly_Users')
+            Description                  = 'User,Computer and Service Account Auditing Silo'
+            Name                         = 'T0_AuditingSilo'
+        }
+        New-ADAuthenticationPolicySilo @Splat
+
+        #endregion
+
+
+
+
+
+        #region Enforced authentication policy silo and assigning policies
+        $parameters = @{
+            ComputerAuthenticationPolicy = (Get-ADAuthenticationPolicy -Identity 'T0_Enforce_Computers')
+            ServiceAuthenticationPolicy  = (Get-ADAuthenticationPolicy -Identity 'T0_Enforce_ServiceAccounts')
+            UserAuthenticationPolicy     = (Get-ADAuthenticationPolicy -Identity 'T0_Enforce_Users')
+            Description                  = 'User,Computer and Service Account Enforced Silo'
+            Name                         = 'T0_EnforcedSilo'
+            Enforce                      = $true
+        }
+        New-ADAuthenticationPolicySilo @parameters
+        #endregion
+
+
+
+        # Granting access to silos
+        Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account $NewAdminExists.SamAccountName
+        # Configuring user to Silo
+        Set-ADUser -Identity $NewAdminExists -AuthenticationPolicySilo 'T0_AuditingSilo'
+
 
 
 

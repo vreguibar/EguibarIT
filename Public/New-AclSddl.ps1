@@ -48,7 +48,8 @@
 
     #>
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
+    [OutputType([string])]
 
     param (
 
@@ -145,6 +146,12 @@
         # Convert ACL to SDDL string
         $sddl = $fileSecurity.GetSecurityDescriptorSddlForm('Access')
         Write-Verbose -Message ('Generated SDDL: {0}' -f $sddl)
+
+        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+            'adding members to the group.'
+        )
+        Write-Verbose -Message $txt
+
         return $sddl
     } #end end
 } #end function Generate-AclSddl
