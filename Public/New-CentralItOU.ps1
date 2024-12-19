@@ -2510,8 +2510,14 @@
 
         # Granting access to silos
         Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account $NewAdminExists.SamAccountName
+        Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account $AdminName.SamAccountName
+        Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account $env:COMPUTERNAME
+
         # Configuring user to Silo
+        Set-ADUser -Identity $AdminName -AuthenticationPolicySilo 'T0_AuditingSilo'
         Set-ADUser -Identity $NewAdminExists -AuthenticationPolicySilo 'T0_AuditingSilo'
+
+        Set-ADComputer -Identity $env:COMPUTERNAME -AuthenticationPolicySilo 'T0_AuditingSilo'
 
 
 
