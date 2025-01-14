@@ -81,7 +81,12 @@
             # Schema Naming Context
             $Variables.SchemaNamingContext = ([ADSI]'LDAP://RootDSE').SchemaNamingContext.ToString()
         } Catch {
-            Write-Error -Message 'Something went wrong while trying to fill $Variables!'
+            Write-Error -Message '
+                Something went wrong while trying to fill $Variables!
+                Ensure that:
+                 * Machine is Domain Joined
+                 * Active Directory is available and working
+                 * Communication exist between this machine and AD'
         }
         # Well-Known SIDs
         #. "$PSScriptRoot\Enum.WellKnownSids.ps1"
@@ -116,7 +121,11 @@
             Write-Verbose -Message '$Variables.GuidMap was empty. Adding values to it!'
             $Variables.GuidMap = $TmpMap
         } catch {
-            Write-Error -Message 'Something went wrong while trying to fill $Variables.GuidMap!'
+            Write-Error -Message 'Something went wrong while trying to fill $Variables.GuidMap!
+                Ensure that:
+                 * Machine is Domain Joined
+                 * Active Directory is available and working
+                 * Communication exist between this machine and AD'
         }
 
         # Hashtable containing the mappings between SchemaExtendedRights and GUID's
@@ -146,7 +155,11 @@
             Write-Verbose -Message '$Variables.ExtendedRightsMap was empty. Adding values to it!'
             $Variables.ExtendedRightsMap = $TmpMap
         } Catch {
-            Write-Error -Message 'Something went wrong while trying to fill $Variables.ExtendedRightsMap!'
+            Write-Error -Message 'Something went wrong while trying to fill $Variables.ExtendedRightsMap!
+                Ensure that:
+                 * Machine is Domain Joined
+                 * Active Directory is available and working
+                 * Communication exist between this machine and AD'
         }
 
 

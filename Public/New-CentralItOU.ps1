@@ -2058,6 +2058,8 @@
         Set-AdAclDelegateComputerAdmin -Group $SL_DcManagement -LDAPpath $DCsOuDn
         # DC_Management - Service Control Management (Permission to services)
         Add-GroupToSCManager -Group $SL_DcManagement
+
+        # todo: fix errors due to access denied.
         # DC_Management - Give permissions on each service
         Foreach ($item in (Get-Service)) {
             Add-ServiceAcl -Group $SL_DcManagement -Service $Item.Name
@@ -2382,6 +2384,7 @@
             DomainDNSName       = $env:USERDNSDOMAIN
             GeneralGPO          = 'C-Baseline'
             DomainControllerGPO = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Name
+            Confirm             = $false
         }
         Enable-KerberosClaimSupport @Splat
 
@@ -2398,7 +2401,7 @@
         $AllowToAutenticateFromSDDL += 'D:(XA;OICI;CR;;;WD;((Member_of {SID(ED)})'
         # Add our groups using OR ||
         $AllowToAutenticateFromSDDL += " || (Member_of_any {SID($($SL_PAWs.SID.value))}) "
-        $AllowToAutenticateFromSDDL += "|| (Member_of_any {SID($($SL_InfrastructureServers.SID.value))})))"
+        $AllowToAutenticateFromSDDL += " || (Member_of_any {SID($($SL_InfrastructureServers.SID.value))})))"
 
 
         # Create AuditOnly Policies
