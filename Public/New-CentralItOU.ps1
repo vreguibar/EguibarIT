@@ -2408,7 +2408,7 @@
         # Computer AUDIT
         $Splat = @{
             Name                            = 'T0_AuditOnly_Computers'
-            Description                     = 'This Kerberos Authentication policy used to AUDIT interactive logon from untrusted computers'
+            Description                     = 'This Kerberos Authentication policy used to AUDIT computer logon from untrusted computers'
             ComputerAllowedToAuthenticateTo = $AllowToAutenticateFromSDDL
             ComputerTGTLifetimeMins         = 120
             #ProtectedFromAccidentalDeletion = $true
@@ -2431,7 +2431,7 @@
         # ServiceAccounts AUDIT
         $Splat = @{
             Name                             = 'T0_AuditOnly_ServiceAccounts'
-            Description                      = 'This Kerberos Authentication policy used to AUDIT interactive logon from untrusted users'
+            Description                      = 'This Kerberos Authentication policy used to AUDIT ServiceAccount logon from untrusted Service Accounts'
             ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
             ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
             ServiceTGTLifetimeMins           = 120
@@ -2514,7 +2514,7 @@
         # Granting access to silos
         Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account $NewAdminExists.SamAccountName
         Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account $AdminName.SamAccountName
-        Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account $env:COMPUTERNAME
+        Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account (Get-ADComputer $env:COMPUTERNAME)
 
         # Configuring user to Silo
         Set-ADUser -Identity $AdminName -AuthenticationPolicySilo 'T0_AuditingSilo'

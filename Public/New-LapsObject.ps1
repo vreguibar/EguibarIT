@@ -248,7 +248,7 @@ Function New-LAPSobject {
         $Splat = @{
             Filter      = '*'
             SearchBase  = $SitesOuDn
-            SearchScope = OneLevel
+            SearchScope = 'OneLevel'
         }
         $AllSubOu = Get-ADOrganizationalUnit @Splat | Select-Object -ExpandProperty DistinguishedName
 
