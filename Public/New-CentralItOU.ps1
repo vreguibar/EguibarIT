@@ -764,11 +764,12 @@
         Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' } | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
 
 
+        # ToDo: Check for group existance before moving
         # Following groups only exist on Win 2019
         If ([System.Environment]::OSVersion.Version.Build -ge 17763) {
             Get-ADGroup -Identity 'Enterprise Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
             Get-ADGroup -Identity 'Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
-            Get-ADGroup -Identity 'Windows Admin Center CredSSP Administrators' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
+            #Get-ADGroup -Identity 'Windows Admin Center CredSSP Administrators' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
         }
 
         # Get-ADGroup $Administrators |                          Move-ADObject -TargetPath $ItRightsOuDn
@@ -2053,17 +2054,27 @@
 
 
 
-
+        # todo: Check a possible error involving EguibarIT.DelegationPS\Private\Set-AclConstructor4.ps1:275
         # DC_Management - Domain Controllers Management
+        Write-Verbose -Message 'Granting permissions Domain Controllers OU'
         Set-AdAclDelegateComputerAdmin -Group $SL_DcManagement -LDAPpath $DCsOuDn
+
         # DC_Management - Service Control Management (Permission to services)
-        Add-GroupToSCManager -Group $SL_DcManagement
+        Add-GroupToSCManager -Group $SL_DcManagement -verbose
 
         # todo: fix errors due to access denied.
         # DC_Management - Give permissions on each service
-        Foreach ($item in (Get-Service)) {
-            Add-ServiceAcl -Group $SL_DcManagement -Service $Item.Name
-        }
+        $AllServices = Get-Service -ErrorAction SilentlyContinue
+        Foreach ($item in $AllServices) {
+
+            # try to make the change
+            try {
+                Write-Verbose -Message ('Granting permissions to service: {0}' -f $item.Name)
+                Add-ServiceAcl -Group $SL_DcManagement -Service $Item.Name -verbose
+            } catch {
+                Write-Error -Message ('Error granting permissions to service: {0}' -f $item.Name)
+            } #end Try-Catch
+        } #end Foreach service
 
 
 
@@ -2133,7 +2144,8 @@
 
 
 
-
+        # todo: error while trying to change object. Access denied.
+        # Set-Acl: C:\Program Files\PowerShell\Modules\EguibarIT.DelegationPS\Private\Set-AclConstructor4.ps1:275
         # Delegate Directory Replication Rights
         Set-AdDirectoryReplication -Group $SL_DirReplRight
 
@@ -2670,6 +2682,7 @@
             DenyRemoteInteractiveLogon = $DenyRemoteInteractiveLogon
             DenyBatchLogon             = $DenyBatchLogon
             ServiceLogon               = $ServiceLogon
+            Force                      = $true
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2833,6 +2846,7 @@
             Restore                    = $Backup
             Shutdown                   = $Backup
             TakeOwnership              = $Backup
+            Force                      = $true
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2937,8 +2951,11 @@
             Restore              = $ArrayList
             Shutdown             = $ArrayList
             TakeOwnership        = $ArrayList
+            Force                = $true
         }
         Set-GpoPrivilegeRight @Splat
+
+
 
 
 

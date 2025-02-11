@@ -247,8 +247,9 @@
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 10)]
+        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Config.xml"')]
         [string]
-        $ConfigXMLFile
+        $ConfigXMLFile = 'C:\PsScripts\Config.xml'
 
     )
 
@@ -314,6 +315,36 @@
         $SG_GlobalGroupAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalGroupAdmins.Name)
         $SG_GlobalPcAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalPcAdmins.Name)
         $SG_GlobalUserAdmins = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalUserAdmins.Name)
+
+        # Get the AD Objects by Well-Known SID
+        try {
+            # Administrator - TheGood
+            $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+            # NewAdministrator - TheUgly
+            $newAdminName = Get-ADUser -Identity $confXML.n.Admin.users.newAdmin.name
+            # Administrators
+            $Administrators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-544' }
+            # Domain Admins
+            $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
+            # Enterprise Admins
+            $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+            # Schema Admins
+            $SchemaAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-518' }
+            # DomainControllers
+            $DomainGuests = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-514' }
+            # Server Operators
+            $ServerOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-549' }
+            # Account Operators
+            $AccountOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
+            # Print Operators
+            $PrintOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-550' }
+            # Backup Operators
+            $BackupOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-551' }
+        } catch {
+            Write-Error -Message 'One or some of the User/Groups was not able to be retrieved. Please check'
+        } #end Try-Catch
+
+
 
         ####################
         # OU DistinguishedNames
@@ -652,12 +683,13 @@
         $Splat = @{
             GpoToModify      = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name)
             DenyNetworkLogon = @(
-                'Schema Admins',
-                'Enterprise Admins',
-                'Domain Admins',
-                'Guests',
-                $confXML.n.Admin.users.Admin.name,
-                $confXML.n.Admin.users.newAdmin.name
+                $SchemaAdmins,
+                $EnterpriseAdmins,
+                $DomainAdmins,
+                $Administrators,
+                $DomainGuests,
+                $AdminName,
+                $newAdminName
             )
         }
         Set-GpoPrivilegeRight @Splat
@@ -669,7 +701,7 @@
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name),
-            'Guests'
+            $DomainGuests
         )
         $Splat = @{
             GpoToModify                = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name)
@@ -686,17 +718,17 @@
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2Admins.Name),
-            'Schema Admins',
-            'Enterprise Admins',
-            'Domain Admins',
-            'Administrators',
-            'Account Operators',
-            'Backup Operators',
-            'Print Operators',
-            'Server Operators',
-            'Guests',
-            $confXML.n.Admin.users.Admin.name,
-            $confXML.n.Admin.users.newAdmin.name
+            $SchemaAdmins,
+            $EnterpriseAdmins,
+            $DomainAdmins,
+            $Administrators,
+            $AccountOperators,
+            $BackupOperators,
+            $PrintOperators,
+            $ServerOperators,
+            $DomainGuests,
+            $AdminName,
+            $newAdminName
         )
         $Splat = @{
             GpoToModify      = ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteComputer.Name)
@@ -733,12 +765,12 @@
         $Splat = @{
             GpoToModify      = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name)
             DenyNetworkLogon = @(
-                'Schema Admins',
-                'Enterprise Admins',
-                'Domain Admins',
-                'Guests',
-                $confXML.n.Admin.users.Admin.name,
-                $confXML.n.Admin.users.newAdmin.name
+                $SchemaAdmins,
+                $EnterpriseAdmins,
+                $DomainAdmins,
+                $DomainGuests,
+                $AdminName,
+                $newAdminName
             )
         }
         Set-GpoPrivilegeRight @Splat
@@ -750,7 +782,7 @@
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name),
-            'Guests'
+            $DomainGuests
         )
         $Splat = @{
             GpoToModify                = ('C-{0}-{1}' -f $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name)
@@ -767,17 +799,17 @@
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name),
             ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2Admins.Name),
-            'Schema Admins',
-            'Enterprise Admins',
-            'Domain Admins',
-            'Administrators',
-            'Account Operators',
-            'Backup Operators',
-            'Print Operators',
-            'Server Operators',
-            'Guests',
-            $confXML.n.Admin.users.Admin.name,
-            $confXML.n.Admin.users.newAdmin.name
+            $SchemaAdmins,
+            $EnterpriseAdmins,
+            $DomainAdmins,
+            $Administrators,
+            $AccountOperators,
+            $BackupOperators,
+            $PrintOperators,
+            $ServerOperators,
+            $DomainGuests,
+            $AdminName,
+            $newAdminName
         )
         $Splat = @{
             GpoToModify      = ('C-{0}-{1}' -f $ouName, $confXML.n.Sites.OUs.OuSiteLaptop.Name)

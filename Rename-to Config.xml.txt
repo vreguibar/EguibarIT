@@ -211,10 +211,10 @@
         </Admin>
     </Domains>
     <DcPromo>
-        <Unattended>GcInstall.ini</Unattended>
-        <DomainLevel>7</DomainLevel>
-        <ForestLevel>7</ForestLevel>
-        <!--
+      <Unattended>GcInstall.ini</Unattended>
+      <DomainLevel>10</DomainLevel>
+      <ForestLevel>10</ForestLevel>
+      <!--
             The functional level of the forest and root domain. This defaults to 7.
 
             Windows Server 2003    : 2
@@ -223,11 +223,14 @@
             Windows Server 2012    : 5
             Windows Server 2012 R2 : 6
             Windows Server 2016    : 7
+            Windows Server 2019    : -
+            Windows Server 2022    : -
+            Windows Server 2025    : 10
         -->
-        <SysvolPath>C:\SYSVOL</SysvolPath>
-        <NtdsPath>C:\NTDS</NtdsPath>
-        <NtdsLogsPath>C:\NTDS</NtdsLogsPath>
-    </DcPromo>
+      <SysvolPath>C:\SYSVOL</SysvolPath>
+      <NtdsPath>C:\NTDS</NtdsPath>
+      <NtdsLogsPath>C:\NTDS</NtdsLogsPath>
+   </DcPromo>
     <Shares>
         <ShareLocation>C:\Shares</ShareLocation>
         <RootShare>Shares</RootShare>
