@@ -13,7 +13,7 @@
             The name to check against the well-known SIDs.
 
         .EXAMPLE
-            PS> Test-NameIsWellKnownSid -Name 'NT AUTHORITY\SYSTEM'
+            Test-NameIsWellKnownSid -Name 'NT AUTHORITY\SYSTEM'
 
         .INPUTS
             [String] Name
@@ -54,63 +54,62 @@
 
         $Identity = $null
 
-        $Name = ($PSBoundParameters['Name']).ToLower()
-
-        $cleanedName = $Name -replace '^(built-in\\|builtin\\|built in\\|nt authority\\|ntauthority\\|ntservice\\|nt service\\)', ''
-
+        # Clean the name by removing common prefixes and convert to lowercase
+        $cleanedName = $Name -replace '^(built-in\\|builtin\\|built in\\|nt authority\\|ntauthority\\|ntservice\\|nt service\\|local\\|domain\\)', ''
+        $cleanedName = $cleanedName.ToLower()
     } #end Begin
 
     Process {
 
-        Try {
-            # Check if the cleaned name is in the Well-Known SID dictionary
-            if ($Variables.WellKnownSIDs.Values.Contains($cleanedName)) {
-                # Find the corresponding SID
-                $sid = $Variables.WellKnownSIDs.keys.where{ $Variables.WellKnownSIDs[$_] -eq $cleanedName }
+        try {
+            # Find matching SIDs for the cleaned name
+            $matchingSids = $Variables.WellKnownSIDs.GetEnumerator() | Where-Object { $_.Value -eq $cleanedName }
 
-                if ($sid) {
+            if ($matchingSids.Count -eq 1) {
 
-                    # Create the SecurityIdentifier object
-                    $Identity = [System.Security.Principal.SecurityIdentifier]::new($sid)
-                    Write-Verbose -Message ('
-                        Matched SID: {0}
-                                For: {1}' -f
-                        $Identity.Value, $cleanName
-                    )
+                $sid = $matchingSids[0].Key
 
-                    # Convert to SecurityIdentifier object
-                    [System.Security.Principal.SecurityIdentifier]$Identity = [System.Security.Principal.SecurityIdentifier]::New($sid)
-                } else {
-
-                    Write-Error -Message ('
-                        Error creating SecurityIdentifier object for {0}.' -f
-                        $cleanName
-                    )
-                    #Get-ErrorDetail -ErrorRecord $_
-                    $Identity = $null
-                }
-            } else {
                 Write-Verbose -Message ('
-                    The name {0} does not correspond to a well-known SID or is not recognized.' -f
-                    $cleanedName
+                    Matched SID: {0}
+                    for name: {1}' -f
+                    $sid, $cleanedName
                 )
+
+                # Create and return the SecurityIdentifier object
+                $Identity = [System.Security.Principal.SecurityIdentifier]::New($sid)
+
+            } elseif ($matchingSids.Count -gt 1) {
+
+                Write-Warning -Message ('Multiple Well-Known SIDs found for name: {0}' -f $cleanedName)
                 $Identity = $null
-            } #end If-Else
+
+            } else {
+
+                Write-Verbose -Message ('No Well-Known SID found for name: {0}' -f $cleanedName)
+                $Identity = $null
+
+            } #end if-elseif-else
 
         } catch {
-            Write-Error -Message ('Error found when translating WellKnownSid for {0}.' -f $cleanedName)
+
+            Write-Error -Message ('
+                Error checking Well-Known SID for name: {0}.
+                Error: {1}' -f $cleanedName, $_.Exception.Message
+            )
             $Identity = $null
-            #Get-ErrorDetail -ErrorRecord $_
-        } #end Try-Catch
+
+        } #end try-catch
 
     } #end Process
 
     End {
+
         $txt = ($Variables.FooterDelegation -f $MyInvocation.InvocationName,
             'testing Well-Known SID (Private Function).'
         )
         Write-Verbose -Message $txt
 
-        return $Identity.Value
+        return $Identity
+
     } #end End
 }
