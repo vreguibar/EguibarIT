@@ -954,6 +954,14 @@
             'msDS-SupportedEncryptionTypes' = 24
         }
 
+        # Get picture if exist. Use default if not.
+        If (Test-Path -Path ('{0}\Pic\{1}.jpg' -f $DMscripts, $AdminName.SamAccountName)) {
+            # Read the path and file name of JPG picture
+            $PhotoFile = '{0}\Pic\{1}.jpg' -f $DMscripts, $AdminName.SamAccountName
+            # Get the content of the JPG file
+            #$photo = [byte[]](Get-Content -Path $PhotoFile -AsByteStream -Raw )
+            [byte[]]$photo = [System.IO.File]::ReadAllBytes($PhotoFile)
+        }
         If ($photo) {
             # Only if photo exists, add it to splatting
             $params.Add('thumbnailPhoto', $photo)
@@ -2224,8 +2232,8 @@
             GpoAdmin       = $sl_GpoAdminRight
             gpoBackupPath  = Join-Path -Path $DMscripts -ChildPath 'SecTmpl' -Resolve
         }
-        New-DelegateAdGpo -gpoScope 'C' @Splat -gpoBackupID $confXML.n.Admin.GPOs.Adminbaseline.backupID
-        New-DelegateAdGpo -gpoScope 'U' @Splat -gpoBackupID $confXML.n.Admin.GPOs.AdminUserbaseline.backupID
+        New-DelegateAdGpo -gpoScope 'C' @Splat
+        New-DelegateAdGpo -gpoScope 'U' @Splat
 
         # Users
         $Splat = @{
@@ -2480,7 +2488,7 @@
         # ServiceAccounts ENFORCE
         $Splat = @{
             Name                             = 'T0_Enforce_ServiceAccounts'
-            Description                      = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted users'
+            Description                      = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted ServiceAccounts'
             ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
             ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
             ServiceTGTLifetimeMins           = 120
@@ -2682,7 +2690,6 @@
             DenyRemoteInteractiveLogon = $DenyRemoteInteractiveLogon
             DenyBatchLogon             = $DenyBatchLogon
             ServiceLogon               = $ServiceLogon
-            Force                      = $true
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2821,20 +2828,20 @@
             RemoteInteractiveLogon     = $RemoteInteractiveLogon
             DenyRemoteInteractiveLogon = $DenyRemoteInteractiveLogon
             DenyInteractiveLogon       = $DenyInteractiveLogon
-            BatchLogon                 = $SG_Tier0ServiceAccount, 'Performance Log Users'
-            ServiceLogon               = $SG_Tier0ServiceAccount, 'Network Service'
+            BatchLogon                 = @($SG_Tier0ServiceAccount, 'Performance Log Users')
+            ServiceLogon               = @($SG_Tier0ServiceAccount, 'Network Service')
             DenyServiceLogon           = $DenyServiceLogon
             DenyBatchLogon             = $DenyBatchLogon
             Backup                     = $Backup
-            ChangeNotify               = $Backup, 'LOCAL SERVICE', 'NETWORK SERVICE'
-            CreateGlobal               = $Backup, 'LOCAL SERVICE', 'NETWORK SERVICE'
-            Systemtime                 = $Backup, 'LOCAL SERVICE'
+            ChangeNotify               = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE', 'NETWORK SERVICE')
+            CreateGlobal               = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE', 'NETWORK SERVICE')
+            Systemtime                 = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE')
             TimeZone                   = $Backup
             CreatePagefile             = $Backup
             CreateSymbolicLink         = $Backup
             EnableDelegation           = $Backup
             RemoteShutDown             = $Backup
-            Impersonate                = $Backup, 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
+            Impersonate                = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE')
             IncreaseBasePriority       = $Backup
             LoadDriver                 = $Backup
             AuditSecurity              = $Backup
@@ -2842,11 +2849,10 @@
             ManageVolume               = $Backup
             ProfileSingleProcess       = $Backup
             SystemProfile              = $Backup
-            AssignPrimaryToken         = 'LOCAL SERVICE', 'NETWORK SERVICE'
+            AssignPrimaryToken         = @('LOCAL SERVICE', 'NETWORK SERVICE')
             Restore                    = $Backup
             Shutdown                   = $Backup
             TakeOwnership              = $Backup
-            Force                      = $true
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2894,7 +2900,7 @@
         [void]$DenyBatchLogon.Add($CryptoOperators)
         [void]$DenyBatchLogon.Add('Guests')
         if ($null -ne $AdminName) {
-            [void]$DenyBatchLogon.Add($AdminName)
+            [void]$DenyBatchLogon.Add($AdminName.SamAccountName)
         }
         if ($null -ne $NewAdminExists) {
             [void]$DenyBatchLogon.Add($NewAdminExists)
@@ -2936,7 +2942,7 @@
             DenyServiceLogon     = $DenyServiceLogon
             MachineAccount       = $ArrayList
             Backup               = $ArrayList
-            SystemTime           = $ArrayList, 'LOCAL SERVICE'
+            SystemTime           = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE')
             TimeZone             = $ArrayList
             CreatePagefile       = $ArrayList
             CreateSymbolicLink   = $ArrayList
@@ -2951,7 +2957,6 @@
             Restore              = $ArrayList
             Shutdown             = $ArrayList
             TakeOwnership        = $ArrayList
-            Force                = $true
         }
         Set-GpoPrivilegeRight @Splat
 
@@ -2974,10 +2979,10 @@
 
         # Logon as a Batch job / Logon as a Service
         $BatchLogon = [System.Collections.Generic.List[object]]::New()
-        [void]$ArrayList.Add('Network Service')
-        [void]$ArrayList.Add('All Services')
+        [void]$BatchLogon.Add('Network Service')
+        [void]$BatchLogon.Add('All Services')
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
+            [void]$BatchLogon.Add($SG_Tier0ServiceAccount)
         }
         $ServiceLogon = [System.Collections.Generic.List[object]]::New()
         $ServiceLogon = $BatchLogon
@@ -3028,13 +3033,13 @@
             RemoteInteractiveLogon = $RemoteInteractiveLogon
             MachineAccount         = $ArrayList
             Backup                 = $ArrayList
-            CreateGlobal           = $ArrayList, 'LOCAL SERVICE', 'NETWORK SERVICE'
-            SystemTime             = $ArrayList, 'LOCAL SERVICE'
+            CreateGlobal           = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE', 'NETWORK SERVICE')
+            SystemTime             = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE')
             TimeZone               = $ArrayList
             CreatePagefile         = $ArrayList
             CreateSymbolicLink     = $ArrayList
             RemoteShutdown         = $ArrayList
-            Impersonate            = $ArrayList, 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE'
+            Impersonate            = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE')
             IncreaseBasePriority   = $ArrayList
             LoadDriver             = $ArrayList
             AuditSecurity          = $ArrayList
@@ -3100,7 +3105,7 @@
         # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1OU.Name
-            InteractiveLogon       = $SG_Tier1Admins, $Administrators
+            InteractiveLogon       = @($SG_Tier1Admins, $Administrators)
             RemoteInteractiveLogon = $SG_Tier1Admins
             BatchLogon             = $SG_Tier1ServiceAccount
             ServiceLogon           = $SG_Tier1ServiceAccount
@@ -3121,7 +3126,7 @@
         # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2OU.Name
-            InteractiveLogon       = $SG_Tier2Admins, $Administrators
+            InteractiveLogon       = @($SG_Tier2Admins, $Administrators)
             RemoteInteractiveLogon = $SG_Tier2Admins
             BatchLogon             = $SG_Tier2ServiceAccount
             ServiceLogon           = $SG_Tier2ServiceAccount
@@ -3181,7 +3186,7 @@
         # Allow Logon Locally / Allow Logon through RDP/TerminalServices
         $Splat = @{
             GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name
-            InteractiveLogon       = $SL_PAWM, $Administrators
+            InteractiveLogon       = @($SL_PAWM, $Administrators)
             RemoteInteractiveLogon = $SL_PAWM
             RemoteShutdown         = $SL_PAWM
             SystemTime             = $SL_PAWM
@@ -3201,23 +3206,23 @@
         # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
         # Deny Allow Logon Locally / Deny Allow Logon through RDP/TerminalServices
         # Deny Logon as a Batch job / Deny Logon as a Service
-        $SystemProfile
+
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name
-            InteractiveLogon           = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
-            RemoteInteractiveLogon     = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
+            InteractiveLogon           = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
+            RemoteInteractiveLogon     = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
             BatchLogon                 = $SG_Tier0ServiceAccount
             ServiceLogon               = $SG_Tier0ServiceAccount
-            DenyInteractiveLogon       = $SG_Tier1Admins, $SG_Tier2Admins
-            DenyRemoteInteractiveLogon = $SG_Tier1Admins, $SG_Tier2Admins
-            DenyBatchLogon             = $SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount
-            DenyServiceLogon           = $SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount
-            RemoteShutdown             = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
-            SystemTime                 = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
-            ChangeNotify               = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
-            ManageVolume               = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
-            SystemProfile              = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
-            Shutdown                   = $SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists
+            DenyInteractiveLogon       = @($SG_Tier1Admins, $SG_Tier2Admins)
+            DenyRemoteInteractiveLogon = @($SG_Tier1Admins, $SG_Tier2Admins)
+            DenyBatchLogon             = @($SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount)
+            DenyServiceLogon           = @($SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount)
+            RemoteShutdown             = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
+            SystemTime                 = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
+            ChangeNotify               = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
+            ManageVolume               = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
+            SystemProfile              = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
+            Shutdown                   = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
         }
         Set-GpoPrivilegeRight @Splat
 
