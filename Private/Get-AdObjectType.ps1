@@ -51,8 +51,8 @@
         Microsoft.ActiveDirectory.Management.ADServiceAccount
 
     .NOTES
-        Version:         1.3
-            DateModified:    2/Oct/2024
+        Version:         1.4
+            DateModified:    14/Feb/2025
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
                 Eguibar Information Technology S.L.
@@ -65,7 +65,9 @@
         [Microsoft.ActiveDirectory.Management.ADComputer],
         [Microsoft.ActiveDirectory.Management.ADGroup],
         [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit],
-        [Microsoft.ActiveDirectory.Management.ADServiceAccount])
+        [Microsoft.ActiveDirectory.Management.ADServiceAccount],
+        [System.Security.Principal.SecurityIdentifier],
+        [System.String])
     ]
 
     Param (
@@ -105,100 +107,106 @@
     Process {
 
         try {
-            # Known Identities OR AD Objects
-            if (
-                $Identity -is [Microsoft.ActiveDirectory.Management.ADAccount] -or
-                $Identity -is [Microsoft.ActiveDirectory.Management.ADComputer] -or
-                $Identity -is [Microsoft.ActiveDirectory.Management.ADGroup] -or
-                $Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit] -or
-                $Identity -is [Microsoft.ActiveDirectory.Management.ADServiceAccount]
-            ) {
+            # Check if identity is an AD object
+            if ($Identity -is [Microsoft.ActiveDirectory.Management.ADObject]) {
 
-                Write-Verbose -Message (' ┝━━━━━━► Known AD Object Type: {0}' -f $Identity.GetType().Name)
+                Write-Verbose -Message ('Identity is an AD object of type: {0}' -f $Identity.GetType().Name)
                 $ReturnValue = $Identity
-
             } elseif ($Identity -is [string]) {
+                # Check if identity is a string
 
-                Write-Verbose -Message ('Identity is a string: {0}. Trying to resolve it!' -f $Identity)
+                Write-Verbose -Message ('Identity is a string: {0}. Resolving it...' -f $Identity)
 
-                # Check if it's a well-known SID name (including Foreign Security Principals)
-                $sid = Test-NameIsWellKnownSid -Name $Identity
+                # Check if it's a Well-Known SID (by SID or name)
+                $wellKnownSid = $null
 
-                if ($sid) {
-                    Write-Verbose -Message ('Found well-known SID for name: {0}. Returning SecurityIdentifier object.' -f $Identity)
-                    $ReturnValue = $sid
+                if ($Variables.WellKnownSIDs.Keys -contains $Identity) {
+
+                    # Input is a Well-Known SID (e.g., "S-1-1-0")
+                    $wellKnownSid = $Identity
+
+                } elseif ($Variables.WellKnownSIDs.Values -contains $Identity) {
+
+                    # Input is a Well-Known SID name (e.g., "Everyone")
+                    $wellKnownSid = $Variables.WellKnownSIDs.GetEnumerator() |
+                        Where-Object { $_.Value -eq $Identity } |
+                            Select-Object -ExpandProperty Key
+                } #end If-elseif
+
+                if ($wellKnownSid) {
+                    Write-Verbose -Message ('
+                        Identity {0} is a Well-Known SID: {1}' -f $Identity, $wellKnownSid)
+
+                    try {
+                        # Attempt to create a SecurityIdentifier object
+                        $ReturnValue = [System.Security.Principal.SecurityIdentifier]::New($wellKnownSid)
+                    } catch {
+                        # Fallback to returning the SID as a string
+                        $ReturnValue = $wellKnownSid
+                    } #end try-catch
                 } else {
-                    if (Test-IsValidDN -ObjectDN $Identity) {
+                    # Resolve identity using AD queries
 
-                        Write-Verbose -Message 'Looking for DistinguishedName'
-                        $newObject = Get-ADObject -Filter { DistinguishedName -like $Identity }
+                    $newObject = Get-ADObject -Filter {
+                        (DistinguishedName -eq $Identity) -or
+                        (ObjectSID -eq $Identity) -or
+                        (ObjectGUID -eq $Identity) -or
+                        (SamAccountName -eq $Identity)
+                    }
 
-                    } elseif (Test-IsValidSID -ObjectSID $Identity) {
+                    if ($newObject) {
 
-                        Write-Verbose -Message 'Looking for ObjectSID'
-                        $newObject = Get-ADObject -Filter { ObjectSID -like $Identity }
-
-                    } elseif (Test-IsValidGUID -ObjectGUID $Identity) {
-
-                        Write-Verbose -Message 'Looking for ObjectGUID'
-                        $newObject = Get-ADObject -Filter { ObjectGUID -like $Identity }
+                        switch ($newObject.ObjectClass) {
+                            'user' {
+                                $ReturnValue = Get-ADUser -Identity $newObject
+                            }
+                            'group' {
+                                $ReturnValue = Get-ADGroup -Identity $newObject
+                            }
+                            'computer' {
+                                $ReturnValue = Get-ADComputer -Identity $newObject
+                            }
+                            'organizationalUnit' {
+                                $ReturnValue = Get-ADOrganizationalUnit -Identity $newObject
+                            }
+                            'msDS-GroupManagedServiceAccount' {
+                                $ReturnValue = Get-ADServiceAccount -Identity $newObject
+                            }
+                            default {
+                                Write-Error -Message ('Unsupported object type: {0}' -f $newObject.ObjectClass)
+                                return $null
+                            }
+                        } #end switch
 
                     } else {
 
-                        Write-Verbose -Message 'Looking for SamAccountName'
-                        $newObject = Get-ADObject -Filter { (Name -like $identity) -or (SamAccountName -like $identity) }
+                        Write-Warning -Message ('
+                            Identity {0} could not be resolved to a valid AD object.
+                            ' -f $Identity
+                        )
+                        return $null
 
-                    } #end If-ElseIf-Else
+                    } #end if-else
+                } #end if-else
+            } else {
+                # Unsupported identity type
 
-                } #end If WellKnownSid
+                Write-Error -Message ('Unsupported identity type: {0}' -f $Identity.GetType().Name)
+                return $null
 
-            } #end If-ElseIf Identity
+            } #end if-elseif-else
 
-        } Catch {
-            throw ('Unsupported Identity type: {0}' -f $Identity.GetType().Name)
+        } catch {
+
+            Write-Error -Message ('
+                Failed to resolve identity: {0}.
+                Error: {1}' -f
+                $Identity, $_.Exception.Message
+            )
+            Write-Verbose -Message ('StackTrace: {0}' -f $_.Exception.StackTrace)
             return $null
-        } #end If-ElseIf-Else
 
-
-
-
-        If ($newObject -and (-not $ReturnValue)) {
-            # once we have the object, lets get it from AD
-            Switch ($newObject.ObjectClass) {
-
-                'user' {
-                    Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD User Object from STRING'
-                    [Microsoft.ActiveDirectory.Management.ADAccount]$ReturnValue = Get-ADUser -Identity $newObject
-                }
-
-                'group' {
-                    Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Group Object from STRING'
-                    [Microsoft.ActiveDirectory.Management.AdGroup]$ReturnValue = Get-ADGroup -Identity $newObject
-                }
-
-                'computer' {
-                    Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Computer Object from STRING'
-                    [Microsoft.ActiveDirectory.Management.ADComputer]$ReturnValue = Get-ADComputer -Identity $newObject
-                }
-
-                'organizationalUnit' {
-                    Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Organizational Unit Object from STRING'
-                    [Microsoft.ActiveDirectory.Management.organizationalUnit]$ReturnValue = Get-ADOrganizationalUnit -Identity $newObject
-                }
-
-                'msDS-GroupManagedServiceAccount' {
-                    Write-Verbose -Message '#     ┝━━━━━━━━━━►  AD Group Managed Service Account from STRING'
-                    [Microsoft.ActiveDirectory.Management.ADServiceAccount]$ReturnValue = Get-ADServiceAccount -Identity $newObject
-                }
-
-                Default {
-                    Write-Error -Message ('#     ┝━━━━━━━━━━►  Unknown object type for identity: {0}' -f $Identity)
-
-                    return $null
-                }
-            } # End Switch
-
-        } #end If
+        } #end try-catch
 
     } # End Process Section
 
