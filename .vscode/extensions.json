@@ -22,7 +22,6 @@
         "ms-azuretools.vscode-azureresourcegroups",
         "ms-dotnettools.csdevkit",
         "ms-dotnettools.csharp",
-        "ms-vscode.azure-account",
         "ms-vscode.azure-repos",
         "ms-vscode.powershell",
         "ms-vscode.remote-repositories",

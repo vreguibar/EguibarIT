@@ -1251,7 +1251,7 @@
 
 
         # Ensure the gMSA is member of Tier0 ServiceAccount group. This group will be configured on the Rights assignment.
-        # Add-AdGroupNesting -Identity $SG_Tier0ServiceAccount -Members $gMSASamAccountName
+        Add-AdGroupNesting -Identity $SG_Tier0ServiceAccount -Members $gMSASamAccountName
 
         #Configure gMSA so all members of group "Domain Controllers" can retrieve the password
         Set-ADServiceAccount $gMSASamAccountName -PrincipalsAllowedToRetrieveManagedPassword 'Domain Controllers'
@@ -2861,9 +2861,9 @@
         # these settings are intended to "delegate" software maintenance tasks to Dc_Management group
 
         # File Security
-        Set-GpoFileSecurity -GpoToModify 'C-DomainControllers-Baseline' -Group $SL_DcManagement -Verbose
+        Set-GpoFileSecurity -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Name) -Group $SL_DcManagement
         # Registry Keys
-        Set-GpoRegistryKey -GpoToModify 'C-DomainControllers-Baseline' -Group $SL_DcManagement -Verbose
+        Set-GpoRegistryKey -GpoToModify ('C-{0}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Name) -Group $SL_DcManagement
 
         #endregion
 
@@ -3059,13 +3059,13 @@
 
         # Allow Logon Locally / Allow Logon throug RDP/TerminalServices
         $InteractiveLogon = [System.Collections.Generic.List[object]]::New()
-        [void]$ArrayList.Add($DomainAdmins)
-        [void]$ArrayList.Add($Administrators)
+        [void]$InteractiveLogon.Add($DomainAdmins)
+        [void]$InteractiveLogon.Add($Administrators)
         if ($null -ne $SL_PISM) {
-            [void]$ArrayList.Add($SL_PISM)
+            [void]$InteractiveLogon.Add($SL_PISM)
         }
         if ($null -ne $SG_Tier0Admins) {
-            [void]$ArrayList.Add($SG_Tier0Admins)
+            [void]$InteractiveLogon.Add($SG_Tier0Admins)
         }
         $RemoteInteractiveLogon = [System.Collections.Generic.List[object]]::New()
         $RemoteInteractiveLogon = $InteractiveLogon
@@ -3073,10 +3073,10 @@
 
         # Logon as a Batch job / Logon as a Service
         $BatchLogon = [System.Collections.Generic.List[object]]::New()
-        [void]$ArrayList.Add('Network Service')
-        [void]$ArrayList.Add('All Services')
+        [void]$BatchLogon.Add('Network Service')
+        [void]$BatchLogon.Add('All Services')
         if ($null -ne $SG_Tier0ServiceAccount) {
-            [void]$ArrayList.Add($SG_Tier0ServiceAccount)
+            [void]$BatchLogon.Add($SG_Tier0ServiceAccount)
         }
         $ServiceLogon = [System.Collections.Generic.List[object]]::New()
         $ServiceLogon = $BatchLogon
