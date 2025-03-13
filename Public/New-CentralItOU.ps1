@@ -1177,7 +1177,16 @@
         # on DCs (along with other information) to generate passwords
         # http://blogs.technet.com/b/askpfeplat/archive/2012/12/17/windows-server-2012-group-managed-service-accounts.aspx
         # If working in a test environment with a minimal number of DCs and the ability to guarantee immediate replication, please use:
-        Add-KdsRootKey -EffectiveTime ((Get-Date).addhours(-10))
+        If ([System.Environment]::OSVersion.Version.Build -ge 26100) {
+
+            # New parameter to use inmediatelly
+            Add-KdsRootKey -EffectiveImmediately
+
+        } else {
+
+            #give a time of 10 days ago to make it effective now.
+            Add-KdsRootKey -EffectiveTime ((Get-Date).addhours(-10))
+        } #end If-Else
 
 
 
@@ -1202,6 +1211,7 @@
                     TrustedForDelegation   = $false
                     ServicePrincipalName   = ('HOST/{0}.{1}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name, $env:USERDNSDOMAIN)
                     ErrorAction            = 'SilentlyContinue'
+                    PassThru               = $true
                 }
 
                 $ReplaceValues = @{
@@ -1229,10 +1239,9 @@
                 }
 
                 try {
-                    New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
+                    $ExistSA = New-ADServiceAccount @Splat | Set-ADServiceAccount @ReplaceParams
                 } catch {
                     Write-Error -Message 'Error when creating AD Scheduler service account.'
-                    throw
                 } #end Try-Catch
             } else {
                 $Splat = @{
@@ -1241,9 +1250,10 @@
                     Path        = 'OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.name, $ItServiceAccountsOuDn
                     enabled     = $True
                     ErrorAction = 'SilentlyContinue'
+                    PassThru    = $true
                 }
 
-                New-ADServiceAccount @Splat
+                $ExistSA = New-ADServiceAccount @Splat
             } #end If-Else
         } else {
             Write-Warning -Message ('Service Account {0} already exists.' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name)
@@ -1251,10 +1261,10 @@
 
 
         # Ensure the gMSA is member of Tier0 ServiceAccount group. This group will be configured on the Rights assignment.
-        Add-AdGroupNesting -Identity $SG_Tier0ServiceAccount -Members $gMSASamAccountName
+        Add-AdGroupNesting -Identity $SG_Tier0ServiceAccount -Members $ExistSA
 
         #Configure gMSA so all members of group "Domain Controllers" can retrieve the password
-        Set-ADServiceAccount $gMSASamAccountName -PrincipalsAllowedToRetrieveManagedPassword 'Domain Controllers'
+        Set-ADServiceAccount $ExistSA -PrincipalsAllowedToRetrieveManagedPassword 'Domain Controllers'
 
         #endregion
         ###############################################################################
@@ -2155,6 +2165,7 @@
         # todo: error while trying to change object. Access denied.
         # Set-Acl: C:\Program Files\PowerShell\Modules\EguibarIT.DelegationPS\Private\Set-AclConstructor4.ps1:275
         # Delegate Directory Replication Rights
+        Write-Error -Message 'Error while trying to change Directory Replication Rights. Access denied.'
         Set-AdDirectoryReplication -Group $SL_DirReplRight
 
 
@@ -2415,13 +2426,20 @@
 
         # Add Owner SYSTEM
         $AllowToAutenticateFromSDDL = 'O:SY'
-        # Add PrimaryFroup Administrators
+
+        # Add PrimaryGroup Administrators
         $AllowToAutenticateFromSDDL += 'G:SY'
-        # Add DACL having DCs
-        $AllowToAutenticateFromSDDL += 'D:(XA;OICI;CR;;;WD;((Member_of {SID(ED)})'
-        # Add our groups using OR ||
-        $AllowToAutenticateFromSDDL += " || (Member_of_any {SID($($SL_PAWs.SID.value))}) "
-        $AllowToAutenticateFromSDDL += " || (Member_of_any {SID($($SL_InfrastructureServers.SID.value))})))"
+
+        # Add DACL with Enterprise Domain Controllers (ED) SID and dynamic group SIDs
+        $AllowToAuthenticateFromSDDL += 'D:(XA;OICI;CR;;;WD;'  # Start DACL
+
+        # Add Enterprise Domain Controllers (ED)
+        $AllowToAuthenticateFromSDDL += '(Member_of {SID(ED)})'
+
+        # Add our groups using OR (||)
+        $AllowToAuthenticateFromSDDL += " || (Member_of_any {SID($($SL_PAWs.SID.value))})"
+        $AllowToAuthenticateFromSDDL += " || (Member_of_any {SID($($SL_InfrastructureServers.SID.value))}))"
+
 
 
         # Create AuditOnly Policies

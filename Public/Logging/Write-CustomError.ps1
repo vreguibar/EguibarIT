@@ -74,7 +74,9 @@
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $true,
             HelpMessage = 'If present a new event will be created in the corresponding Windows Event among Write-Verbose.',
-            Position = 0)]
+            Position = 0,
+            ParameterSetName = 'Default')]
+        [Parameter(ParameterSetName = 'Custom')]
         [switch]
         $CreateWindowsEvent,
 

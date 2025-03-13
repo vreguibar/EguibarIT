@@ -76,6 +76,8 @@ function Add-AdGroupNesting {
         ##############################
         # Variables Definition
 
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+
         # Define array lists
         $CurrentMembers = [System.Collections.ArrayList]::new()
 
@@ -90,19 +92,24 @@ function Add-AdGroupNesting {
         Try {
 
             Write-Verbose -Message ('Getting members of group {0}' -f $Identity)
-            $CurrentMembers = Get-ADGroupMember -Identity $Identity -Recursive -ErrorAction SilentlyContinue
+            $CurrentMembers = Get-ADGroupMember -Identity $Identity -Recursive -ErrorAction Stop
 
-            Write-CustomLog -EventInfo ([EventIDs]::GetGroupMembership) -Message ('Got members from group {0}' -f $Identity)
+            If ($null -eq $CurrentMembers) {
+                Write-Verbose -Message ('Group {0} has no members' -f $Identity)
+
+            } Else {
+                Write-CustomLog -EventInfo ([EventIDs]::GetGroupMembership) -Message ('Got members from group {0}' -f $Identity)
+            } #end If-Else
 
         } Catch {
 
-            Write-CustomError -CreateWindowsEvent -EventInfo ([EventIDs]::FailedGetGroupMembership) -Message ('
-                Failed to retrieve members of the group "{0}".
-                {1}' -f
-                $Group.SamAccountName, $_
-            )
-
-            #throw
+            $Splat = @{
+                CreateWindowsEvent = $true
+                EventInfo          = ([EventIDs]::FailedGetGroupMembership)
+                Message            = 'Failed to retrieve members of the group "{0}". {1}' -f $Identity, $_
+                EventName          = 'GetGroupMembersError'
+            }
+            Write-CustomError @Splat
         } #end Try-Catch
 
 

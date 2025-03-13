@@ -163,8 +163,8 @@
         $LogAsJson,
 
         [Parameter(ParameterSetName = 'EventLogging')]
-        [int]
-        $MaximumKilobytes = 16384, # default 16 MB
+        [Int64]
+        $MaximumKilobytes = 65536, # Max value 4 GB
 
         [Parameter(ParameterSetName = 'EventLogging')]
         [int]
