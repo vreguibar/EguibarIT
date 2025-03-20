@@ -39,8 +39,8 @@ foreach ($Item in $Private) {
     } Catch {
         Write-Error -Message "Failed to import private function from $($Item.Fullname): $($_.Exception.Message)"
         Throw
-    }
-}
+    } #end try-catch
+} #end foreach
 
 # Load Public Functions
 $Public = @( Get-ChildItem -Path "$PSScriptRoot\Public\" -Filter *.ps1 -ErrorAction SilentlyContinue -Recurse )
@@ -51,10 +51,17 @@ foreach ($Item in $Public) {
     } Catch {
         Write-Error -Message "Failed to import public function from $($Item.Fullname): $($_.Exception.Message)"
         Throw
-    }
-}
+    } #end try-catch
+} #end foreach
 
-Export-ModuleMember -Function '*' -Alias '*'
 
-# Call function Initialize-ModuleVariable to fill-up $Variables
-Initialize-ModuleVariable
+Try {
+    # Call function Initialize-ModuleVariable to fill-up $Variables
+    Initialize-ModuleVariable
+    return $true
+} catch {
+    Write-Error -Message ('Failed to update AD variables: {0}' -f $_)
+    return $false
+} #end try-catch
+
+Export-ModuleMember -Function '*' -Alias '*' -Variable @('Constants', 'Variables') -Verbose:$false | Out-Null

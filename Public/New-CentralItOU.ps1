@@ -1176,10 +1176,11 @@
         # Create the KDS Root Key (only once per domain).  This is used by the KDS service
         # on DCs (along with other information) to generate passwords
         # http://blogs.technet.com/b/askpfeplat/archive/2012/12/17/windows-server-2012-group-managed-service-accounts.aspx
-        # If working in a test environment with a minimal number of DCs and the ability to guarantee immediate replication, please use:
+        # If working in a test environment with a minimal number of DCs
+        # and the ability to guarantee immediate replication, please use:
         If ([System.Environment]::OSVersion.Version.Build -ge 26100) {
 
-            # New parameter to use inmediatelly
+            # New parameter to use immediately
             Add-KdsRootKey -EffectiveImmediately
 
         } else {
@@ -2434,7 +2435,7 @@
         $AllowToAuthenticateFromSDDL += 'D:(XA;OICI;CR;;;WD;'  # Start DACL
 
         # Add Enterprise Domain Controllers (ED)
-        $AllowToAuthenticateFromSDDL += '(Member_of {SID(ED)})'
+        $AllowToAuthenticateFromSDDL += '(Member_of_any {SID(ED)})'
 
         # Add our groups using OR (||)
         $AllowToAuthenticateFromSDDL += " || (Member_of_any {SID($($SL_PAWs.SID.value))})"
@@ -2444,38 +2445,42 @@
 
         # Create AuditOnly Policies
         # Computer AUDIT
-        $Splat = @{
-            Name                            = 'T0_AuditOnly_Computers'
-            Description                     = 'This Kerberos Authentication policy used to AUDIT computer logon from untrusted computers'
-            ComputerAllowedToAuthenticateTo = $AllowToAutenticateFromSDDL
-            ComputerTGTLifetimeMins         = 120
-            #ProtectedFromAccidentalDeletion = $true
+        If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_AuditOnly_Computers')) {
+            $Splat = @{
+                Name                            = 'T0_AuditOnly_Computers'
+                Description                     = 'This Kerberos Authentication policy used to AUDIT computer logon from untrusted computers'
+                ComputerAllowedToAuthenticateTo = $AllowToAutenticateFromSDDL
+                ComputerTGTLifetimeMins         = 120
+                #ProtectedFromAccidentalDeletion = $true
+            }
+            New-ADAuthenticationPolicy @Splat
         }
-        New-ADAuthenticationPolicy @Splat
-
-
 
         # User AUDIT
-        $Splat = @{
-            Name                          = 'T0_AuditOnly_Users'
-            Description                   = 'This Kerberos Authentication policy used to AUDIT interactive logon from untrusted users'
-            UserAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
-            UserAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
-            UserTGTLifetimeMins           = 240
-            #UserAllowedToAuthenticateFrom = $authFromSddl
+        If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_AuditOnly_Users')) {
+            $Splat = @{
+                Name                          = 'T0_AuditOnly_Users'
+                Description                   = 'This Kerberos Authentication policy used to AUDIT interactive logon from untrusted users'
+                UserAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
+                UserAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
+                UserTGTLifetimeMins           = 240
+                #UserAllowedToAuthenticateFrom = $authFromSddl
+            }
+            New-ADAuthenticationPolicy @Splat
         }
-        New-ADAuthenticationPolicy @Splat
 
         # ServiceAccounts AUDIT
-        $Splat = @{
-            Name                             = 'T0_AuditOnly_ServiceAccounts'
-            Description                      = 'This Kerberos Authentication policy used to AUDIT ServiceAccount logon from untrusted Service Accounts'
-            ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
-            ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
-            ServiceTGTLifetimeMins           = 120
-            #UserAllowedToAuthenticateFrom = $authFromSddl
+        If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_AuditOnly_ServiceAccounts')) {
+            $Splat = @{
+                Name                             = 'T0_AuditOnly_ServiceAccounts'
+                Description                      = 'This Kerberos Authentication policy used to AUDIT ServiceAccount logon from untrusted Service Accounts'
+                ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
+                ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
+                ServiceTGTLifetimeMins           = 120
+                #UserAllowedToAuthenticateFrom = $authFromSddl
+            }
+            New-ADAuthenticationPolicy @Splat
         }
-        New-ADAuthenticationPolicy @Splat
 
 
 
@@ -2483,36 +2488,42 @@
 
         # Create ENFORCE policies
         # Computer ENFORCE
-        $Splat = @{
-            Name                            = 'T0_Enforce_Computers'
-            Description                     = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted computers'
-            ComputerAllowedToAuthenticateTo = $AllowToAutenticateFromSDDL
-            ComputerTGTLifetimeMins         = 120
-            Enforce                         = $true
+        If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_Enforce_Computers')) {
+            $Splat = @{
+                Name                            = 'T0_Enforce_Computers'
+                Description                     = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted computers'
+                ComputerAllowedToAuthenticateTo = $AllowToAutenticateFromSDDL
+                ComputerTGTLifetimeMins         = 120
+                Enforce                         = $true
+            }
+            New-ADAuthenticationPolicy @Splat
         }
-        New-ADAuthenticationPolicy @Splat
 
         # User Enforce
-        $Splat = @{
-            Name                          = 'T0_Enforce_Users'
-            Description                   = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted users'
-            UserAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
-            UserAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
-            UserTGTLifetimeMins           = 240
-            Enforce                       = $true
+        If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_Enforce_Users')) {
+            $Splat = @{
+                Name                          = 'T0_Enforce_Users'
+                Description                   = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted users'
+                UserAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
+                UserAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
+                UserTGTLifetimeMins           = 240
+                Enforce                       = $true
+            }
+            New-ADAuthenticationPolicy @Splat
         }
-        New-ADAuthenticationPolicy @Splat
 
         # ServiceAccounts ENFORCE
-        $Splat = @{
-            Name                             = 'T0_Enforce_ServiceAccounts'
-            Description                      = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted ServiceAccounts'
-            ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
-            ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
-            ServiceTGTLifetimeMins           = 120
-            Enforce                          = $true
+        If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_Enforce_ServiceAccounts')) {
+            $Splat = @{
+                Name                             = 'T0_Enforce_ServiceAccounts'
+                Description                      = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted ServiceAccounts'
+                ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
+                ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
+                ServiceTGTLifetimeMins           = 120
+                Enforce                          = $true
+            }
+            New-ADAuthenticationPolicy @Splat
         }
-        New-ADAuthenticationPolicy @Splat
 
 
 
@@ -2859,7 +2870,14 @@
             CreateSymbolicLink         = $Backup
             EnableDelegation           = $Backup
             RemoteShutDown             = $Backup
-            Impersonate                = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE')
+            Impersonate                = @(
+                $Administrators,
+                $SG_Tier0Admins,
+                $SG_AdAdmins,
+                'LOCAL SERVICE',
+                'NETWORK SERVICE',
+                'SERVICE'
+            )
             IncreaseBasePriority       = $Backup
             LoadDriver                 = $Backup
             AuditSecurity              = $Backup
@@ -2918,7 +2936,7 @@
         [void]$DenyBatchLogon.Add($CryptoOperators)
         [void]$DenyBatchLogon.Add('Guests')
         if ($null -ne $AdminName) {
-            [void]$DenyBatchLogon.Add($AdminName.SamAccountName)
+            [void]$DenyBatchLogon.Add($AdminName)
         }
         if ($null -ne $NewAdminExists) {
             [void]$DenyBatchLogon.Add($NewAdminExists)
@@ -3227,20 +3245,20 @@
 
         $Splat = @{
             GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name
-            InteractiveLogon           = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
-            RemoteInteractiveLogon     = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
+            InteractiveLogon           = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists)
+            RemoteInteractiveLogon     = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists)
             BatchLogon                 = $SG_Tier0ServiceAccount
             ServiceLogon               = $SG_Tier0ServiceAccount
             DenyInteractiveLogon       = @($SG_Tier1Admins, $SG_Tier2Admins)
             DenyRemoteInteractiveLogon = @($SG_Tier1Admins, $SG_Tier2Admins)
             DenyBatchLogon             = @($SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount)
             DenyServiceLogon           = @($SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount)
-            RemoteShutdown             = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
-            SystemTime                 = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
-            ChangeNotify               = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
-            ManageVolume               = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
-            SystemProfile              = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
-            Shutdown                   = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName.SamAccountName, $NewAdminExists)
+            RemoteShutdown             = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists)
+            SystemTime                 = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists)
+            ChangeNotify               = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists)
+            ManageVolume               = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists)
+            SystemProfile              = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists)
+            Shutdown                   = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminExists)
         }
         Set-GpoPrivilegeRight @Splat
 

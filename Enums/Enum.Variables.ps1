@@ -91,10 +91,44 @@ $Splat = @{
     Force       = $true
 }
 
-# Check if the 'Variables' variable exists. Create it if not.
+
+# Define the initial variable structure if it doesn't exist yet
 if (-not (Get-Variable -Name 'Variables' -Scope Global -ErrorAction SilentlyContinue)) {
+
     New-Variable @Splat
     Write-Verbose -Message ('Variables have been initialized: {0}' -f $Variables)
+
 } else {
-    Write-Verbose -Message 'Variables already exist.'
-}
+
+    # If the variable exists, merge the new values with existing ones
+    $existingVariables = Get-Variable -Name 'Variables' -Scope Global -ValueOnly
+
+    # For each key in your new $Variables hashtable
+    foreach ($key in $Variables.Keys) {
+
+        if (-not $existingVariables.ContainsKey($key)) {
+
+            # Add new keys that don't exist in the current Variables
+            $existingVariables[$key] = $Variables[$key]
+            Write-Verbose -Message ('Added new variable: {0}' -f $key)
+
+        } elseif ($Variables[$key] -is [hashtable] -and
+            $existingVariables[$key] -is [hashtable]) {
+
+            # For nested hashtable, merge them
+            foreach ($nestedKey in $Variables[$key].Keys) {
+
+                if (-not $existingVariables[$key].ContainsKey($nestedKey)) {
+
+                    $existingVariables[$key][$nestedKey] = $Variables[$key][$nestedKey]
+                    Write-Verbose -Message ('Added new nested variable: {0}.{1}' -f $key, $nestedKey)
+
+                } #end If
+
+            } #end foreach
+        } #end If-Else
+        # For other types (non-hashtable), we don't overwrite by default
+    } #end Foreach
+
+    Write-Verbose -Message 'Variables already exist. Merged new values with existing ones.'
+} #end If-Else

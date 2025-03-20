@@ -1,24 +1,48 @@
 ﻿Function Initialize-ModuleVariable {
     <#
         .SYNOPSIS
-            Initializes module variables related to this module
+            Initializes or reinitializes module-level variables for the module.
 
         .DESCRIPTION
-            This function initializes module variables required for CMDlets to delegate.
+            This function sets up the global $Variables variable used throughout the module.
+            The $Variables variable is a hashtable that contains simple key-value pairs as well
+            as nested hashtables (e.g. WellKnownSids). This function is automatically invoked on
+            module import and can be called manually via Initialize-ModuleVariable to refresh or
+            reinitialize the variables. The initialization logic is broken into smaller helper functions
+            to simplify maintenance and testing.
 
-        .PARAMETER None
-            This function does not accept any parameters.
+        .PARAMETER Force
+            When specified, forces reinitialization of variables even if they already exist.
+            This is useful for troubleshooting or when you need to refresh the environment.
+
+        .EXAMPLE
+            Initialize-ModuleVariable
+            # Reinitializes the module variables if required.
+
+        .EXAMPLE
+            Initialize-ModuleVariable -Force
+            # Forces reinitialization even if $Variables is already set.
+
+        .OUTPUTS
+            VOID. The function sets global variables in the module.
 
         .NOTES
+            Required Modules/Prerequisites:
+            - None explicitly required; however, the module should export only Constants and Variables.
+            - The function should be called at the end of the module script to ensure all variables are set.
+
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Get-ExtendedRightHashTable             | ActiveDirectory
-                Get-AttributeSchemaHashTable           | ActiveDirectory
+                Name                                       ║ Module/Namespace
+                ═══════════════════════════════════════════╬══════════════════════════════
+                Write-Verbose                              ║ Microsoft.PowerShell.Utility
+                Write-Warning                              ║ Microsoft.PowerShell.Utility
+                Write-Error                                ║ Microsoft.PowerShell.Utility
+                Set-StrictMode                             ║ Microsoft.PowerShell.Utility
+                Get-AdObject                               ║ ActiveDirectory
 
         .NOTES
-            Version:         1.0
-            DateModified:    05/Apr/2024
+            Version:         1.1
+            DateModified:    19/Mar/2025
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
                 Eguibar Information Technology S.L.
@@ -27,9 +51,15 @@
     [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
     [OutputType([void])]
 
-    Param ()
+    Param (
+        [Parameter(Mandatory = $false,
+            HelpMessage = 'Force reinitialization even if variables already exist.')]
+        [switch]$Force
+    )
 
     Begin {
+
+        Set-StrictMode -Version Latest
 
         ##############################
         # Module imports
@@ -44,10 +74,11 @@
 
             } else {
                 Write-Warning -Message 'ActiveDirectory module is not available. Skipping AD-related functionality.'
-            }
+            } #end If-Else
+
         } catch {
             Write-Error -Message ('Failed to import ActiveDirectory module: {0}' -f $_ )
-        }
+        } #end Try-Catch
 
         ##############################
         # Variables Definition
@@ -56,116 +87,155 @@
 
     Process {
 
-        try {
-            # Active Directory DistinguishedName
-            $Variables.AdDN = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
+        if ($adModuleAvailable) {
+            try {
 
-            # Configuration Naming Context
-            $Variables.configurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
+                # Active Directory DistinguishedName
+                if ($Force -or $null -eq $Variables.AdDN) {
+                    $Variables.AdDN = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
+                } #end If
 
-            # Active Directory DistinguishedName
-            $Variables.defaultNamingContext = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
+                # Configuration Naming Context
+                if ($Force -or $null -eq $Variables.configurationNamingContext) {
+                    $Variables.configurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
+                } #end If
 
-            # Get current DNS domain name
-            $Variables.DnsFqdn = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().Name
+                # Active Directory DistinguishedName
+                if ($Force -or $null -eq $Variables.defaultNamingContext) {
+                    $Variables.defaultNamingContext = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
+                } #end If
 
-            # Naming Contexts
-            $Variables.namingContexts = ([ADSI]'LDAP://RootDSE').namingContexts
+                # Get current DNS domain name
+                if ($Force -or $null -eq $Variables.DnsFqdn) {
+                    $Variables.DnsFqdn = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().Name
+                } #end If
 
-            # Partitions Container
-            $Variables.PartitionsContainer = (([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString())
+                # Naming Contexts
+                if ($Force -or $null -eq $Variables.namingContexts) {
+                    $Variables.namingContexts = ([ADSI]'LDAP://RootDSE').namingContexts
+                } #end If
 
-            # Root Domain Naming Context
-            $Variables.rootDomainNamingContext = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
+                # Partitions Container
+                if ($Force -or $null -eq $Variables.PartitionsContainer) {
+                    $Variables.PartitionsContainer = (([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString())
+                } #end If
 
-            # Schema Naming Context
-            $Variables.SchemaNamingContext = ([ADSI]'LDAP://RootDSE').SchemaNamingContext.ToString()
-        } Catch {
-            Write-Error -Message '
-                Something went wrong while trying to fill $Variables!
-                Ensure that:
-                 * Machine is Domain Joined
-                 * Active Directory is available and working
-                 * Communication exist between this machine and AD'
-        }
-        # Well-Known SIDs
-        #. "$PSScriptRoot\Enum.WellKnownSids.ps1"
-        #Get-AdWellKnownSID -SID 'S-1-5-18' | Out-Null  # Just to ensure it's loaded and callable
+                # Root Domain Naming Context
+                if ($Force -or $null -eq $Variables.rootDomainNamingContext) {
+                    $Variables.rootDomainNamingContext = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
+                } #end If
 
-        # Following functions must be the last ones to be called, otherwise error is thrown.
+                # Schema Naming Context
+                if ($Force -or $null -eq $Variables.SchemaNamingContext) {
+                    $Variables.SchemaNamingContext = ([ADSI]'LDAP://RootDSE').SchemaNamingContext.ToString()
+                } #end If
 
-        # Hashtable containing the mappings between ClassSchema/AttributeSchema and GUID's
-        Try {
-            [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
-            [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+            } Catch {
 
-            Write-Verbose -Message 'The GUID map is null, empty, zero, or false.'
-            Write-Verbose -Message 'Getting the GUID value of each schema class and attribute'
-            #store the GUID value of each schema class and attribute
-            $Splat = @{
-                SearchBase = $Variables.SchemaNamingContext
-                LDAPFilter = '(schemaidguid=*)'
-                Properties = 'lDAPDisplayName', 'schemaIDGUID'
-            }
-            $AllSchema = Get-ADObject @Splat
+                Write-Error -Message '
+                    Something went wrong while trying to fill $Variables!
+                        Ensure that:
+                            * Machine is Domain Joined
+                            * Active Directory is available and working
+                            * Communication exist between this machine and AD'
 
-            Write-Verbose -Message 'Processing all schema class and attribute'
-            Foreach ($item in $AllSchema) {
-                # add current Guid to $TempMap
-                $TmpMap.Add($item.lDAPDisplayName, ([System.GUID]$item.schemaIDGUID).GUID)
-            } #end ForEach
+            } #end Try-Catch
 
-            # Include "ALL [nullGUID]"
-            $TmpMap.Add('All', $Constants.guidNull)
 
-            Write-Verbose -Message '$Variables.GuidMap was empty. Adding values to it!'
-            $Variables.GuidMap = $TmpMap
-        } catch {
-            Write-Error -Message 'Something went wrong while trying to fill $Variables.GuidMap!
-                Ensure that:
-                 * Machine is Domain Joined
-                 * Active Directory is available and working
-                 * Communication exist between this machine and AD'
-        }
+            # Well-Known SIDs
+            # Following functions must be the last ones to be called, otherwise error is thrown.
+            # Hashtable containing the mappings between ClassSchema/AttributeSchema and GUID's
+            If ($Variables.GuidMap.Count -eq 0) {
+                Try {
+                    [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+                    [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-        # Hashtable containing the mappings between SchemaExtendedRights and GUID's
-        Try {
-            [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
-            [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+                    Write-Verbose -Message '
+                        The GUID map is null, empty, zero, or false.
+                        Getting the GUID value of each schema class and attribute'
 
-            Write-Verbose -Message 'The Extended Rights map is null, empty, zero, or false.'
-            Write-Verbose -Message 'Getting the GUID value of each Extended attribute'
-            # store the GUID value of each extended right in the forest
-            $Splat = @{
-                SearchBase = ('CN=Extended-Rights,{0}' -f $Variables.configurationNamingContext)
-                LDAPFilter = '(objectclass=controlAccessRight)'
-                Properties = 'DisplayName', 'rightsGuid'
-            }
-            $AllExtended = Get-ADObject @Splat
+                    #store the GUID value of each schema class and attribute
+                    $Splat = @{
+                        SearchBase = $Variables.SchemaNamingContext
+                        LDAPFilter = '(schemaidguid=*)'
+                        Properties = 'lDAPDisplayName', 'schemaIDGUID'
+                    }
+                    $AllSchema = Get-ADObject @Splat
 
-            Write-Verbose -Message 'Processing all Extended attributes'
-            ForEach ($Item in $AllExtended) {
-                # add current Guid to $TempMap
-                $TmpMap.Add($Item.displayName, ([system.guid]$Item.rightsGuid).GUID)
-            } #end Foreach
+                    Write-Verbose -Message 'Processing all schema class and attribute'
+                    Foreach ($item in $AllSchema) {
 
-            # Include "ALL [nullGUID]"
-            $TmpMap.Add('All', $Constants.guidNull)
+                        # add current Guid to $TempMap
+                        $TmpMap.Add($item.lDAPDisplayName, ([System.GUID]$item.schemaIDGUID).GUID)
 
-            Write-Verbose -Message '$Variables.ExtendedRightsMap was empty. Adding values to it!'
-            $Variables.ExtendedRightsMap = $TmpMap
-        } Catch {
-            Write-Error -Message 'Something went wrong while trying to fill $Variables.ExtendedRightsMap!
-                Ensure that:
-                 * Machine is Domain Joined
-                 * Active Directory is available and working
-                 * Communication exist between this machine and AD'
-        }
+                    } #end ForEach
+
+                    # Include "ALL [nullGUID]"
+                    $TmpMap.Add('All', $Constants.guidNull)
+
+                    Write-Verbose -Message '$Variables.GuidMap was empty. Adding values to it!'
+                    $Variables.GuidMap = $TmpMap
+
+                } catch {
+
+                    Write-Error -Message '
+                        Something went wrong while trying to fill $Variables.GuidMap!
+                            Ensure that:
+                                * Machine is Domain Joined
+                                * Active Directory is available and working
+                                * Communication exist between this machine and AD'
+
+                } #end Try-Catch
+            } #end If
+
+            # Hashtable containing the mappings between SchemaExtendedRights and GUID's
+            If ($Variables.ExtendedRightsMap.Count -eq 0) {
+                Try {
+                    [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+                    [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+
+                    Write-Verbose -Message '
+                        The Extended Rights map is null, empty, zero, or false.
+                        Getting the GUID value of each Extended attribute'
+
+                    # store the GUID value of each extended right in the forest
+                    $Splat = @{
+                        SearchBase = ('CN=Extended-Rights,{0}' -f $Variables.configurationNamingContext)
+                        LDAPFilter = '(objectclass=controlAccessRight)'
+                        Properties = 'DisplayName', 'rightsGuid'
+                    }
+                    $AllExtended = Get-ADObject @Splat
+
+                    Write-Verbose -Message 'Processing all Extended attributes'
+                    ForEach ($Item in $AllExtended) {
+
+                        # add current Guid to $TempMap
+                        $TmpMap.Add($Item.displayName, ([system.guid]$Item.rightsGuid).GUID)
+
+                    } #end Foreach
+
+                    # Include "ALL [nullGUID]"
+                    $TmpMap.Add('All', $Constants.guidNull)
+
+                    Write-Verbose -Message '$Variables.ExtendedRightsMap was empty. Adding values to it!'
+                    $Variables.ExtendedRightsMap = $TmpMap
+
+                } Catch {
+
+                    Write-Error -Message '
+                    Something went wrong while trying to fill $Variables.ExtendedRightsMap!
+                        Ensure that:
+                            * Machine is Domain Joined
+                            * Active Directory is available and working
+                            * Communication exist between this machine and AD'
+
+                } #end Try-Catch
+            } #end If
+        } #end If
 
 
     } #end Process
 
     End {
     } #end End
-
-} #end Function
+} #end Function Initialize-ModuleVariable
