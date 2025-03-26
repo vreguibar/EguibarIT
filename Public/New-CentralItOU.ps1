@@ -2154,7 +2154,7 @@
 
         # GPO Admins
         # Create/Delete GPOs
-        Set-AdAclCreateDeleteGPO -Group $SL_GpoAdminRight
+        Set-AdAclCreateDeleteGPO -Group $SL_GpoAdminRight -Confirm:$false
         # Link existing GPOs to OUs
         Set-AdAclLinkGPO -Group $SL_GpoAdminRight
         # Change GPO options
