@@ -4,31 +4,52 @@
             Validates if the input string is a valid Global Unique Identifier (GUID).
 
         .DESCRIPTION
-            This cmdlet checks if the provided input string adheres to the structure of a valid GUID in Active Directory.
+            This cmdlet checks if the provided input string adheres to the structure of a valid GUID.
+            It uses a RegEx pattern to validate the GUID format which must be in the format:
+            "550e8400-e29b-41d4-a716-446655440000"
 
-            It is designed as a diagnostic tool to facilitate input validation for scripts and functions that manipulate Active Directory objects.
-
-        .PARAMETER ObjectDN
-            The distinguished name to validate. This parameter accepts a string representing the DN of an Active Directory object.
+        .PARAMETER ObjectGUID
+            The GUID string to validate. Must be in the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+            where x represents hexadecimal digits (0-9, a-f, A-F).
 
         .EXAMPLE
-            Test-IsValidGUID -ObjectDN 'CN=Darth Vader,OU=Users,DC=EguibarIT,DC=local'
+            Test-IsValidGUID -ObjectGUID '550e8400-e29b-41d4-a716-446655440000'
+            Returns $true as this is a valid GUID format.
 
-            Returns $true if the input string is a valid DN, $false otherwise.
+        .EXAMPLE
+            '550e8400-e29b-41d4-a716-446655440000' | Test-IsValidGUID
+            Shows pipeline input usage. Returns $true.
 
+        .EXAMPLE
+            Test-IsValidGUID -ObjectGUID 'invalid-guid'
+            Returns $false as this is not a valid GUID format.
+
+        .OUTPUTS
+            [bool]
+            Returns $true if the input is a valid GUID, $false otherwise.
 
         .NOTES
-            https://pscustomobject.github.io/powershell/howto/identity%20management/PowerShell-Check-If-String-Is-A-DN/
+            Used Functions:
+                Name                   ║ Module/Namespace
+                ═══════════════════════╬══════════════════════════════
+                Write-Verbose          ║ Microsoft.PowerShell.Utility
+                Write-Error            ║ Microsoft.PowerShell.Utility
+                Write-Debug            ║ Microsoft.PowerShell.Utility
 
-            Version:         1.1
-            DateModified:    09/Feb/2024
+        .NOTES
+            Version:         1.2
+            DateModified:    20/Mar/2024
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
-                Eguibar Information Technology S.L.
+                Eguibar IT
                 http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Private/Test-IsValidGUID.ps1
     #>
 
-    [CmdletBinding(ConfirmImpact = 'Low', SupportsShouldProcess = $false)]
+    [CmdletBinding(ConfirmImpact = 'Low',
+        SupportsShouldProcess = $false)]
     [OutputType([bool])]
 
     param (
@@ -39,12 +60,14 @@
             HelpMessage = 'String to be validated as Global Unique Identifier (GUID)',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [Alias('GUID', 'GlobalUniqueIdentifier')]
+        [Alias('GUID', 'GlobalUniqueIdentifier', 'Id')]
         [string]
         $ObjectGUID
     )
 
     Begin {
+
+        Set-StrictMode -Version Latest
 
         ##############################
         # Module imports
@@ -52,9 +75,9 @@
         ##############################
         # Variables Definition
 
-        $isValid = $false
+        [bool]$isValid = $false
 
-        Write-Verbose 'Begin block: Regex pattern for GUID validation initialized.'
+        Write-Debug 'Begin block: Regex pattern for GUID validation initialized.'
 
     } #end Begin
 
@@ -66,15 +89,13 @@
             #$isValid = $ObjectDN -match $distinguishedNameRegex
             $isValid = $ObjectGUID -match $Constants.GuidRegEx
 
-            # Provide verbose output
-            if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
-                Write-Verbose -Message ('GUID validation result: {0}' -f $isValid)
-            } #end If
+            Write-Verbose -Message ('GUID validation result: {0}' -f $isValid)
 
         } catch {
+
             # Handle exceptions gracefully
             Write-Error -Message 'Error when validating GUID'
-            Get-ErrorDetail -ErrorRecord $_
+
         } #end Try-Catch
 
     } #end Process
