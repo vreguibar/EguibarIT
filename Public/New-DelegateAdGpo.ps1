@@ -1,15 +1,50 @@
 ﻿function New-DelegateAdGpo {
     <#
         .Synopsis
-            Creates and Links new GPO
+             Creates and Links new GPO with delegated permissions.
+
         .DESCRIPTION
             Create new custom delegated GPO, Delegate rights to an existing group and links it to
-            the given OU.
-            This function can import settings from an existing GPO backup.
+            the given OU.Key features:
+            - Creates new GPO or modifies existing one
+            - Delegates permissions to specified security group
+            - Links GPO to target OU
+            - Optionally imports settings from GPO backup
+            - Disables user or computer settings based on scope
+            - Supports idempotent operations
+            - Implements security best practices
+
+        .PARAMETER gpoDescription
+            [String] Description of the GPO. Used to build the name. Only Characters a-z A-Z.
+            The final GPO name will be constructed as: [Scope]-[Description]
+
+        .PARAMETER gpoScope
+            [ValidateSet] Scope of the GPO:
+            - U: User settings (disables computer configuration)
+            - C: Computer settings (disables user configuration)
+
+        .PARAMETER gpoLinkPath
+            [String] Distinguished Name of the OU where the GPO will be linked.
+            Must be a valid AD path (CN=,DC=)
+
+        .PARAMETER GpoAdmin
+            [String] Security group that will be delegated GPO edit rights.
+            Group must exist in AD. Permissions granted: GpoEditDeleteModifySecurity
+
+        .PARAMETER gpoBackupID
+            [String] GUID of the GPO backup to import settings from.
+            Only used when restoring from backup.
+
+        .PARAMETER gpoBackupPath
+            [String] File system path containing the GPO backup.
+            Must be accessible and contain valid backup.
+
         .EXAMPLE
             New-DelegateAdGpo -gpoDescription MyNewGPO -gpoScope C -gpoLinkPath "OU=Servers,OU=eguibarit,OU=local" -GpoAdmin "SL_GpoRight"
+
         .EXAMPLE
             New-DelegateAdGpo -gpoDescription MyNewGPO -gpoScope C -gpoLinkPath "OU=Servers,OU=eguibarit,OU=local" -GpoAdmin "SL_GpoRight" -gpoBackupID '1D872D71-D961-4FCE-87E0-1CD368B5616F' -gpoBackupPath 'C:\PsScripts\Backups'
+
         .EXAMPLE
             $Splat = @{
                 gpoDescription = 'MyNewGPO'
@@ -20,43 +55,46 @@
                 gpoBackupPath  = 'C:\PsScripts\Backups'
             }
             New-DelegateAdGpo @Splat
-        .PARAMETER gpoDescription
-            Description of the GPO. Used to build the name. Only Characters a-z A-Z
-        .PARAMETER gpoScope
-            Scope of the GPO. U for Users and C for Computers DEFAULT is U. The non-used part of the GPO will get disabled
-        .PARAMETER gpoLinkPath
-            DistinguishedName where to link the newly created GPO
-        .PARAMETER GpoAdmin
-            Domain Local Group with GPO Rights to be assigned
-        .PARAMETER gpoBackupID
-            Restore GPO settings from backup using the BackupID GUID
-        .PARAMETER gpoBackupPath
-            Path where Backups are stored
 
         .OUTPUTS
-            Microsoft.GroupPolicy.Gpo
+        [Microsoft.GroupPolicy.Gpo]
+        Returns the created or modified GPO object.
 
         .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Get-CurrentErrorToDisplay              | EguibarIT
-                Get-ADDomaincontroller                 | ActiveDirectory
-                Get-GPO                                | GroupPolicy
-                Import-GPO                             | GroupPolicy
-                New-GPO                                | GroupPolicy
-                New-GPLink                             | GroupPolicy
-                Set-GPPermissions                      | GroupPolicy
+                Name                                  ║ Module/Namespace
+                ══════════════════════════════════════╬══════════════════════════════
+                Get-FunctionDisplay                   ║ EguibarIT
+                Get-AdObjectType                      ║ EguibarIT
+                Test-IsValidDN                        ║ EguibarIT
+                Get-ADDomainController                ║ ActiveDirectory
+                Get-GPO                               ║ GroupPolicy
+                Import-GPO                            ║ GroupPolicy
+                New-GPO                               ║ GroupPolicy
+                New-GPLink                            ║ GroupPolicy
+                Set-GPPermissions                     ║ GroupPolicy
+
         .NOTES
-            Version:         1.2
-            DateModified:    21/Oct/2021
+            Version:         1.3
+        DateModified:   31/Mar/2024
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
-                Eguibar Information Technology S.L.
+                Eguibar IT
                 http://www.eguibarit.com
+
+        .LINK
+        https://github.com/vreguibar/EguibarIT
+
+        .LINK
+            https://learn.microsoft.com/en-us/previous-versions/windows/desktop/wmi_v2/class-library/gppermissiontype-enumeration-microsoft-grouppolicy
+
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium', DefaultParameterSetName = 'DelegatedAdGpo')]
-    #[OutputType([Microsoft.GroupPolicy.Gpo])]
+    [CmdletBinding(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'Medium',
+        DefaultParameterSetName = 'DelegatedAdGpo'
+    )]
+    [OutputType([Microsoft.GroupPolicy.Gpo])]
 
     Param (
         # Param1 GPO description, used to generate name
@@ -64,9 +102,10 @@
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = 'Description of the GPO. Used to build the name.',
+            HelpMessage = 'Description of the GPO. Used to build the name (letters and numbers only).',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
+        [ValidatePattern('^[a-zA-Z0-9]+$')]
         [string]
         $gpoDescription,
 
@@ -89,7 +128,10 @@
             HelpMessage = 'DistinguishedName where to link the newly created GPO',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')]
+        [ValidateScript(
+            { Test-IsValidDN -ObjectDN $_ },
+            ErrorMessage = 'DistinguishedName provided is not valid! Please Check.'
+        )]
         [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [string]
         $gpoLinkPath,
@@ -125,26 +167,27 @@
             HelpMessage = 'Path where Backups are stored',
             ParameterSetName = 'GpoBackup',
             Position = 5)]
-        [ValidateScript({ if (Test-Path $_) {
-                    $true
-                } else {
-                    throw "Path $_ is not valid!"
-                }
-            })]
+        [ValidateScript(
+            { Test-Path $_ },
+            ErrorMessage = 'Backup path does not exist or is not accessible.')]
         [string]
         $gpoBackupPath
 
     )
 
     Begin {
-        $error.Clear()
+        Set-StrictMode -Version Latest
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToShortDateString(),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -155,7 +198,7 @@
         ##############################
         # Variables Definition
 
-        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         #$gpoAlreadyExist = [Microsoft.GroupPolicy.GroupPolicyObject]::New()
 
@@ -163,16 +206,22 @@
 
         $GpoAdmin = Get-ADObjectType -Identity $GpoAdmin
 
-        [system.string]$dcServer = (Get-ADDomainController -Discover -Service 'PrimaryDC').HostName
+        try {
+
+            [system.string]$dcServer = (Get-ADDomainController -Discover -Service 'PrimaryDC').HostName
+
+        } catch {
+
+            Write-Warning -Message 'Unable to locate primary domain controller'
+
+        } #end Try-Catch
 
     } # End Begin Section
 
     Process {
         # Check if the GPO already exist
         $gpoAlreadyExist = Get-GPO -Name $gpoName -ErrorAction SilentlyContinue
-
-        # Clean the error if object does not exist. No need to log.
-        $error.clear()
+        Write-Debug -Message ('Checking for existing GPO: {0}' -f $gpoName)
 
         if (-not $gpoAlreadyExist) {
 
@@ -189,7 +238,7 @@
 
             # https://learn.microsoft.com/en-us/previous-versions/windows/desktop/wmi_v2/class-library/gppermissiontype-enumeration-microsoft-grouppolicy
             # Give Rights to SL_GpoAdminRight
-            Write-Verbose -Message ('Add GpoAdminRight to {0}' -f $gpoAlreadyExist.Name)
+            Write-Debug -Message ('Add GpoAdminRight to {0}' -f $gpoAlreadyExist.Name)
             $Splat = @{
                 GUID            = $gpoAlreadyExist.Id
                 PermissionLevel = 'GpoEditDeleteModifySecurity'
@@ -205,17 +254,23 @@
             # Disable the corresponding Settings section of the GPO
             If ($gpoScope -eq 'C') {
                 if ($PSCmdlet.ShouldProcess("Disabling Users section on GPO '$gpoName'", 'Confirm disabling user section?')) {
-                    Write-Verbose -Message ('Disable Policy User Settings on GPO {0}' -f $gpoAlreadyExist.Name)
-                    $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
-                } #end If
-            } else {
-                if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'", 'Confirm disabling computer section?')) {
-                    Write-Verbose -Message ('Disable Policy Computer Settings on GPO {0}' -f $gpoAlreadyExist.Name)
-                    $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
-                } #end If
-            }
 
-            Write-Verbose -Message 'Add GPO-link to corresponding OU'
+                    Write-Debug -Message ('Disable Policy User Settings on GPO {0}' -f $gpoAlreadyExist.Name)
+                    $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
+
+                } #end If
+
+            } else {
+
+                if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'", 'Confirm disabling computer section?')) {
+
+                    Write-Debug -Message ('Disable Policy Computer Settings on GPO {0}' -f $gpoAlreadyExist.Name)
+                    $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
+
+                } #end If
+            } #end If-Else
+
+            Write-Debug -Message 'Add GPO-link to corresponding OU'
             $Splat = @{
                 GUID        = $gpoAlreadyExist.Id
                 Target      = $PSBoundParameters['gpoLinkPath']
@@ -223,7 +278,9 @@
                 Server      = $dcServer
             }
             if ($PSCmdlet.ShouldProcess("Linking GPO '$gpoName'", 'Link GPO?')) {
+
                 New-GPLink @Splat
+
             } #end If
 
             # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -235,6 +292,7 @@
             #Set-GPRegistryValue -Name $gpoName -key "HKCU\Software\Policies\Microsoft\Windows\Control Panel\Desktop" -ValueName ScreenSaveActive -Type String -value 1
 
         } else {
+
             Write-Verbose -Message ('
                 {0} Policy already exist.
                 Changing Permissions and disabling corresponding settings (User or Computer).' -f
@@ -242,7 +300,7 @@
             )
 
             # Give Rights to SL_GpoAdminRight
-            Write-Verbose -Message ('Add GpoAdminRight to {0}' -f $gpoName)
+            Write-Debug -Message ('Add GpoAdminRight to {0}' -f $gpoName)
             $Splat = @{
                 GUID            = $gpoAlreadyExist.Id
                 PermissionLevel = 'GpoEditDeleteModifySecurity'
@@ -251,6 +309,7 @@
                 Server          = $dcServer
             }
             if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", 'Confirm giving permissions?')) {
+
                 Set-GPPermissions @Splat
 
                 # WmiFilterFullControl
@@ -266,24 +325,31 @@
 
             # Disable the corresponding Settings section of the GPO
             If ($gpoScope -eq 'C') {
+
                 if ($PSCmdlet.ShouldProcess("Disabling Users section on GPO '$gpoName'", 'Confirm disabling user section?')) {
-                    Write-Verbose -Message 'Disable Policy User Settings'
+
+                    Write-Debug -Message 'Disable Policy User Settings'
                     $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
+
                 } #end If
             } else {
+
                 if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'", 'Confirm disabling computer section?')) {
-                    Write-Verbose -Message 'Disable Policy Computer Settings'
+
+                    Write-Debug -Message 'Disable Policy Computer Settings'
                     $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
+
                 } #end If
-            }
+            } #end If-Else
         } # End If
 
 
         # Check if Backup needs to be imported
-        If ($PSBoundParameters['gpoBackupID'] -and $PSBoundParameters['gpoBackupPath']) {
+        if ($PSBoundParameters.ContainsKey('gpoBackupID') -and
+            $PSBoundParameters.ContainsKey('gpoBackupPath')) {
 
             # Import the Backup
-            Write-Verbose -Message ('
+            Write-Debug -Message ('
                 Importing GPO Backup {0}
                 from path {1}
                 to GPO {2}' -f
@@ -297,20 +363,30 @@
                     path       = $PSBoundParameters['gpoBackupPath']
                 }
                 if ($PSCmdlet.ShouldProcess("Importing GPO Backup '$gpoBackupID' to GPO '$gpoName'", 'Confirm import')) {
+
                     Import-GPO @Splat
+
                 } #end If
+
             } Catch {
+
                 Write-Error -Message ('No valid backup was found on {0}!' -f $PSBoundParameters['gpoBackupPath'])
+
             } #end Try-Catch
         } # End If
 
     } # End Process Section
+
     End {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'creating GPO.'
-        )
-        Write-Verbose -Message $txt
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Footer) {
+
+            $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+                'creating GPO.'
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         return $gpoAlreadyExist
     } # End END Section
-}
+} #end Function New-DelegatedAdGpo

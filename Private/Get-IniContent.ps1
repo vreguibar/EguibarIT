@@ -1,122 +1,165 @@
 function Get-IniContent {
     <#
-      .Synopsis
-      Gets the content of an INI file
+      .SYNOPSIS
+        Gets the content of an INI file and returns it as a hashtable.
 
-      .Description
-      Gets the content of an INI file and returns it as a hashtable
+        .DESCRIPTION
+            Parses an INI file and returns a nested hashtable of its contents.
+            Supports sections, keys, values, and comments.
+            Handles files with or without sections.
 
-      .Notes
-      Author        : Oliver Lipkau <oliver@lipkau.net>
-      Blog        : http://oliver.lipkau.net/blog/
-      Source        : https://github.com/lipkau/PsIni
-      http://gallery.technet.microsoft.com/scriptcenter/ea40c1ef-c856-434b-b8fb-ebd7a76e8d91
-      Version        : 1.0 - 2010/03/12 - Initial release
-      1.1 - 2014/12/11 - Typo (Thx SLDR)
-      Typo (Thx Dave Stiff)
+        .PARAMETER FilePath
+            Specifies the path to the input INI file.
+            Accepts pipeline input.
+            Must be a valid file path.
 
-      #Requires -Version 2.0
+        .EXAMPLE
+            Get-IniContent -FilePath "C:\Config\settings.ini"
+            Returns the content of settings.ini as a nested hashtable.
 
-      .Inputs
-      System.String
+        .EXAMPLE
+            "C:\Config\app.ini" | Get-IniContent
+            Reads app.ini via pipeline and returns its content.
 
-      .Outputs
-      System.Collections.Hashtable
+        .EXAMPLE
+            $config = Get-IniContent "C:\Config\settings.ini"
+            $value = $config["Section"]["Key"]
+            Gets a specific value from the INI structure.
 
-      .Parameter FilePath
-      Specifies the path to the input file.
+        .OUTPUTS
+            System.Collections.Hashtable
 
-      .Example
-      $FileContent = Get-IniContent "C:\myinifile.ini"
-      -----------
-      Description
-      Saves the content of the c:\myinifile.ini in a hashtable called $FileContent
+        .NOTES
+            Used Functions:
+            Name                                   ║ Module/Namespace
+            ═══════════════════════════════════════╬══════════════════════════════
+            Write-Verbose                          ║ Microsoft.PowerShell.Utility
+            Write-Error                            ║ Microsoft.PowerShell.Utility
+            Get-FunctionDisplay                    ║ EguibarIT
 
-      .Example
-      $inifilepath | $FileContent = Get-IniContent
-      -----------
-      Description
-      Gets the content of the ini file passed through the pipe into a hashtable called $FileContent
+        .NOTES
+            Version:         2.0
+            DateModified:   26/Mar/2025
+            LastModifiedBy: Vicente Rodriguez Eguibar
+                        vicente@eguibar.com
+                        Eguibar IT
+                        http://www.eguibarit.com
 
-      .Example
-      C:\PS>$FileContent = Get-IniContent "c:\settings.ini"
-      C:\PS>$FileContent["Section"]["Key"]
-      -----------
-      Description
-      Returns the key "Key" of the section "Section" from the C:\settings.ini file
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Private/Get-IniContent.ps1
+    #>
 
-      .Link
-      Out-IniFile
-  #>
-
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [CmdletBinding(
+        SupportsShouldProcess = $false,
+        ConfirmImpact = 'Low'
+    )]
     [OutputType([System.Collections.Hashtable])]
 
     Param(
+        [Parameter(Mandatory = $true,
+            Position = 0,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            HelpMessage = 'Path to the INI file to be parsed')]
         [ValidateNotNullOrEmpty()]
-        [Parameter(ValueFromPipeline = $true, HelpMessage = 'Path and Filename to the ini file to be read', Mandatory = $true)]
-        [string]$FilePath
+        [ValidateScript({
+                if (-not (Test-Path -Path $_ -PathType Leaf)) {
+                    throw "File not found: $_"
+                } #end if
+                return $true
+            })]
+        [Alias('Path', 'ConfigFile')]
+        [string]
+        $FilePath
     )
 
     Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        Set-StrictMode -Version Latest
+
+        # Output header information
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToShortDateString(),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end if
 
         ##############################
         # Variables Definition
+
+        $script:ini = [ordered]@{}
+        $script:currentSection = $null
+        $script:commentCount = 0
+
     } #end Begin
 
     Process {
-        Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Processing file: $PSBoundParameters['FilePath']"
 
         Try {
             $ini = @{}
             switch -regex -file $PSBoundParameters['FilePath'] {
+
+                # Section
                 '^\[(.+)\]$' {
-                    # Section
-                    $section = $matches[1]
-                    $ini[$section] = @{}
-                    $CommentCount = 0
-                }
-                '^(;.*)$' {
-                    # Comment
-                    if (!($section)) {
-                        $section = 'No-Section'
-                        $ini[$section] = @{}
+                    $script:currentSection = $matches[1].Trim()
+                    $script:ini[$currentSection] = [ordered]@{}
+                    $script:commentCount = 0
+                    Write-Debug -Message ('Found section: {0}' -f $currentSection)
+                    continue
+                } #end Section
+
+                # Comment
+                '^;(.*)$' {
+                    if ($null -eq $script:currentSection) {
+                        $script:currentSection = 'NoSection'
+                        $script:ini[$currentSection] = [ordered]@{}
                     }
-                    $value = $matches[1]
-                    $CommentCount = $CommentCount + 1
-                    $name = 'Comment' + $CommentCount
-                    $ini[$section][$name] = $value
-                }
+                    $script:commentCount++
+                    $script:ini[$currentSection]["Comment$commentCount"] = $matches[1].Trim()
+                    Write-Debug -Message ('Found comment: {0}' -f $matches[1])
+                    continue
+                } #end Comment
+
+                # Key-Value Pair
                 '(.+?)\s*=\s*(.*)' {
-                    # Key
-                    if (!($section)) {
-                        $section = 'No-Section'
-                        $ini[$section] = @{}
+                    if ($null -eq $script:currentSection) {
+                        $script:currentSection = 'NoSection'
+                        $script:ini[$currentSection] = [ordered]@{}
                     }
-                    $name, $value = $matches[1..2]
-                    $ini[$section][$name] = $value
-                }
-            } #end Switch
+                    $key = $matches[1].Trim()
+                    $value = $matches[2].Trim()
+                    $script:ini[$currentSection][$key] = $value
+                    Write-Debug -Message ('Found key-value: {0} = {1}' -f $key, $value)
+                    continue
+                } #end Key-Value Pair
+
+            } #end switch
+
         } catch {
+
             Write-Error -Message "An error occurred while processing the file: $_"
             throw
+
         } #end Try-Catch
-        Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Finished Processing file: $PSBoundParameters['FilePath']"
 
     } # End Process
 
     End {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            ('reading content from {0} file  (Private Function).' -f $PSBoundParameters['FilePath'])
-        )
-        Write-Verbose -Message $txt
+        # Display function footer
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Footer) {
 
-        Return $ini
+            $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+                ('reading content from {0} file  (Private Function).' -f $PSBoundParameters['FilePath'])
+            )
+            Write-Verbose -Message $txt
+        } #end if
+
+        # Return the populated hashtable
+        return $script:ini
     } #end End
-} #end Function
+} #end Function Get-IniContent

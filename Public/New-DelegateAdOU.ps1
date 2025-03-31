@@ -1,12 +1,62 @@
 function New-DelegateAdOU {
     <#
         .Synopsis
-            Create New custom delegated AD OU
+            Creates new custom delegated Active Directory Organizational Unit.
+
         .DESCRIPTION
-            Create New custom delegated AD OU, and remove
-            some groups as Account Operators and Print Operators
+            Creates a new Organizational Unit (OU) in Active Directory with enhanced security
+            and delegation settings. Key features:
+            - Creates new OU with specified attributes
+            - Removes built-in groups like Account Operators and Print Operators
+            - Optionally removes Authenticated Users
+            - Supports cleaning ACLs and inheritance settings
+            - Implements security best practices
+            - Supports location-based attributes
+
+        .PARAMETER ouName
+            [String] Name of the OU. Must be 2-50 characters.
+
+        .PARAMETER ouPath
+            [String] LDAP path where this OU will be created.
+            Must be a valid Distinguished Name path.
+
+        .PARAMETER ouDescription
+            [String] Full description of the OU.
+            Supports detailed descriptions of OU purpose.
+
+        .PARAMETER ouCity
+            [String] City location for the OU.
+
+        .PARAMETER ouCountry
+            [String] Country location for the OU.
+
+        .PARAMETER ouStreetAddress
+            [String] Street address for the OU location.
+
+        .PARAMETER ouState
+            [String] State/Province for the OU location.
+
+        .PARAMETER ouZIPCode
+            [String] Postal/ZIP code for the OU location.
+
+        .PARAMETER strOuDisplayName
+            [String] Display name for the OU. Defaults to ouName if not specified.
+
+        .PARAMETER RemoveAuthenticatedUsers
+            [Switch] Remove Authenticated Users group.
+            CAUTION: This might affect GPO application to objects.
+
+        .PARAMETER CleanACL
+            [Switch] Remove specific non-inherited ACEs and enable inheritance.
+
         .EXAMPLE
-            New-DelegateAdOU OuName OuPath OuDescription ...
+            New-DelegateAdOU -ouName "T0-Admins" `
+                        -ouPath "OU=Admin,DC=EguibarIT,DC=local" `
+                        -ouDescription "Tier 0 Admin Objects" `
+                        -CleanACL
+
+        Creates a new Tier 0 admin OU with cleaned ACLs.
+
         .EXAMPLE
             $Splat = @{
                 ouPath        = 'OU=GOOD,OU=Sites,DC=EguibarIT,DC=local'
@@ -15,39 +65,45 @@ function New-DelegateAdOU {
                 ouDescription = 'Container for the secure computers'
             }
             New-DelegateAdOU @Splat
-        .PARAMETER ouName
-            [STRING] Name of the OU
-        .PARAMETER ouPath
-            [STRING] LDAP path where this ou will be created
-        .PARAMETER ouDescription
-            [STRING] Full description of the OU
-        .PARAMETER ouCity
-        .PARAMETER ouCountry
-        .PARAMETER ouStreetAddress
-        .PARAMETER ouState
-        .PARAMETER ouZIPCode
-        .PARAMETER strOuDisplayName
-        .PARAMETER RemoveAuthenticatedUsers
-            [Switch] Remove Authenticated Users. CAUTION! This might affect applying GPO to objects.
-        .PARAMETER CleanACL
-            [Switch] Remove Specific Non-Inherited ACE and enable inheritance.
+
+            Creates a new OU for remote sites with location attributes.
+
+        .OUTPUTS
+            [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]
+            Returns the created OU object.
+
         .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Get-CurrentErrorToDisplay              | EguibarIT
-                Get-AdOrganizationalUnit               | EguibarIT
-                Start-AdCleanOU                        | EguibarIT
-                Remove-SpecificACLandEnableInheritance | EguibarIT
+                Name                                  ║ Module
+                ══════════════════════════════════════╬════════════════════════
+                Get-AdOrganizationalUnit              ║ ActiveDirectory
+                New-ADOrganizationalUnit              ║ ActiveDirectory
+                Start-AdCleanOU                       ║ EguibarIT
+                Revoke-Inheritance                    ║ EguibarIT
+                Remove-AuthUser                       ║ EguibarIT.DelegationPS
+                Write-Verbose                         ║ Microsoft.PowerShell.Utility
+                Write-Warning                         ║ Microsoft.PowerShell.Utility
+                Write-Error                           ║ Microsoft.PowerShell.Utility
+
         .NOTES
-            Version:         1.2
-            DateModified:    01/Feb/2017
+            Version:         1.3
+        DateModified:   31/Mar/2024
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
-                Eguibar Information Technology S.L.
+                Eguibar IT
                 http://www.eguibarit.com
+
+        .LINK
+        https://github.com/vreguibar/EguibarIT
+
+        .LINK
+            https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models
+
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'Medium'
+    )]
 
     # https://docs.microsoft.com/en-us/dotnet/api/microsoft.activedirectory.management?view=activedirectory-management-10.0
     [OutputType([Microsoft.ActiveDirectory.Management.ADOrganizationalUnit])]
@@ -58,10 +114,14 @@ function New-DelegateAdOU {
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = 'Name of the OU',
+            HelpMessage = 'Name of the OU (2-50 characters)',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
         [ValidateLength(2, 50)]
+        [ValidatePattern(
+            '^[a-zA-Z0-9\s\-_]+$',
+            ErrorMessage = 'OU name can only contain letters, numbers, spaces, hyphens and underscores'
+        )]
         [string]
         $ouName,
 
@@ -73,7 +133,10 @@ function New-DelegateAdOU {
             HelpMessage = 'LDAP path where this ou will be created',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')]
+        [ValidateScript(
+            { Test-IsValidDN -ObjectDN $_ },
+            ErrorMessage = 'DistinguishedName provided is not valid! Please Check.'
+        )]
         [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [string]
         $ouPath,
@@ -165,18 +228,23 @@ function New-DelegateAdOU {
     )
 
     Begin {
-        $error.Clear()
+        Set-StrictMode -Version Latest
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToShortDateString(),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
 
+        Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
 
 
@@ -187,7 +255,8 @@ function New-DelegateAdOU {
         $ouNameDN = 'OU={0},{1}' -f $PSBoundParameters['ouName'], $PSBoundParameters['ouPath']
 
         $OUexists = [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]::New()
-        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+
     } #end Begin
 
     Process {
@@ -197,7 +266,9 @@ function New-DelegateAdOU {
         } # End If
 
         try {
-            # Try to get Ou
+            # Check if OU exists
+            Write-Debug -Message ('Checking for existing OU: {0}' -f $ouNameDN)
+
             $Splat = @{
                 Filter      = { distinguishedName -eq $ouNameDN }
                 SearchBase  = $Variables.AdDn
@@ -210,7 +281,9 @@ function New-DelegateAdOU {
                 # OU it does exists
                 Write-Warning -Message ('Organizational Unit {0} already exists. Exit the script.' -f $ouNameDN)
                 return
-            } else {
+            } #end If
+
+            if ($PSCmdlet.ShouldProcess("Creating the Organizational Unit '$OuName'")) {
                 Write-Verbose -Message ('Creating the {0} Organizational Unit' -f $PSBoundParameters['ouName'])
                 # Create    OU
                 $Splat = @{
@@ -219,60 +292,68 @@ function New-DelegateAdOU {
                     ProtectedFromAccidentalDeletion = $true
                 }
 
-                if ($PSBoundParameters['ouCity']) {
-                    $Splat.City = $PSBoundParameters['ouCity']
-                }
-                if ($PSBoundParameters['ouCountry']) {
-                    $Splat.Country = $PSBoundParameters['ouCountry']
-                }
-                if ($PSBoundParameters['ouDescription']) {
-                    $Splat.Description = $PSBoundParameters['ouDescription']
-                }
-                if ($PSBoundParameters['strOuDisplayName']) {
-                    $Splat.DisplayName = $PSBoundParameters['strOuDisplayName']
-                }
-                if ($PSBoundParameters['ouZIPCode']) {
-                    $Splat.PostalCode = $PSBoundParameters['ouZIPCode']
-                }
-                if ($PSBoundParameters['ouStreetAddress']) {
-                    $Splat.StreetAddress = $PSBoundParameters['ouStreetAddress']
-                }
-                if ($PSBoundParameters['ouState']) {
-                    $Splat.State = $PSBoundParameters['ouState']
+                # Add optional parameters if specified
+                $optionalParams = @{
+                    City          = 'ouCity'
+                    Country       = 'ouCountry'
+                    Description   = 'ouDescription'
+                    DisplayName   = 'strOuDisplayName'
+                    PostalCode    = 'ouZIPCode'
+                    StreetAddress = 'ouStreetAddress'
+                    State         = 'ouState'
                 }
 
-                if ($PSCmdlet.ShouldProcess("Creating the Organizational Unit '$OuName'")) {
-                    $OUexists = New-ADOrganizationalUnit @Splat
-                }
-            } #end If-Else
+                foreach ($param in $optionalParams.GetEnumerator()) {
+
+                    if ($PSBoundParameters.ContainsKey($param.Value)) {
+
+                        $Splat[$param.Key] = $PSBoundParameters[$param.Value]
+
+                    } #end If
+                } #end Foreach
+
+                # Create the OU
+                $OUexists = New-ADOrganizationalUnit @Splat
+            }
+
         } catch {
+
             Write-Error -Message ('Error creating OU: {0}' -f $_)
-            ###Get-CurrentErrorToDisplay -CurrentError $error[0]
             throw
+
         } #end Try-Catch
 
         # Remove "Account Operators" and "Print Operators" built-in groups from OU. Any unknown/UnResolvable SID will be removed.
+        Write-Debug -Message ('Cleaning OU permissions: {0}' -f $ouNameDN)
         Start-AdCleanOU -LDAPpath $ouNameDN -RemoveUnknownSIDs
 
-        try {
-            if ($PSBoundParameters['CleanACL']) {
-                if ($PSCmdlet.ShouldProcess("Removing specific Non-Inherited ACE and enabling inheritance for '$OuName'")) {
-                    #Remove-SpecificACLandEnableInheritance -LDAPpath $ouNameDN
-                    Revoke-Inheritance -LDAPpath $ouNameDN -RemoveInheritance -KeepPermissions
-                }
-            } #end If
-        } catch {
-            Write-Error -Message ('Error cleaning ACL: {0}' -f $_)
-            throw
-        } #end Try-Catch
+        # Handle ACL cleaning if requested
+        if ($CleanACL) {
+
+            Write-Verbose -Message ('Cleaning ACL inheritance: {0}' -f $ouNameDN)
+            Revoke-Inheritance -LDAPpath $ouNameDN -RemoveInheritance -KeepPermissions
+
+        } #end If
+
+        # Remove Authenticated Users if requested
+        if ($RemoveAuthenticatedUsers) {
+
+            Write-Verbose -Message ('Removing Authenticated Users from: {0}' -f $ouNameDN)
+            Remove-AuthUser -LDAPPath $ouNameDN
+
+        } #end If
     } #end Process
 
     End {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'creating new delegated OU.'
-        )
-        Write-Verbose -Message $txt
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Footer) {
+
+            $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+                'creating new delegated OU.'
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         return $OUexists
     } #end End
-} #end Function
+} #end Function New-DelegateAdOU

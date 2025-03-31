@@ -1,169 +1,234 @@
 ﻿Function Out-IniFile {
     <#
-      .Synopsis
-      Write hash content to INI file
+        .SYNOPSIS
+            Write hash content to INI file
 
-      .Description
-      Write hash content to INI file
+        .DESCRIPTION
+            Writes a hashtable's content to an INI file with support for:
+            - Sections and key-value pairs
+            - Comments
+            - Multiple encodings
+            - File append mode
+            - Read-only file overwrite
 
-      .Notes
-      Author        : Oliver Lipkau <oliver@lipkau.net>
-      Blog        : http://oliver.lipkau.net/blog/
-      Source        : https://github.com/lipkau/PsIni
-      http://gallery.technet.microsoft.com/scriptcenter/ea40c1ef-c856-434b-b8fb-ebd7a76e8d91
-      Version        : 1.0 - 2010/03/12 - Initial release
-      1.1 - 2012/04/19 - Bugfix/Added example to help (Thx Ingmar Verheij)
-      1.2 - 2014/12/11 - Improved handling for missing output file (Thx SLDR)
+        .PARAMETER Append
+            Adds the output to the end of an existing file, instead of replacing the file contents.
 
-      #Requires -Version 2.0
+        .PARAMETER Encoding
+            Specifies the character encoding. Default is Unicode.
+            Valid values: Unicode, UTF7, UTF8, UTF32, ASCII, BigEndianUnicode, Default, OEM
 
-      .Inputs
-      System.String
-      System.Collections.Hashtable
+        .PARAMETER FilePath
+            Path to the output INI file.
 
-      .Outputs
-      System.IO.FileSystemInfo
+        .PARAMETER Force
+            Allows overwriting read-only files.
 
-      .Parameter Append
-      Adds the output to the end of an existing file, instead of replacing the file contents.
+        .PARAMETER InputObject
+            Hashtable containing the INI content to write.
 
-      .Parameter InputObject
-      Specifies the Hashtable to be written to the file. Enter a variable that contains the objects or type a command or expression that gets the objects.
+        .PARAMETER PassThru
+            Returns the file object after writing.
 
-      .Parameter FilePath
-      Specifies the path to the output file.
+        .EXAMPLE
+            $config = @{
+                'Section1' = @{
+                    'Key1' = 'Value1'
+                    'Key2' = 'Value2'
+                }
+            }
+            Out-IniFile -InputObject $config -FilePath 'C:\config.ini'
 
-      .Parameter Encoding
-      Specifies the type of character encoding used in the file. Valid values are "Unicode", "UTF7",
-      "UTF8", "UTF32", "ASCII", "BigEndianUnicode", "Default", and "OEM". "Unicode" is the default.
+        .EXAMPLE
+            $config | Out-IniFile -FilePath 'C:\config.ini' -Force -Encoding UTF8
 
-      "Default" uses the encoding of the system's current ANSI code page.
+        .OUTPUTS
+            System.IO.FileSystemInfo when using -PassThru
+            Void otherwise
 
-      "OEM" uses the current original equipment manufacturer code page identifier for the operating
-      system.
+        .NOTES
+            Used Functions:
+            Name                                   ║ Module/Namespace
+            ═══════════════════════════════════════╬══════════════════════════════
+            Write-Verbose                          ║ Microsoft.PowerShell.Utility
+            Write-Error                            ║ Microsoft.PowerShell.Utility
+            New-Item                               ║ Microsoft.PowerShell.Management
+            Get-Item                               ║ Microsoft.PowerShell.Management
+            Add-Content                            ║ Microsoft.PowerShell.Management
+            Get-FunctionDisplay                    ║ EguibarIT
 
-      .Parameter Force
-      Allows the cmdlet to overwrite an existing read-only file. Even using the Force parameter, the cmdlet cannot override security restrictions.
+        .NOTES
+            Version:         2.0
+            DateModified:   26/Mar/2025
+            LastModifiedBy: Vicente Rodriguez Eguibar
+                        vicente@eguibar.com
+                        Eguibar IT
+                        http://www.eguibarit.com
 
-      .Parameter PassThru
-      Passes an object representing the location to the pipeline. By default, this cmdlet does not generate any output.
+            Based on work by: Oliver Lipkau <oliver@lipkau.net>
+            Source: https://github.com/lipkau/PsIni
 
-      .Example
-      Out-IniFile $IniVar "C:\myinifile.ini"
-      -----------
-      Description
-      Saves the content of the $IniVar Hashtable to the INI File c:\myinifile.ini
+        .LINK
+            https://github.com/vreguibar/eguibarit
+    #>
 
-      .Example
-      $IniVar | Out-IniFile "C:\myinifile.ini" -Force
-      -----------
-      Description
-      Saves the content of the $IniVar Hashtable to the INI File c:\myinifile.ini and overwrites the file if it is already present
-
-      .Example
-      $file = Out-IniFile $IniVar "C:\myinifile.ini" -PassThru
-      -----------
-      Description
-      Saves the content of the $IniVar Hashtable to the INI File c:\myinifile.ini and saves the file into $file
-
-      .Example
-      $Category1 = @{“Key1”=”Value1”;”Key2”=”Value2”}
-      $Category2 = @{“Key1”=”Value1”;”Key2”=”Value2”}
-      $NewINIContent = @{“Category1”=$Category1;”Category2”=$Category2}
-      Out-IniFile -InputObject $NewINIContent -FilePath "C:\MyNewFile.INI"
-      -----------
-      Description
-      Creating a custom Hashtable and saving it to C:\MyNewFile.INI
-      .Link
-      Get-IniContent
-  #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [CmdletBinding(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'Low'
+    )]
+    [OutputType([System.IO.FileSystemInfo], ParameterSetName = 'PassThru')]
     [OutputType([void])]
 
     Param(
-        [switch]$Append,
+        [Parameter(Position = 0)]
+        [switch]
+        $Append,
 
+        [Parameter(Position = 1)]
         [ValidateSet('Unicode', 'UTF7', 'UTF8', 'UTF32', 'ASCII', 'BigEndianUnicode', 'Default', 'OEM', ignorecase = $false)]
         [PSDefaultValue(Help = 'Default Value is "Unicode"')]
-        [string]$Encoding = 'Unicode',
+        [string]
+        $Encoding = 'Unicode',
 
+        [Parameter(Mandatory = $true,
+            Position = 2,
+            HelpMessage = 'Path to the output INI file')]
         [ValidateNotNullOrEmpty()]
-        [Parameter(Mandatory = $true, HelpMessage = 'Path and Filename to write the file to.')]
-        [string]$FilePath,
+        [Alias('Path', 'File')]
+        [string]
+        $FilePath,
 
-        [switch]$Force,
+        [Parameter(Position = 3)]
+        [switch]
+        $Force,
 
-        [ValidateNotNullOrEmpty()]
-        [Parameter(ValueFromPipeline = $true,
-            HelpMessage = 'The HashTable object name to create the file from',
-            Mandatory = $true)]
-        [Hashtable]$InputObject,
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            HelpMessage = 'Hashtable containing INI content')]
+        [ValidateNotNull()]
+        [Alias('Hash', 'Content')]
+        [hashtable]
+        $InputObject,
 
-        [switch]$Passthru
+        [Parameter(Position = 4)]
+        [switch]
+        $Passthru
     )
 
     Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        Set-StrictMode -Version Latest
+
+        # Output header information
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToShortDateString(),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Variables Definition
+
+        # StringBuilder for better performance
+        $sb = [System.Text.StringBuilder]::new()
 
     } #end Begin
 
     Process {
 
-        if ($PSBoundParameters['Append']) {
-            $outfile = Get-Item -Path $PSBoundParameters['FilePath']
-        } else {
-            $outfile = New-Item -ItemType file -Path $PSBoundParameters['FilePath'] -Force:$PSBoundParameters['Force']
-        } #end If-Else
+        try {
+            # Create or get the file
+            if ($PSBoundParameters['Append']) {
 
-        if (!($outfile)) {
-            Throw 'Could not create File'
-        } #end If
+                $outFile = Get-Item -Path $FilePath -ErrorAction Stop
+                Write-Debug -Message ('Appending to existing file: {0}' -f $FilePath)
 
-        foreach ($i in $InputObject.keys) {
-
-            if (!($($InputObject[$i].GetType().Name) -eq 'Hashtable')) {
-                #No Sections
-                Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing key: $i"
-                Add-Content -Path $outfile -Value "$i=$($InputObject[$i])" -Encoding $PSBoundParameters['Encoding']
             } else {
-                #Sections
-                Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing Section: [$i]"
-                Add-Content -Path $outfile -Value "[$i]" -Encoding $PSBoundParameters['Encoding']
 
-                Foreach ($j in $($InputObject[$i].keys | Sort-Object)) {
+                if ($PSCmdlet.ShouldProcess($FilePath, 'Create new INI file')) {
 
-                    if ($j -match '^Comment[\d]+') {
-                        Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing comment: $j"
-                        Add-Content -Path $outfile -Value "$($InputObject[$i][$j])" -Encoding $PSBoundParameters['Encoding']
-                    } else {
-                        Write-Verbose -Message "$($myInvocation.MyCommand.Name):: Writing key: $j"
-                        Add-Content -Path $outfile -Value "$j=$($InputObject[$i][$j])" -Encoding $PSBoundParameters['Encoding']
-                    } #end If-Else
+                    $outFile = New-Item -ItemType File -Path $FilePath -Force:$Force -ErrorAction Stop
+                    Write-Debug -Message ('Created new file: {0}' -f $FilePath)
 
-                } #end Foreach
+                } #End If
 
-                Add-Content -Path $outfile -Value '' -Encoding $PSBoundParameters['Encoding']
             } #end If-Else
-        } #end Foreach
 
-        if ($PSBoundParameters['Passthru']) {
-            Return $outfile
-        }
+            if (-not $outFile) {
+                Throw 'Could not create File'
+            } #end If
+
+            # Process each key in the hashtable
+            foreach ($section in $InputObject.Keys) {
+
+                Write-Debug -Message ('Processing section: {0}' -f $section)
+
+                if ($InputObject[$section] -isnot [hashtable]) {
+
+                    # Direct key-value pair
+                    [void]$sb.AppendLine('{0}={1}' -f $section, $InputObject[$section])
+                    Write-Debug -Message ('Writing key: {0}' -f $section)
+
+                } else {
+
+                    # Section with nested keys
+                    [void]$sb.AppendLine('[{0}]' -f $section)
+                    Write-Debug -Message ('Writing section: [{0}]' -f $section)
+
+                    foreach ($key in ($InputObject[$section].Keys | Sort-Object)) {
+
+                        if ($key -match '^Comment[\d]+') {
+
+                            [void]$sb.AppendLine($InputObject[$section][$key])
+                            Write-Debug -Message ('Writing comment: {0}' -f $InputObject[$section][$key])
+
+                        } else {
+
+                            [void]$sb.AppendLine('{0}={1}' -f $key, $InputObject[$section][$key])
+                            Write-Debug -Message ('Writing key: {0}' -f $key)
+                        } #end If-Else
+
+                    } #end Foreach
+
+                    [void]$sb.AppendLine()
+                } #end If-Else
+            } #end Foreach
+
+            # Write content to file
+            if ($PSCmdlet.ShouldProcess($FilePath, 'Write content')) {
+
+                Add-Content -Path $outFile -Value $sb.ToString() -Encoding $Encoding -ErrorAction Stop
+
+            } #end If
+
+            if ($PSBoundParameters['Passthru']) {
+                Return $outfile
+            } #end If
+
+        } catch {
+
+            Write-Error -Message ('Failed to write INI file: {0}' -f $_.Exception.Message)
+            throw
+
+        } #end Try-Catch
+
     } #end Process
 
     End {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'writing to INI file (Private Function).'
-        )
-        Write-Verbose -Message $txt
+
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Footer) {
+
+            $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+                'writing to INI file (Private Function).'
+            )
+            Write-Verbose -Message $txt
+        } #end If
+
     } #end End
 
-} #end Function
+} #end Function Out-IniFile

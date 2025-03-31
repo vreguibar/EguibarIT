@@ -1,71 +1,101 @@
 ﻿function New-AdDelegatedGroup {
     <#
-    .SYNOPSIS
-        Same as New-AdGroup but with error handling, Security changes and login
-    .DESCRIPTION
-        Native New-AdGroup throws an error exception when the group already exists. This error is handled
-        as a "correct" within this function due the fact that group might already exist and operation
-        should continue after writing a log.
-    .EXAMPLE
-        New-AdDelegatedGroup -Name "Poor Admins" -GroupCategory Security -GroupScope DomainLocal
-        -DisplayName "Poor Admins" -Path 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local' -Description 'New Admin Group'
-    .EXAMPLE
-        $splat = @{
-            Name                          = 'Poor Admins'
-            GroupCategory                 = 'Security'
-            GroupScope                    = 'DomainLocal'
-            DisplayName                   = 'Poor Admins'
-            Path                          = 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local'
-            Description                   = 'New Admin Group'
-            ProtectFromAccidentalDeletion = $true
-        }
-        New-AdDelegatedGroup @Splat
-    .PARAMETER Name
-        [STRING] Name of the group to be created. SamAccountName
-    .PARAMETER GroupCategory
-        [ValidateSet] Group category, either Security or Distribution
-    .PARAMETER GroupScope
-        [ValidateSet] Group Scope, either DomainLocal, Global or Universal
-    .PARAMETER DisplayName
-        [STRING] Display Name of the group to be created
-    .PARAMETER path
-        [STRING] DistinguishedName of the container where the group will be created.
-    .PARAMETER Description
-        [STRING] Description of the group.
-    .PARAMETER ProtectFromAccidentalDeletion
-        [Switch] Protect from accidental deletion.
-    .PARAMETER RemoveAccountOperators
-        [Switch] Remove Account Operators Built-In group
-    .PARAMETER RemoveEveryone
-        [Switch] Remove Everyone Built-In group
-    .PARAMETER RemoveAuthUsers
-        [Switch] Remove Authenticated Users Built-In group
-    .PARAMETER RemovePreWin2000
-        [Switch] Remove Pre-Windows 2000 Built-In group
-    .NOTES
-        Used Functions:
-            Name                                   | Module
-            ---------------------------------------|--------------------------
-            Get-CurrentErrorToDisplay              | EguibarIT
-            Get-FunctionDisplay                    | EguibarIT
-            Remove-AccountOperator                 | EguibarIT.DelegationPS
-            Remove-Everyone                        | EguibarIT.DelegationPS
-            Remove-AuthUser                        | EguibarIT.DelegationPS
-            Remove-PreWin2000                      | EguibarIT.DelegationPS
-            Get-AdGroup                            | ActiveDirectory
-            Move-ADObject                          | ActiveDirectory
-            New-ADGroup                            | ActiveDirectory
-            Set-AdGroup                            | ActiveDirectory
-            Set-AdObject                           | ActiveDirectory
-    .NOTES
-        Version:         1.1
-        DateModified:    15/Feb/2017
-        LasModifiedBy:   Vicente Rodriguez Eguibar
-            vicente@eguibar.com
-            Eguibar Information Technology S.L.
-            http://www.eguibarit.com
+        .SYNOPSIS
+            Creates or modifies AD groups with enhanced security settings and error handling.
+
+        .DESCRIPTION
+            Creates a new Active Directory group or modifies an existing one with additional security
+            settings beyond the standard New-ADGroup cmdlet capabilities. The function:
+            - Handles group existence checks gracefully
+            - Implements security best practices
+            - Removes built-in groups from ACLs
+            - Supports tiered administration model
+            - Is fully idempotent - running multiple times produces same result
+
+            The function follows the Active Directory tiering model and adheres to security best practices.
+
+        .EXAMPLE
+            New-AdDelegatedGroup -Name "Poor Admins" -GroupCategory Security -GroupScope DomainLocal
+            -DisplayName "Poor Admins" -Path 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local' -Description 'New Admin Group'
+            -ProtectFromAccidentalDeletion -RemoveAuthUsers
+
+        .EXAMPLE
+            $splat = @{
+                Name                          = 'Poor Admins'
+                GroupCategory                 = 'Security'
+                GroupScope                    = 'DomainLocal'
+                DisplayName                   = 'Poor Admins'
+                Path                          = 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local'
+                Description                   = 'New Admin Group'
+                ProtectFromAccidentalDeletion = $true
+            }
+            New-AdDelegatedGroup @Splat
+
+        .PARAMETER Name
+            [STRING] Name of the group to be created. SamAccountName
+
+        .PARAMETER GroupCategory
+            [ValidateSet] Group category, either Security or Distribution
+
+        .PARAMETER GroupScope
+            [ValidateSet] Group Scope, either DomainLocal, Global or Universal
+
+        .PARAMETER DisplayName
+            [STRING] Display Name of the group to be created
+
+        .PARAMETER path
+            [STRING] DistinguishedName of the container where the group will be created.
+
+        .PARAMETER Description
+            [STRING] Description of the group.
+
+        .PARAMETER ProtectFromAccidentalDeletion
+            [Switch] Protect from accidental deletion.
+
+        .PARAMETER RemoveAccountOperators
+            [Switch] Remove Account Operators Built-In group
+
+        .PARAMETER RemoveEveryone
+            [Switch] Remove Everyone Built-In group
+
+        .PARAMETER RemoveAuthUsers
+            [Switch] Remove Authenticated Users Built-In group
+
+        .PARAMETER RemovePreWin2000
+            [Switch] Remove Pre-Windows 2000 Built-In group
+
+        .NOTES
+            Used Functions:
+            Name                                       ║ Module/Namespace
+            ═══════════════════════════════════════════╬══════════════════════════════
+            Get-FunctionDisplay                        ║ EguibarIT
+            Remove-AccountOperator                     ║ EguibarIT.DelegationPS
+            Remove-Everyone                            ║ EguibarIT.DelegationPS
+            Remove-AuthUser                            ║ EguibarIT.DelegationPS
+            Remove-PreWin2000                          ║ EguibarIT.DelegationPS
+            Get-AdGroup                                ║ ActiveDirectory
+            Move-ADObject                              ║ ActiveDirectory
+            New-ADGroup                                ║ ActiveDirectory
+            Set-AdGroup                                ║ ActiveDirectory
+            Set-AdObject                               ║ ActiveDirectory
+
+        .NOTES
+            Version:         1.2
+            DateModified:    31/Mar/2024
+            LasModifiedBy:   Vicente Rodriguez Eguibar
+                vicente@eguibar.com
+                Eguibar Information Technology S.L.
+                http://www.eguibarit.com
+
+        .LINK
+        https://github.com/vreguibar/EguibarIT
+        .LINK
+            https://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'Medium'
+    )]
     [OutputType([Microsoft.ActiveDirectory.Management.AdGroup])]
 
     Param (
@@ -74,9 +104,11 @@
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $False,
-            HelpMessage = 'Name of the group to be created. SamAccountName',
+            HelpMessage = 'Name of the group to be created. SamAccountName (1-256 chars, alphanumeric and -_.)',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
+        [ValidateLength(1, 256)]
+        [ValidatePattern('^[A-Za-z0-9\s\-_.]+$')]
         [Alias('GroupName', 'GroupID', 'Identity', 'SamAccountName')]
         $Name,
 
@@ -121,7 +153,10 @@
             HelpMessage = 'DistinguishedName of the container where the group will be created.',
             Position = 4)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')]
+        [ValidateScript(
+            { Test-IsValidDN -ObjectDN $_ },
+            ErrorMessage = 'DistinguishedName provided is not valid! Please Check.'
+        )]
         [Alias('DN', 'DistinguishedName', 'LDAPpath')]
         [System.String]
         $path,
@@ -190,12 +225,18 @@
     )
 
     Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        Set-StrictMode -Version Latest
+
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToShortDateString(),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -206,8 +247,9 @@
         ##############################
         # Variables Definition
 
-        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
         $newGroup = [Microsoft.ActiveDirectory.Management.AdGroup]::New()
+
     } # End Begin Section
 
     Process {
@@ -217,7 +259,7 @@
 
         if (-not $groupExists) {
 
-            Write-Verbose -Message ('Group {0} does not exists. Creating it!' -f $Name)
+            Write-Debug -Message ('Group {0} does not exists. Creating it!' -f $Name)
 
             if ($PSCmdlet.ShouldProcess("$Name", 'Group does not exist. Should it be created?')) {
 
@@ -233,14 +275,19 @@
                         ErrorAction    = 'Stop'
                     }
                     $newGroup = New-ADGroup @Splat
-                    Write-Verbose -Message ('Group {0} created successfully.' -f $Name)
+                    Write-Debug -Message ('Group {0} created successfully.' -f $Name)
 
                 } catch {
+
                     Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
                     throw
+
                 } #end Try-Catch
+
             } #end If
+
         } else {
+
             Write-Warning -Message ('Groups {0} already exists. Modifying the group!' -f $PSBoundParameters['Name'])
 
             # Remove ProtectedFromAccidentalDeletion flag
@@ -258,22 +305,31 @@
                     ErrorAction   = 'Stop'
                 }
                 if ($Force -or $PSCmdlet.ShouldProcess('Existing group. Should it be Modified?')) {
+
                     $newGroup = Set-ADGroup @Splat
+
                     if (-not $newGroup) {
+
                         Start-Sleep 2
                         $newGroup = Get-ADGroup $groupExists
+
                     } #end If
 
-                    Write-Verbose -Message ('Existing group {0} modified.' -f $newGroup)
+                    Write-Debug -Message ('Existing group {0} modified.' -f $newGroup)
                 } #end If
 
                 If (-not($newGroup.DistinguishedName -contains $PSBoundParameters['path'])) {
+
                     # Move object to the corresponding OU
                     Move-ADObject -Identity $newGroup.DistinguishedName -TargetPath $PSBoundParameters['path'] -ErrorAction Stop
+
                 } #end If
+
             } catch {
-                throw
+
                 Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
+                throw
+
             } #end Try-Catch
 
         } #end If-Else
@@ -282,52 +338,71 @@
 
         # Get the group again and store it on variable.
         try {
+
             $newGroup = Get-ADGroup -Filter { SamAccountName -eq $Name } -ErrorAction Stop
-            Write-Verbose -Message ('Refreshing group {0}' -f $name)
+            Write-Debug -Message ('Refreshing group {0}' -f $name)
+
         } catch {
+
             Write-Error -Message ('Error while trying to refresh group {0}' -f $name)
-        }
+
+        } #end Try-Catch
 
 
         # Protect From Accidental Deletion
         If ($PSBoundParameters['ProtectFromAccidentalDeletion']) {
+
             Set-ADObject -Identity $newGroup.DistinguishedName -ProtectedFromAccidentalDeletion $true
-            Write-Verbose -Message ('Group {0} Protect From Accidental Deletion' -f $name)
-        }
+            Write-Debug -Message ('Group {0} Protect From Accidental Deletion' -f $name)
+
+        } #end If
 
         # Remove Account Operators Built-In group
         If ($PSBoundParameters['RemoveAccountOperators']) {
+
             Remove-AccountOperator -LDAPPath $newGroup.DistinguishedName
-            Write-Verbose -Message ('Group {0} Remove Account Operators' -f $name)
-        }
+            Write-Debug -Message ('Group {0} Remove Account Operators' -f $name)
+
+        } #end If
 
         # Remove Everyone Built-In group
         If ($PSBoundParameters['RemoveEveryone']) {
+
             Remove-Everyone -LDAPPath $newGroup.DistinguishedName
-            Write-Verbose -Message ('Group {0} Remove Everyone' -f $name)
-        }
+            Write-Debug -Message ('Group {0} Remove Everyone' -f $name)
+
+        } #end If
 
         # Remove Authenticated Users Built-In group
         If ($PSBoundParameters['RemoveAuthUsers']) {
+
             Remove-AuthUser -LDAPPath $newGroup.DistinguishedName
-            Write-Verbose -Message ('Group {0} Remove Authenticated Users' -f $name)
-        }
+            Write-Debug -Message ('Group {0} Remove Authenticated Users' -f $name)
+
+        } #end If
 
         # Remove Pre-Windows 2000 Built-In group
         If ($PSBoundParameters['RemovePreWin2000']) {
+
             Remove-PreWin2000 -LDAPPath $newGroup.DistinguishedName
-            Write-Verbose -Message ('Group {0} Remove Pre-Windows 2000' -f $name)
-        }
+            Write-Debug -Message ('Group {0} Remove Pre-Windows 2000' -f $name)
+
+        } #end If
 
     } # End Process section
 
     End {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'creating Delegated Group.'
-        )
-        Write-Verbose -Message $txt
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Footer) {
+
+            $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+                'creating Delegated Group.'
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         #Return the group object.
         return $newGroup
     } #end End
-} #end Function
+
+} #end Function New-AdDelegatedGroup
