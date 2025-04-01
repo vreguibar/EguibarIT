@@ -1,34 +1,125 @@
 Function New-LAPSobject {
     <#
-        .Synopsis
-            Create Local Administration Password Services (LAPS) Objects and Delegations
+        .SYNOPSIS
+            Configures and manages Local Administrator Password Solution (LAPS) objects and delegations in Active Directory.
+
         .DESCRIPTION
-            Create the LAPS Objects used to manage
-            this organization by following the defined Delegation Model.
-        .EXAMPLE
-            New-LAPSobjects -PawOuDn "OU=PAW,OU=Admin,DC=EguibarIT,DC=local" -ServersOuDn "OU=Servers,DC=EguibarIT,DC=local" -SitesOuDn "OU=Sites,DC=EguibarIT,DC=local"
+            This function provides comprehensive LAPS configuration and management capabilities:
+
+            Key Features:
+            - Extends AD schema for LAPS if not already configured
+            - Creates and configures LAPS delegations across all infrastructure tiers
+            - Sets up tiered PAW (Privileged Access Workstation) LAPS permissions
+            - Implements site-specific LAPS delegations
+            - Supports bulk operations for multiple OUs
+            - Provides detailed logging and error handling
+
+            The function follows Microsoft's tiered administration model:
+            - Tier 0: Domain Controllers and critical infrastructure
+            - Tier 1: Member servers and infrastructure services
+            - Tier 2: User workstations and devices
+
+            Prerequisites:
+            - Active Directory PowerShell module
+            - LAPS PowerShell module
+            - Schema Admin rights (for initial setup)
+            - Enterprise Admin rights (for delegation setup)
+            - Valid configuration XML file
+
+            Configuration Requirements:
+            The XML file must contain:
+            - Naming conventions for groups and OUs
+            - Tier definitions and delegations
+            - Site-specific configurations
+            - Security group mappings
+
         .PARAMETER ConfigXMLFile
-            [String] Full path to the configuration.xml file
+            [System.IO.FileInfo]
+            Full path to the configuration XML file containing LAPS settings.
+
+            The XML file must include:
+            - Group naming conventions
+            - OU structure definitions
+            - Security principal mappings
+            - Tier-specific configurations
+
+            Default value: 'C:\PsScripts\Config.xml'
+
+            Validation:
+            - Must exist and be accessible
+            - Must contain valid XML structure
+            - Must include required configuration elements
+
+        .EXAMPLE
+            New-LAPSobject -ConfigXMLFile 'C:\Config\Enterprise.xml' -Verbose
+
+            Description:
+            Configures LAPS using production configuration file:
+            1. Validates XML configuration
+            2. Extends schema if needed
+            3. Creates tier-specific delegations
+            4. Sets up PAW permissions
+            5. Configures site-level access
+
+        .EXAMPLE
+            $params = @{
+                ConfigXMLFile = 'D:\Scripts\Config.xml'
+            }
+            New-LAPSobject @params -WhatIf
+
+            Shows what changes would be made using specified config file.
+
+        .OUTPUTS
+            [void]
+            This function does not generate any output.
+            Use -Verbose for detailed progress information.
+
         .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Get-CurrentErrorToDisplay              | EguibarIT
-                Set-AdAclLaps                          | EguibarIT
-                Get-AttributeSchemaHashTable           | EguibarIT.DelegationPS
-                Get-ADGroup                            | ActiveDirectory
-                Add-ADGroupMember                      | ActiveDirectory
-                Get-AdOrganizationalUnit               | ActiveDirectory
-                Remove-ADGroupMember                   | ActiveDirectory
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬════════════════════════
+                Import-MyModule                        ║ EguibarIT
+                Get-FunctionDisplay                    ║ EguibarIT
+                Set-AdAclLaps                          ║ EguibarIT.DelegationPS
+                Get-ADGroup                            ║ ActiveDirectory
+                Get-ADOrganizationalUnit               ║ ActiveDirectory
+                Add-ADGroupMember                      ║ ActiveDirectory
+                Remove-ADGroupMember                   ║ ActiveDirectory
+                Update-LapsADSchema                    ║ LAPS
+                New-Variable                           ║ Microsoft.PowerShell.Utility
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Debug                            ║ Microsoft.PowerShell.Utility
+                Write-Error                            ║ Microsoft.PowerShell.Utility
+                Test-Path                              ║ Microsoft.PowerShell.Management
+                Get-Content                            ║ Microsoft.PowerShell.Management
+                Get-Variable                           ║ Microsoft.PowerShell.Utility
+
         .NOTES
-            Version:         1.1
-            DateModified:    11/Feb/2019
+            Version:         1.2
+            DateModified:   31/Mar/2024
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
-                Eguibar Information Technology S.L.
+                Eguibar IT
                 http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT
+
+        .LINK
+            https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/local-administrator-password-solution-laps-implementation-hints-and/ba-p/258019
+
+        .LINK
+            https://learn.microsoft.com/en-us/windows-server/identity/laps/laps-overview
+
+        .LINK
+            https://learn.microsoft.com/en-us/windows-server/identity/securing-privileged-access/securing-privileged-access-reference-material
+
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+
+    [CmdletBinding(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'Medium'
+    )]
     [OutputType([void])]
 
     Param
@@ -40,31 +131,41 @@ Function New-LAPSobject {
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
+        [ValidateScript(
+            { Test-Path $_ },
+            ErrorMessage = 'Config file not found or not accessible: {0}'
+        )]
         [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Confix.xml"')]
         [System.IO.FileInfo]
         $ConfigXMLFile = 'C:\PsScripts\Config.xml'
     )
 
     Begin {
-        $error.Clear()
+        Set-StrictMode -Version Latest
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToShortDateString(),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
 
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
-        #Import-MyModule -Name 'AdmPwd.PS' -Verbose:$false
-        Import-Module -Name 'LAPS' -Verbose:$false
+        Import-MyModule -Name 'LAPS' -Verbose:$false
 
         ##############################
         # Variables Definition
+
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
@@ -73,6 +174,7 @@ Function New-LAPSobject {
                 If (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
+                    Write-Debug -Message 'Successfully loaded configuration XML'
                 } #end if
             } #end if
         } catch {
@@ -94,23 +196,18 @@ Function New-LAPSobject {
         #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM, $NC['T0'])
         # SG_PAWM_T0
 
-        If (-Not (Test-Path -Path variable:SL_InfraRight)) {
-            $SL_InfraRight = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.InfraRight.Name)
+        $securityGroups = @{
+            'SL_InfraRight'  = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.InfraRight.Name
+            'SL_PISM'        = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PISM.Name
+            'SL_PAWM'        = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PAWM.Name
+            'SL_SvrAdmRight' = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name
         }
 
-        If (-Not (Test-Path -Path variable:SL_PISM)) {
-            $SL_PISM = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PISM.Name)
-        }
-
-        If (-Not (Test-Path -Path variable:SL_PAWM)) {
-            $SL_PAWM = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PAWM.Name)
-        }
-
-        # $SL_AdRight    = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.AdRight.Name)
-
-        If (-Not (Test-Path -Path variable:SL_SvrAdmRight)) {
-            $SL_SvrAdmRight = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name)
-        }
+        foreach ($group in $securityGroups.GetEnumerator()) {
+            if (-not (Test-Path -Path variable:$($group.Key))) {
+                New-Variable -Name $group.Key -Value (Get-ADGroup -Identity $group.Value) -ErrorAction Stop
+            } #end If
+        } #end Foreach
 
 
 
@@ -193,29 +290,45 @@ Function New-LAPSobject {
         #endregion Declarations
 
         # Check if schema is extended for LAPS. Extend it if not.
+        Write-Debug -Message 'Checking LAPS schema configuration'
         Try {
+
             if ($null -eq $Variables.GuidMap['msLAPS-Password']) {
-                Write-Verbose -Message '
+
+                if ($PSCmdlet.ShouldProcess('AD Schema', 'Extend for LAPS')) {
+
+                    Write-Verbose -Message '
                     LAPS is NOT supported on this environment.
                     Proceeding to configure it by extending the Schema.'
 
-                # Check if user can change schema
-                if (-not ((Get-ADUser $env:UserName -Properties memberof).memberof -like 'CN=Schema Admins*')) {
-                    Write-Verbose -Message 'Member is not a Schema Admin... adding it.'
-                    Add-ADGroupMember -Identity 'Schema Admins' -Members $env:username
+                    # Temporarily add to Schema Admins if needed
+                    $isSchemaAdmin = (Get-ADUser $env:UserName -Properties memberof).memberof -like 'CN=Schema Admins*'
+                    if (-not $isSchemaAdmin) {
+                        Write-Verbose -Message 'Member is not a Schema Admin... adding it.'
+                        Add-ADGroupMember -Identity 'Schema Admins' -Members $env:username
+                    }#end if
 
                     # Modify Schema
                     try {
-                        Write-Verbose -Message 'Modify the schema...!'
-                        #Update-AdmPwdADSchema -Verbose
+
+                        Write-Verbose -Message 'Extending AD schema for LAPS...!'
+
                         Update-LapsADSchema -Confirm:$false -Verbose
+
                     } catch {
-                        Write-Error -Message 'Error when updating LAPS schema'
+
+                        Write-Error -Message ('Failed to extend schema: {0}' -f $_.Exception.Message)
                         throw
+
                     } finally {
+
                         # If Schema extension OK, remove user from Schema Admin
-                        Remove-ADGroupMember -Identity 'Schema Admins' -Members $env:username -Confirm:$false
-                    }
+                        if (-not $isSchemaAdmin) {
+                            Remove-ADGroupMember -Identity 'Schema Admins' -Members $env:username -Confirm:$false
+                        }
+                    } #end Try-Catch-Finally
+
+
                 }#end if
             }#end if
         }#end try
@@ -229,16 +342,24 @@ Function New-LAPSobject {
 
     Process {
         # Make Infrastructure Servers modifications
-        Set-AdAclLaps -ResetGroup $SL_PISM.SamAccountName -ReadGroup $SL_InfraRight.SamAccountName -LDAPpath $ItInfraT0OUDN
-        Set-AdAclLaps -ResetGroup $SL_PISM.SamAccountName -ReadGroup $SL_InfraRight.SamAccountName -LDAPpath $ItInfraT1OUDN
-        Set-AdAclLaps -ResetGroup $SL_PISM.SamAccountName -ReadGroup $SL_InfraRight.SamAccountName -LDAPpath $ItInfraT2OUDN
-        Set-AdAclLaps -ResetGroup $SL_PISM.SamAccountName -ReadGroup $SL_InfraRight.SamAccountName -LDAPpath $ItInfraStagingOUDN
+        $Splat = @{
+            ResetGroup = $SL_PISM.SamAccountName
+            ReadGroup  = $SL_InfraRight.SamAccountName
+        }
+        Set-AdAclLaps @Splat -LDAPpath $ItInfraT0OUDN
+        Set-AdAclLaps @Splat -LDAPpath $ItInfraT1OUDN
+        Set-AdAclLaps @Splat -LDAPpath $ItInfraT2OUDN
+        Set-AdAclLaps @Splat -LDAPpath $ItInfraStagingOUDN
 
         # Make PAW modifications
-        Set-AdAclLaps -ResetGroup $SL_PAWM.SamAccountName -ReadGroup $SL_InfraRight.SamAccountName -LDAPpath $ItPawT0OUDN
-        Set-AdAclLaps -ResetGroup $SL_PAWM.SamAccountName -ReadGroup $SL_InfraRight.SamAccountName -LDAPpath $ItPawT1OUDN
-        Set-AdAclLaps -ResetGroup $SL_PAWM.SamAccountName -ReadGroup $SL_InfraRight.SamAccountName -LDAPpath $ItPawT2OUDN
-        Set-AdAclLaps -ResetGroup $SL_PAWM.SamAccountName -ReadGroup $SL_InfraRight.SamAccountName -LDAPpath $ItPawStagingOUDN
+        $Splat = @{
+            ResetGroup = $SL_PAWM.SamAccountName
+            ReadGroup  = $SL_InfraRight.SamAccountName
+        }
+        Set-AdAclLaps @Splat -LDAPpath $ItPawT0OUDN
+        Set-AdAclLaps @Splat -LDAPpath $ItPawT1OUDN
+        Set-AdAclLaps @Splat -LDAPpath $ItPawT2OUDN
+        Set-AdAclLaps @Splat -LDAPpath $ItPawStagingOUDN
 
         # Make Servers Modifications
         Set-AdAclLaps -ResetGroup $SL_SvrAdmRight.SamAccountName -ReadGroup $SL_SvrAdmRight.SamAccountName -LDAPpath $ServersOuDn
@@ -256,37 +377,44 @@ Function New-LAPSobject {
         Foreach ($Item in $AllSubOu) {
             # Exclude _Global OU from delegation
             If (-not($item.Split(',')[0].Substring(3) -eq $confXML.n.Sites.OUs.OuSiteGlobal.name)) {
+
                 # Get group who manages Desktops and Laptops
-                $CurrentGroup = (Get-ADGroup -Identity ('{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $confXML.n.Sites.LG.PcRight.Name, ($item.Split(',')[0].Substring(3)))).SamAccountName
+                $Id = ('{0}{1}{2}{1}{3}' -f $NC['sl'],
+                    $NC['Delim'],
+                    $confXML.n.Sites.LG.PcRight.Name,
+                    ($item.Split(',')[0].Substring(3))
+                )
+                $CurrentGroup = (Get-ADGroup -Identity $Id).SamAccountName
 
                 # Desktops
-                $CurrentLDAPPath = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.Name, $Item
-                Set-AdAclLaps -ResetGroup $CurrentGroup.SamAccountName -ReadGroup $CurrentGroup.SamAccountName -LDAPpath $CurrentLDAPPath
+                $Splat = @{
+                    ResetGroup = $CurrentGroup.SamAccountName
+                    ReadGroup  = $CurrentGroup.SamAccountName
+                    LDAPpath   = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteComputer.Name, $Item
+                }
+                Set-AdAclLaps @Splat
 
                 # Laptop
-                $CurrentLDAPPath = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $Item
-                Set-AdAclLaps -ResetGroup $CurrentGroup.SamAccountName -ReadGroup $CurrentGroup.SamAccountName -LDAPpath $CurrentLDAPPath
+                $Splat = @{
+                    ResetGroup = $CurrentGroup.SamAccountName
+                    ReadGroup  = $CurrentGroup.SamAccountName
+                    LDAPpath   = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $Item
+                }
+                Set-AdAclLaps @Splat
 
-                <# -- Not compliant with Tieriing model.
-                    # Get group who manages Local Servers & File-Print
-                    $CurrentGroup = (Get-ADGroup -Identity ('{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $confXML.n.Sites.LG.LocalServerRight.Name, ($item.Split(',')[0].Substring(3)))).SamAccountName
-
-                    # File-Print
-                    $CurrentLDAPPath = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteFilePrint.Name, $Item
-                    Set-AdAclLaps -ResetGroup $CurrentGroup.SamAccountName -ReadGroup $CurrentGroup.SamAccountName -LDAPPath $CurrentLDAPPath
-
-                    # Local Server
-                    $CurrentLDAPPath = 'OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLocalServer.Name, $Item
-                    Set-AdAclLaps -ResetGroup $CurrentGroup.SamAccountName -ReadGroup $CurrentGroup.SamAccountName -LDAPPath $CurrentLDAPPath
-                #>
             }
         }#end foreach
     } #end Process
 
     End {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'creating LAPS and Delegations.'
-        )
-        Write-Verbose -Message $txt
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Footer) {
+
+            $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+                'creating LAPS and Delegations.'
+            )
+            Write-Verbose -Message $txt
+        } #end If
     } #end End
-} #end Function
+
+} #end Function New-LapsObject

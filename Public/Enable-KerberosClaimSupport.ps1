@@ -27,7 +27,7 @@
             [string] - Name or GUID of the GPOs.
 
         .OUTPUTS
-            None
+            [Void]
 
         .NOTES
             Used Cmdlets:

@@ -1,36 +1,54 @@
 ﻿function Revoke-Inheritance {
     <#
-    .Synopsis
-      The function will Remove Specific/Non-Inherited ACL and enable inheritance on an object
+        .Synopsis
+        The function will Remove Specific/Non-Inherited ACL and enable inheritance on an object
 
-    .DESCRIPTION
-      The function will Remove Specific/Non-Inherited ACL and enable inheritance on an object.
-      Control whether inheritance from the parent folder should be blocked ($True means no Inheritance)
-      and if the previously inherited access rules should be preserved ($False means remove
-      previously inherited permissions).
+        .DESCRIPTION
+        The function will Remove Specific/Non-Inherited ACL and enable inheritance on an object.
+        Control whether inheritance from the parent folder should be blocked ($True means no Inheritance)
+        and if the previously inherited access rules should be preserved ($False means remove
+        previously inherited permissions).
 
-    .EXAMPLE
-      Revoke-Inheritance -LDAPpath 'OU=Admin,DC=EguibarIT,DC=local' -RemoveInheritance -KeepPermissions
+        .EXAMPLE
+        Revoke-Inheritance -LDAPpath 'OU=Admin,DC=EguibarIT,DC=local' -RemoveInheritance -KeepPermissions
 
-    .PARAMETER LDAPpath
-      Distinguished Name of the object (or container)
+        .PARAMETER LDAPpath
+        Distinguished Name of the object (or container)
 
-    .PARAMETER RemoveInheritance
-      Remove inheritance from parent. If present Inheritance will be removed.
+        .PARAMETER RemoveInheritance
+        Remove inheritance from parent. If present Inheritance will be removed.
 
-    .PARAMETER KeepPermissions
-      Previous inherited access rules will be kept. If present means rules will be copied
-      and maintained, otherwise rules will be removed.
+        .PARAMETER KeepPermissions
+        Previous inherited access rules will be kept. If present means rules will be copied
+        and maintained, otherwise rules will be removed.
 
-    .NOTES
-      Version:         1.1
-      DateModified:    27/Mar/2024
-      LasModifiedBy:   Vicente Rodriguez Eguibar
-        vicente@eguibar.com
-        Eguibar Information Technology S.L.
-        http://www.eguibarit.com
-  #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+        .OUTPUTS
+            [void]
+
+        .NOTES
+            Used Functions:
+                Name                                  ║ Module/Namespace
+                ══════════════════════════════════════╬════════════════════════
+                Test-IsValidDN                        ║ EguibarIT
+                Get-FunctionDisplay                   ║ EguibarIT
+                Get-Acl                               ║ Microsoft.PowerShell.Security
+                Set-Acl                               ║ Microsoft.PowerShell.Security
+                Write-Verbose                         ║ Microsoft.PowerShell.Utility
+                Write-Error                           ║ Microsoft.PowerShell.Utility
+
+        .NOTES
+        Version:         1.1
+        DateModified:    27/Mar/2024
+        LasModifiedBy:   Vicente Rodriguez Eguibar
+            vicente@eguibar.com
+            Eguibar Information Technology S.L.
+            http://www.eguibarit.com
+    #>
+
+    [CmdletBinding(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'Medium'
+    )]
     [OutputType([void])]
 
     Param
@@ -42,7 +60,10 @@
             HelpMessage = 'Distinguished Name of the object (or container).',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')]
+        [ValidateScript(
+            { Test-IsValidDN -ObjectDN $_ },
+            ErrorMessage = 'DistinguishedName provided is not valid! Please Check.'
+        )]
         [Alias('DN', 'DistinguishedName')]
         [String]
         $LDAPpath,
@@ -66,14 +87,19 @@
     )
 
     Begin {
-        $error.Clear()
+        Set-StrictMode -Version Latest
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToShortDateString(),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -82,13 +108,13 @@
         # Variables Definition
 
 
-        If ($RemoveInheritance) {
+        If ($PSBoundParameters['RemoveInheritance']) {
             $isProtected = $true
         } else {
             $isProtected = $false
         }
 
-        If ($KeepPermissions) {
+        If ($PSBoundParameters['KeepPermissions']) {
             $preserveInheritance = $true
         } else {
             $preserveInheritance = $false
@@ -108,7 +134,9 @@
             $DirectorySecurity.SetAccessRuleProtection($isProtected, $preserveInheritance)
 
             If ($PSCmdlet.ShouldProcess($PSBoundParameters['LDAPpath'], 'Remove inheritance?')) {
+
                 Set-Acl -Path ('AD:\{0}' -f $PSBoundParameters['LDAPpath']) -AclObject $DirectorySecurity
+
             } #end If
 
         } Catch {
@@ -118,9 +146,14 @@
     } #end Process
 
     End {
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'removing inheritance.'
-        )
-        Write-Verbose -Message $txt
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Footer) {
+
+            $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+                'removing inheritance.'
+            )
+            Write-Verbose -Message $txt
+        } #end If
     } #end End
-}
+
+} #end Function Revoke-Inheritance

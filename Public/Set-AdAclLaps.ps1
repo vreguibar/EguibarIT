@@ -64,7 +64,10 @@ function Set-AdAclLaps {
             HelpMessage = 'Distinguished Name of the OU where LAPS will apply to computer object',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
-        [ValidateScript({ Test-IsValidDN -ObjectDN $_ }, ErrorMessage = 'DistinguishedName provided is not valid! Please Check.')]
+        [ValidateScript(
+            { Test-IsValidDN -ObjectDN $_ },
+            ErrorMessage = 'DistinguishedName provided is not valid! Please Check.'
+        )]
         [Alias('DN', 'DistinguishedName')]
         [String]
         $LDAPpath
