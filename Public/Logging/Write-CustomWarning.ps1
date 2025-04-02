@@ -8,11 +8,14 @@
             This function writes warning messages to the console and, if instructed, to the specified Windows Event Log.
             It supports both predefined and custom event logging, allowing flexibility in logging approaches.
 
+            The function acts as a wrapper around Write-Warning, enhancing it with event logging capabilities.
+            This helps maintain a centralized logging system while preserving the familiar PowerShell warning output.
+
         .PARAMETER CreateWindowsEvent
-            Switch to indicate if a Windows Event Log entry should be created instead of just outputting a verbose message.
+            Switch to indicate if a Windows Event Log entry should be created in addition to outputting a warning message.
 
         .PARAMETER Message
-            The message to be written, either to the console (as verbose) or the Windows Event Log.
+            The message to be written, either to the console (as warning) or the Windows Event Log.
 
         .PARAMETER EventInfo
             Predefined event information of type [EventIDs], if using predefined events.
@@ -59,15 +62,31 @@
             due visibility and compatibility issues on modules when using just PowerShell code.
 
         .NOTES
-            Version:         1.0
-            DateModified:    18/Oct/2024
+            Used Functions:
+                Name                          ║ Module/Namespace
+                ══════════════════════════════╬════════════════════════════════
+                Write-CustomLog               ║ EguibarIT
+                Write-Warning                 ║ Microsoft.PowerShell.Utility
+                Write-Verbose                 ║ Microsoft.PowerShell.Utility
+                Write-Error                   ║ Microsoft.PowerShell.Utility
+
+        .NOTES
+            Version:         1.1
+            DateModified:    01/Apr/2025
             LastModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Logging/Write-CustomWarning.ps1
     #>
 
-    [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = 'Default')]
+    [CmdletBinding(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'Low',
+        DefaultParameterSetName = 'Default'
+    )]
     [OutputType([void])]
 
     param(
@@ -78,6 +97,7 @@
             ValueFromRemainingArguments = $true,
             HelpMessage = 'If present a new event will be created in the corresponding Windows Event among Write-Verbose.',
             Position = 0)]
+        [Alias('LogEvent', 'WriteEvent')]
         [switch]
         $CreateWindowsEvent,
 
@@ -90,6 +110,7 @@
             ParameterSetName = 'Default')]
         [Parameter(ParameterSetName = 'Custom')]
         [ValidateNotNullOrEmpty()]
+        [Alias('Text', 'WarningMessage')]
         [string]
         $Message,
 

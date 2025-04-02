@@ -66,14 +66,21 @@
 
         .NOTES
             Used Functions:
-                Name                          | Module
-                ------------------------------|--------------------------
-                Remove-SensitiveData          | EguibarIT
-                Initialize-EventLogging       | EguibarIT
-                Write-EventLog                | Microsoft.PowerShell.Management
-                Write-Error                   | Microsoft.PowerShell.Utility.Activities
-                Write-Verbose                 | Microsoft.PowerShell.Utility.Activities
-                Write-Warning                 | Microsoft.PowerShell.Utility.Activities
+                Name                          ║ Module/Namespace
+                ══════════════════════════════╬════════════════════════════════
+                Remove-SensitiveData          ║ EguibarIT
+                Initialize-EventLogging       ║ EguibarIT
+                Write-EventLog                ║ Microsoft.PowerShell.Management
+                Write-Error                   ║ Microsoft.PowerShell.Utility
+                Write-Verbose                 ║ Microsoft.PowerShell.Utility
+                Write-Warning                 ║ Microsoft.PowerShell.Utility
+                Test-Path                     ║ Microsoft.PowerShell.Management
+                New-Item                      ║ Microsoft.PowerShell.Management
+                Get-Item                      ║ Microsoft.PowerShell.Management
+                Move-Item                     ║ Microsoft.PowerShell.Management
+                Join-Path                     ║ Microsoft.PowerShell.Management
+                ConvertTo-Json                ║ Microsoft.PowerShell.Utility
+                Out-File                      ║ Microsoft.PowerShell.Utility
 
         .NOTES
             Version:         1.0
@@ -83,9 +90,15 @@
                 Eguibar Information Technology S.L.
                 http://www.eguibarit.com
 
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Logging/Write-CustomLog.ps1
     #>
 
-    [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = 'Predefined')]
+    [CmdletBinding(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'Low',
+        DefaultParameterSetName = 'Predefined'
+    )]
     [OutputType([void])]
 
     param(
@@ -163,23 +176,44 @@
         $LogAsJson,
 
         [Parameter(ParameterSetName = 'EventLogging')]
+        [ValidateRange(1024, 4194304)] # 1MB to 4GB
+        [Alias('MaxSizeKB')]
         [Int64]
         $MaximumKilobytes = 65536, # Max value 4 GB
 
         [Parameter(ParameterSetName = 'EventLogging')]
+        [ValidateRange(1, 365)]
+        [Alias('RetentionPeriod')]
         [int]
         $RetentionDays = 30, # default 30 days
 
         [Parameter(ParameterSetName = 'JsonLogging')]
-        [ValidateScript({ Test-Path $_ -PathType 'Container' })] # Validate directory
+        [ValidateScript({
+                if (Test-Path $_ -PathType 'Container') {
+                    return $true
+                } elseif (!(Test-Path $_)) {
+                    try {
+                        $null = New-Item -Path $_ -ItemType Directory -Force -ErrorAction Stop
+                        return $true
+                    } catch {
+                        throw "Cannot create directory at path '$_': $_"
+                    }
+                } else {
+                    throw "Path '$_' exists but is not a directory."
+                }
+            })]
         [string]
         $LogPath = 'C:\Logs',
 
         [Parameter(ParameterSetName = 'JsonLogging')]
+        [ValidateNotNullOrEmpty()]
+        [Alias('LogFileName')]
         [string]
         $JsonLogName = 'CustomLog',
 
         [Parameter(ParameterSetName = 'JsonLogging')]
+        [ValidateRange(1, 1024)]
+        [Alias('MaxFileSizeMB')]
         [int]
         $JsonMaxFileSizeMB = 10
 
@@ -234,7 +268,12 @@
     } #end Begin
 
     Process {
-        if ($PSCmdlet.ShouldProcess("Logging event: $eventName with severity $severity")) {
+        if ($PSCmdlet.ShouldProcess(
+                "Event log entry for '$eventName' with ID $eventId",
+                'Write to Event Log',
+                "Writing event log entry for event '$eventName' with ID $eventId"
+            )) {
+
             try {
 
                 # Write to Windows Event Log
@@ -311,7 +350,21 @@
                     was logged successfully to the event log.' -f
                     $eventName, $eventId
                 )
+            } catch [System.Security.SecurityException] {
+
+                Write-Error -Message ('
+                    Security error when logging event.
+                    Ensure appropriate permissions: {0}' -f $_.Exception.Message
+                )
+                throw
+
+            } catch [System.InvalidOperationException] {
+
+                Write-Error -Message ('Event log operation failed: {0}' -f $_.Exception.Message)
+                throw
+
             } catch {
+
                 Write-Error -Message ('
                     An error occurred while logging the event.
                     Exception: {0}
@@ -319,6 +372,7 @@
                     $_.Exception.Message, $_
                 )
                 throw
+
             } #end Try-Catch
         } #end If
     } #end Process

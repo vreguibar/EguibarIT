@@ -1,14 +1,73 @@
 ﻿function New-CentralItOu {
     <#
         .Synopsis
-            Create Central OU and additional Tier 0 infrastructure OUs
+             Creates and configures the complete Active Directory Tier Model structure.
+
         .DESCRIPTION
-            Create Central OU including sub-OUs, secure them accordingly, move built-in objects
-            and secure them, create needed groups and secure them, make nesting and delegations
-            and finally create PSO and delegate accordingly.
-            This function is mainly a wrapper used to create Tier0 objects
+            Creates and configures the complete Active Directory tiered administration model including:
+            - Organizational Units structure following Microsoft's tier model
+            - Security groups for delegated administration
+            - Group Policy Objects (GPOs) with security baselines
+            - Fine-grained password policies
+            - Kerberos authentication policies
+            - Service accounts configuration
+            - Rights delegation model
+            - Optional components (Exchange, DFS, PKI, AGPM, LAPS, DHCP)
+
+            Key Features:
+            - Implements Microsoft's tiered administration model (T0, T1, T2)
+            - Creates secure administrative accounts and groups
+            - Configures delegated permissions and access rights
+            - Implements security best practices
+            - Supports optional enterprise services
+            - Provides comprehensive logging
+            - Fully idempotent operations
+
+            The function follows the Tier Model architecture:
+            - Tier 0: Domain Controllers and critical infrastructure
+            - Tier 1: Servers and server administrators
+            - Tier 2: User workstations and standard users
+
+        .PARAMETER ConfigXMLFile
+            [System.IO.FileInfo] Full path to the XML configuration file.
+            Contains all naming conventions, OU structure, and security settings.
+            Must be a valid XML file with required schema elements.
+            Default: C:\PsScripts\Config.xml
+
+        .PARAMETER CreateExchange
+            [Switch] Creates Exchange-related objects, containers and delegations.
+            Requires valid Exchange configuration in XML file.
+
+        .PARAMETER CreateDfs
+            [Switch] Creates DFS-related objects, containers and delegations.
+            Requires valid DFS configuration in XML file.
+
+        .PARAMETER CreateCa
+            [Switch] Creates Certificate Authority (PKI) objects and delegations.
+            Requires valid PKI configuration in XML file.
+
+        .PARAMETER CreateAGPM
+            [Switch] Creates Advanced Group Policy Management objects and delegations.
+            Requires valid AGPM configuration in XML file.
+
+        .PARAMETER CreateLAPS
+            [Switch] Creates Local Administrator Password Solution objects and delegations.
+            Requires valid LAPS configuration in XML file.
+
+        .PARAMETER CreateDHCP
+            [Switch] Creates DHCP-related objects, containers and delegations.
+            Requires valid DHCP configuration in XML file.
+
+        .PARAMETER DMscripts
+            [String] Full path to the Delegation Model Scripts directory.
+            Contains required templates, backups and configuration files.
+            Default: C:\PsScripts\
+
         .EXAMPLE
             New-CentralItOu -ConfigXMLFile 'C:\PsScripts\Configuration.xml'
+
+            Creates basic tier model structure using default configuration file.
+
         .EXAMPLE
             # Get the Config.xml file
             $param = @{
@@ -44,96 +103,99 @@
             #Create Central OU Structure
             New-CentralItOu @param
 
-        .PARAMETER ConfigXMLFile
-            [STRING] Full path to the configuration.xml file
-        .PARAMETER CreateExchange
-            [SWITCH] If present It will create all needed Exchange objects, containers and delegations
-        .PARAMETER CreateDfs
-            [SWITCH] If present It will create all needed DFS objects, containers and delegations
-        .PARAMETER CreateCa
-            [SWITCH] If present It will create all needed Certificate Authority (PKI) objects, containers and delegations
-        .PARAMETER CreateAGPM
-            [SWITCH] If present It will create all needed AGPM objects, containers and delegations
-        .PARAMETER CreateLAPS
-            [SWITCH] If present It will create all needed LAPS objects, containers and delegations
-        .PARAMETER CreateDHCP
-            [SWITCH] If present It will create all needed DHCP objects, containers and delegations
-        .PARAMETER DMscripts
-            [String] Full path to the Delegation Model Scripts Directory
-        .NOTES
-            This function relies on Config.xml file.
+            Creates tier model with Exchange, LAPS and DHCP components using custom paths.
+
+        .OUTPUTS
+            [String]
+            Returns completion status message.
+
         .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Set-AdAclDelegateComputerAdmin         | EguibarIT
-                Add-AdGroupNesting                     | EguibarIT
-                Get-CurrentErrorToDisplay              | EguibarIT
-                New-AdDelegatedGroup                   | EguibarIT
-                New-DelegateAdGpo                      | EguibarIT
-                New-DelegateAdOU                       | EguibarIT
-                Set-AdAclDelegateUserAdmin             | EguibarIT
-                Set-AdAclDelegateGalAdmin              | EguibarIT
-                Remove-Everyone                        | EguibarIT.DelegationPS
-                Remove-PreWin2000                      | EguibarIT.DelegationPS
-                Set-AdAclChangeGroup                   | EguibarIT.DelegationPS
-                Set-AdAclChangeOU                      | EguibarIT.DelegationPS
-                Set-AdAclChangeSite                    | EguibarIT.DelegationPS
-                Set-AdAclChangeSiteLink                | EguibarIT.DelegationPS
-                Set-AdAclChangeSubnet                  | EguibarIT.DelegationPS
-                Set-AdAclChangeUserPassword            | EguibarIT.DelegationPS
-                Set-AdAclComputerPersonalInfo          | EguibarIT.DelegationPS
-                Set-AdAclComputerPublicInfo            | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteComputer          | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteContact           | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteGMSA              | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteGPO               | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteGroup             | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteMSA               | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteOU                | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteOU                | EguibarIT.DelegationPS
-                Set-AdAclCreateDeletePrintQueue        | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteSite              | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteSiteLink          | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteSubnet            | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteUser              | EguibarIT.DelegationPS
-                Set-AdAclCreateDeleteUser              | EguibarIT.DelegationPS
-                Set-AdAclGPoption                      | EguibarIT.DelegationPS
-                Set-AdAclLinkGPO                       | EguibarIT.DelegationPS
-                Set-AdAclMngPrivilegedAccounts         | EguibarIT.DelegationPS
-                Set-AdAclMngPrivilegedGroups           | EguibarIT.DelegationPS
-                Set-AdAclResetUserPassword             | EguibarIT.DelegationPS
-                Set-AdAclUserAccountRestriction        | EguibarIT.DelegationPS
-                Set-AdAclUserGroupMembership           | EguibarIT.DelegationPS
-                Set-AdAclUserLogonInfo                 | EguibarIT.DelegationPS
-                Set-AdDirectoryReplication             | EguibarIT.DelegationPS
-                Set-AdInheritance                      | EguibarIT.DelegationPS
-                Set-CreateDeleteInetOrgPerson          | EguibarIT.DelegationPS
-                Set-DeleteOnlyComputer                 | EguibarIT.DelegationPS
-                Set-GpoPrivilegeRight                 | EguibarIT.DelegationPS
-                Add-ADFineGrainedPasswordPolicySubject | ActiveDirectory
-                Get-ADFineGrainedPasswordPolicy        | ActiveDirectory
-                Get-ADGroup                            | ActiveDirectory
-                Get-ADServiceAccount                   | ActiveDirectory
-                Get-AdUser                             | ActiveDirectory
-                Move-ADObject                          | ActiveDirectory
-                New-ADFineGrainedPasswordPolicy        | ActiveDirectory
-                New-ADServiceAccount                   | ActiveDirectory
-                New-AdUser                             | ActiveDirectory
-                Set-ADObject                           | ActiveDirectory
-                Set-AdUser                             | ActiveDirectory
-                Import-GPO                             | GroupPolicy
-                Add-KdsRootKey                         | Kds
+                 Name                                  ║ Module/Namespace
+                ═══════════════════════════════════════╬════════════════════════
+                Import-MyModule                        ║ EguibarIT
+                Set-AdAclDelegateComputerAdmin         ║ EguibarIT
+                Add-AdGroupNesting                     ║ EguibarIT
+                Get-CurrentErrorToDisplay              ║ EguibarIT
+                New-AdDelegatedGroup                   ║ EguibarIT
+                New-DelegateAdGpo                      ║ EguibarIT
+                New-DelegateAdOU                       ║ EguibarIT
+                Set-AdAclDelegateUserAdmin             ║ EguibarIT
+                Set-AdAclDelegateGalAdmin              ║ EguibarIT
+                Remove-Everyone                        ║ EguibarIT.DelegationPS
+                Remove-PreWin2000                      ║ EguibarIT.DelegationPS
+                Set-AdAclChangeGroup                   ║ EguibarIT.DelegationPS
+                Set-AdAclChangeOU                      ║ EguibarIT.DelegationPS
+                Set-AdAclChangeSite                    ║ EguibarIT.DelegationPS
+                Set-AdAclChangeSiteLink                ║ EguibarIT.DelegationPS
+                Set-AdAclChangeSubnet                  ║ EguibarIT.DelegationPS
+                Set-AdAclChangeUserPassword            ║ EguibarIT.DelegationPS
+                Set-AdAclComputerPersonalInfo          ║ EguibarIT.DelegationPS
+                Set-AdAclComputerPublicInfo            ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteComputer          ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteContact           ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteGMSA              ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteGPO               ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteGroup             ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteMSA               ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteOU                ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteOU                ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeletePrintQueue        ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteSite              ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteSiteLink          ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteSubnet            ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteUser              ║ EguibarIT.DelegationPS
+                Set-AdAclCreateDeleteUser              ║ EguibarIT.DelegationPS
+                Set-AdAclGPoption                      ║ EguibarIT.DelegationPS
+                Set-AdAclLinkGPO                       ║ EguibarIT.DelegationPS
+                Set-AdAclMngPrivilegedAccounts         ║ EguibarIT.DelegationPS
+                Set-AdAclMngPrivilegedGroups           ║ EguibarIT.DelegationPS
+                Set-AdAclResetUserPassword             ║ EguibarIT.DelegationPS
+                Set-AdAclUserAccountRestriction        ║ EguibarIT.DelegationPS
+                Set-AdAclUserGroupMembership           ║ EguibarIT.DelegationPS
+                Set-AdAclUserLogonInfo                 ║ EguibarIT.DelegationPS
+                Set-AdDirectoryReplication             ║ EguibarIT.DelegationPS
+                Set-AdInheritance                      ║ EguibarIT.DelegationPS
+                Set-CreateDeleteInetOrgPerson          ║ EguibarIT.DelegationPS
+                Set-DeleteOnlyComputer                 ║ EguibarIT.DelegationPS
+                Set-GpoPrivilegeRight                  ║ EguibarIT.DelegationPS
+                Add-ADFineGrainedPasswordPolicySubject ║ ActiveDirectory
+                Get-ADFineGrainedPasswordPolicy        ║ ActiveDirectory
+                Get-ADGroup                            ║ ActiveDirectory
+                Get-ADServiceAccount                   ║ ActiveDirectory
+                Get-AdUser                             ║ ActiveDirectory
+                Move-ADObject                          ║ ActiveDirectory
+                New-ADFineGrainedPasswordPolicy        ║ ActiveDirectory
+                New-ADServiceAccount                   ║ ActiveDirectory
+                New-AdUser                             ║ ActiveDirectory
+                Set-ADObject                           ║ ActiveDirectory
+                Set-AdUser                             ║ ActiveDirectory
+                Import-GPO                             ║ GroupPolicy
+                Add-KdsRootKey                         ║ Kds
 
         .NOTES
             Version:         1.3
             DateModified:    21/Oct/2021
             LasModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
-                Eguibar Information Technology S.L.
+                Eguibar IT
                 http://www.eguibarit.com
+
+        .LINK
+        https://github.com/vreguibar/EguibarIT
+
+        .LINK
+            https://docs.microsoft.com/en-us/windows-server/identity/securing-privileged-access/securing-privileged-access-reference-material
+
+        .LINK
+            https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models
+
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'High',
+        DefaultParameterSetName = 'Default'
+    )]
     [OutputType([String])]
 
     Param (
@@ -146,14 +208,20 @@
             Position = 0)]
         [ValidateScript({
                 if (-Not ($_ | Test-Path -PathType Leaf) ) {
-                    throw 'The Path argument must be a file. Folder paths are not allowed.'
+                    throw ('File not found: {0}' -f $_)
                 }
-                if ($_ -notmatch '(\.xml)') {
-                    throw 'The file specified in the path argument must be of type XML'
+                if ($_.Extension -ne '.xml') {
+                    throw ('File must be XML: {0}' -f $_)
                 }
-                return $true
+                try {
+                    [xml]$xml = Get-Content -Path $_ -ErrorAction Stop
+                    return $true
+                } catch {
+                    throw ('Invalid XML file: {0}' -f $_.Exception.Message)
+                }
             })]
         [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Config.xml"')]
+        [Alias('Config', 'XML', 'ConfigXml')]
         [System.IO.FileInfo]
         $ConfigXMLFile = 'C:\PsScripts\Config.xml',
 
@@ -164,6 +232,7 @@
             ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed Exchange objects, containers and delegations.',
             Position = 1)]
+        [Alias('Exchange')]
         [switch]
         $CreateExchange,
 
@@ -174,6 +243,7 @@
             ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed DFS objects, containers and delegations.',
             Position = 2)]
+        [Alias('DFS', 'DistributedFileSystem')]
         [switch]
         $CreateDfs,
 
@@ -184,6 +254,7 @@
             ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed Certificate Authority (PKI) objects, containers and delegations.',
             Position = 3)]
+        [Alias('PKI', 'CA', 'CertificateAuthority')]
         [switch]
         $CreateCa,
 
@@ -194,6 +265,7 @@
             ValueFromRemainingArguments = $false,
             HelpMessage = 'If present It will create all needed AGPM objects, containers and delegations.',
             Position = 4)]
+        [Alias('GPM')]
         [switch]
         $CreateAGPM,
 
@@ -224,25 +296,39 @@
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Path to all the scripts and files needed by this function',
             Position = 7)]
+        [ValidateScript({
+                if (-not (Test-Path -Path $_ -PathType Container)) {
+                    throw ('Directory not found: {0}' -f $_)
+                }
+                if (-not (Test-Path -Path (Join-Path -Path $_ -ChildPath 'SecTmpl'))) {
+                    throw ('SecTmpl subfolder not found in: {0}' -f $_)
+                }
+                return $true
+            })]
         [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\"')]
+        [Alias('ScriptPath')]
         [string]
         $DMscripts = 'C:\PsScripts\'
     )
 
     Begin {
+        Set-StrictMode -Version Latest
 
-        $error.clear()
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+            $txt = ($Variables.Header -f
+                (Get-Date).ToShortDateString(),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
-        # These modules must be imported without checking and handling.
+
         Import-MyModule -Name 'ServerManager' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
