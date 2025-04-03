@@ -202,6 +202,7 @@
                     throw "Path '$_' exists but is not a directory."
                 }
             })]
+        [PSDefaultValue(Help = 'Default Value is "C:\Logs"')]
         [string]
         $LogPath = 'C:\Logs',
 

@@ -24,7 +24,7 @@
             Write-Output $sddl
 
         .INPUTS
-            Array of hashtables with Identity, Permission, and AccessType.
+            Array of hashtable with Identity, Permission, and AccessType.
 
         .OUTPUTS
             System.String

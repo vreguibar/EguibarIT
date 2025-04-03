@@ -185,10 +185,12 @@
         https://github.com/vreguibar/EguibarIT
 
         .LINK
-            https://docs.microsoft.com/en-us/windows-server/identity/securing-privileged-access/securing-privileged-access-reference-material
+            https://docs.microsoft.com/en-us/windows-server/identity/ \
+            securing-privileged-access/securing-privileged-access-reference-material
 
         .LINK
-            https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models
+            https://docs.microsoft.com/en-us/windows-server/identity/ \
+            ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models
 
     #>
     [CmdletBinding(
@@ -832,14 +834,16 @@
         Get-ADGroup -Identity $DomainControllers | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity $GPOCreatorsOwner | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity $RODC | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
-        Get-ADGroup -Identity 'Enterprise Read-only Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Enterprise Read-only Domain Controllers' |
+            Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
 
         Get-ADGroup -Identity 'DnsUpdateProxy' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $CurrentDC
         Get-ADGroup -Identity 'Domain Users' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $CurrentDC
         Get-ADGroup -Identity 'Domain Computers' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $CurrentDC
         Get-ADGroup -Identity 'Domain Guests' | Move-ADObject -TargetPath $ItAdminGroupsOuDn -Server $CurrentDC
 
-        Get-ADGroup -Identity 'Allowed RODC Password Replication Group' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
+        Get-ADGroup -Identity 'Allowed RODC Password Replication Group' |
+            Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
         Get-ADGroup -Identity 'RAS and IAS Servers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
         $DnsAdmins | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
         Get-ADGroup -Identity 'Cert Publishers' | Move-ADObject -TargetPath $ItRightsOuDn -Server $CurrentDC
@@ -847,10 +851,11 @@
         $ProtectedUsers | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Cloneable Domain Controllers' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
         Get-ADGroup -Identity 'Access-Denied Assistance Users' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
-        Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' } | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+        Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' } |
+            Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
 
 
-        # ToDo: Check for group existance before moving
+        # ToDo: Check for group existence before moving
         # Following groups only exist on Win 2019
         If ([System.Environment]::OSVersion.Version.Build -ge 17763) {
             Get-ADGroup -Identity 'Enterprise Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
@@ -1144,7 +1149,8 @@
             RemovePreWin2000              = $True
         }
         $createdGroup = New-AdDelegatedGroup @Splat
-        New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.LocalName)" -Value $createdGroup -Force
+        $variableName = "$('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.LocalName)"
+        New-Variable -Name $variableName -Value $createdGroup -Force
         $createdGroup = $null
 
         $Splat = @{
@@ -1160,7 +1166,8 @@
             RemovePreWin2000              = $True
         }
         $createdGroup = New-AdDelegatedGroup @Splat
-        New-Variable -Name "$('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.LocalName)" -Value $createdGroup -Force
+        $variableName = $('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.LocalName)
+        New-Variable -Name $variableName -Value $createdGroup -Force
         $createdGroup = $null
 
         $Splat = @{
@@ -1176,7 +1183,8 @@
             RemovePreWin2000              = $True
         }
         $createdGroup = New-AdDelegatedGroup @Splat
-        New-Variable -Name "$('SL{0}{1}' -f  $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.LocalName)" -Value $createdGroup -Force
+        $variableName = $('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.LocalName)
+        New-Variable -Name $variableName -Value $createdGroup -Force
         $createdGroup = $null
 
         $Splat = @{
@@ -1192,7 +1200,8 @@
             RemovePreWin2000              = $True
         }
         $createdGroup = New-AdDelegatedGroup @Splat
-        New-Variable -Name "$('SL{0}{1}' -f  $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.LocalName)" -Value $createdGroup -Force
+        $variableName = $('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.LocalName)
+        New-Variable -Name $variableName -Value $createdGroup -Force
         $createdGroup = $null
 
 
@@ -2534,7 +2543,8 @@
         If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_AuditOnly_Computers')) {
             $Splat = @{
                 Name                            = 'T0_AuditOnly_Computers'
-                Description                     = 'This Kerberos Authentication policy used to AUDIT computer logon from untrusted computers'
+                Description                     = 'This Kerberos Authentication policy used to AUDIT computer logon ' +
+                'from untrusted computers'
                 ComputerAllowedToAuthenticateTo = $AllowToAutenticateFromSDDL
                 ComputerTGTLifetimeMins         = 120
                 #ProtectedFromAccidentalDeletion = $true
@@ -2546,7 +2556,8 @@
         If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_AuditOnly_Users')) {
             $Splat = @{
                 Name                          = 'T0_AuditOnly_Users'
-                Description                   = 'This Kerberos Authentication policy used to AUDIT interactive logon from untrusted users'
+                Description                   = 'This Kerberos Authentication policy used to AUDIT interactive logon ' +
+                'from untrusted users'
                 UserAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
                 UserAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
                 UserTGTLifetimeMins           = 240
@@ -2559,7 +2570,8 @@
         If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_AuditOnly_ServiceAccounts')) {
             $Splat = @{
                 Name                             = 'T0_AuditOnly_ServiceAccounts'
-                Description                      = 'This Kerberos Authentication policy used to AUDIT ServiceAccount logon from untrusted Service Accounts'
+                Description                      = 'This Kerberos Authentication policy used to AUDIT ServiceAccount ' +
+                'logon from untrusted Service Accounts'
                 ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
                 ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
                 ServiceTGTLifetimeMins           = 120
@@ -2577,7 +2589,8 @@
         If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_Enforce_Computers')) {
             $Splat = @{
                 Name                            = 'T0_Enforce_Computers'
-                Description                     = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted computers'
+                Description                     = 'This Kerberos Authentication policy used to ENFORCE ' +
+                'interactive logon from untrusted computers'
                 ComputerAllowedToAuthenticateTo = $AllowToAutenticateFromSDDL
                 ComputerTGTLifetimeMins         = 120
                 Enforce                         = $true
@@ -2589,7 +2602,8 @@
         If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_Enforce_Users')) {
             $Splat = @{
                 Name                          = 'T0_Enforce_Users'
-                Description                   = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted users'
+                Description                   = 'This Kerberos Authentication policy used to ENFORCE ' +
+                'interactive logon from untrusted users'
                 UserAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
                 UserAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
                 UserTGTLifetimeMins           = 240
@@ -2602,7 +2616,8 @@
         If (-Not (Get-ADAuthenticationPolicy -Identity 'T0_Enforce_ServiceAccounts')) {
             $Splat = @{
                 Name                             = 'T0_Enforce_ServiceAccounts'
-                Description                      = 'This Kerberos Authentication policy used to ENFORCE interactive logon from untrusted ServiceAccounts'
+                Description                      = 'This Kerberos Authentication policy used to ENFORCE ' +
+                'interactive logon from untrusted ServiceAccounts'
                 ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
                 ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
                 ServiceTGTLifetimeMins           = 120
@@ -3161,7 +3176,14 @@
             CreatePagefile         = $ArrayList
             CreateSymbolicLink     = $ArrayList
             RemoteShutdown         = $ArrayList
-            Impersonate            = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE', 'NETWORK SERVICE', 'SERVICE')
+            Impersonate            = @(
+                $Administrators,
+                $SG_Tier0Admins,
+                $SG_AdAdmins,
+                'LOCAL SERVICE',
+                'NETWORK SERVICE',
+                'SERVICE'
+            )
             IncreaseBasePriority   = $ArrayList
             LoadDriver             = $ArrayList
             AuditSecurity          = $ArrayList

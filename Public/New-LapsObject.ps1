@@ -135,7 +135,7 @@ Function New-LAPSobject {
             { Test-Path $_ },
             ErrorMessage = 'Config file not found or not accessible: {0}'
         )]
-        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Confix.xml"')]
+        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Config.xml"')]
         [System.IO.FileInfo]
         $ConfigXMLFile = 'C:\PsScripts\Config.xml'
     )

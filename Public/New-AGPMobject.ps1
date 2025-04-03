@@ -126,7 +126,7 @@
         Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating Service account')
 
         # Create the new Temporary Service Account with special values
-        # This TEMP SA will be used for AGMP Server setup. Afterwards will be replaced by a MSA
+        # This TEMP SA will be used for AGPM Server setup. Afterwards will be replaced by a MSA
         $Splat = @{
             Path                  = $ItServiceAccountsOuDn
             Name                  = 'SA_AGPM_Temp'
@@ -316,7 +316,7 @@
         ###############################################################################
         # START Delegation to
 
-        # No delegation requiered because:
+        # No delegation required because:
         #
         # 1.- Privileged groups are empty
         # 2.- AGPM will control all GPOs

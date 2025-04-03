@@ -5,7 +5,7 @@ function New-AreaShareNTFS {
         .DESCRIPTION
             Function to create a new Area folder share
         .EXAMPLE
-            New-AreaShareNTFS -ShareName 'Acounting' -ReadGroup 'SL_Accounting_Read' -ChangeGroup 'SL_Accounting_write' -SiteAdminGroup 'SG_Accounting_MNGT' -SitePath 'C:\Shares\Areas\Accounting'
+            New-AreaShareNTFS -ShareName 'Accounting' -ReadGroup 'SL_Accounting_Read' -ChangeGroup 'SL_Accounting_write' -SiteAdminGroup 'SG_Accounting_MNGT' -SitePath 'C:\Shares\Areas\Accounting'
         .INPUTS
             Param1...: ShareName
             Param2...: ReadGroup
@@ -24,7 +24,7 @@ function New-AreaShareNTFS {
     [OutputType([String])]
 
     Param (
-        # Param1 Sharename
+        # Param1 Share name
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,

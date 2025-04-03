@@ -97,9 +97,10 @@ function Add-AdGroupNesting {
         .LINK
             https://github.com/vreguibar/EguibarIT
 
-            https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models
+            https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/ \
+            implementing-least-privilege-administrative-models
 
-            http://blogs.technet.com/b/lrobins/archive/2011/06/23/quot-admin-free-quot-active-directory-and-windows-part-1-understanding-privileged-groups-in-ad.aspx
+            http://blogs.technet.com/b/lrobins/archive/2011/06/23/ \ quot-admin-free-quot-active-directory-and-windows-part-1-understanding-privileged-groups-in-ad.aspx
 
             http://blogs.msmvps.com/acefekay/2012/01/06/using-group-nesting-strategy-ad-best-practices-for-group-strategy/
     #>
