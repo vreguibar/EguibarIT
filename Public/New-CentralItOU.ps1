@@ -222,10 +222,12 @@
                     throw ('Invalid XML file: {0}' -f $_.Exception.Message)
                 }
             })]
-        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Config.xml"')]
+        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Config.xml"',
+            Value = 'C:\PsScripts\Config.xml'
+        )]
         [Alias('Config', 'XML', 'ConfigXml')]
         [System.IO.FileInfo]
-        $ConfigXMLFile = 'C:\PsScripts\Config.xml',
+        $ConfigXMLFile,
 
         # Param2 If present It will create all needed Exchange objects, containers and delegations
         [Parameter(Mandatory = $false,
