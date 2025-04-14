@@ -11,7 +11,6 @@
 
 
     IncludeDefaultRules = $true
-    #IncludeRules        = '*'
 
     # Use IncludeRules when you want to run only a subset of the default rule set.
     <#
@@ -102,35 +101,48 @@
 
     Rules               = @{
 
-        PSAlignAssignmentStatement                = @{
+        PSAlignAssignmentStatement                  = @{
             Enable         = $true
             CheckHashtable = $true
         }
 
-        PSAvoidLongLines                          = @{
-            Enable            = $true
+        PSAvoidLongLines                            = @{
+            Enable            = $false
             MaximumLineLength = 130
         }
 
-        PSAvoidUsingDoubleQuotesForConstantString = @{
+        PSAvoidUsingCmdletAliases                   = @{
+            Enable    = $true
+            AllowList = @()
+        }
+
+        PSAvoidUsingDoubleQuotes                    = @{
             Enable = $true
         }
 
-        PSPlaceOpenBrace                          = @{
+        PSAvoidUsingDoubleQuotesForConstantString   = @{
+            Enable = $true
+        }
+
+        PSAvoidTrailingWhitespace                   = @{
+            Enable = $true
+        }
+
+        PSPlaceOpenBrace                            = @{
             Enable             = $true
             OnSameLine         = $true
             NewLineAfter       = $true
             IgnoreOneLineBlock = $true
         }
 
-        PSPlaceCloseBrace                         = @{
+        PSPlaceCloseBrace                           = @{
             Enable             = $true
             NewLineAfter       = $false
             IgnoreOneLineBlock = $true
             NoEmptyLineBefore  = $false
         }
 
-        PSProvideCommentHelp                      = @{
+        PSProvideCommentHelp                        = @{
             Enable                  = $true
             ExportedOnly            = $false
             BlockComment            = $true
@@ -138,7 +150,7 @@
             Placement               = 'begin'
         }
 
-        PSUseCompatibleSyntax                     = @{
+        PSUseCompatibleSyntax                       = @{
             # This turns the rule on (setting it to false will turn it off)
             Enable         = $true
 
@@ -153,14 +165,14 @@
             )
         }
 
-        PSUseConsistentIndentation                = @{
+        PSUseConsistentIndentation                  = @{
             Enable              = $true
             Kind                = 'space'
             PipelineIndentation = 'IncreaseIndentationForFirstPipeline'
             IndentationSize     = 4
         }
 
-        PSUseConsistentWhitespace                 = @{
+        PSUseConsistentWhitespace                   = @{
             Enable                                  = $true
             CheckInnerBrace                         = $true
             CheckOpenBrace                          = $true
@@ -173,7 +185,11 @@
             IgnoreAssignmentOperatorInsideHashTable = $true
         }
 
-        PSUseCorrectCasing                        = @{
+        PSUseCorrectCasing                          = @{
+            Enable = $true
+        }
+
+        PSUseShouldProcessForStateChangingFunctions = @{
             Enable = $true
         }
     }

@@ -157,7 +157,7 @@
         "Winlogon"
     ],
     "csv-preview.separator": ";",
-    "diffEditor.ignoreTrimWhitespace": true,
+    "diffEditor.ignoreTrimWhitespace": false,
     "editor.accessibilitySupport": "off",
     "editor.autoClosingComments": "always",
     "editor.autoIndent": "full",
@@ -218,16 +218,58 @@
     "git.autofetch": true,
     "git.enableSmartCommit": true,
     "git.openRepositoryInParentFolders": "never",
+    "github.copilot.autocomplete.enable": true,
+    "github.copilot.chat.testGeneration.instructions": [
+    {
+      "file": "code-style.md" // import instructions from file `code-style.md`
+    }
+    ],
+    "github.copilot.editor.enableAutoCompletions": true,
+    "github.copilot.inlineSuggest.enable": true,
+    "github.copilot.suggestions.showHidden": true,
+    "github.copilot.suggestionDelayMs": 0,
     "github-actions.workflows.pinned.workflows": [
         ".github/workflows/pipeline.yml"
     ],
     "github.copilot.enable": {
-        "PowerShell": true
+        "*": true,
+        "plaintext": true,
+        "markdown": true,
+        "powershell": true
+    },
+    "github.copilot.advanced": {
+        "configFiles": [".github/mcp.json"],
+        "customPatterns": [
+            {
+            "name": "ad-operations",
+            "file": ".github/copilot/ad-operations.json"
+            },
+            {
+            "name": "pester-testing",
+            "file": ".github/copilot/pester-testing.json"
+            }
+        ],
+        "indentationMode": {
+            "powershell": "spaces"
+        },
+        "length": 500,
+        "listCount": 10,
+        "precedents": [
+            ".github/copilot/powershell-best-practices.md"
+        ],
+        "setAutocompleteTriggerTimeout": 500,
+        "temperature": 0.3
     },
     "json.format.enable": true,
     // Ignore the MD rule:
     "markdownlint.config": {
         "MD024": false // no-duplicate-header
+    },
+    "[powershell]": {
+        "editor.defaultFormatter": "ms-vscode.powershell",
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
+        "editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?"
     },
     "powershell.codeFolding.enable": true,
     "powershell.codeFolding.showLastLine": true,
@@ -239,6 +281,7 @@
     "powershell.codeFormatting.newLineAfterOpenBrace": true,
     "powershell.codeFormatting.newLineAfterCloseBrace": false,
     "powershell.codeFormatting.openBraceOnSameLine": true,
+    "powershell.codeFormatting.preset": "Custom",
     "powershell.codeFormatting.provider": "PSScriptAnalyzer",
     "powershell.codeFormatting.trimWhitespaceAroundPipe": true,
     "powershell.codeFormatting.useCorrectCasing": true,
@@ -248,8 +291,10 @@
     "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
     "powershell.codeFormatting.whitespaceBeforeOpenParen": true,
     "powershell.codeFormatting.whitespaceBetweenParameters": true,
+    "powershell.debugging.createTemporaryIntegratedConsole": true,
     "powershell.integratedConsole.focusConsoleOnExecute": false, // Prevent focus switch to integrated console
-    "powershell.pester.codeLens": false,
+    "powershell.pester.codeLens": true,
+    "powershell.pester.useLegacyCodeLens": false,
     "powershell.promptToUpdatePowerShell": true,
     "powershell.powerShellAdditionalExePaths": {
         "exePath": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
@@ -323,5 +368,12 @@
     },
     "yaml.schemas": {
         "file:///c%3A/Users/RODRIGUEZEGUIBARVice/.vscode/extensions/docsmsft.docs-yaml-1.0.1/dist/toc.schema.json": "/toc\\.yml/i"
-    }
+    },
+    "cSpell.words": [
+        "DISM",
+        "DSIM",
+        "gpoc",
+        "hiberfil",
+        "wuauserv"
+    ]
 }
