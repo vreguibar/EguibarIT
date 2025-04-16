@@ -103,4 +103,4 @@
     end {
         return $isValid
     } #end End
-} #end Function
+} #end Function Test-IsValidGUID

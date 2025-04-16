@@ -220,9 +220,9 @@
     "git.openRepositoryInParentFolders": "never",
     "github.copilot.autocomplete.enable": true,
     "github.copilot.chat.testGeneration.instructions": [
-    {
-      "file": "code-style.md" // import instructions from file `code-style.md`
-    }
+        {
+            "file": "code-style.md" // import instructions from file `code-style.md`
+        }
     ],
     "github.copilot.editor.enableAutoCompletions": true,
     "github.copilot.inlineSuggest.enable": true,
@@ -241,12 +241,12 @@
         "configFiles": [".github/mcp.json"],
         "customPatterns": [
             {
-            "name": "ad-operations",
-            "file": ".github/copilot/ad-operations.json"
+                "name": "ad-operations",
+                "file": ".github/copilot/ad-operations.json"
             },
             {
-            "name": "pester-testing",
-            "file": ".github/copilot/pester-testing.json"
+                "name": "pester-testing",
+                "file": ".github/copilot/pester-testing.json"
             }
         ],
         "indentationMode": {

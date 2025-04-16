@@ -15,7 +15,7 @@
             Returns: True or False
 
         .EXAMPLE
-            'S-1-5-18' | Test-SIDValidity
+            'S-1-5-18' | Test-IsValidSID
             Returns: True (since it matches the well-known SYSTEM SID)
 
         .OUTPUTS
@@ -25,15 +25,16 @@
             Used Functions:
                 Name                                 ║ Module/Namespace
                 ═════════════════════════════════════╬════════════════════════════════════════
-                Get-ADObject                         ║ ActiveDirectory
+                Write-Verbose                        ║ Microsoft.PowerShell.Utility
+                Write-Error                          ║ Microsoft.PowerShell.Utility
 
         .NOTES
-            Version:         1.1
+            Version:         1.2
             DateModified:    12/Mar/2025
             LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+                        vicente@eguibar.com
+                        Eguibar Information Technology S.L.
+                        http://www.eguibarit.com
 
         .LINK
             https://pscustomobject.github.io/powershell/howto/identity%20management/PowerShell-Check-If-String-Is-A-DN/
@@ -49,7 +50,7 @@
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            ValueFromRemainingArguments = $true,
+            ValueFromRemainingArguments = $false,
             HelpMessage = 'String to be validated as SID',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
@@ -59,7 +60,6 @@
     )
 
     Begin {
-
         Set-StrictMode -Version Latest
 
         ##############################
@@ -67,69 +67,56 @@
 
         ##############################
         # Variables Definition
-        # Ensure only account is used (remove anything before \ if exist)
-        If ($PSBoundParameters['ObjectSID'] -contains '\') {
-            $ObjectSID = ($PSBoundParameters['ObjectSID']).Split('\')[1]
-        } else {
-            # Account does not contains \
-            $ObjectSID = $PSBoundParameters['ObjectSID']
-        } #end If-Else
-
         [bool]$isValid = $false
 
     } #end Begin
 
     Process {
+        # Handle pipeline input correctly
+        $SIDToValidate = $ObjectSID
 
-        if ($PSCmdlet.ShouldProcess($ObjectSID, 'Validate SID format and existence')) {
+        # Ensure only account is used (remove anything before \ if exists)
+        If ($SIDToValidate -match '\\') {
+            $SIDToValidate = $SIDToValidate.Split('\')[1]
+            Write-Verbose -Message ('Domain format detected. Extracted SID: {0}' -f $SIDToValidate)
+        } #end If
 
-            # try RegEx
+        if ($PSCmdlet.ShouldProcess($SIDToValidate, 'Validate SID format and existence')) {
+            # Try RegEx validation
             Try {
-
-                #if ($Variables.WellKnownSIDs -Contains $ObjectSID) {
-                If ($Variables.WellKnownSIDs.Keys.Contains($ObjectSID)) {
-
-                    Write-Verbose -Message ('The SID {0} is a WellKnownSid.' -f $ObjectSID)
+                # Check if it's a well-known SID first
+                If ($null -ne $Variables -and
+                    $null -ne $Variables.WellKnownSIDs -and
+                    $Variables.WellKnownSIDs.ContainsKey($SIDToValidate)) {
+                    Write-Verbose -Message ('The SID {0} is a WellKnownSid.' -f $SIDToValidate)
                     $isValid = $true
-
-                } elseIf ($ObjectSID -match $Constants.SidRegEx) {
-
-                    Write-Verbose -Message ('The SID {0} is valid.' -f $ObjectSID)
+                }
+                # Then check against regex pattern
+                elseIf ($null -ne $Constants -and
+                    $null -ne $Constants.SidRegEx -and
+                    $SIDToValidate -match $Constants.SidRegEx) {
+                    Write-Verbose -Message ('The SID {0} is valid.' -f $SIDToValidate)
                     $isValid = $true
-
-                } else {
-
-                    Write-Verbose -Message ('[WARNING] The SID {0} is NOT valid!.' -f $ObjectSID)
+                }
+                # If neither, it's invalid
+                else {
+                    # This exact message format is expected by the test
+                    Write-Verbose -Message ('[WARNING] The SID {0} is NOT valid!.' -f $SIDToValidate)
                     $isValid = $false
-
                 } #end If-Else
             } catch {
                 # Handle exceptions gracefully
-                Write-Error -Message ('An error occurred when validating the SID: {0}' -f $_)
+                Write-Error -Message ('An error occurred when validating the SID: {0}' -f $_.Exception.Message)
+                $isValid = $false
             } #end Try-Catch
 
-            <#
-                # try Native SID
-                Try {
-                    # Perform the actual validation
-                    [System.Security.Principal.SecurityIdentifier]$sid = $Sid
-                    $isValid = $True
-
-                    # Provide verbose output
-                    if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
-                        Write-Verbose "objectSID validation result by [SecurityIdentifier]: $isValid"
-                    } #end If
-
-                } catch {
-                    # Handle exceptions gracefully
-                    Write-Error "An error occurred on [SecurityIdentifier] comparison: $_"
-                } #end Try-Catch
-            #>
-        } #end If
+            # Return the validation result within the ShouldProcess block
+            return $isValid
+        } #end If ShouldProcess
     } #end Process
 
-    end {
-        return $isValid
+    End {
+        # No action needed here since we return within Process
     } #end End
 
-} #end Function
+} #end Function Test-IsValidSID

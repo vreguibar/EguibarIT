@@ -88,7 +88,6 @@
         Try {
 
             # Perform the actual validation
-            #$isValid = $ObjectDN -match $distinguishedNameRegex
             $isValid = $ObjectDN -match $Constants.DnRegEx
 
             # Provide verbose output
@@ -96,16 +95,11 @@
                 Write-Verbose -Message ('DistinguishedName validation result: {0}' -f $isValid)
             } #end If
 
-        } catch [RegexMatchTimeoutException] {
-
-            Write-Error -Message ('Regex timeout while validating DN: {0}' -f $dn)
-            continue
-
         } catch {
 
-            # Handle exceptions gracefully
-            Write-Error -Message 'Error when validating DistinguishedName'
-            continue
+            # Handle any exceptions gracefully
+            Write-Error -Message ('Error validating DN: {0}. Error: {1}' -f $ObjectDN, $_.Exception.Message)
+            $isValid = $false
 
         } #end Try-Catch
 
@@ -114,4 +108,4 @@
     end {
         return $isValid
     } #end End
-} #end Function
+} #end Function Test-IsValidDN
