@@ -107,7 +107,7 @@
         }
 
         PSAvoidLongLines                            = @{
-            Enable            = $false
+            Enable            = $true
             MaximumLineLength = 130
         }
 
@@ -161,7 +161,8 @@
                 '7.1',
                 '7.2',
                 '7.3',
-                '7.4'
+                '7.4',
+                '7.5'
             )
         }
 
