@@ -220,7 +220,15 @@
             HelpMessage = 'Remove Pre-Windows 2000 Built-In group',
             Position = 10)]
         [Switch]
-        $RemovePreWin2000
+        $RemovePreWin2000,
+
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'If present, the function will not ask for confirmation when performing actions.',
+            Position = 11)]
+        [Switch]
+        $Force
 
     )
 

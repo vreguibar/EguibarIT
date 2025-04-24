@@ -98,8 +98,12 @@
         [string]
         $FilePath,
 
-        [Parameter(Position = 3)]
-        [switch]
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'If present, the function will not ask for confirmation when performing actions.',
+            Position = 3)]
+        [Switch]
         $Force,
 
         [Parameter(Mandatory = $true,

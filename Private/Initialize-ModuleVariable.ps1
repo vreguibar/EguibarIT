@@ -52,9 +52,15 @@
     [OutputType([void])]
 
     Param (
+
         [Parameter(Mandatory = $false,
-            HelpMessage = 'Force reinitialization even if variables already exist.')]
-        [switch]$Force
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Force reinitialization even if variables already exist.',
+            Position = 0)]
+        [Switch]
+        $Force
+
     )
 
     Begin {

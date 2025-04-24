@@ -119,11 +119,11 @@ function Start-AdCleanOU {
         $RemoveUnknownSIDs,
 
         [Parameter(Mandatory = $false,
-            ValueFromPipeline = $true,
-            ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Force the action',
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'If present, the function will not ask for confirmation when performing actions.',
             Position = 3)]
-        [switch]
+        [Switch]
         $Force
     )
 
