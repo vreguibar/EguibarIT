@@ -286,7 +286,6 @@
                     EventId   = $eventId
                     Category  = [int]([Enum]::Parse([EventCategory], $eventCategory))  # Convert EventCategory to int
                     Message   = $sb.ToString()
-                    Confirm   = $false
                 }
                 Write-EventLog @Splat
 

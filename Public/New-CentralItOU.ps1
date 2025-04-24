@@ -1303,16 +1303,97 @@
         # http://blogs.technet.com/b/askpfeplat/archive/2012/12/17/windows-server-2012-group-managed-service-accounts.aspx
         # If working in a test environment with a minimal number of DCs
         # and the ability to guarantee immediate replication, please use:
-        If ([System.Environment]::OSVersion.Version.Build -ge 26100) {
+        Write-Verbose -Message 'Checking if KDS Root Key exists'
 
-            # New parameter to use immediately
-            Add-KdsRootKey -EffectiveImmediately
+        try {
+            # Check if a KDS Root Key already exists
+            $existingKey = Get-KdsRootKey -ErrorAction SilentlyContinue
 
-        } else {
+            if (-not $existingKey) {
+                Write-Verbose -Message 'No KDS Root Key found. Creating a new key.'
 
-            #give a time of 10 days ago to make it effective now.
-            Add-KdsRootKey -EffectiveTime ((Get-Date).addhours(-10))
-        } #end If-Else
+                # Attempt to create the KDS Root Key based on OS version
+                if ([System.Environment]::OSVersion.Version.Build -ge 26100) {
+
+                    # Windows Server 2022+ supports -EffectiveImmediately parameter
+                    Write-Verbose -Message 'Using -EffectiveImmediately parameter for newer Windows Server version'
+
+                    try {
+
+                        Add-KdsRootKey -EffectiveImmediately -ErrorAction Stop
+                        Write-Verbose -Message 'KDS Root Key created successfully using -EffectiveImmediately'
+
+                    } catch {
+
+                        # Handle specific errors
+                        if ($_.Exception.Message -like '*0x80070032*') {
+
+                            Write-Verbose -Message 'KDS Root Key already exists (Error 0x80070032)'
+
+                        } else {
+
+                            Write-Warning -Message (
+                                'Error creating KDS Root Key with EffectiveImmediately: {0}' -f
+                                $_.Exception.Message
+                            )
+                        } #end If-Else
+                    } #end Try-Catch
+
+                } else {
+
+                    # For older versions, use backdated time approach
+                    Write-Verbose -Message 'Using backdated time approach for older Windows Server versions'
+
+                    try {
+                        Add-KdsRootKey -EffectiveTime ((Get-Date).AddHours(-10)) -ErrorAction Stop
+                        Write-Verbose -Message 'KDS Root Key created successfully using backdated time'
+
+                    } catch {
+
+                        # Handle specific errors
+                        if ($_.Exception.Message -like '*0x80070032*') {
+
+                            Write-Verbose -Message 'KDS Root Key already exists (Error 0x80070032)'
+
+                        } else {
+
+                            Write-Warning -Message (
+                                'Error creating KDS Root Key with backdated time: {0}' -f
+                                $_.Exception.Message
+                            )
+                        } #end If-Else
+
+                    } #end Try-Catch
+
+                } #end If-Else
+
+            } else {
+
+                Write-Verbose -Message ('KDS Root Key already exists with ID: {0}' -f $existingKey.KeyId)
+
+            } #end If-Else
+
+            # Verify KDS Root Key exists after our operation
+            $kdsKey = Get-KdsRootKey -ErrorAction SilentlyContinue
+
+            if ($kdsKey) {
+
+                Write-Verbose -Message ('Using KDS Root Key with ID: {0}' -f $kdsKey.KeyId)
+
+            } else {
+
+                Write-Warning -Message (
+                    'No KDS Root Key found after creation attempt.
+                    This may indicate a replication issue or other problem.
+                    Please check the domain controllers and ensure they are replicating correctly.
+                    Group Managed Service Accounts may not function properly.'
+                )
+            }
+        } catch {
+
+            Write-Error -Message ('Unexpected error when checking or creating KDS Root Key: {0}' -f $_.Exception.Message)
+
+        } #end Try-Catch
 
 
 
