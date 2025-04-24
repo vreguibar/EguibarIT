@@ -441,12 +441,14 @@
         $Splat = @{
             Name  = 'SG_Operations'
             Value = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.Operations.Name)
+            Scope = 'Global'
             Force = $true
         }
         New-Variable @Splat
         $Splat = @{
             Name  = 'SG_ServerAdmins'
             Value = ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name)
+            Scope = 'Global'
             Force = $true
         }
         New-Variable @Splat
@@ -454,12 +456,14 @@
         $Splat = @{
             Name  = 'SL_SvrAdmRight'
             Value = ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name)
+            Scope = 'Global'
             Force = $true
         }
         New-Variable @Splat
         $Splat = @{
             Name  = 'SL_SvrOpsRight'
             Value = ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name)
+            Scope = 'Global'
             Force = $true
         }
         New-Variable @Splat
@@ -532,6 +536,7 @@
                 Value       = $Node.Name
                 Description = $Node.Description
                 Option      = 'ReadOnly'
+                Scope       = 'Global'
                 Force       = $true
             }
             # Create variable for current OUs name, Using the XML LocalName of the node for the variable
@@ -548,7 +553,14 @@
         # Admin Area
 
         # IT Admin OU Distinguished Name
-        New-Variable -Name 'ItAdminOuDn' -Value ('OU={0},{1}' -f $ItAdminOu, $Variables.AdDn) -Option ReadOnly -Force
+        $Splat = @{
+            Name   = 'ItAdminOuDn'
+            Value  = 'OU={0},{1}' -f $ItAdminOu, $Variables.AdDn
+            Option = 'ReadOnly'
+            Scope  = 'Global'
+            Force  = $true
+        }
+        New-Variable @Splat
 
         # It Admin Users OU Distinguished Name
         $ItAdminAccountsOuDn = 'OU={0},{1}' -f $ItAdminAccountsOu, $ItAdminOuDn
@@ -616,7 +628,7 @@
         # Servers Area
 
         # Servers OU
-        New-Variable -Name 'ServersOu' -Value $confXML.n.Servers.OUs.ServersOU.Name -Option ReadOnly -Force
+        New-Variable -Name 'ServersOu' -Value $confXML.n.Servers.OUs.ServersOU.Name -Option ReadOnly -Scope Global -Force
         # Servers OU Distinguished Name
         $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $Variables.AdDn
 
@@ -625,7 +637,7 @@
         # Sites Area
 
         # Sites OU
-        New-Variable -Name 'SitesOu' -Value $confXML.n.Sites.OUs.SitesOU.name -Option ReadOnly -Force
+        New-Variable -Name 'SitesOu' -Value $confXML.n.Sites.OUs.SitesOU.name -Option ReadOnly -Scope Global -Force
         # Sites OU Distinguished Name
         $SitesOuDn = 'OU={0},{1}' -f $SitesOu, $Variables.AdDn
 
@@ -649,12 +661,26 @@
 
 
         # Quarantine OU for PCs
-        New-Variable -Name 'ItQuarantinePcOu' -Value $confXML.n.Admin.OUs.ItNewComputersOU.name -Option ReadOnly -Force
+        $Splat = @{
+            Name   = 'ItQuarantinePcOu'
+            Value  = $confXML.n.Admin.OUs.ItNewComputersOU.name
+            Option = 'ReadOnly'
+            Scope  = 'Global'
+            Force  = $true
+        }
+        New-Variable @Splat
         # Quarantine OU Distinguished Name
         $ItQuarantinePcOuDn = 'OU={0},{1}' -f $ItQuarantinePcOu, $Variables.AdDn
 
         # Quarantine OU for Users
-        New-Variable -Name 'ItQuarantineUserOu' -Value $confXML.n.Admin.OUs.ItNewUsersOU.name -Option ReadOnly -Force
+        $Splat = @{
+            Name   = 'ItQuarantineUserOu'
+            Value  = $confXML.n.Admin.OUs.ItNewUsersOU.name
+            Option = 'ReadOnly'
+            Scope  = 'Global'
+            Force  = $true
+        }
+        New-Variable @Splat
 
         #endregion Declarations
         ################################################################################
@@ -736,7 +762,7 @@
         New-DelegateAdOU -ouName $ItServiceAccountsOu -ouDescription $confXML.n.Admin.OUs.ItServiceAccountsOU.description @Splat
         New-DelegateAdOU -ouName $ItHousekeepingOu -ouDescription $confXML.n.Admin.OUs.ItHousekeepingOU.description @Splat
         New-DelegateAdOU -ouName $ItInfraOu -ouDescription $confXML.n.Admin.OUs.ItInfraOU.description @Splat
-        New-DelegateAdOU -ouName $ItAdminSrvGroupsOU -ouDescription $confXML.n.Admin.OUs.ItAdminSrvGroups.description @Splat
+        New-DelegateAdOU -ouName $ItAdminSrvGroupsOU -ouDescription $confXML.n.Admin.OUs.ItAdminSrvGroupsOU.description @Splat
 
         # Ensure inheritance is enabled for child Admin OUs
         $Splat = @{
@@ -1099,6 +1125,7 @@
             $varparam = @{
                 Name  = "$('SL{0}{1}' -f  $NC['Delim'], $Node.LocalName)"
                 Value = $createdGroup
+                Scope = 'Global'
                 Force = $true
             }
             New-Variable @varparam
@@ -1127,6 +1154,7 @@
             $varparam = @{
                 Name  = "$('SG{0}{1}' -f $NC['Delim'], $Node.LocalName)"
                 Value = $createdGroup
+                Scope = 'Global'
                 Force = $true
             }
             New-Variable @varparam
@@ -1152,7 +1180,7 @@
         }
         $createdGroup = New-AdDelegatedGroup @Splat
         $variableName = "$('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.Operations.LocalName)"
-        New-Variable -Name $variableName -Value $createdGroup -Force
+        New-Variable -Name $variableName -Value $createdGroup -Scope Global -Force
         $createdGroup = $null
 
         $Splat = @{
@@ -1169,7 +1197,7 @@
         }
         $createdGroup = New-AdDelegatedGroup @Splat
         $variableName = $('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.LocalName)
-        New-Variable -Name $variableName -Value $createdGroup -Force
+        New-Variable -Name $variableName -Value $createdGroup -Scope Global -Force
         $createdGroup = $null
 
         $Splat = @{
@@ -1186,7 +1214,7 @@
         }
         $createdGroup = New-AdDelegatedGroup @Splat
         $variableName = $('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.LocalName)
-        New-Variable -Name $variableName -Value $createdGroup -Force
+        New-Variable -Name $variableName -Value $createdGroup -Scope Global -Force
         $createdGroup = $null
 
         $Splat = @{
@@ -1203,7 +1231,7 @@
         }
         $createdGroup = New-AdDelegatedGroup @Splat
         $variableName = $('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.LocalName)
-        New-Variable -Name $variableName -Value $createdGroup -Force
+        New-Variable -Name $variableName -Value $createdGroup -Scope Global -Force
         $createdGroup = $null
 
 

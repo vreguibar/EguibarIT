@@ -1,7 +1,7 @@
 Function Import-MyModule {
     <#
         .SYNOPSIS
-        Imports a PowerShell module with enhanced error handling and functionality.
+            Imports a PowerShell module with enhanced error handling and functionality.
 
         .DESCRIPTION
             This function imports a specified PowerShell module with additional
@@ -60,14 +60,28 @@ Function Import-MyModule {
             even if it's already loaded, and provides verbose output.
 
         .NOTES
-            Version:        2.1
-            DateModified:   27/Aug/2024
+            Used Functions:
+                Name                                    ║ Module/Namespace
+                ════════════════════════════════════════╬══════════════════════════════
+                Get-Module                              ║ Microsoft.PowerShell.Core
+                Import-Module                           ║ Microsoft.PowerShell.Core
+                Write-Verbose                           ║ Microsoft.PowerShell.Utility
+                Write-Error                             ║ Microsoft.PowerShell.Utility
+                Get-FunctionDisplay                     ║ EguibarIT
+
+        .NOTES
+            Version:        2.2
+            DateModified:   24/Apr/2025
             LastModifiedBy: Vicente Rodriguez Eguibar
                 vicente@eguibar.com
-                Eguibar Information Technology S.L.
+                Eguibar IT
                 http://www.eguibarit.com
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+
+    [CmdletBinding(
+        SupportsShouldProcess = $true,
+        ConfirmImpact = 'low'
+    )]
     [OutputType([System.Management.Automation.PSModuleInfo])]
 
     Param (
@@ -131,12 +145,20 @@ Function Import-MyModule {
     )
 
     Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        # Set strict mode
+        Set-StrictMode -Version Latest
+
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToShortDateString(),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
