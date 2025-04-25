@@ -70,8 +70,8 @@ Function Import-MyModule {
                 Get-FunctionDisplay                     ║ EguibarIT
 
         .NOTES
-            Version:        2.2
-            DateModified:   24/Apr/2025
+            Version:        2.3
+            DateModified:   25/Apr/2025
             LastModifiedBy: Vicente Rodriguez Eguibar
                 vicente@eguibar.com
                 Eguibar IT
@@ -166,6 +166,8 @@ Function Import-MyModule {
         ##############################
         # Variables Definition
 
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+
         $Preference = $VerbosePreference
         $VerbosePreference = 'SilentlyContinue'
 
@@ -237,32 +239,59 @@ Function Import-MyModule {
 
         try {
 
-            If ($Name -eq 'GroupPolicy') {
-                $importParams['Name'] = 'C:\Windows\system32\WindowsPowerShell\v1.0\Modules\GroupPolicy\GroupPolicy.psd1'
-                Import-Module @importParams
+            # First check if the module is available (installed) on the system
+            $Splat = @{
+                Name          = $Name
+                ListAvailable = $true
+                ErrorAction   = 'SilentlyContinue'
+                Verbose       = $PSBoundParameters['Verbose']
             }
-
-            If ($Name -eq 'ServerManager') {
-                $importParams['Name'] = 'C:\Windows\system32\WindowsPowerShell\v1.0\Modules\ServerManager\ServerManager.psd1'
-                Import-Module @importParams
-            }
-
-            # Change this part to correctly check for module availability
-            $availableModule = Get-Module -Name $Name -ErrorAction SilentlyContinue -Verbose:$PSBoundParameters['Verbose']
+            $availableModule = Get-Module @Splat
 
             if (-not $availableModule) {
-                Write-Error -Message ('Module "{0}" is not installed. Please install the module before importing.' -f $Name)
+                # Special case handling for built-in modules with specific paths
+                if ($Name -eq 'GroupPolicy') {
+                    $gpPath = 'C:\Windows\system32\WindowsPowerShell\v1.0\Modules\GroupPolicy\GroupPolicy.psd1'
+                    if (Test-Path -Path $gpPath) {
+                        $importParams['Name'] = $gpPath
+                    } else {
+                        Write-Error -Message (
+                            'Module "{0}" is not installed. Please install the module before importing.' -f
+                            $Name
+                        )
+                        return
+                    }
+                } elseif ($Name -eq 'ServerManager') {
+                    $smPath = 'C:\Windows\system32\WindowsPowerShell\v1.0\Modules\ServerManager\ServerManager.psd1'
+                    if (Test-Path -Path $smPath) {
+                        $importParams['Name'] = $smPath
+                    } else {
+                        Write-Error -Message (
+                            'Module "{0}" is not installed. Please install the module before importing.' -f
+                            $Name
+                        )
+                        return
+                    }
+                } else {
+                    Write-Error -Message ('Module "{0}" is not installed. Please install the module before importing.' -f $Name)
+                    return
+                }
             } #end If
 
-
             # Check if the module is already imported
-            $importedModule = Get-Module -Name $Name -ErrorAction SilentlyContinue -Verbose:$PSBoundParameters['Verbose']
+            $Splat = @{
+                Name        = $Name
+                ErrorAction = 'SilentlyContinue'
+                Verbose     = $PSBoundParameters['Verbose']
+            }
+            $importedModule = Get-Module @Splat
 
-            if ($null -ne $importedModule -and -not $Force) {
+            if ($null -ne $importedModule -and
+                -not $Force) {
                 Write-Verbose -Message ('[{0}] Module {1} is already imported.' -f $functionName, $Name)
 
                 if ($PassThru) {
-                    return $Module
+                    return $importedModule
                 } #end If
                 return
 
@@ -271,19 +300,23 @@ Function Import-MyModule {
             # Perform the import
             if ($PSCmdlet.ShouldProcess($Name, 'Import Module')) {
 
-                $importedModule = Import-Module @importParams -Verbose:$PSBoundParameters['Verbose']
-
-                Write-Verbose -Message ('[{0}] Successfully imported module {1}' -f $functionName, $Name)
-
-
                 if ($PassThru) {
+
+                    $importedModule = Import-Module @importParams -PassThru -Verbose:$PSBoundParameters['Verbose']
+
+                    Write-Verbose -Message ('[{0}] Successfully imported module {1}' -f $functionName, $Name)
+
                     return $importedModule
-                } #end If
 
-                Write-Verbose -Message ('Module {0} has been successfully imported.' -f $ModuleName)
-            } #end else
+                } else {
 
+                    Import-Module @importParams -Verbose:$PSBoundParameters['Verbose']
 
+                    Write-Verbose -Message ('[{0}] Successfully imported module {1}' -f $functionName, $Name)
+
+                } #end If-else
+
+            } #end If
 
         } catch {
             Write-Error -Message ('[{0}] Error importing module {1}: {2}' -f $functionName, $Name, $_)
@@ -295,9 +328,13 @@ Function Import-MyModule {
     End {
         $VerbosePreference = $Preference
 
-        $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-            'importing module.'
-        )
-        Write-Verbose -Message $txt
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Footer) {
+            $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+                'importing module.'
+            )
+            Write-Verbose -Message $txt
+        } #end If
+
     } #end End
-} #end Function
+} #end Function Import-MyModule

@@ -432,7 +432,7 @@
 
 
         # parameters variable for splatting CMDlets
-        $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+        [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
         $ArrayList = [System.Collections.ArrayList]::New()
 
         $AllGroups = [System.Collections.Generic.HashSet[object]]::New()
