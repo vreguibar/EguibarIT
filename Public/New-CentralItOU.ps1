@@ -822,9 +822,9 @@
             ouPath   = $ItInfraOuDn
             CleanACL = $True
         }
-        New-DelegateAdOU -ouName $ItInfraT0Ou -ouDescription $confXML.n.Admin.OUs.ItInfraT0.description @Splat
-        New-DelegateAdOU -ouName $ItInfraT1Ou -ouDescription $confXML.n.Admin.OUs.ItInfraT1.description @Splat
-        New-DelegateAdOU -ouName $ItInfraT2Ou -ouDescription $confXML.n.Admin.OUs.ItInfraT2.description @Splat
+        New-DelegateAdOU -ouName $ItInfraT0Ou -ouDescription $confXML.n.Admin.OUs.ItInfraT0OU.description @Splat
+        New-DelegateAdOU -ouName $ItInfraT1Ou -ouDescription $confXML.n.Admin.OUs.ItInfraT1OU.description @Splat
+        New-DelegateAdOU -ouName $ItInfraT2Ou -ouDescription $confXML.n.Admin.OUs.ItInfraT2OU.description @Splat
         New-DelegateAdOU -ouName $ItInfraStagingOu -ouDescription $confXML.n.Admin.OUs.ItInfraStagingOU.description @Splat
 
         # Ensure inheritance is enabled for child Admin OUs
