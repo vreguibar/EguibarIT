@@ -148,7 +148,7 @@ Function New-LAPSobject {
             $null -ne $Variables.Header) {
 
             $txt = ($Variables.Header -f
-                (Get-Date).ToShortDateString(),
+                (Get-Date).ToString('dd/MMM/yyyy'),
                 $MyInvocation.Mycommand,
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )

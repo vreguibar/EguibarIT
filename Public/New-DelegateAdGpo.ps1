@@ -94,7 +94,7 @@
         ConfirmImpact = 'Medium',
         DefaultParameterSetName = 'DelegatedAdGpo'
     )]
-    [OutputType([Microsoft.GroupPolicy.Gpo])]
+    [OutputType([Object])]
 
     Param (
         # Param1 GPO description, used to generate name
@@ -178,11 +178,14 @@
     Begin {
         Set-StrictMode -Version Latest
 
+        # Load GroupPolicy types
+        Add-Type -AssemblyName 'Microsoft.GroupPolicy'
+
         if ($null -ne $Variables -and
             $null -ne $Variables.Header) {
 
             $txt = ($Variables.Header -f
-                (Get-Date).ToShortDateString(),
+                (Get-Date).ToString('dd/MMM/yyyy'),
                 $MyInvocation.Mycommand,
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )

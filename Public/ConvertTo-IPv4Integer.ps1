@@ -34,7 +34,7 @@ function ConvertTo-IPv4Integer {
 
     Begin {
         $txt = ($Variables.Header -f
-            (Get-Date).ToShortDateString(),
+            (Get-Date).ToString('dd/MMM/yyyy'),
             $MyInvocation.Mycommand,
             (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
         )
