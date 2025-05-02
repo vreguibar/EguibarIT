@@ -18,7 +18,7 @@
             Must be a valid XML file with required schema elements.
             Default: C:\PsScripts\Config.xml
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             [System.String] Path to all the scripts and files needed by this function.
             Must contain a SecTmpl subfolder.
             Default: C:\PsScripts\
@@ -29,7 +29,7 @@
             Creates quarantine OUs, removes delegations from default containers, and redirects User/Computer creation.
 
         .EXAMPLE
-            New-Tier0Redirection -ConfigXMLFile "C:\PsScripts\Config.xml" -DMscripts "D:\Scripts" -Verbose
+            New-Tier0Redirection -ConfigXMLFile "C:\PsScripts\Config.xml" -DMScripts "D:\Scripts" -Verbose
 
             Creates quarantine OUs with verbose output, using scripts from the D:\Scripts location.
 
@@ -138,7 +138,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 

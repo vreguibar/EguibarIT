@@ -24,13 +24,13 @@
             Must be a valid XML file with required schema elements.
             Default: C:\PsScripts\Config.xml
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             [String] Path to all the scripts and files needed by this function.
             Must contain a subfolder named 'SecTmpl' with security templates.
             Default: C:\PsScripts\
 
         .EXAMPLE
-            New-Tier0GpoRestriction -ConfigXMLFile C:\Scripts\Config.xml -DMscripts C:\Scripts
+            New-Tier0GpoRestriction -ConfigXMLFile C:\Scripts\Config.xml -DMScripts C:\Scripts
 
             Creates and configures all baseline GPOs using the specified configuration file and scripts path.
 
@@ -148,7 +148,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 

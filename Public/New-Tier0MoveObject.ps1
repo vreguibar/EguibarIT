@@ -16,7 +16,7 @@
             Must be a valid XML file with required schema elements.
             Default: C:\PsScripts\Config.xml
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             [System.String] Path to all the scripts and files needed by this function.
             The directory must contain a SecTmpl subfolder.
             Default: C:\PsScripts\
@@ -27,7 +27,7 @@
             Moves Tier0 objects as defined in the configuration file with verbose output.
 
         .EXAMPLE
-            New-Tier0MoveObject -ConfigXMLFile 'C:\PsScripts\Config.xml' -DMscripts 'C:\Scripts\'
+            New-Tier0MoveObject -ConfigXMLFile 'C:\PsScripts\Config.xml' -DMScripts 'C:\Scripts\'
 
             Moves Tier0 objects as defined in the configuration file, using scripts from the specified path.
 
@@ -138,7 +138,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 

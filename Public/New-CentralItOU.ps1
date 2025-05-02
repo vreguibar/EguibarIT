@@ -55,7 +55,7 @@
             If present, creates DHCP-related objects, containers and delegations.
             Requires valid DHCP configuration in the XML file.
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             Path to all supporting scripts and files needed by this function.
             Must contain a SecTmpl subfolder with required templates.
             Default is C:\PsScripts\
@@ -77,7 +77,7 @@
                 CreateExchange = $true
                 CreateDfs = $true
                 CreateCa = $true
-                DMscripts = 'D:\AdminScripts\'
+                DMScripts = 'D:\AdminScripts\'
                 Verbose = $true
             }
 
@@ -278,11 +278,11 @@
             })]
         [PSDefaultValue(
             Help = 'Default Value is "C:\PsScripts\"',
-            value = 'C:\PsScripts\'
+            Value = 'C:\PsScripts\'
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
     )
 
     Begin {
@@ -595,9 +595,11 @@
 
     Process {
 
+        # Create splat hashtable ensuring case matches exactly with parameter name
         $Splat = @{
             ConfigXMLFile = $PSBoundParameters['ConfigXMLFile']
-            DMscripts     = $PSBoundParameters['DMscripts']
+            DMScripts     = $PSBoundParameters['DMScripts']
+            Confirm       = $false
         }
 
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Create full tier model structure')) {

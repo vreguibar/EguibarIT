@@ -47,7 +47,7 @@
             Position = 1)]
         [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\"')]
         [string]
-        $DMscripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\'
     )
 
     Begin {

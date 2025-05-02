@@ -40,7 +40,7 @@ Function New-ExchangeObject {
             Position = 1)]
         [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\"')]
         [string]
-        $DMscripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\'
     )
 
     Begin {
@@ -344,16 +344,16 @@ Function New-ExchangeObject {
         # Import the security templates to the corresponding GPOs under Servers
 
         # Configure Exchange ClientAccess GPO
-        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExCas.backupID     -TargetName ('C-{0}-Baseline' -f $ExCasOu) -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExCas.backupID     -TargetName ('C-{0}-Baseline' -f $ExCasOu) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
 
         # Configure Exchange Hub GPO
-        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExHub.backupID     -TargetName ('C-{0}-Baseline' -f $ExHubOu) -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExHub.backupID     -TargetName ('C-{0}-Baseline' -f $ExHubOu) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
 
         # Configure Mailbox GPO
-        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExMailbox.backupID -TargetName ('C-{0}-Baseline' -f $ExMailboxOu) -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExMailbox.backupID -TargetName ('C-{0}-Baseline' -f $ExMailboxOu) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
 
         # Configure EDGE GPO
-        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExEdge.backupID    -TargetName ('C-{0}-Baseline' -f $ExEdgeOuDn) -path (Join-Path -Path $DMscripts -ChildPath SecTmpl)
+        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExEdge.backupID    -TargetName ('C-{0}-Baseline' -f $ExEdgeOuDn) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
     } #end Process
 
     End {

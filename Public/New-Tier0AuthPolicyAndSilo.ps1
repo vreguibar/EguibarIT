@@ -23,7 +23,7 @@
             Must be a valid XML file with required schema elements.
             Default: C:\PsScripts\Config.xml
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             Path to all the scripts and files needed by this function.
             Must contain a SecTmpl subfolder with necessary template files.
             Default: C:\PsScripts\
@@ -34,7 +34,7 @@
             Creates Tier 0 Authentication Policies and Silos using the specified XML configuration file.
 
         .EXAMPLE
-            New-Tier0AuthPolicyAndSilo -ConfigXMLFile "C:\PsScripts\Config.xml" -DMscripts "C:\CustomScripts\"
+            New-Tier0AuthPolicyAndSilo -ConfigXMLFile "C:\PsScripts\Config.xml" -DMScripts "C:\CustomScripts\"
 
             Creates Tier 0 Authentication Policies and Silos using the specified XML configuration file
             and a custom script directory.
@@ -152,7 +152,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 

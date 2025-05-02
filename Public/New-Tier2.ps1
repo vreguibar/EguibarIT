@@ -70,7 +70,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 
@@ -155,7 +155,7 @@
                 gpoDescription = '{0}-Baseline' -f $SitesOu
                 gpoLinkPath    = $SitesOuDn
                 GpoAdmin       = $sl_GpoAdminRight
-                gpoBackupPath  = Join-Path -Path $DMscripts -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $DMScripts -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo @Splat -gpoScope 'C' -gpoBackupID $confXML.n.Sites.OUs.OuSiteComputer.backupID
             New-DelegateAdGpo @Splat -gpoScope 'U' -gpoBackupID $confXML.n.Sites.OUs.OuSiteUser.backupID

@@ -16,7 +16,7 @@
             Must be a valid XML file with required schema elements.
             Default: C:\PsScripts\Config.xml
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             [System.String] Path to all the scripts and files needed by this function.
             Must contain a SecTmpl subfolder for security templates.
             Default: C:\PsScripts\
@@ -26,7 +26,7 @@
             Creates all Tier0 admin groups using the specified configuration file.
 
         .EXAMPLE
-            New-Tier0AdminGroup -ConfigXMLFile C:\PsScripts\Config.xml -DMscripts C:\Scripts
+            New-Tier0AdminGroup -ConfigXMLFile C:\PsScripts\Config.xml -DMScripts C:\Scripts
             Creates Tier0 admin groups using the specified configuration file and scripts path.
 
         .INPUTS
@@ -134,7 +134,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 

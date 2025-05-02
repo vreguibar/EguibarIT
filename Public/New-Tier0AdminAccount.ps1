@@ -16,7 +16,7 @@
             Must be a valid XML file with required schema elements.
             Default: C:\PsScripts\Config.xml
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             [System.String] Path to all the scripts and files needed by this function.
             Must contain a SecTmpl subfolder and may contain a Pic subfolder for user pictures.
             Default: C:\PsScripts\
@@ -26,7 +26,7 @@
             Creates or updates Tier0 admin accounts using the specified configuration file.
 
         .EXAMPLE
-            New-Tier0AdminAccount -ConfigXMLFile C:\PsScripts\Config.xml -DMscripts C:\Scripts
+            New-Tier0AdminAccount -ConfigXMLFile C:\PsScripts\Config.xml -DMScripts C:\Scripts
             Creates or updates Tier0 admin accounts using the specified configuration file and scripts path.
 
         .INPUTS
@@ -139,7 +139,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 
@@ -220,15 +220,15 @@
             $NewAdminExists = Get-ADUser -Filter { SamAccountName -eq $NewAdminName } -ErrorAction SilentlyContinue
 
             # Get picture if exist. Use default if not.
-            if (Test-Path -Path ('{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMscripts'], $NewAdminName)) {
+            if (Test-Path -Path ('{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $NewAdminName)) {
                 # Read the path and file name of JPG picture
-                $PhotoFile = '{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMscripts'], $NewAdminName
+                $PhotoFile = '{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $NewAdminName
                 # Get the content of the JPG file
                 [byte[]]$Photo = [System.IO.File]::ReadAllBytes($PhotoFile)
             } else {
-                if (Test-Path -Path ('{0}\Pic\Default.jpg' -f $PSBoundParameters['DMscripts'])) {
+                if (Test-Path -Path ('{0}\Pic\Default.jpg' -f $PSBoundParameters['DMScripts'])) {
                     # Read the path and file name of JPG picture
-                    $PhotoFile = '{0}\Pic\Default.jpg' -f $PSBoundParameters['DMscripts']
+                    $PhotoFile = '{0}\Pic\Default.jpg' -f $PSBoundParameters['DMScripts']
 
                     # Get the content of the JPG file
                     [byte[]]$Photo = [System.IO.File]::ReadAllBytes($PhotoFile)
@@ -369,9 +369,9 @@
             }
 
             # Get picture for built-in Administrator if exists
-            if (Test-Path -Path ('{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMscripts'], $AdminName.SamAccountName)) {
+            if (Test-Path -Path ('{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $AdminName.SamAccountName)) {
                 # Read the path and file name of JPG picture
-                $PhotoFile = '{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMscripts'], $AdminName.SamAccountName
+                $PhotoFile = '{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $AdminName.SamAccountName
 
                 # Get the content of the JPG file
                 [byte[]]$Photo = [System.IO.File]::ReadAllBytes($PhotoFile)

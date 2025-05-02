@@ -30,19 +30,19 @@
 
             Default: C:\PsScripts\Config.xml
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             Path to all the scripts and files needed by this function. This directory must contain a 'SecTmpl'
             subfolder with the GPO backup files.
 
             Default: C:\PsScripts\
 
         .EXAMPLE
-            New-Tier0Gpo -ConfigXMLFile 'C:\PsScripts\Config.xml' -DMscripts 'C:\PsScripts'
+            New-Tier0Gpo -ConfigXMLFile 'C:\PsScripts\Config.xml' -DMScripts 'C:\PsScripts'
 
             Creates and configures all Tier 0 GPOs using the specified configuration file and scripts directory.
 
         .EXAMPLE
-            New-Tier0Gpo -ConfigXMLFile 'C:\Custom\Configuration.xml' -DMscripts 'D:\Scripts' -Verbose
+            New-Tier0Gpo -ConfigXMLFile 'C:\Custom\Configuration.xml' -DMScripts 'D:\Scripts' -Verbose
 
             Creates and configures all Tier 0 GPOs using a custom configuration file and scripts directory,
             with verbose output to track progress.
@@ -153,7 +153,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 
@@ -231,7 +231,7 @@
                 gpoDescription = 'Baseline'
                 gpoLinkPath    = $Variables.AdDn
                 GpoAdmin       = $sl_GpoAdminRight
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMscripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo @Splat -gpoScope 'C' -gpoBackupID $confXML.n.Admin.GPOs.PCbaseline.backupID
             New-DelegateAdGpo @Splat -gpoScope 'U' -gpoBackupID $confXML.n.Admin.GPOs.Userbaseline.backupID
@@ -243,7 +243,7 @@
                 gpoLinkPath    = 'OU=Domain Controllers,{0}' -f $Variables.AdDn
                 GpoAdmin       = $sl_GpoAdminRight
                 gpoBackupId    = $confXML.n.Admin.GPOs.DCBaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMscripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo @Splat
 
@@ -252,7 +252,7 @@
                 gpoDescription = '{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
                 gpoLinkPath    = $ItAdminOuDn
                 GpoAdmin       = $sl_GpoAdminRight
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMscripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo -gpoScope 'C' @Splat
             New-DelegateAdGpo -gpoScope 'U' @Splat
@@ -264,7 +264,7 @@
                 gpoLinkPath    = $ItAdminAccountsOuDn
                 GpoAdmin       = $sl_GpoAdminRight
                 gpoBackupId    = $confXML.n.Admin.GPOs.AdminUserbaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMscripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo @Splat
 
@@ -303,7 +303,7 @@
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name)
                 gpoLinkPath    = $ItPawOuDn
                 gpoBackupID    = $confXML.n.Admin.GPOs.PAWbaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMscripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo @Splat @Splat1
 
@@ -311,7 +311,7 @@
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn)
                 gpoBackupID    = $confXML.n.Admin.GPOs.PawT0baseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMscripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo @Splat @Splat1
 
@@ -331,7 +331,7 @@
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name, $ItPawOuDn)
                 gpoBackupID    = $confXML.n.Admin.GPOs.PawStagingbaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMscripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo @Splat @Splat1
 
@@ -344,7 +344,7 @@
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name)
                 gpoLinkPath    = $ItInfraOuDn
                 gpoBackupID    = $confXML.n.Admin.GPOs.INFRAbaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMscripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo @Splat @Splat1
 
@@ -352,7 +352,7 @@
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name, $ItInfraOuDn)
                 gpoBackupID    = $confXML.n.Admin.GPOs.INFRAT0baseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMscripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo @Splat @Splat1
 
@@ -372,7 +372,7 @@
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn)
                 gpoBackupID    = $confXML.n.Admin.GPOs.INFRAStagingBaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMscripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo @Splat @Splat1
 
@@ -410,7 +410,7 @@
                 $splat = @{
                     BackupId   = $confXML.n.Admin.GPOs.DefaultDomain.backupID
                     TargetName = $confXML.n.Admin.GPOs.DefaultDomain.Name
-                    path       = Join-Path -Path $PSBoundParameters['DMscripts'] -ChildPath 'SecTmpl' -Resolve
+                    path       = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
                 }
                 Import-GPO @splat
             }

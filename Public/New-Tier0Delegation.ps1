@@ -32,7 +32,7 @@
             Must be a valid XML file with required schema elements.
             Default: C:\PsScripts\Config.xml
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             [String] Path to all the scripts and files needed by this function.
             Should contain a SecTmpl subfolder.
             Default: C:\PsScripts\
@@ -45,7 +45,7 @@
         .EXAMPLE
             $Splat = @{
                 ConfigXMLFile = 'C:\CustomPath\Config.xml'
-                DMscripts = 'D:\Scripts\'
+                DMScripts = 'D:\Scripts\'
                 Verbose = $true
             }
             New-Tier0Delegation @Splat
@@ -182,7 +182,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
     )
 
     Begin {

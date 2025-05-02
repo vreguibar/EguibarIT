@@ -70,7 +70,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 
@@ -181,7 +181,7 @@
                 gpoLinkPath    = $ServersOuDn
                 GpoAdmin       = $sl_GpoAdminRight
                 gpoBackupId    = $confXML.n.Admin.GPOs.ServersBaseline.backupID
-                gpoBackupPath  = Join-Path -Path $DMscripts -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = Join-Path -Path $DMScripts -ChildPath 'SecTmpl' -Resolve
             }
             New-DelegateAdGpo @Splat
 
@@ -189,7 +189,7 @@
             $Splat = @{
                 gpoScope      = 'C'
                 GpoAdmin      = $sl_GpoAdminRight
-                gpoBackupPath = Join-Path -Path $DMscripts -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath = Join-Path -Path $DMScripts -ChildPath 'SecTmpl' -Resolve
             }
 
             $Splat1 = @{

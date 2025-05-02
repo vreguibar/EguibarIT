@@ -21,7 +21,7 @@
             OU structure, and security settings.
             The XML file must contain required Admin section with all OU definitions.
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             Path to all the scripts and files needed by this function.
             Must contain a SecTmpl subfolder with required templates.
             Default: C:\PsScripts\
@@ -34,7 +34,7 @@
         .EXAMPLE
             $params = @{
                 ConfigXMLFile = 'C:\PsScripts\Config.xml'
-                DMscripts = 'D:\AdminScripts\'
+                DMScripts = 'D:\AdminScripts\'
             }
             New-Tier0CreateOU @params
 
@@ -148,11 +148,11 @@
             })]
         [PSDefaultValue(
             Help = 'Default Value is "C:\PsScripts\"',
-            value = 'C:\PsScripts\'
+            Value = 'C:\PsScripts\'
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 

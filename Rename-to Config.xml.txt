@@ -1040,7 +1040,7 @@
        <AdminAccSufix2>T2</AdminAccSufix2>
        <!--
         #Open the configuration XML file
-        $configXML = [xml](Get-Content (Join-Path -Path $DMscripts -ChildPath Config.xml -Resolve))
+        $configXML = [xml](Get-Content (Join-Path -Path $DMScripts -ChildPath Config.xml -Resolve))
 
 
 # Naming conventions hashtable

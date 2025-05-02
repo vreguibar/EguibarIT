@@ -18,7 +18,7 @@
             Must be a valid XML file with required schema elements.
             Default: C:\PsScripts\Config.xml
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             [System.String] Path to all the scripts and files needed by this function.
             Must contain a 'SecTmpl' subfolder.
             Default: C:\PsScripts\
@@ -28,7 +28,7 @@
             Creates Fine Grained Password Policies as defined in the Config.xml file and provides verbose output.
 
         .EXAMPLE
-            New-Tier0FineGrainPasswordPolicy -ConfigXMLFile C:\PsScripts\Config.xml -DMscripts C:\Scripts\DMscripts\
+            New-Tier0FineGrainPasswordPolicy -ConfigXMLFile C:\PsScripts\Config.xml -DMScripts C:\Scripts\DMScripts\
             Creates Fine Grained Password Policies using the Config.xml file and scripts located in the specified path.
 
         .INPUTS
@@ -138,7 +138,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 

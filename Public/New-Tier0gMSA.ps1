@@ -16,7 +16,7 @@
             Must be a valid XML file with required schema elements.
             Default: C:\PsScripts\Config.xml
 
-        .PARAMETER DMscripts
+        .PARAMETER DMScripts
             [System.String] Path to all the scripts and files needed by this function.
             The path must exist and contain a 'SecTmpl' subfolder.
             Default: C:\PsScripts\
@@ -27,7 +27,7 @@
             Creates Tier 0 gMSAs as defined in the configuration file with verbose output.
 
         .EXAMPLE
-            New-Tier0gMSA -ConfigXMLFile "C:\PsScripts\Config.xml" -DMscripts "C:\Scripts\" -WhatIf
+            New-Tier0gMSA -ConfigXMLFile "C:\PsScripts\Config.xml" -DMScripts "C:\Scripts\" -WhatIf
 
             Shows what would happen if the command runs without actually creating the gMSAs.
 
@@ -144,7 +144,7 @@
         )]
         [Alias('ScriptPath')]
         [System.IO.DirectoryInfo]
-        $DMscripts
+        $DMScripts
 
     )
 
