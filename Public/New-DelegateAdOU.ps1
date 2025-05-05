@@ -325,7 +325,7 @@ function New-DelegateAdOU {
 
         # Remove "Account Operators" and "Print Operators" built-in groups from OU. Any unknown/UnResolvable SID will be removed.
         Write-Debug -Message ('Cleaning OU permissions: {0}' -f $ouNameDN)
-        Start-AdCleanOU -LDAPpath $ouNameDN -RemoveUnknownSIDs -Force -Confirm:$false
+        Start-AdCleanOU -LDAPpath $ouNameDN -RemoveUnknownSIDs -Confirm:$false -Force
 
         # Handle ACL cleaning if requested
         if ($CleanACL) {

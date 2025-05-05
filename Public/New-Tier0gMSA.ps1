@@ -121,30 +121,19 @@
         [System.IO.FileInfo]
         $ConfigXMLFile,
 
-        [Parameter(
-            Mandatory = $false,
-            ValueFromPipeline = $false,
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Path to all the scripts and files needed by this function',
-            Position = 1
-        )]
-        [ValidateScript({
-                if (-not (Test-Path -Path $_ -PathType Container)) {
-                    throw ('Directory not found: {0}' -f $_)
-                }
-                if (-not (Test-Path -Path (Join-Path -Path $_ -ChildPath 'SecTmpl'))) {
-                    throw ('SecTmpl subfolder not found in: {0}' -f $_)
-                }
-                return $true
-            })]
+            Position = 1)]
         [PSDefaultValue(
             Help = 'Default Value is "C:\PsScripts\"',
             Value = 'C:\PsScripts\'
         )]
         [Alias('ScriptPath')]
-        [System.IO.DirectoryInfo]
-        $DMScripts
+        [string]
+        $DMScripts = 'C:\PsScripts\'
 
     )
 
@@ -193,7 +182,7 @@
                 'T2'    = $confXML.n.NC.AdminAccSufix2
             }
 
-            $SG_Tier0ServiceAccount = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.T0SA.Name)
+            $SG_Tier0ServiceAccount = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name)
 
             # Set the OU DN where the gMSA will be created
             # Generate DN paths for OUs
@@ -237,15 +226,11 @@
                                 Add-KdsRootKey -EffectiveImmediately -ErrorAction Stop
                                 Write-Verbose -Message 'KDS Root Key created successfully using -EffectiveImmediately'
                             } catch {
-                                # Handle specific errors
-                                if ($_.Exception.Message -like '*0x80070032*') {
-                                    Write-Verbose -Message 'KDS Root Key already exists (Error 0x80070032)'
-                                } else {
+
                                     Write-Warning -Message (
                                         'Error creating KDS Root Key with EffectiveImmediately: {0}' -f
                                         $_.Exception.Message
                                     )
-                                } #end If-Else
                             } #end Try-Catch
 
                         } else {
@@ -256,15 +241,12 @@
                                 Add-KdsRootKey -EffectiveTime ((Get-Date).AddHours(-10)) -ErrorAction Stop
                                 Write-Verbose -Message 'KDS Root Key created successfully using backdated time'
                             } catch {
-                                # Handle specific errors
-                                if ($_.Exception.Message -like '*0x80070032*') {
-                                    Write-Verbose -Message 'KDS Root Key already exists (Error 0x80070032)'
-                                } else {
+
                                     Write-Warning -Message (
                                         'Error creating KDS Root Key with backdated time: {0}' -f
                                         $_.Exception.Message
                                     )
-                                } #end If-Else
+
                             } #end Try-Catch
                         } #end If-Else
 

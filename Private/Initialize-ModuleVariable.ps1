@@ -138,12 +138,15 @@
 
             } Catch {
 
-                Write-Error -Message '
-                    Something went wrong while trying to fill $Variables!
-                        Ensure that:
-                            * Machine is Domain Joined
-                            * Active Directory is available and working
-                            * Communication exist between this machine and AD'
+                [System.Text.StringBuilder]$sb = [System.Text.StringBuilder]::new()
+                [void]$sb.AppendLine( '         ..:: $Variables ::..' )
+                [void]$sb.AppendLine( 'Something went wrong while trying to fill $Variables!' )
+                [void]$sb.AppendLine( '    Ensure that:' )
+                [void]$sb.AppendLine( '        * Machine is Domain Joined' )
+                [void]$sb.AppendLine( '        * Active Directory is available and working' )
+                [void]$sb.AppendLine( '        * Communication exist between this machine and AD' )
+
+                Write-Error -Message $sb.ToString()
 
             } #end Try-Catch
 
@@ -184,12 +187,15 @@
 
                 } catch {
 
-                    Write-Error -Message '
-                        Something went wrong while trying to fill $Variables.GuidMap!
-                            Ensure that:
-                                * Machine is Domain Joined
-                                * Active Directory is available and working
-                                * Communication exist between this machine and AD'
+                    [System.Text.StringBuilder]$sb = [System.Text.StringBuilder]::new()
+                    [void]$sb.AppendLine( '         ..:: GuidMap ::..' )
+                    [void]$sb.AppendLine( 'Something went wrong while trying to fill $Variables.GuidMap!' )
+                    [void]$sb.AppendLine( '    Ensure that:' )
+                    [void]$sb.AppendLine( '        * Machine is Domain Joined' )
+                    [void]$sb.AppendLine( '        * Active Directory is available and working' )
+                    [void]$sb.AppendLine( '        * Communication exist between this machine and AD' )
+
+                    Write-Error -Message $sb.ToString()
 
                 } #end Try-Catch
             } #end If
@@ -228,12 +234,15 @@
 
                 } Catch {
 
-                    Write-Error -Message '
-                    Something went wrong while trying to fill $Variables.ExtendedRightsMap!
-                        Ensure that:
-                            * Machine is Domain Joined
-                            * Active Directory is available and working
-                            * Communication exist between this machine and AD'
+                    [System.Text.StringBuilder]$sb = [System.Text.StringBuilder]::new()
+                    [void]$sb.AppendLine( '         ..:: ExtendedRightsMap ::..' )
+                    [void]$sb.AppendLine( 'Something went wrong while trying to fill $Variables.GuidMap!' )
+                    [void]$sb.AppendLine( '    Ensure that:' )
+                    [void]$sb.AppendLine( '        * Machine is Domain Joined' )
+                    [void]$sb.AppendLine( '        * Active Directory is available and working' )
+                    [void]$sb.AppendLine( '        * Communication exist between this machine and AD' )
+
+                    Write-Error -Message $sb.ToString()
 
                 } #end Try-Catch
             } #end If

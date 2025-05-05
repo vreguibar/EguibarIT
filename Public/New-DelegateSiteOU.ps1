@@ -440,7 +440,7 @@
         } else {
             Write-Warning -Message ('Site {0} already exist. Continue to cleanup.' -f $PSBoundParameters['ouName'])
             # If OU already exist, clean it.
-            Start-AdCleanOU -LDAPpath $ouNameDN -RemoveUnknownSIDs
+            Start-AdCleanOU -LDAPpath $ouNameDN -RemoveUnknownSIDs -Confirm:$false -Force
         }
 
         Write-Verbose -Message 'Create SITE Sub-OU'

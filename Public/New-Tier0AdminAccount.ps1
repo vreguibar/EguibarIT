@@ -124,22 +124,13 @@
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Path to all the scripts and files needed by this function',
             Position = 1)]
-        [ValidateScript({
-                if (-not (Test-Path -Path $_ -PathType Container)) {
-                    throw ('Directory not found: {0}' -f $_)
-                }
-                if (-not (Test-Path -Path (Join-Path -Path $_ -ChildPath 'SecTmpl'))) {
-                    throw ('SecTmpl subfolder not found in: {0}' -f $_)
-                }
-                return $true
-            })]
         [PSDefaultValue(
             Help = 'Default Value is "C:\PsScripts\"',
-            value = 'C:\PsScripts\'
+            Value = 'C:\PsScripts\'
         )]
         [Alias('ScriptPath')]
-        [System.IO.DirectoryInfo]
-        $DMScripts
+        [string]
+        $DMScripts = 'C:\PsScripts\'
 
     )
 
@@ -185,7 +176,6 @@
         } #end Try-Catch
 
         # Set admin names
-        [string]$AdminName = $ConfXML.n.Admin.users.Admin.Name
         [string]$NewAdminName = $ConfXML.n.Admin.users.NEWAdmin.Name
 
         # Get the AD Objects by Well-Known SID
@@ -323,6 +313,14 @@
             Get-ADUser -Identity $NewAdminName | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
 
             # Refresh object
+            $Splat = @{
+                Name  = 'AdminName'
+                Value = (Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' })
+                Scope = 'Global'
+                Force = $true
+            }
+            New-Variable @Splat
+
             $Splat = @{
                 Name  = 'NewAdminExists'
                 Value = (Get-ADUser -Identity $newAdminName)

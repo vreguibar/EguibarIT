@@ -137,22 +137,13 @@
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Path to all the scripts and files needed by this function',
             Position = 1)]
-        [ValidateScript({
-                if (-not (Test-Path -Path $_ -PathType Container)) {
-                    throw ('Directory not found: {0}' -f $_)
-                }
-                if (-not (Test-Path -Path (Join-Path -Path $_ -ChildPath 'SecTmpl'))) {
-                    throw ('SecTmpl subfolder not found in: {0}' -f $_)
-                }
-                return $true
-            })]
         [PSDefaultValue(
             Help = 'Default Value is "C:\PsScripts\"',
             Value = 'C:\PsScripts\'
         )]
         [Alias('ScriptPath')]
-        [System.IO.DirectoryInfo]
-        $DMScripts
+        [string]
+        $DMScripts = 'C:\PsScripts\'
 
     )
 
@@ -321,7 +312,7 @@
                 Remove-AuthUser -LDAPPath $OuPaths.ItAdminOuDn
 
                 # Clean Ou
-                Start-AdCleanOU -LDAPPath $OuPaths.ItAdminOuDn -RemoveUnknownSIDs
+                Start-AdCleanOU -LDAPPath $OuPaths.ItAdminOuDn -RemoveUnknownSIDs -Confirm:$false -Force
 
                 # Remove Pre-Windows 2000 Access group from OU
                 Remove-PreWin2000FromOU -LDAPPath $OuPaths.ItAdminOuDn

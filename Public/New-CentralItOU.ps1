@@ -281,8 +281,8 @@
             Value = 'C:\PsScripts\'
         )]
         [Alias('ScriptPath')]
-        [System.IO.DirectoryInfo]
-        $DMScripts
+        [string]
+        $DMScripts = 'C:\PsScripts\'
     )
 
     Begin {
@@ -386,6 +386,8 @@
         try {
             # Administrator
             $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+            # Guest
+            $GuestNewName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-501' }
             # Administrators
             $Administrators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-544' }
             # Domain Admins
