@@ -20,10 +20,22 @@ Function New-TemplateOID {
             Example: "CN=Configuration,DC=EguibarIT,DC=local"
             Must be a valid Configuration NC path.
 
+        .INPUTS
+            System.String
+            You can pipe the Server and ConfigNC parameters to this function.
+
+        .OUTPUTS
+            System.Collections.Hashtable
+            Returns a hashtable with two properties:
+            - TemplateOID: The full OID string
+            - TemplateName: The template name string
+
         .EXAMPLE
             $result = New-TemplateOID -Server "DC01.EguibarIT.local" -ConfigNC "CN=Configuration,DC=EguibarIT,DC=local"
             $result.TemplateOID     # Output: 1.3.6.1.4.1.311.21.8.12345678.87654321
             $result.TemplateName    # Output: 87654321.0123456789ABCDEF0123456789ABCDEF
+
+            Generates a new template OID and returns it as a hashtable.
 
         .EXAMPLE
             $splat = @{
@@ -31,32 +43,43 @@ Function New-TemplateOID {
                 ConfigNC = "CN=Configuration,DC=EguibarIT,DC=local"
             }
             $newOID = New-TemplateOID @splat -Verbose
-            Creates a new template OID with verbose output.
 
-        .OUTPUTS
-            System.Collections.Hashtable with properties:
-            - TemplateOID: The full OID string
-            - TemplateName: The template name string
+            Creates a new template OID with verbose output.
 
         .NOTES
             Used Functions:
-            Name                                   ║ Module/Namespace
-            ═══════════════════════════════════════╬══════════════════════════════
-            Get-RandomHex                          ║ EguibarIT
-            Test-IsUniqueOID                       ║ EguibarIT
-            Get-FunctionDisplay                    ║ EguibarIT
-            Get-Random                             ║ Microsoft.PowerShell.Utility
-            Get-ADObject                           ║ ActiveDirectory
-            Write-Verbose                          ║ Microsoft.PowerShell.Utility
-            Write-Error                            ║ Microsoft.PowerShell.Utility
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Get-RandomHex                          ║ EguibarIT
+                Test-IsUniqueOID                       ║ EguibarIT
+                Get-FunctionDisplay                    ║ EguibarIT
+                Import-MyModule                        ║ EguibarIT
+                Get-Random                             ║ Microsoft.PowerShell.Utility
+                Get-ADObject                           ║ ActiveDirectory
+                Select-Object                          ║ Microsoft.PowerShell.Utility
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Debug                            ║ Microsoft.PowerShell.Utility
+                Write-Error                            ║ Microsoft.PowerShell.Utility
 
         .NOTES
-            Version:         2.0
-        DateModified:   26/Mar/2025
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar IT
-                http://www.eguibarit.com
+            Version:         2.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Private/New-TemplateOID.ps1
+
+        .COMPONENT
+            PKI
+
+        .ROLE
+            Certificate Management
+
+        .FUNCTIONALITY
+            OID Generation
     #>
     [CmdletBinding(
         SupportsShouldProcess = $true,

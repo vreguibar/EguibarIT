@@ -1,32 +1,68 @@
 function ConvertTo-WmiFilter {
     <#
-    .SYNOPSIS
-        Converts an Active Directory object to a WMI filter object.
+        .SYNOPSIS
+            Converts an Active Directory object to a WMI filter object for Group Policy.
 
-    .DESCRIPTION
-        This function takes an Active Directory object, retrieves its corresponding WMI filter from the Group Policy domain,
-        and returns it as an object of type "Microsoft.GroupPolicy.WmiFilter". The function includes error handling and retry
-        logic to address Active Directory replication delays.
+        .DESCRIPTION
+            This function takes an Active Directory object, retrieves its corresponding WMI filter
+            from the Group Policy domain, and returns it as an object of type
+            "Microsoft.GroupPolicy.WmiFilter".
 
-    .PARAMETER ADObject
-        An array of ADObject instances representing the Active Directory objects to convert to WMI filters.
+            The function includes error handling and retry logic to address Active Directory
+            replication delays, making it robust for production environments.
 
-    .EXAMPLE
-        ConvertTo-WmiFilter -ADObject $adObjects
+        .PARAMETER ADObject
+            An array of ADObject instances representing the Active Directory objects to convert
+            to WMI filters. These must be valid AD objects that can be linked to WMI filters.
 
-    .INPUTS
-        [Microsoft.ActiveDirectory.Management.ADObject[]] - An array of Active Directory objects.
+        .INPUTS
+            Microsoft.ActiveDirectory.Management.ADObject[]
+            You can pipe an array of Active Directory objects to this function.
 
-    .OUTPUTS
-        [Microsoft.GroupPolicy.WmiFilter] - The converted WMI filter object.
+        .OUTPUTS
+            Microsoft.GroupPolicy.WmiFilter
+            Returns the converted WMI filter object that can be used with Group Policy operations.
 
-    .NOTES
-        Version:         1.1
-        DateModified:    31/May/2024
-        LastModifiedBy:  Vicente Rodriguez Eguibar
-            vicente@eguibar.com
-            Eguibar Information Technology S.L.
-            http://www.eguibarit.com
+        .EXAMPLE
+            $adObjects = Get-ADObject -Filter {objectClass -eq "msWMI-Som"} -SearchBase "CN=SOM,CN=WMIPolicy,CN=System,DC=contoso,DC=com"
+            ConvertTo-WmiFilter -ADObject $adObjects
+
+            Converts all WMI filter AD objects to Microsoft.GroupPolicy.WmiFilter objects.
+
+        .EXAMPLE
+            Get-ADObject -Identity "CN=WindowsServer2022,CN=SOM,CN=WMIPolicy,CN=System,DC=contoso,DC=com" | ConvertTo-WmiFilter
+
+            Converts a specific WMI filter AD object using pipeline input.
+
+        .NOTES
+            Used Functions:
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Import-MyModule                        ║ EguibarIT
+                Get-FunctionDisplay                    ║ EguibarIT
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Error                            ║ Microsoft.PowerShell.Utility
+                Write-Warning                          ║ Microsoft.PowerShell.Utility
+
+        .NOTES
+            Version:         1.2
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/ConvertTo-WmiFilter.ps1
+
+        .COMPONENT
+            Group Policy
+
+        .ROLE
+            System Administration
+
+        .FUNCTIONALITY
+            WMI Filter Management
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]

@@ -30,6 +30,14 @@
         .PARAMETER PassThru
             Returns the file object after writing.
 
+        .INPUTS
+            System.Collections.Hashtable
+            You can pipe a hashtable to this function.
+
+        .OUTPUTS
+            System.IO.FileSystemInfo when using -PassThru
+            System.Void otherwise
+
         .EXAMPLE
             $config = @{
                 'Section1' = @{
@@ -39,37 +47,48 @@
             }
             Out-IniFile -InputObject $config -FilePath 'C:\config.ini'
 
+            Writes a hashtable with one section to an INI file.
+
         .EXAMPLE
             $config | Out-IniFile -FilePath 'C:\config.ini' -Force -Encoding UTF8
 
-        .OUTPUTS
-            System.IO.FileSystemInfo when using -PassThru
-            Void otherwise
+            Pipes a hashtable to the function and writes it with UTF8 encoding, overwriting any existing file.
 
         .NOTES
             Used Functions:
-            Name                                   ║ Module/Namespace
-            ═══════════════════════════════════════╬══════════════════════════════
-            Write-Verbose                          ║ Microsoft.PowerShell.Utility
-            Write-Error                            ║ Microsoft.PowerShell.Utility
-            New-Item                               ║ Microsoft.PowerShell.Management
-            Get-Item                               ║ Microsoft.PowerShell.Management
-            Add-Content                            ║ Microsoft.PowerShell.Management
-            Get-FunctionDisplay                    ║ EguibarIT
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Debug                            ║ Microsoft.PowerShell.Utility
+                Write-Error                            ║ Microsoft.PowerShell.Utility
+                New-Item                               ║ Microsoft.PowerShell.Management
+                Get-Item                               ║ Microsoft.PowerShell.Management
+                Add-Content                            ║ Microsoft.PowerShell.Management
+                Get-FunctionDisplay                    ║ EguibarIT
+                Sort-Object                            ║ Microsoft.PowerShell.Utility
 
         .NOTES
-            Version:         2.0
-            DateModified:   26/Mar/2025
-            LastModifiedBy: Vicente Rodriguez Eguibar
-                        vicente@eguibar.com
-                        Eguibar IT
-                        http://www.eguibarit.com
+            Version:         2.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
             Based on work by: Oliver Lipkau <oliver@lipkau.net>
             Source: https://github.com/lipkau/PsIni
 
         .LINK
-            https://github.com/vreguibar/eguibarit
+            https://github.com/vreguibar/EguibarIT/blob/main/Private/Out-IniFile.ps1
+
+        .COMPONENT
+            Configuration Management
+
+        .ROLE
+            File Processing
+
+        .FUNCTIONALITY
+            INI File Generation
     #>
 
     [CmdletBinding(

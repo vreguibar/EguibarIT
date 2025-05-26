@@ -19,40 +19,56 @@ Function Publish-CertificateTemplate {
             Optional. FQDN of the Domain Controller to use.
             If not specified, discovers nearest writable DC.
 
+        .INPUTS
+            System.String
+            You can pipe the certificate template display name to this function.
+
+        .OUTPUTS
+            [System.Void]
+            This function does not produce any output.
+
         .EXAMPLE
             Publish-CertificateTemplate -CertDisplayName "Web Server Template"
+
             Publishes the template to all CAs using default credentials.
 
         .EXAMPLE
-            $cred = Get-Credential
-            Publish-CertificateTemplate -CertDisplayName "User Auth" -Credential $cred -Verbose
-            Publishes template using alternate credentials with verbose output.
+            "User Auth" | Publish-CertificateTemplate -Verbose
 
-        .OUTPUTS
-            [void]
+            Pipes a template name to the function and publishes it with verbose output.
 
         .NOTES
             Used Functions:
-            Name                                   ║ Module/Namespace
-            ═══════════════════════════════════════╬══════════════════════════════
-            Get-ADDomainController                 ║ ActiveDirectory
-            Get-ADObject                           ║ ActiveDirectory
-            Set-ADObject                           ║ ActiveDirectory
-            Write-Verbose                          ║ Microsoft.PowerShell.Utility
-            Write-Error                            ║ Microsoft.PowerShell.Utility
-            Get-FunctionDisplay                    ║ EguibarIT
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Get-ADDomainController                 ║ ActiveDirectory
+                Get-ADObject                           ║ ActiveDirectory
+                Set-ADObject                           ║ ActiveDirectory
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Debug                            ║ Microsoft.PowerShell.Utility
+                Write-Error                            ║ Microsoft.PowerShell.Utility
+                Write-Progress                         ║ Microsoft.PowerShell.Utility
+                Get-FunctionDisplay                    ║ EguibarIT
 
         .NOTES
-            Version:         1.1
-                DateModified:    26/Mar/2025
-                LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar IT
-                http://www.eguibarit.com
+            Version:         1.2
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
-            https://github.com/vreguibar/EguibarIT
+            https://github.com/vreguibar/EguibarIT/blob/main/Private/Publish-CertificateTemplate.ps1
 
+        .COMPONENT
+            PKI
+
+        .ROLE
+            Certificate Management
+
+        .FUNCTIONALITY
+            Certificate Template Publication
     #>
 
     [CmdletBinding(

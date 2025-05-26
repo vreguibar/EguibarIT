@@ -30,6 +30,14 @@ Function Test-IsUniqueOID {
             Specifies the Configuration Naming Context (ConfigNC) to search for the Certificate Template.
             Must be a valid AD path starting with "CN=Configuration,".
 
+        .INPUTS
+            System.String
+            You can pipe string values for all parameters to this function.
+
+        .OUTPUTS
+            System.Boolean
+            Returns $True if the Certificate Template OID is unique, and $False if it already exists.
+
         .EXAMPLE
             Test-IsUniqueOID -cn "WebServer2025" `
                             -TemplateOID "1.3.6.1.4.1.311.21.8.1234567.1234567" `
@@ -49,29 +57,34 @@ Function Test-IsUniqueOID {
 
             Checks template uniqueness with verbose output using splatting.
 
-        .OUTPUTS
-            System.Boolean
-            Returns $True if the Certificate Template OID is unique, and $False if it already exists.
-
         .NOTES
             Used Functions:
                 Name                                   ║ Module/Namespace
                 ═══════════════════════════════════════╬══════════════════════════════
                 Get-ADObject                           ║ ActiveDirectory
                 Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Debug                            ║ Microsoft.PowerShell.Utility
                 Write-Error                            ║ Microsoft.PowerShell.Utility
-                Get-FunctionDisplay                    ║ EguibarIT
 
         .NOTES
-            Version:         2.0
-            DateModified:   26/Mar/2025
-            LastModifiedBy: Vicente Rodriguez Eguibar
-                        vicente@eguibar.com
-                        Eguibar IT
-                        http://www.eguibarit.com
+            Version:         2.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
-            https://github.com/vreguibar/EguibarIT
+            https://github.com/vreguibar/EguibarIT/blob/main/Private/Test-IsUniqueOID.ps1
+
+        .COMPONENT
+            PKI
+
+        .ROLE
+            Certificate Management
+
+        .FUNCTIONALITY
+            OID Validation
     #>
 
     [CmdletBinding(

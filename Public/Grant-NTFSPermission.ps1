@@ -75,10 +75,13 @@ function Grant-NTFSPermission {
 
         .OUTPUTS
             [System.Security.AccessControl.FileSecurity] when -PassThru is specified
-            [void] by default
+            [void] by default        .INPUTS
+            System.String
+            You can pipe path strings to this function, allowing batch processing of multiple files and folders.
 
         .NOTES
-            Name                                       ║ Module/Namespace
+            Used Functions:
+                Name                                   ║ Module/Namespace
                 ═══════════════════════════════════════╬════════════════════════
                 Get-Acl                                ║ Microsoft.PowerShell.Security
                 Set-Acl                                ║ Microsoft.PowerShell.Security
@@ -90,21 +93,30 @@ function Grant-NTFSPermission {
                 Get-FunctionDisplay                    ║ EguibarIT
 
         .NOTES
-            Version:         1.2
-            DateModified:   31/Mar/2024
-            LastModifiedBy: Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar IT
-                http://www.eguibarit.com
+            Version:         1.3
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
-            https://github.com/vreguibar/EguibarIT
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Grant-NTFSPermission.ps1
 
         .LINK
             https://docs.microsoft.com/en-us/dotnet/api/system.security.accesscontrol.filesystemrights
 
         .LINK
             https://docs.microsoft.com/en-us/windows/win32/secauthz/access-control-lists
+
+        .COMPONENT
+            File System
+
+        .ROLE
+            Security Administration
+
+        .FUNCTIONALITY
+            NTFS Permissions Management
 
     #>
 

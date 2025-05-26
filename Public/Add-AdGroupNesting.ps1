@@ -1,6 +1,5 @@
-
-
 function Add-AdGroupNesting {
+
     <#
         .SYNOPSIS
             Adds members to an Active Directory group with enhanced error handling and logging.
@@ -59,10 +58,14 @@ function Add-AdGroupNesting {
 
         .EXAMPLE
             "ServiceAccounts" | Add-AdGroupNesting -Members "svc_backup" -WhatIf
-            Shows what would happen when adding a service account to a group.
+            Shows what would happen when adding a service account to a group.        .INPUTS
+            System.String
+            You can pipe the Identity parameter to this function.
+            The Identity parameter accepts string values representing AD group identifiers.
 
         .OUTPUTS
-            [PSCustomObject] Summary object containing:
+            System.Management.Automation.PSCustomObject
+            Returns a summary object containing:
             - GroupName: The name of the modified group
             - MembersAdded: Array of successfully added members
             - MembersFailed: Array of members that failed to be added
@@ -87,22 +90,33 @@ function Add-AdGroupNesting {
                 Write-Progress                         ║ Microsoft.PowerShell.Utility
 
         .NOTES
-            Version:         2.0
-            DateModified:   26/Mar/2025
-            LastModifiedBy: Vicente Rodriguez Eguibar
-                        vicente@eguibar.com
-                        Eguibar IT
-                        http://www.eguibarit.com
+            Version:         2.2
+            DateModified:    23/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
-            https://github.com/vreguibar/EguibarIT
-
-            https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/ \
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Add-AdGroupNesting.ps1        .LINK
+            https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/
             implementing-least-privilege-administrative-models
 
-            http://blogs.technet.com/b/lrobins/archive/2011/06/23/ \ quot-admin-free-quot-active-directory-and-windows-part-1-understanding-privileged-groups-in-ad.aspx
+        .LINK
+            http://blogs.technet.com/b/lrobins/archive/2011/06/23/quot-admin-free-quot-active-directory-and-
+            windows-part-1-understanding-privileged-groups-in-ad.aspx
 
+        .LINK
             http://blogs.msmvps.com/acefekay/2012/01/06/using-group-nesting-strategy-ad-best-practices-for-group-strategy/
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Identity Management
+
+        .FUNCTIONALITY
+            Group Management
     #>
 
     [CmdletBinding(
@@ -235,12 +249,13 @@ function Add-AdGroupNesting {
             # Iterate members
             Foreach ($item in $Members) {
                 $item = Get-AdObjectType -Identity $item
+
                 Write-Debug -Message ('Validated member object: {0}' -f $Item.DistinguishedName)
 
-
-                # Only process objects which are not members of the group
+                # Check if member is already in the group
+                # FIX: Changed from -notcontains to -contains for correct logical check
                 If (($null -ne $CurrentMembers) -and
-                ($CurrentMembers.DistinguishedName -notcontains $item.DistinguishedName)) {
+                    ($CurrentMembers.DistinguishedName -contains $item.DistinguishedName)) {
 
                     Write-Debug -Message ('
                         {0} is already a member

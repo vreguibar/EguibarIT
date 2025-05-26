@@ -55,8 +55,8 @@
                 Get-FunctionDisplay                       ║ EguibarIT
 
         .NOTES
-            Version:         1.0
-            DateModified:    29/Apr/2025
+            Version:         1.1
+            DateModified:    22/May/2025
             LastModifiedBy:  Vicente Rodriguez Eguibar
                         vicente@eguibar.com
                         Eguibar IT
@@ -129,12 +129,53 @@
         )]
         [Alias('ScriptPath')]
         [string]
-        $DMScripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\',
+
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'Start transcript logging to DMScripts path with function name',
+            Position = 2)]
+        [Alias('Transcript', 'Log')]
+        [switch]
+        $EnableTranscript
 
     )
 
     Begin {
         Set-StrictMode -Version Latest
+
+        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+            $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
+        } #end If
+
+        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+            $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
+        } #end If
+
+        # If EnableTranscript is specified, start a transcript
+        if ($EnableTranscript) {
+            # Ensure DMScripts directory exists
+            if (-not (Test-Path -Path $DMScripts -PathType Container)) {
+                try {
+                    New-Item -Path $DMScripts -ItemType Directory -Force | Out-Null
+                    Write-Verbose -Message ('Created transcript directory: {0}' -f $DMScripts)
+                } catch {
+                    Write-Warning -Message ('Failed to create transcript directory: {0}' -f $_.Exception.Message)
+                } #end try-catch
+            } #end if
+
+            # Create transcript filename using function name and current date/time
+            $TranscriptFile = Join-Path -Path $DMScripts -ChildPath ('{0}_{1}.LOG' -f $MyInvocation.MyCommand.Name, (Get-Date -Format 'yyyyMMdd_HHmmss'))
+
+            try {
+                Start-Transcript -Path $TranscriptFile -Force -ErrorAction Stop
+                Write-Verbose -Message ('Transcript started: {0}' -f $TranscriptFile)
+            } catch {
+                Write-Warning -Message ('Failed to start transcript: {0}' -f $_.Exception.Message)
+            } #end try-catch
+        } #end if
 
         # Display function header if variables exist
         if ($null -ne $Variables -and
@@ -160,31 +201,259 @@
 
         # Parameters variable for splatting CMDlets
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
-        [System.Collections.ArrayList]$ArrayList = [System.Collections.ArrayList]::New()
+        #[System.Collections.ArrayList]$ArrayList = [System.Collections.ArrayList]::New()
+        [System.Collections.Generic.List[object]]$ArrayList = [System.Collections.Generic.List[object]]::New()
 
         # Load the XML configuration file
         try {
             [xml]$confXML = [xml](Get-Content -Path $PSBoundParameters['ConfigXMLFile'] -ErrorAction Stop)
-            Write-Verbose -Message ('Successfully loaded configuration from {0}' -f $PSBoundParameters['ConfigXMLFile'])
+            Write-Debug -Message ('Successfully loaded configuration from {0}' -f $PSBoundParameters['ConfigXMLFile'])
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
         } #end Try-Catch
 
-        # Get the AD Objects by Well-Known SID
-        try {
-            # Administrator
-            $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
-            # Domain Admins
-            $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
-            # Enterprise Admins
-            $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
-        } catch {
-            Write-Error -Message ('Error initializing security principals: {0}' -f $_.Exception.Message)
-            throw
-        } #end Try-Catch
+        # Naming conventions hashtable
+        $NC = @{
+            'sl'    = $confXML.n.NC.LocalDomainGroupPreffix
+            'sg'    = $confXML.n.NC.GlobalGroupPreffix
+            'su'    = $confXML.n.NC.UniversalGroupPreffix
+            'Delim' = $confXML.n.NC.Delimiter
+            'T0'    = $confXML.n.NC.AdminAccSufix0
+            'T1'    = $confXML.n.NC.AdminAccSufix1
+            'T2'    = $confXML.n.NC.AdminAccSufix2
+        }
 
-        $AllGlobalGroupVariables = @(
+        #region Users Variables
+        $AdminName = Get-SafeVariable -Name 'AdminName' -CreateIfNotExist {
+            try {
+                Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Administrator: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $NewAdminExists = Get-SafeVariable -Name 'NewAdminExists' -CreateIfNotExist {
+            $newAdminName = $confXML.n.Admin.users.NEWAdmin.Name
+            if (-not [string]::IsNullOrEmpty($newAdminName)) {
+                Get-AdObjectType -Identity $newAdminName
+            } else {
+                $null
+            }
+        }
+        #endregion Users Variables
+
+        #region Well-Known groups Variables
+        $DomainAdmins = Get-SafeVariable -Name 'DomainAdmins' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Domain Admins group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $EnterpriseAdmins = Get-SafeVariable -Name 'EnterpriseAdmins' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Enterprise Admins group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+        #endregion Well-Known groups Variables
+
+        #region Global groups Variables
+        $SG_InfraAdmins = Get-SafeVariable -Name 'SG_InfraAdmins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.InfraAdmins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_AdAdmins = Get-SafeVariable -Name 'SG_AdAdmins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AdAdmins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_GpoAdmins = Get-SafeVariable -Name 'SG_GpoAdmins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GpoAdmins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_Tier0Admins = Get-SafeVariable -Name 'SG_Tier0Admins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_Tier1Admins = Get-SafeVariable -Name 'SG_Tier1Admins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_Tier2Admins = Get-SafeVariable -Name 'SG_Tier2Admins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2Admins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_Operations = Get-SafeVariable -Name 'SG_Operations' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.Operations.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_ServerAdmins = Get-SafeVariable -Name 'SG_ServerAdmins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_AllSiteAdmins = Get-SafeVariable -Name 'SG_AllSiteAdmins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AllSiteAdmins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_AllGALAdmins = Get-SafeVariable -Name 'SG_AllGALAdmins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AllGalAdmins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_GlobalUserAdmins = Get-SafeVariable -Name 'SG_GlobalUserAdmins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalUserAdmins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_GlobalPcAdmins = Get-SafeVariable -Name 'SG_GlobalPcAdmins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalPCAdmins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_GlobalGroupAdmins = Get-SafeVariable -Name 'SG_GlobalGroupAdmins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.GlobalGroupAdmins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_ServiceDesk = Get-SafeVariable -Name 'SG_ServiceDesk' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.ServiceDesk.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        # Tier Service Account Groups
+        # ToDo: the GetSafeVariable is finding the variable, but variable has old DN. Interim fix filling the variable again
+        $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name)
+        $SG_Tier0ServiceAccount = Get-AdObjectType -Identity $groupName
+
+
+        # ToDo: the GetSafeVariable is finding the variable, but variable has old DN. Interim fix filling the variable again
+        $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name)
+        $SG_Tier1ServiceAccount = Get-AdObjectType -Identity $groupName
+
+        # ToDo: the GetSafeVariable is finding the variable, but variable has old DN. Interim fix filling the variable again
+        $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name)
+        $SG_Tier2ServiceAccount = Get-AdObjectType -Identity $groupName
+        #endregion Global groups Variables
+
+        #region Local groups Variables
+        $SL_AdRight = Get-SafeVariable -Name 'SL_AdRight' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.AdRight.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_InfraRight = Get-SafeVariable -Name 'SL_InfraRight' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.InfraRight.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_DnsAdminRight = Get-SafeVariable -Name 'SL_DnsAdminRight' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.DnsAdminRight.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_GpoAdminRight = Get-SafeVariable -Name 'SL_GpoAdminRight' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_PGM = Get-SafeVariable -Name 'SL_PGM' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PGM.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_PUM = Get-SafeVariable -Name 'SL_PUM' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PUM.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_GM = Get-SafeVariable -Name 'SL_GM' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GM.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_UM = Get-SafeVariable -Name 'SL_UM' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.UM.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_PSAM = Get-SafeVariable -Name 'SL_PSAM' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PSAM.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_PAWM = Get-SafeVariable -Name 'SL_PAWM' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PAWM.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_PISM = Get-SafeVariable -Name 'SL_PISM' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PISM.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_SAGM = Get-SafeVariable -Name 'SL_SAGM' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.SAGM.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_DcManagement = Get-SafeVariable -Name 'SL_DcManagement' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.DcManagement.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_TransferFSMOright = Get-SafeVariable -Name 'SL_TransferFSMOright' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.TransferFSMOright.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_PromoteDcRight = Get-SafeVariable -Name 'SL_PromoteDcRight' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PromoteDcRight.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_DirReplRight = Get-SafeVariable -Name 'SL_DirReplRight' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.DirReplRight.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_SvrOpsRight = Get-SafeVariable -Name 'SL_SvrOpsRight' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_SvrAdmRight = Get-SafeVariable -Name 'SL_SvrAdmRight' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_GlobalGroupRight = Get-SafeVariable -Name 'SL_GlobalGroupRight' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.GlobalGroupRight.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SL_GlobalAppAccUserRight = Get-SafeVariable -Name 'SL_GlobalAppAccUserRight' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Servers.LG.GlobalAppAccUserRight.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+        #endregion Local groups Variables
+
+        # Create collection arrays for convenience
+        [array]$AllGlobalGroupVariables = @(
             $DomainAdmins,
             $EnterpriseAdmins,
             $SG_InfraAdmins,
@@ -203,7 +472,7 @@
             $SG_ServiceDesk
         )
 
-        $AllLocalGroupVariables = @(
+        [array]$AllLocalGroupVariables = @(
             $SL_AdRight,
             $SL_InfraRight,
             $SL_DnsAdminRight,
@@ -239,10 +508,14 @@
             Write-Verbose -Message ('Processing Admin PSO: {0}' -f $PsoName)
 
             # Check if the PSO already exists
-            $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -like $PsoName } -ErrorAction SilentlyContinue
+            $Splat = @{
+                Filter      = { name -like $PsoName }
+                ErrorAction = 'SilentlyContinue'
+            }
+            $PSOexists = Get-ADFineGrainedPasswordPolicy @Splat
 
             if (-not($PSOexists)) {
-                Write-Verbose -Message ('Creating Admin PSO: {0}' -f $PsoName)
+                Write-Debug -Message ('Creating Admin PSO: {0}' -f $PsoName)
 
                 $Splat = @{
                     Name                        = $confXML.n.Admin.PSOs.ItAdminsPSO.Name
@@ -262,20 +535,31 @@
                 }
 
                 try {
+
                     $PSOexists = New-ADFineGrainedPasswordPolicy @Splat -ErrorAction Stop
-                    Write-Verbose -Message ('Successfully created PSO: {0}' -f $PsoName)
+                    Write-Debug -Message ('Created PSO: {0}' -f $PsoName)
                 } catch {
+
                     Write-Error -Message ('Failed to create PSO {0}: {1}' -f $PsoName, $_.Exception.Message)
                     # Refresh the PSOexists variable to get the latest object
-                    $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -like $PsoName } -ErrorAction SilentlyContinue
+                    $Splat = @{
+                        Filter      = { name -like $PsoName }
+                        ErrorAction = 'SilentlyContinue'
+                    }
+                    $PSOexists = Get-ADFineGrainedPasswordPolicy @Splat
+
                 } #end Try-Catch
+
             } else {
+
                 Write-Verbose -Message ('PSO already exists: {0}' -f $PsoName)
+
             } #end If PSO exists
 
             # Only proceed if PSO exists
             if ($null -ne $PSOexists) {
-                Write-Verbose -Message ('Applying PSO {0} to corresponding accounts and groups' -f $PsoName)
+
+                Write-Debug -Message ('Applying PSO {0} to corresponding accounts and groups' -f $PsoName)
 
                 # Allow Active Directory time to process the PSO creation
                 Start-Sleep -Seconds 5
@@ -283,20 +567,42 @@
                 # Apply the PSO to the corresponding accounts and groups
                 $ArrayList.Clear()
 
-                foreach ($Item in @($AllGlobalGroupVariables, $AllLocalGroupVariables)) {
-                    $GroupName = Get-AdObjectType -Identity $Item
+                # Add Global Groups to ArrayList
+                foreach ($Item in $AllGlobalGroupVariables) {
                     if ($null -ne $Item) {
-                        [void]$ArrayList.Add($GroupName)
-                    } else {
-                        Write-Error -Message ('Group not found: {0}' -f $Item)
-                    } #end If GroupName
+                        [void]$ArrayList.Add($Item)
+                    } #end If
                 } #end ForEach
-                # Adding groups
-                Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList
 
+                # Add Local Groups to ArrayList
+                foreach ($Item in $AllLocalGroupVariables) {
+                    if ($null -ne $Item) {
+                        [void]$ArrayList.Add($Item)
+                    } #end If
+                } #end ForEach
 
+                # Only add subjects if there are any
+                if ($ArrayList.Count -gt 0) {
+                    try {
+                        # Process each subject individually to handle errors gracefully
+                        foreach ($Subject in $ArrayList) {
+                            try {
+                                Add-ADFineGrainedPasswordPolicySubject -Identity $PsoName -Subjects $Subject -ErrorAction Stop
+                                Write-Debug -Message ('Added group {0} to PSO {1}' -f $Subject.Name, $PsoName)
+                            } catch {
+                                Write-Warning -Message ('Failed to add group {0} to PSO {1}: {2}' -f
+                                    $Subject.Name, $PsoName, $_.Exception.Message)
+                            }
+                        }
+                    } catch {
+                        Write-Error -Message ('Failed to add groups to PSO {0}: {1}' -f $PsoName, $_.Exception.Message)
+                    } #end Try-Catch
+                } else {
+                    Write-Debug -Message ('No groups found to add to PSO: {0}' -f $PsoName)
+                } #end If ArrayList
 
                 $ArrayList.Clear()
+
                 if ($null -ne $AdminName) {
                     [void]$ArrayList.Add($AdminName)
                 } #end if
@@ -307,16 +613,31 @@
                 # Only add subjects if there are any
                 if ($ArrayList.Count -gt 0) {
                     try {
-                        Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList -ErrorAction Stop
-                        Write-Verbose -Message ('Successfully added {0} users to PSO {1}' -f $ArrayList.Count, $PsoName)
+                        # Process each subject individually to handle errors gracefully
+                        foreach ($Subject in $ArrayList) {
+                            try {
+                                Add-ADFineGrainedPasswordPolicySubject -Identity $PsoName -Subjects $Subject -ErrorAction Stop
+                                Write-Debug -Message ('Added user {0} to PSO {1}' -f $Subject.Name, $PsoName)
+                            } catch {
+                                Write-Warning -Message ('Failed to add user {0} to PSO {1}: {2}' -f
+                                    $Subject.Name, $PsoName, $_.Exception.Message)
+                            }
+                        }
                     } catch {
+
                         Write-Error -Message ('Failed to add users to PSO {0}: {1}' -f $PsoName, $_.Exception.Message)
+
                     } #end Try-Catch
                 } else {
-                    Write-Verbose -Message ('No individual users found to add to PSO: {0}' -f $PsoName)
+
+                    Write-Debug -Message ('No individual users found to add to PSO: {0}' -f $PsoName)
+
                 } #end If ArrayList
+
             } else {
+
                 Write-Warning -Message ('Could not find or create PSO: {0}' -f $PsoName)
+
             } #end If PSOexists
 
             #endregion
@@ -329,7 +650,11 @@
             Write-Verbose -Message ('Processing Service Account PSO: {0}' -f $PsoName)
 
             # Check if the PSO already exists
-            $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -like $PsoName } -ErrorAction SilentlyContinue
+            $Splat = @{
+                Filter      = { name -like $PsoName }
+                ErrorAction = 'SilentlyContinue'
+            }
+            $PSOexists = Get-ADFineGrainedPasswordPolicy @Splat
 
             if (-not($PSOexists)) {
                 Write-Verbose -Message ('Creating Service Account PSO: {0}' -f $PsoName)
@@ -347,27 +672,37 @@
                     MinPasswordAge              = $confXML.n.Admin.PSOs.ServiceAccountsPSO.MinPasswordAge
                     MinPasswordLength           = $confXML.n.Admin.PSOs.ServiceAccountsPSO.MinPasswordLength
                     PasswordHistoryCount        = $confXML.n.Admin.PSOs.ServiceAccountsPSO.PasswordHistoryCount
-                    ReversibleEncryptionEnabled = [System.Boolean]$confXML.n.Admin.PSOs.ServiceAccountsPSO.ReversibleEncryptionEnabled
+                    ReversibleEncryptionEnabled =
+                    [System.Boolean]$confXML.n.Admin.PSOs.ServiceAccountsPSO.ReversibleEncryptionEnabled
                     Passthru                    = $true
                 }
 
                 try {
+
                     $PSOexists = New-ADFineGrainedPasswordPolicy @Splat -ErrorAction Stop
-                    Write-Verbose -Message ('Successfully created PSO: {0}' -f $PsoName)
+                    Write-Debug -Message ('Created PSO: {0}' -f $PsoName)
                 } catch {
+
                     Write-Error -Message ('Failed to create PSO {0}: {1}' -f $PsoName, $_.Exception.Message)
                     # Try to get the PSO if it was created despite the error
-                    $PSOexists = Get-ADFineGrainedPasswordPolicy -Filter { name -like $PsoName } -ErrorAction SilentlyContinue
+                    $Splat = @{
+                        Filter      = { name -like $PsoName }
+                        ErrorAction = 'SilentlyContinue'
+                    }
+                    $PSOexists = Get-ADFineGrainedPasswordPolicy @Splat
+
                 } #end Try-Catch
 
             } else {
-                Write-Verbose -Message ('PSO already exists: {0}' -f $PsoName)
+
+                Write-Debug -Message ('PSO already exists: {0}' -f $PsoName)
+
             } #end If PSO exists
 
             # Only proceed if PSO exists
             if ($null -ne $PSOexists) {
 
-                Write-Verbose -Message ('Applying PSO {0} to corresponding service accounts' -f $PsoName)
+                Write-Debug -Message ('Applying PSO {0} to corresponding service accounts' -f $PsoName)
 
                 # Allow Active Directory time to process the PSO creation
                 Start-Sleep -Seconds 5
@@ -384,19 +719,27 @@
                     [void]$ArrayList.Add($SG_Tier2ServiceAccount)
                 } #end if
 
-                # todo: Fix error "The name reference is invalid."
                 # Only add subjects if there are any
                 if ($ArrayList.Count -gt 0) {
                     try {
-                        Add-ADFineGrainedPasswordPolicySubject -Identity $PSOexists -Subjects $ArrayList -ErrorAction Stop
-                        Write-Verbose -Message ('Successfully added {0} users to PSO {1}' -f $ArrayList.Count, $PsoName)
+                        # Process each subject individually to handle errors gracefully
+                        foreach ($Subject in $ArrayList) {
+                            try {
+                                Add-ADFineGrainedPasswordPolicySubject -Identity $PsoName -Subjects $Subject -ErrorAction Stop
+                                Write-Debug -Message ('Added {0} to PSO {1}' -f $Subject.Name, $PsoName)
+                            } catch {
+                                Write-Warning -Message ('Failed to add {0} to PSO {1}: {2}' -f
+                                    $Subject.Name, $PsoName, $_.Exception.Message)
+                            }
+                        }
                     } catch {
-                        Write-Error -Message ('Failed to add users to PSO {0}: {1}' -f $PsoName, $_.Exception.Message)
+                        Write-Error -Message ('Failed to add service accounts to PSO {0}: {1}' -f
+                            $PsoName, $_.Exception.Message)
                     } #end Try-Catch
-                } else {
-                    Write-Verbose -Message ('No individual users found to add to PSO: {0}' -f $PsoName)
-                } #end If ArrayList
 
+                } else {
+                    Write-Debug -Message ('No service account groups found to add to PSO: {0}' -f $PsoName)
+                } #end If ArrayList
             } #end If PSOexists
 
             #endregion
@@ -413,6 +756,16 @@
                 'Create Tier0 Fine Grain Password Policy.'
             )
             Write-Verbose -Message $txt
+        } #end If
+
+        # Stop transcript if it was started
+        if ($EnableTranscript) {
+            try {
+                Stop-Transcript -ErrorAction Stop
+                Write-Verbose -Message 'Transcript stopped successfully'
+            } catch {
+                Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
+            } #end Try-Catch
         } #end If
     } #end End
 } #end Function New-Tier0FineGrainPasswordPolicy

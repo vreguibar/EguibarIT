@@ -14,27 +14,33 @@ Function Get-ADCSTemplate {
             FQDN of Active Directory Domain Controller to target. If not specified, discovers
             nearest writable DC.
 
-        .PARAMETER Credential
-            Credential object used for authentication. If omitted, uses current security context.
+        .INPUTS
+            System.String
+            You can pipe the DisplayName parameter to this function.
+
+        .OUTPUTS
+            Microsoft.ActiveDirectory.Management.ADEntity
+            Returns Active Directory objects representing the certificate templates.
 
         .EXAMPLE
             Get-ADCSTemplate
+
             Returns all certificate templates.
 
         .EXAMPLE
             Get-ADCSTemplate -DisplayName 'PowerShellCMS'
+
             Returns specific template named 'PowerShellCMS'.
 
         .EXAMPLE
             Get-ADCSTemplate | Sort-Object Name | Format-Table Name, Created, Modified
+
             Lists all templates sorted by name showing creation and modification dates.
 
         .EXAMPLE
             'WebServer','UserCert' | Get-ADCSTemplate
-            Returns templates via pipeline input.
 
-        .OUTPUTS
-            Microsoft.ActiveDirectory.Management.ADEntity
+            Returns templates via pipeline input.
 
         .NOTES
             Used Functions:
@@ -44,11 +50,14 @@ Function Get-ADCSTemplate {
                 Get-ADDomainController                  ║ ActiveDirectory
                 Write-Progress                          ║ Microsoft.PowerShell.Utility
                 Write-Verbose                           ║ Microsoft.PowerShell.Utility
+                Write-Debug                             ║ Microsoft.PowerShell.Utility
+                Write-Warning                           ║ Microsoft.PowerShell.Utility
+                Write-Error                             ║ Microsoft.PowerShell.Utility
                 Get-FunctionDisplay                     ║ EguibarIT
 
         .NOTES
-            Version:         2.0
-            DateModified:   26/Mar/2025
+            Version:         2.1
+            DateModified:    22/May/2025
             LastModifiedBy:  Vicente Rodriguez Eguibar
                             vicente@eguibar.com
                             Eguibar IT
@@ -60,6 +69,15 @@ Function Get-ADCSTemplate {
 
         .LINK
             https://github.com/vreguibar/EguibarIT/blob/main/Private/Get-ADCSTemplate.ps1
+
+        .COMPONENT
+            Active Directory Certificate Services
+
+        .ROLE
+            PKI Administration
+
+        .FUNCTIONALITY
+            Certificate Template Management
     #>
 
     [CmdletBinding(

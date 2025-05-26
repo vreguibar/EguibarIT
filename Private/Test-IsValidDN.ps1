@@ -13,16 +13,27 @@
             The distinguished name to validate. This parameter accepts a string representing the DN of an Active Directory object.
             Multiple DNs can be processed through pipeline input.
 
+        .INPUTS
+            System.String
+            You can pipe one or more distinguished name strings to this function.
+
+        .OUTPUTS
+            System.Boolean
+            Returns $true if the string is a valid distinguished name, otherwise $false.
+
         .EXAMPLE
             Test-IsValidDN -ObjectDN 'CN=Darth Vader,OU=Users,DC=EguibarIT,DC=local'
+
             Returns $true as this is a valid DN format.
 
         .EXAMPLE
             'CN=Test User,DC=domain,DC=com', 'Invalid DN' | Test-IsValidDN
+
             Processes multiple DNs through pipeline, returning boolean results for each.
 
         .EXAMPLE
             Test-IsValidDN -ObjectDN 'Invalid DN' -Verbose
+
             Returns $false and shows verbose output about the validation process.
 
         .NOTES
@@ -34,18 +45,27 @@
                 Write-Error             ║ Microsoft.PowerShell.Utility
 
         .NOTES
-            Version:         1.2
-            DateModified:    20/Mar/2025
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar IT
-                http://www.eguibarit.com
+            Version:         1.3
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
             https://pscustomobject.github.io/powershell/howto/identity%20management/PowerShell-Check-If-String-Is-A-DN/
 
         .LINK
             https://github.com/vreguibar/EguibarIT/blob/main/Private/Test-IsValidDN.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Identity Management
+
+        .FUNCTIONALITY
+            Distinguished Name Validation
     #>
 
     [CmdletBinding(ConfirmImpact = 'Low',

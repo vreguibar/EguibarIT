@@ -105,7 +105,6 @@
             HelpMessage = 'Description of the GPO. Used to build the name (letters and numbers only).',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [ValidatePattern('^[a-zA-Z0-9]+$')]
         [string]
         $gpoDescription,
 
@@ -178,8 +177,8 @@
     Begin {
         Set-StrictMode -Version Latest
 
-        # Load GroupPolicy types
-        Add-Type -AssemblyName 'Microsoft.GroupPolicy'
+        # Get the GroupPolicy functionality through module import instead of direct assembly loading
+        # This ensures the correct paths are used regardless of environment
 
         if ($null -ne $Variables -and
             $null -ne $Variables.Header) {
@@ -196,7 +195,7 @@
         # Module imports
 
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
-        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
+        Import-Module -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
 
         ##############################
         # Variables Definition
@@ -241,7 +240,7 @@
 
             # https://learn.microsoft.com/en-us/previous-versions/windows/desktop/wmi_v2/class-library/gppermissiontype-enumeration-microsoft-grouppolicy
             # Give Rights to SL_GpoAdminRight
-            Write-Debug -Message ('Add GpoAdminRight to {0}' -f $gpoAlreadyExist.Name)
+            Write-Debug -Message ('Add GpoAdminRight to {0}' -f $gpoAlreadyExist.DisplayName)
             $Splat = @{
                 GUID            = $gpoAlreadyExist.Id
                 PermissionLevel = 'GpoEditDeleteModifySecurity'
@@ -258,16 +257,17 @@
             If ($gpoScope -eq 'C') {
                 if ($PSCmdlet.ShouldProcess("Disabling Users section on GPO '$gpoName'", 'Confirm disabling user section?')) {
 
-                    Write-Debug -Message ('Disable Policy User Settings on GPO {0}' -f $gpoAlreadyExist.Name)
+                    Write-Debug -Message ('Disable Policy User Settings on GPO {0}' -f $gpoAlreadyExist.DisplayName)
                     $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
 
                 } #end If
 
             } else {
 
-                if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'", 'Confirm disabling computer section?')) {
+                if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'",
+                        'Confirm disabling computer section?')) {
 
-                    Write-Debug -Message ('Disable Policy Computer Settings on GPO {0}' -f $gpoAlreadyExist.Name)
+                    Write-Debug -Message ('Disable Policy Computer Settings on GPO {0}' -f $gpoAlreadyExist.DisplayName)
                     $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
 
                 } #end If

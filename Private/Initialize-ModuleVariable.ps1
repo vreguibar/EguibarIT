@@ -15,22 +15,25 @@
             When specified, forces reinitialization of variables even if they already exist.
             This is useful for troubleshooting or when you need to refresh the environment.
 
+        .INPUTS
+            None
+            This function does not accept pipeline input.
+
+        .OUTPUTS
+            [System.Void]
+            The function sets global variables in the module but does not return any values.
+
         .EXAMPLE
             Initialize-ModuleVariable
-            # Reinitializes the module variables if required.
+
+            Reinitializes the module variables if required.
 
         .EXAMPLE
             Initialize-ModuleVariable -Force
-            # Forces reinitialization even if $Variables is already set.
 
-        .OUTPUTS
-            VOID. The function sets global variables in the module.
+            Forces reinitialization even if $Variables is already set.
 
         .NOTES
-            Required Modules/Prerequisites:
-            - None explicitly required; however, the module should export only Constants and Variables.
-            - The function should be called at the end of the module script to ensure all variables are set.
-
             Used Functions:
                 Name                                       ║ Module/Namespace
                 ═══════════════════════════════════════════╬══════════════════════════════
@@ -38,15 +41,28 @@
                 Write-Warning                              ║ Microsoft.PowerShell.Utility
                 Write-Error                                ║ Microsoft.PowerShell.Utility
                 Set-StrictMode                             ║ Microsoft.PowerShell.Utility
-                Get-AdObject                               ║ ActiveDirectory
+                Get-ADObject                               ║ ActiveDirectory
+                Import-Module                              ║ Microsoft.PowerShell.Core
 
         .NOTES
-            Version:         1.1
-            DateModified:    19/Mar/2025
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Version:         1.2
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Private/Initialize-ModuleVariable.ps1
+
+        .COMPONENT
+            Module Initialization
+
+        .ROLE
+            Module Infrastructure
+
+        .FUNCTIONALITY
+            Active Directory Environment Configuration
     #>
     [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
     [OutputType([void])]

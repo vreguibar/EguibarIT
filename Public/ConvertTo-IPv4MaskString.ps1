@@ -1,22 +1,68 @@
 function ConvertTo-IPv4MaskString {
     <#
         .SYNOPSIS
-            Converts a number of bits (0-32) to an IPv4 network mask string (e.g., "255.255.255.0").
+            Converts a CIDR bit count (0-32) to its equivalent subnet mask in dotted-decimal format.
+
         .DESCRIPTION
-            Converts a number of bits (0-32) to an IPv4 network mask string (e.g., "255.255.255.0").
+            This function converts a CIDR bit count (e.g., 24) to its equivalent subnet mask
+            in dotted-decimal format (e.g., "255.255.255.0"). This is useful for network
+            configurations that require subnet masks in the traditional format rather than CIDR notation.
+
         .PARAMETER MaskBits
-            Specifies the number of bits in the mask.
+            Specifies the number of bits in the subnet mask (0-32).
+            Must be an integer between 0 and 32.
+
+        .INPUTS
+            System.Int32
+            You can pipe an integer value representing CIDR bit count to this function.
+
+        .OUTPUTS
+            System.String
+            Returns a string representing the subnet mask in dotted-decimal notation.
+
         .EXAMPLE
-            ConvertTo-IPv4MaskString -MaskBits "24"
+            ConvertTo-IPv4MaskString -MaskBits 24
+
+            Returns "255.255.255.0", which is the subnet mask for a CIDR /24 network.
+
         .EXAMPLE
-            ConvertTo-IPv4MaskString "24"
+            ConvertTo-IPv4MaskString 16
+
+            Returns "255.255.0.0", which is the subnet mask for a CIDR /16 network.
+
+        .EXAMPLE
+            30 | ConvertTo-IPv4MaskString
+
+            Returns "255.255.255.252", which is the subnet mask for a CIDR /30 network.
+
         .NOTES
-            Version:         1.0
-            DateModified:    13/Apr/2022
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Used Functions:
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Get-FunctionDisplay                    ║ EguibarIT
+                Math.Pow                               ║ System
+                BitConverter.GetBytes                  ║ System
+
+        .NOTES
+            Version:         1.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/ConvertTo-IPv4MaskString.ps1
+
+        .COMPONENT
+            Networking
+
+        .ROLE
+            Utility
+
+        .FUNCTIONALITY
+            Subnet Mask Conversion
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([string])]

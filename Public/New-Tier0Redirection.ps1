@@ -129,12 +129,53 @@
         )]
         [Alias('ScriptPath')]
         [string]
-        $DMScripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\',
+
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'Start transcript logging to DMScripts path with function name',
+            Position = 2)]
+        [Alias('Transcript', 'Log')]
+        [switch]
+        $EnableTranscript
 
     )
 
     Begin {
         Set-StrictMode -Version Latest
+
+        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+            $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
+        } #end If
+
+        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+            $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
+        } #end If
+
+        # If EnableTranscript is specified, start a transcript
+        if ($EnableTranscript) {
+            # Ensure DMScripts directory exists
+            if (-not (Test-Path -Path $DMScripts -PathType Container)) {
+                try {
+                    New-Item -Path $DMScripts -ItemType Directory -Force | Out-Null
+                    Write-Verbose -Message ('Created transcript directory: {0}' -f $DMScripts)
+                } catch {
+                    Write-Warning -Message ('Failed to create transcript directory: {0}' -f $_.Exception.Message)
+                } #end try-catch
+            } #end if
+
+            # Create transcript filename using function name and current date/time
+            $TranscriptFile = Join-Path -Path $DMScripts -ChildPath ('{0}_{1}.LOG' -f $MyInvocation.MyCommand.Name, (Get-Date -Format 'yyyyMMdd_HHmmss'))
+
+            try {
+                Start-Transcript -Path $TranscriptFile -Force -ErrorAction Stop
+                Write-Verbose -Message ('Transcript started: {0}' -f $TranscriptFile)
+            } catch {
+                Write-Warning -Message ('Failed to start transcript: {0}' -f $_.Exception.Message)
+            } #end try-catch
+        } #end if
 
         # Initialize logging
         if ($null -ne $Variables -and
@@ -169,14 +210,20 @@
             [string]$ItQuarantinePcOu = $confXML.n.Admin.OUs.ItNewComputersOU.name
             [string]$ItQuarantineUserOu = $confXML.n.Admin.OUs.ItNewUsersOU.name
 
-            # Define well-known security principals
-            $AccountOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
-
             Write-Verbose -Message ('Extracted OU names: {0}, {1}' -f $ItQuarantinePcOu, $ItQuarantineUserOu)
         } catch {
             Write-Error -Message ('Error processing XML file: {0}' -f $_.Exception.Message)
             throw
         } #end Try-Catch
+
+        $AccountOperators = Get-SafeVariable -Name 'AccountOperators' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Identity 'S-1-5-32-548'
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Account Operators group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
     } #end Begin
 
@@ -266,6 +313,16 @@
                 'Default User/Computer container redirection.'
             )
             Write-Verbose -Message $txt
+        } #end If
+
+        # Stop transcript if it was started
+        if ($EnableTranscript) {
+            try {
+                Stop-Transcript -ErrorAction Stop
+                Write-Verbose -Message 'Transcript stopped successfully'
+            } catch {
+                Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
+            } #end Try-Catch
         } #end If
     } #end End
 } #end Function New-Tier0Redirection

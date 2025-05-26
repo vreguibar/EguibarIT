@@ -29,68 +29,95 @@
                 Description                   = 'New Admin Group'
                 ProtectFromAccidentalDeletion = $true
             }
-            New-AdDelegatedGroup @Splat
-
-        .PARAMETER Name
-            [STRING] Name of the group to be created. SamAccountName
+            New-AdDelegatedGroup @Splat        .PARAMETER Name
+            Name of the group to be created (SamAccountName).
+            Must be 1-256 characters, using only alphanumeric characters, spaces, hyphens, underscores, and periods.
 
         .PARAMETER GroupCategory
-            [ValidateSet] Group category, either Security or Distribution
+            Group category, either Security or Distribution.
+            Security groups can be assigned permissions, Distribution groups cannot.
 
         .PARAMETER GroupScope
-            [ValidateSet] Group Scope, either DomainLocal, Global or Universal
+            Group Scope, either DomainLocal, Global or Universal.
+            Determines the scope in which the group can be granted permissions and have members.
 
         .PARAMETER DisplayName
-            [STRING] Display Name of the group to be created
+            Display Name of the group to be created.
+            This is what appears in the Global Address List.
 
-        .PARAMETER path
-            [STRING] DistinguishedName of the container where the group will be created.
+        .PARAMETER Path
+            DistinguishedName of the container where the group will be created.
+            Must be a valid organizational unit or container DN.
 
         .PARAMETER Description
-            [STRING] Description of the group.
+            Description of the group.
+            Helps document the purpose and usage of the group.
 
         .PARAMETER ProtectFromAccidentalDeletion
-            [Switch] Protect from accidental deletion.
+            When specified, sets the ProtectedFromAccidentalDeletion attribute to True.
+            This prevents the group from being deleted without first removing this protection.
 
         .PARAMETER RemoveAccountOperators
-            [Switch] Remove Account Operators Built-In group
+            When specified, removes the Account Operators built-in group from the ACL.
+            Improves security by limiting administrative access.
 
         .PARAMETER RemoveEveryone
-            [Switch] Remove Everyone Built-In group
+            When specified, removes the Everyone built-in group from the ACL.
+            Improves security by limiting anonymous access.
 
         .PARAMETER RemoveAuthUsers
-            [Switch] Remove Authenticated Users Built-In group
+            When specified, removes the Authenticated Users built-in group from the ACL.
+            Improves security by limiting broad access to the group.
 
         .PARAMETER RemovePreWin2000
-            [Switch] Remove Pre-Windows 2000 Built-In group
+            When specified, removes the Pre-Windows 2000 Compatible Access built-in group from the ACL.
+            Improves security by removing legacy access.        .INPUTS
+            System.String
+            You can pipe group name strings to this function.
+
+        .OUTPUTS
+            Microsoft.ActiveDirectory.Management.AdGroup
+            Returns the newly created or modified AD group object.
 
         .NOTES
             Used Functions:
-            Name                                       ║ Module/Namespace
-            ═══════════════════════════════════════════╬══════════════════════════════
-            Get-FunctionDisplay                        ║ EguibarIT
-            Remove-AccountOperator                     ║ EguibarIT.DelegationPS
-            Remove-Everyone                            ║ EguibarIT.DelegationPS
-            Remove-AuthUser                            ║ EguibarIT.DelegationPS
-            Remove-PreWin2000                          ║ EguibarIT.DelegationPS
-            Get-AdGroup                                ║ ActiveDirectory
-            Move-ADObject                              ║ ActiveDirectory
-            New-ADGroup                                ║ ActiveDirectory
-            Set-AdGroup                                ║ ActiveDirectory
-            Set-AdObject                               ║ ActiveDirectory
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Get-FunctionDisplay                    ║ EguibarIT
+                Remove-AccountOperator                 ║ EguibarIT.DelegationPS
+                Remove-Everyone                        ║ EguibarIT.DelegationPS
+                Remove-AuthUser                        ║ EguibarIT.DelegationPS
+                Remove-PreWin2000                      ║ EguibarIT.DelegationPS
+                Get-AdGroup                            ║ ActiveDirectory
+                Move-ADObject                          ║ ActiveDirectory
+                New-ADGroup                            ║ ActiveDirectory
+                Set-AdGroup                            ║ ActiveDirectory
+                Set-AdObject                           ║ ActiveDirectory
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Debug                            ║ Microsoft.PowerShell.Utility
 
         .NOTES
-            Version:         1.2
-            DateModified:    31/Mar/2024
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Version:         1.3
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
-        https://github.com/vreguibar/EguibarIT
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/New-AdDelegatedGroup.ps1
+
         .LINK
             https://www.eguibarit.com
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Identity Management
+
+        .FUNCTIONALITY
+            Group Administration
     #>
     [CmdletBinding(
         SupportsShouldProcess = $true,

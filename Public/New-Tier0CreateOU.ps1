@@ -143,12 +143,53 @@
         )]
         [Alias('ScriptPath')]
         [string]
-        $DMScripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\',
+
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'Start transcript logging to DMScripts path with function name',
+            Position = 2)]
+        [Alias('Transcript', 'Log')]
+        [switch]
+        $EnableTranscript
 
     )
 
     Begin {
         Set-StrictMode -Version Latest
+
+        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+            $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
+        } #end If
+
+        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+            $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
+        } #end If
+
+        # If EnableTranscript is specified, start a transcript
+        if ($EnableTranscript) {
+            # Ensure DMScripts directory exists
+            if (-not (Test-Path -Path $DMScripts -PathType Container)) {
+                try {
+                    New-Item -Path $DMScripts -ItemType Directory -Force | Out-Null
+                    Write-Verbose -Message ('Created transcript directory: {0}' -f $DMScripts)
+                } catch {
+                    Write-Warning -Message ('Failed to create transcript directory: {0}' -f $_.Exception.Message)
+                } #end try-catch
+            } #end if
+
+            # Create transcript filename using function name and current date/time
+            $TranscriptFile = Join-Path -Path $DMScripts -ChildPath ('{0}_{1}.LOG' -f $MyInvocation.MyCommand.Name, (Get-Date -Format 'yyyyMMdd_HHmmss'))
+
+            try {
+                Start-Transcript -Path $TranscriptFile -Force -ErrorAction Stop
+                Write-Verbose -Message ('Transcript started: {0}' -f $TranscriptFile)
+            } catch {
+                Write-Warning -Message ('Failed to start transcript: {0}' -f $_.Exception.Message)
+            } #end try-catch
+        } #end if
 
         # Display function header if variables exist
         if ($null -ne $Variables -and
@@ -165,8 +206,6 @@
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'ServerManager' -SkipEditionCheck -Verbose:$false
-        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
@@ -218,6 +257,10 @@
             ItInfraT1Ou         = $ConfXML.n.Admin.OUs.ItInfraT1OU.name
             ItInfraT2Ou         = $ConfXML.n.Admin.OUs.ItInfraT2OU.name
             ItInfraStagingOu    = $ConfXML.n.Admin.OUs.ItInfraStagingOU.name
+
+            # Quarantine OUs
+            ItNewComputersOU    = $ConfXML.n.Admin.OUs.ItNewComputersOU.name
+            ItNewUsersOU        = $ConfXML.n.Admin.OUs.ItNewUsersOU.name
         }
 
         # Generate DN paths for created OUs
@@ -698,6 +741,16 @@
                 'creating Tier0 Organizational Units.'
             )
             Write-Verbose -Message $txt
+        } #end If
+
+        # Stop transcript if it was started
+        if ($EnableTranscript) {
+            try {
+                Stop-Transcript -ErrorAction Stop
+                Write-Verbose -Message 'Transcript stopped successfully'
+            } catch {
+                Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
+            } #end Try-Catch
         } #end If
 
         # Return status message with count of created OUs and root OU path

@@ -1,38 +1,82 @@
 Function ConvertTo-IPv4NetworkAddress {
     <#
         .SYNOPSIS
-            Find network address based on IP Address and Subnet Mask (e. g. 192.168.1.0 is the Network Address of 192.168.1.200/24)
+            Calculates the network address for a given IP address and subnet mask.
+
         .DESCRIPTION
-            Find network address based on IP Address and Subnet Mask (e. g. 192.168.1.0 is the Network Address of 192.168.1.200/24)
+            This function calculates the network address based on an IP address and either a subnet mask
+            or prefix length (CIDR notation). For example, 192.168.1.0 is the network address of
+            192.168.1.200/24 or 192.168.1.200 with subnet mask 255.255.255.0.
+
         .PARAMETER IPv4Address
-            Specifies the IPv4 Address as string (e.g., 192.168.1.200)
+            Specifies the IPv4 Address as string (e.g., "192.168.1.200").
+            Must be a valid IPv4 address in dotted-decimal notation.
+
         .PARAMETER SubnetMask
-            Specifies the IPv4 network mask as string (e.g., 255.255.255.0)
+            Specifies the IPv4 network mask as string (e.g., "255.255.255.0").
+            Used in the SubnetMask parameter set.
+
         .PARAMETER PrefixLength
-            Specifies the network prefix length, also known as CIDR  (e.g., 24)
+            Specifies the network prefix length, also known as CIDR notation (e.g., "24").
+            Used in the PrefixLength parameter set.
+
+        .INPUTS
+            System.String
+            You can pipe the IPv4 address as a string to this function.
+
+        .OUTPUTS
+            System.Net.IPAddress
+            Returns an IPAddress object representing the network address.
+
         .EXAMPLE
             ConvertTo-IPv4NetworkAddress -IPv4Address "192.168.1.200" -SubnetMask "255.255.255.0"
+
+            Returns 192.168.1.0 as the network address for the given IP and subnet mask.
+
         .EXAMPLE
             ConvertTo-IPv4NetworkAddress -IPv4Address "192.168.1.200" -PrefixLength "24"
+
+            Returns 192.168.1.0 as the network address for the given IP and CIDR prefix.
+
         .EXAMPLE
             ConvertTo-IPv4NetworkAddress "192.168.1.200" "255.255.255.0"
+
+            Uses positional parameters to calculate the network address.
+
         .EXAMPLE
             ConvertTo-IPv4NetworkAddress "192.168.1.200" "24"
-        .NOTES
-            Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                ConvertTo-IPv4Integer                  | EguibarIT
-                ConvertTo-IntegerIPv4                  | EguibarIT
-                ConvertTo-IPv4MaskString               | EguibarIT
+
+            Uses positional parameters with a CIDR prefix length.
 
         .NOTES
-            Version:         1.0
-            DateModified:    12/Apr/2022
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Used Functions:
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                ConvertTo-IPv4Integer                  ║ EguibarIT
+                ConvertTo-IntegerIPv4                  ║ EguibarIT
+                ConvertTo-IPv4MaskString               ║ EguibarIT
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Get-FunctionDisplay                    ║ EguibarIT
+
+        .NOTES
+            Version:         1.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/ConvertTo-IPv4NetworkAddress.ps1
+
+        .COMPONENT
+            Networking
+
+        .ROLE
+            Utility
+
+        .FUNCTIONALITY
+            IP Address Calculation
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([System.Net.IpAddress])]

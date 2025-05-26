@@ -10,16 +10,29 @@
         .PARAMETER ObjectSID
             A string representing the object Security Identifier (SID).
 
+        .INPUTS
+            System.String
+            You can pipe one or more SID strings to this function.
+
+        .OUTPUTS
+            System.Boolean
+            Returns $true if the SID is valid, otherwise returns $false.
+
         .EXAMPLE
             Test-IsValidSID -ObjectSID 'S-1-5-21-2562450185-1914323539-512974444-1234'
-            Returns: True or False
+
+            Returns: True or False depending on SID validity.
 
         .EXAMPLE
             'S-1-5-18' | Test-IsValidSID
-            Returns: True (since it matches the well-known SYSTEM SID)
 
-        .OUTPUTS
-            [bool] - Returns $true if the SID is valid, otherwise returns $false.
+            Returns: True (since it matches the well-known SYSTEM SID).
+
+        .EXAMPLE
+            $sids = @('S-1-5-18', 'S-1-5-19', 'NotValidSID')
+            $sids | Test-IsValidSID
+
+            Tests multiple SIDs via pipeline input.
 
         .NOTES
             Used Functions:
@@ -29,18 +42,24 @@
                 Write-Error                          ║ Microsoft.PowerShell.Utility
 
         .NOTES
-            Version:         1.2
-            DateModified:    12/Mar/2025
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                        vicente@eguibar.com
-                        Eguibar Information Technology S.L.
-                        http://www.eguibarit.com
-
-        .LINK
-            https://pscustomobject.github.io/powershell/howto/identity%20management/PowerShell-Check-If-String-Is-A-DN/
+            Version:         1.3
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
             https://github.com/vreguibar/EguibarIT/blob/main/Private/Test-IsValidSID.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Identity Management
+
+        .FUNCTIONALITY
+            SID Validation
     #>
     [CmdletBinding(ConfirmImpact = 'Low', SupportsShouldProcess = $true)]
     [OutputType([bool])]

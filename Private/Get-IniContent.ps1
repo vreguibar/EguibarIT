@@ -1,7 +1,7 @@
 function Get-IniContent {
     <#
-      .SYNOPSIS
-        Gets the content of an INI file and returns it as a hashtable.
+        .SYNOPSIS
+            Gets the content of an INI file and returns it as a hashtable.
 
         .DESCRIPTION
             Parses an INI file and returns a nested hashtable of its contents.
@@ -13,40 +13,58 @@ function Get-IniContent {
             Accepts pipeline input.
             Must be a valid file path.
 
+        .INPUTS
+            [System.String]
+            You can pipe a file path to this function.
+
+        .OUTPUTS
+            [System.Collections.Hashtable]
+            Returns a hashtable containing the sections, keys, and values from the INI file.
+
         .EXAMPLE
             Get-IniContent -FilePath "C:\Config\settings.ini"
+
             Returns the content of settings.ini as a nested hashtable.
 
         .EXAMPLE
             "C:\Config\app.ini" | Get-IniContent
+
             Reads app.ini via pipeline and returns its content.
 
         .EXAMPLE
             $config = Get-IniContent "C:\Config\settings.ini"
             $value = $config["Section"]["Key"]
-            Gets a specific value from the INI structure.
 
-        .OUTPUTS
-            System.Collections.Hashtable
+            Gets a specific value from the INI structure.
 
         .NOTES
             Used Functions:
-            Name                                   ║ Module/Namespace
-            ═══════════════════════════════════════╬══════════════════════════════
-            Write-Verbose                          ║ Microsoft.PowerShell.Utility
-            Write-Error                            ║ Microsoft.PowerShell.Utility
-            Get-FunctionDisplay                    ║ EguibarIT
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Debug                            ║ Microsoft.PowerShell.Utility
+                Write-Error                            ║ Microsoft.PowerShell.Utility
+                Get-FunctionDisplay                    ║ EguibarIT
 
         .NOTES
-            Version:         2.0
-            DateModified:   26/Mar/2025
-            LastModifiedBy: Vicente Rodriguez Eguibar
-                        vicente@eguibar.com
-                        Eguibar IT
-                        http://www.eguibarit.com
+            Version:         2.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
             https://github.com/vreguibar/EguibarIT/blob/main/Private/Get-IniContent.ps1
+
+        .COMPONENT
+            Configuration Management
+
+        .ROLE
+            File Parsing
+
+        .FUNCTIONALITY
+            INI File Processing
     #>
 
     [CmdletBinding(

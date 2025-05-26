@@ -28,6 +28,15 @@ Function New-Template {
             - pKIMaxIssuingDepth
             - revision
 
+        .INPUTS
+            System.String
+            System.Collections.Hashtable
+            You can pipe a DisplayName and attributes to this function.
+
+        .OUTPUTS
+            [System.Void]
+            This function does not produce any output.
+
         .EXAMPLE
             $attributes = @{
                 'msPKI-Certificate-Name-Flag' = 1
@@ -36,6 +45,7 @@ Function New-Template {
                 'pKIExtendedKeyUsage' = '1.3.6.1.5.5.7.3.2'
             }
             New-Template -DisplayName "WebServer2025" -TemplateOtherAttributes $attributes
+
             Creates a new web server certificate template.
 
         .EXAMPLE
@@ -47,29 +57,41 @@ Function New-Template {
                 }
             }
             New-Template @splat -Verbose -WhatIf
-            Shows what would happen when creating a new user signing template.
 
-        .OUTPUTS
-            [void]
+            Shows what would happen when creating a new user signing template.
 
         .NOTES
             Used Functions:
-            Name                           ║ Module
-            ═══════════════════════════════╬══════════════════════════
-            Get-ADDomainController         ║ ActiveDirectory
-            Get-ADRootDSE                  ║ ActiveDirectory
-            New-ADObject                   ║ ActiveDirectory
-            New-TemplateOID                ║ EguibarIT
-            Write-Verbose                  ║ Microsoft.PowerShell.Utility
-            Write-Error                    ║ Microsoft.PowerShell.Utility
+                Name                           ║ Module/Namespace
+                ═══════════════════════════════╬══════════════════════════
+                Get-ADDomainController         ║ ActiveDirectory
+                New-ADObject                   ║ ActiveDirectory
+                New-TemplateOID                ║ EguibarIT
+                Write-Verbose                  ║ Microsoft.PowerShell.Utility
+                Write-Debug                    ║ Microsoft.PowerShell.Utility
+                Write-Error                    ║ Microsoft.PowerShell.Utility
+                Get-FunctionDisplay            ║ EguibarIT
+                Import-MyModule                ║ EguibarIT
 
         .NOTES
-            Version:         1.5
-            DateModified:    26/Mar/2025
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar IT
-                http://www.eguibarit.com
+            Version:         1.6
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Private/New-Template.ps1
+
+        .COMPONENT
+            PKI
+
+        .ROLE
+            Certificate Management
+
+        .FUNCTIONALITY
+            Certificate Template Creation
     #>
     [CmdletBinding(
         SupportsShouldProcess = $true,

@@ -42,6 +42,7 @@
                 ═══════════════════════════════════════════╬══════════════════════════════
                 Import-MyModule                            ║ EguibarIT
                 Get-FunctionDisplay                        ║ EguibarIT
+                Get-SafeVariable                           ║ EguibarIT
                 Add-AdGroupNesting                         ║ EguibarIT
                 Remove-Everyone                            ║ EguibarIT.DelegationPS
                 Remove-PreWin2000                          ║ EguibarIT.DelegationPS
@@ -53,8 +54,8 @@
                 Set-ADObject                               ║ ActiveDirectory
 
         .NOTES
-            Version:         1.0
-            DateModified:    29/Apr/2025
+            Version:         1.1
+            DateModified:    7/May/2025
             LastModifiedBy:  Vicente Rodriguez Eguibar
                             vicente@eguibar.com
                             Eguibar IT
@@ -130,12 +131,53 @@
         )]
         [Alias('ScriptPath')]
         [string]
-        $DMScripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\',
+
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'Start transcript logging to DMScripts path with function name',
+            Position = 2)]
+        [Alias('Transcript', 'Log')]
+        [switch]
+        $EnableTranscript
 
     )
 
     Begin {
         Set-StrictMode -Version Latest
+
+        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+            $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
+        } #end If
+
+        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+            $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
+        } #end If
+
+        # If EnableTranscript is specified, start a transcript
+        if ($EnableTranscript) {
+            # Ensure DMScripts directory exists
+            if (-not (Test-Path -Path $DMScripts -PathType Container)) {
+                try {
+                    New-Item -Path $DMScripts -ItemType Directory -Force | Out-Null
+                    Write-Verbose -Message ('Created transcript directory: {0}' -f $DMScripts)
+                } catch {
+                    Write-Warning -Message ('Failed to create transcript directory: {0}' -f $_.Exception.Message)
+                } #end try-catch
+            } #end if
+
+            # Create transcript filename using function name and current date/time
+            $TranscriptFile = Join-Path -Path $DMScripts -ChildPath ('{0}_{1}.LOG' -f $MyInvocation.MyCommand.Name, (Get-Date -Format 'yyyyMMdd_HHmmss'))
+
+            try {
+                Start-Transcript -Path $TranscriptFile -Force -ErrorAction Stop
+                Write-Verbose -Message ('Transcript started: {0}' -f $TranscriptFile)
+            } catch {
+                Write-Warning -Message ('Failed to start transcript: {0}' -f $_.Exception.Message)
+            } #end try-catch
+        } #end if
 
         # Display function header if variables exist
         if ($null -ne $Variables -and
@@ -152,8 +194,6 @@
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'ServerManager' -SkipEditionCheck -Verbose:$false
-        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
@@ -169,7 +209,8 @@
 
         # Load the XML configuration file
         try {
-            [xml]$ConfXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
+            # Use ConfigXMLFile directly from parameter rather than from PSBoundParameters
+            [xml]$ConfXML = [xml](Get-Content $ConfigXMLFile)
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
@@ -178,22 +219,54 @@
         # Set admin names
         [string]$NewAdminName = $ConfXML.n.Admin.users.NEWAdmin.Name
 
-        # Get the AD Objects by Well-Known SID
-        try {
-            # Administrator
-            $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
-            # Domain Admins
-            $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
-            # Enterprise Admins
-            $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
-            # Group Policy Creators Owner
-            $GPOCreatorsOwner = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
-            # Denied RODC Password Replication Group
-            $DeniedRODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
-        } catch {
-            Write-Error -Message ('Error initializing security principals: {0}' -f $_.Exception.Message)
-            throw
-        } #end Try-Catch
+        #region Users
+        $AdminName = Get-SafeVariable -Name 'AdminName' -CreateIfNotExist {
+            try {
+                Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Administrator account: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+        #endregion Users
+
+        #region Well-Known groups Variables
+        $DomainAdmins = Get-SafeVariable -Name 'DomainAdmins' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Domain Admins group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $EnterpriseAdmins = Get-SafeVariable -Name 'EnterpriseAdmins' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Enterprise Admins group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $GPOCreatorsOwner = Get-SafeVariable -Name 'GPOCreatorsOwner' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve GPO Creators Owner group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $DeniedRODC = Get-SafeVariable -Name 'DeniedRODC' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Denied RODC Password Replication group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+        #endregion Well-Known groups Variables
 
         # Generate DN paths for OUs
         [string]$ItAdminOu = $ConfXML.n.Admin.OUs.ItAdminOU.name
@@ -312,22 +385,14 @@
             # Move AD object to proper OU
             Get-ADUser -Identity $NewAdminName | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
 
-            # Refresh object
-            $Splat = @{
-                Name  = 'AdminName'
-                Value = (Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' })
-                Scope = 'Global'
-                Force = $true
+            # Refresh objects using Get-SafeVariable to update or create them if needed
+            $AdminName = Get-SafeVariable -Name 'AdminName' -CreateIfNotExist {
+                Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
             }
-            New-Variable @Splat
 
-            $Splat = @{
-                Name  = 'NewAdminExists'
-                Value = (Get-ADUser -Identity $newAdminName)
-                Scope = 'Global'
-                Force = $true
+            $NewAdminExists = Get-SafeVariable -Name 'NewAdminExists' -CreateIfNotExist {
+                Get-ADUser -Identity $NewAdminName
             }
-            New-Variable @Splat
 
             # Set the Protect against accidental deletions attribute
             # Identity ONLY accepts DistinguishedName or GUID -- DN fails I don't know why
@@ -385,7 +450,7 @@
                 Identity             = $AdminName
                 TrustedForDelegation = $false
                 AccountNotDelegated  = $true
-                Add                  = $Params
+                Replace              = $Params
                 Server               = $CurrentDC
             }
             Set-ADUser @Splat
@@ -403,6 +468,16 @@
                 'Create and Secure Tier0 Admin Accounts.'
             )
             Write-Verbose -Message $txt
+        } #end If
+
+        # Stop transcript if it was started
+        if ($EnableTranscript) {
+            try {
+                Stop-Transcript -ErrorAction Stop
+                Write-Verbose -Message 'Transcript stopped successfully'
+            } catch {
+                Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
+            } #end Try-Catch
         } #end If
     } #end End
 } #end Function New-Tier0AdminAccount

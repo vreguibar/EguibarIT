@@ -125,12 +125,53 @@
         )]
         [Alias('ScriptPath')]
         [string]
-        $DMScripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\',
+
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'Start transcript logging to DMScripts path with function name',
+            Position = 2)]
+        [Alias('Transcript', 'Log')]
+        [switch]
+        $EnableTranscript
 
     )
 
     Begin {
         Set-StrictMode -Version Latest
+
+        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+            $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
+        } #end If
+
+        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+            $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
+        } #end If
+
+        # If EnableTranscript is specified, start a transcript
+        if ($EnableTranscript) {
+            # Ensure DMScripts directory exists
+            if (-not (Test-Path -Path $DMScripts -PathType Container)) {
+                try {
+                    New-Item -Path $DMScripts -ItemType Directory -Force | Out-Null
+                    Write-Verbose -Message ('Created transcript directory: {0}' -f $DMScripts)
+                } catch {
+                    Write-Warning -Message ('Failed to create transcript directory: {0}' -f $_.Exception.Message)
+                } #end try-catch
+            } #end if
+
+            # Create transcript filename using function name and current date/time
+            $TranscriptFile = Join-Path -Path $DMScripts -ChildPath ('{0}_{1}.LOG' -f $MyInvocation.MyCommand.Name, (Get-Date -Format 'yyyyMMdd_HHmmss'))
+
+            try {
+                Start-Transcript -Path $TranscriptFile -Force -ErrorAction Stop
+                Write-Verbose -Message ('Transcript started: {0}' -f $TranscriptFile)
+            } catch {
+                Write-Warning -Message ('Failed to start transcript: {0}' -f $_.Exception.Message)
+            } #end try-catch
+        } #end if
 
         # Display function header
         if ($null -ne $Variables -and
@@ -147,8 +188,6 @@
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'ServerManager' -SkipEditionCheck -Verbose:$false
-        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
@@ -198,8 +237,26 @@
 
         if ($PSCmdlet.ShouldProcess('Active Directory Privileged Groups', 'Create Tier0 Admin Groups')) {
 
+            # Count total operations for progress tracking
+            [int]$totalOperations = $confXML.n.Admin.LG.ChildNodes.Count +
+            $confXML.n.Admin.GG.ChildNodes.Count +
+            4 # Additional operations for server groups
+            [int]$currentOperation = 0
+
             # Iterate through all Admin-LocalGroups child nodes
             Foreach ($Node in $confXML.n.Admin.LG.ChildNodes) {
+                $currentOperation++
+
+                # Update progress
+                $progressParams = @{
+                    Activity        = 'Creating Tier0 Admin Groups'
+                    Status          = ('Creating group {0} ({1} of {2})' -f
+                        ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Node.Name),
+                        $currentOperation, $totalOperations)
+                    PercentComplete = ($currentOperation / $totalOperations * 100)
+                }
+                Write-Progress @progressParams
+
                 Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Node.LocalName))
                 $Splat = @{
                     Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $Node.Name
@@ -229,6 +286,18 @@
 
             # Iterate through all Admin-GlobalGroups child nodes
             Foreach ($Node in $confXML.n.Admin.GG.ChildNodes) {
+                $currentOperation++
+
+                # Update progress
+                $progressParams = @{
+                    Activity        = 'Creating Tier0 Admin Groups'
+                    Status          = ('Creating group {0} ({1} of {2})' -f
+                        ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Node.Name),
+                        $currentOperation, $totalOperations)
+                    PercentComplete = ($currentOperation / $totalOperations * 100)
+                }
+                Write-Progress @progressParams
+
                 Write-Verbose -Message ('Create group {0}' -f ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Node.localname))
                 $Splat = @{
                     Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $Node.Name
@@ -258,6 +327,16 @@
 
             # Create Servers Area / Tier1 Domain Local & Global Groups
             # Operations group
+            $currentOperation++
+            # Update progress
+            $progressParams = @{
+                Activity        = 'Creating Tier0 Admin Groups'
+                Status          = ('Creating Operations group ({0} of {1})' -f
+                    $currentOperation, $totalOperations)
+                PercentComplete = ($currentOperation / $totalOperations * 100)
+            }
+            Write-Progress @progressParams
+
             $Splat = @{
                 Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $ConfXML.n.Servers.GG.Operations.Name
                 GroupCategory                 = 'Security'
@@ -276,6 +355,16 @@
             $CreatedGroup = $null
 
             # Server Admins group
+            $currentOperation++
+            # Update progress
+            $progressParams = @{
+                Activity        = 'Creating Tier0 Admin Groups'
+                Status          = ('Creating Server Admins group ({0} of {1})' -f
+                    $currentOperation, $totalOperations)
+                PercentComplete = ($currentOperation / $totalOperations * 100)
+            }
+            Write-Progress @progressParams
+
             $Splat = @{
                 Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $ConfXML.n.Servers.GG.ServerAdmins.Name
                 GroupCategory                 = 'Security'
@@ -294,6 +383,16 @@
             $CreatedGroup = $null
 
             # Server Ops Rights group
+            $currentOperation++
+            # Update progress
+            $progressParams = @{
+                Activity        = 'Creating Tier0 Admin Groups'
+                Status          = ('Creating Server Ops Rights group ({0} of {1})' -f
+                    $currentOperation, $totalOperations)
+                PercentComplete = ($currentOperation / $totalOperations * 100)
+            }
+            Write-Progress @progressParams
+
             $Splat = @{
                 Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $ConfXML.n.Servers.LG.SvrOpsRight.Name
                 GroupCategory                 = 'Security'
@@ -312,6 +411,16 @@
             $CreatedGroup = $null
 
             # Server Admin Rights group
+            $currentOperation++
+            # Update progress
+            $progressParams = @{
+                Activity        = 'Creating Tier0 Admin Groups'
+                Status          = ('Creating Server Admin Rights group ({0} of {1})' -f
+                    $currentOperation, $totalOperations)
+                PercentComplete = ($currentOperation / $totalOperations * 100)
+            }
+            Write-Progress @progressParams
+
             $Splat = @{
                 Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $ConfXML.n.Servers.LG.SvrAdmRight.Name
                 GroupCategory                 = 'Security'
@@ -328,6 +437,9 @@
             $VariableName = 'SL{0}{1}' -f $NC['Delim'], $ConfXML.n.Servers.LG.SvrAdmRight.LocalName
             New-Variable -Name $VariableName -Value $CreatedGroup -Scope Global -Force
             $CreatedGroup = $null
+
+            # Complete the group creation progress
+            Write-Progress -Activity 'Creating Tier0 Admin Groups' -Completed
 
             # Get all Privileged groups into an array $AllGroups
             # Note: For each group we check if it exists before adding to the collection
@@ -366,23 +478,50 @@
             }
 
             # Move the groups to PG OU
+            $totalGroups = $AllGroups.Count
+            $currentGroup = 0
+
             foreach ($Item in $AllGroups) {
-                # AD Object operations ONLY supports DN and GUID as identity
-                Write-Verbose -Message ('Moving group {0} to Privileged Groups OU' -f $Item.Name)
+                $currentGroup++
 
-                # Remove the ProtectedFromAccidentalDeletion, otherwise throws error when moving
-                Set-ADObject -Identity $Item.ObjectGUID -ProtectedFromAccidentalDeletion $false
+                # Update progress for moving groups
+                $progressParams = @{
+                    Activity        = 'Moving Privileged Groups to Protected OU'
+                    Status          = ('Moving group {0} ({1} of {2})' -f
+                        $Item.Name, $currentGroup, $totalGroups)
+                    PercentComplete = ($currentGroup / $totalGroups * 100)
+                }
+                Write-Progress @progressParams
 
-                # Move objects to PG OU
-                Move-ADObject -TargetPath $ItPrivGroupsOuDn -Identity $Item.ObjectGUID
+                try {
+                    # Remove the ProtectedFromAccidentalDeletion, otherwise throws error when moving
+                    Set-ADObject -Identity $Item.ObjectGUID -ProtectedFromAccidentalDeletion $false
 
-                # Set back again the ProtectedFromAccidentalDeletion flag.
-                # The group has to be fetched again because of the previous move
-                Set-ADObject -Identity $Item.ObjectGUID -ProtectedFromAccidentalDeletion $true
+                    # Move objects to PG OU
+                    Move-ADObject -TargetPath $ItPrivGroupsOuDn -Identity $Item.ObjectGUID
 
-                # Refresh the variable because DistinguishedName changed
-                Set-Variable -Name $Item.SamAccountName -Value (Get-ADGroup -Identity $Item.SID) -Scope Global -Force
+                    # Set back again the ProtectedFromAccidentalDeletion flag.
+                    # The group has to be fetched again because of the previous move
+                    Set-ADObject -Identity $Item.ObjectGUID -ProtectedFromAccidentalDeletion $true
+
+                    # Refresh the variable because DistinguishedName changed
+                    Set-Variable -Name $Item.SamAccountName -Value (Get-ADGroup -Identity $Item.SID) -Scope Global -Force
+
+                    # AD Object operations ONLY supports DN and GUID as identity
+                    Write-Verbose -Message ('Protect and Move group {0} to Privileged Groups OU. Update Variable.' -f $Item.Name)
+
+                } catch {
+
+                    Write-Warning -Message (
+                        'Failed to update variable or move group {0}: {1}' -f
+                        $Item.Name, $_.Exception.Message
+                    )
+
+                } #end Try-Catch
             } #end foreach
+
+            # Complete the group moving progress
+            Write-Progress -Activity 'Moving Privileged Groups to Protected OU' -Completed
 
         } #end If ShouldProcess
 
@@ -397,6 +536,16 @@
                 'Create Tier0 Admin Groups.'
             )
             Write-Verbose -Message $txt
+        } #end If
+
+        # Stop transcript if it was started
+        if ($EnableTranscript) {
+            try {
+                Stop-Transcript -ErrorAction Stop
+                Write-Verbose -Message 'Transcript stopped successfully'
+            } catch {
+                Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
+            } #end Try-Catch
         } #end If
     } #end End
 } #end Function New-Tier0AdminGroup

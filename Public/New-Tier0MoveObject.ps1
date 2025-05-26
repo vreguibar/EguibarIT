@@ -129,12 +129,53 @@
         )]
         [Alias('ScriptPath')]
         [string]
-        $DMScripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\',
+
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'Start transcript logging to DMScripts path with function name',
+            Position = 2)]
+        [Alias('Transcript', 'Log')]
+        [switch]
+        $EnableTranscript
 
     )
 
     Begin {
         Set-StrictMode -Version Latest
+
+        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+            $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
+        } #end If
+
+        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+            $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
+        } #end If
+
+        # If EnableTranscript is specified, start a transcript
+        if ($EnableTranscript) {
+            # Ensure DMScripts directory exists
+            if (-not (Test-Path -Path $DMScripts -PathType Container)) {
+                try {
+                    New-Item -Path $DMScripts -ItemType Directory -Force | Out-Null
+                    Write-Verbose -Message ('Created transcript directory: {0}' -f $DMScripts)
+                } catch {
+                    Write-Warning -Message ('Failed to create transcript directory: {0}' -f $_.Exception.Message)
+                } #end try-catch
+            } #end if
+
+            # Create transcript filename using function name and current date/time
+            $TranscriptFile = Join-Path -Path $DMScripts -ChildPath ('{0}_{1}.LOG' -f $MyInvocation.MyCommand.Name, (Get-Date -Format 'yyyyMMdd_HHmmss'))
+
+            try {
+                Start-Transcript -Path $TranscriptFile -Force -ErrorAction Stop
+                Write-Verbose -Message ('Transcript started: {0}' -f $TranscriptFile)
+            } catch {
+                Write-Warning -Message ('Failed to start transcript: {0}' -f $_.Exception.Message)
+            } #end try-catch
+        } #end if
 
         # Display function header if variables exist
         if ($null -ne $Variables -and
@@ -151,8 +192,6 @@
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'ServerManager' -SkipEditionCheck -Verbose:$false
-        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
@@ -202,41 +241,100 @@
         [string]$ItPrivGroupsOUDn = ('OU={0},OU={1},{2}' -f $OuNames.ItPrivGroupsOU, $OuNames.ItAdminOu, $Variables.AdDn)
         [string]$ItRightsOuDn = ('OU={0},OU={1},{2}' -f $OuNames.ItRightsOu, $OuNames.ItAdminOu, $Variables.AdDn)
 
-        Write-Debug -Message ('Admin Accounts OU DN: {0}' -f $ItAdminAccountsOuDn)
-        Write-Debug -Message ('Admin Groups OU DN: {0}' -f $ItAdminGroupsOuDn)
-        Write-Debug -Message ('Privileged Groups OU DN: {0}' -f $ItPrivGroupsOUDn)
-        Write-Debug -Message ('Rights OU DN: {0}' -f $ItRightsOuDn)
+        #region Users Variables
+        $AdminName = Get-SafeVariable -Name 'AdminName' -CreateIfNotExist {
+            try {
+                Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Administrator name: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-        # Get the AD Objects by Well-Known SID
-        try {
-            # Administrator
-            $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
-            # Guest
-            $GuestNewName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-501' }
-            # Domain Admins
-            $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
-            # Enterprise Admins
-            $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
-            # Schema Admins
-            $SchemaAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-518' }
-            # DomainControllers
-            $DomainControllers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-516' }
-            # RODC
-            $RODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-521' }
-            # Group Policy Creators Owner
-            $GPOCreatorsOwner = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
-            # Denied RODC Password Replication Group
-            $DeniedRODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
+        $GuestNewName = Get-SafeVariable -Name 'GuestNewName' -CreateIfNotExist {
+            try {
+                Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-501' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Guest name: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+        #endregion Users Variables
 
-            # DNS Administrators
-            $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins'
-            # Protected Users
-            $ProtectedUsers = Get-ADGroup -Identity 'Protected Users'
+        #region Well-Known groups Variables
+        $DomainAdmins = Get-SafeVariable -Name 'DomainAdmins' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Domain Admins group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-        } catch {
-            Write-Error -Message ('Error initializing security principals: {0}' -f $_.Exception.Message)
-            throw
-        } #end Try-Catch
+        $EnterpriseAdmins = Get-SafeVariable -Name 'EnterpriseAdmins' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Enterprise Admins group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $SchemaAdmins = Get-SafeVariable -Name 'SchemaAdmins' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-518' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Schema Admins group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $DomainControllers = Get-SafeVariable -Name 'DomainControllers' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-516' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Domain Controllers group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $RODC = Get-SafeVariable -Name 'RODC' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-521' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Read Only Domain Controllers group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $GPOCreatorsOwner = Get-SafeVariable -Name 'GPOCreatorsOwner' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Group Policy Creators Owner group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $DeniedRODC = Get-SafeVariable -Name 'DeniedRODC' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Denied Read Only Domain Controllers group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+        #endregion Well-Known groups Variables
+
+        #region Global groups Variables
+        $DnsAdmins = Get-SafeVariable -Name 'DnsAdmins' -CreateIfNotExist {
+            Get-AdObjectType -Identity 'DnsAdmins'
+        }
+
+        $ProtectedUsers = Get-SafeVariable -Name 'ProtectedUsers' -CreateIfNotExist {
+            Get-AdObjectType -Identity 'Protected Users'
+        }
+        #endregion Global groups Variables
 
     } #end Begin
 
@@ -278,6 +376,8 @@
 
                 } #end If
 
+                Get-ADUser -Identity 'krbtgt' | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
+
                 $DomainAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
                 $EnterpriseAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
                 Get-ADGroup -Identity $SchemaAdmins | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
@@ -307,11 +407,14 @@
                     Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
 
 
+
                 # ToDo: Check for group existence before moving
                 # Following groups only exist on Win 2019
                 If ([System.Environment]::OSVersion.Version.Build -ge 17763) {
                     Get-ADGroup -Identity 'Enterprise Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
                     Get-ADGroup -Identity 'Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+                    Get-ADGroup -Identity 'External Trust Accounts' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
+                    Get-ADGroup -Identity 'Forest Trust Accounts' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
                     #Get-ADGroup -Identity 'Windows Admin Center CredSSP Administrators' | Move-ADObject -TargetPath $ItPrivGroupsOUDn
                 }
 
@@ -416,6 +519,16 @@
                 'moving Tier0 objects.'
             )
             Write-Verbose -Message $txt
+        } #end If
+
+        # Stop transcript if it was started
+        if ($EnableTranscript) {
+            try {
+                Stop-Transcript -ErrorAction Stop
+                Write-Verbose -Message 'Transcript stopped successfully'
+            } catch {
+                Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
+            } #end Try-Catch
         } #end If
     } #end End
 } #end Function New-Tier0MoveObject

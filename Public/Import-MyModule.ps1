@@ -1,4 +1,5 @@
 Function Import-MyModule {
+
     <#
         .SYNOPSIS
             Imports a PowerShell module with enhanced error handling and functionality.
@@ -8,6 +9,8 @@ Function Import-MyModule {
             error handling, verbose output, and advanced features. It checks if the module
             is available, handles different versions, and provides options for forced imports
             and minimum version requirements. It also accepts additional arguments for maximum flexibility.
+
+            For PowerShell Core (7+), it provides special compatibility handling for Windows PowerShell modules.
 
         .PARAMETER Name
             The name of the module to import.
@@ -48,6 +51,10 @@ Function Import-MyModule {
         .PARAMETER UseWindowsPowerShell
             Forces the module to be imported using Windows PowerShell instead of PowerShell Core.
 
+        .PARAMETER FallbackToWindowsPowerShell
+            If set to true, when importing a module fails in PowerShell Core, the function will attempt to
+            create proxy functions using Windows PowerShell. This is useful for modules that are not
+            compatible with PowerShell Core.
 
         .EXAMPLE
             Import-MyModule -Name ActiveDirectory
@@ -58,6 +65,19 @@ Function Import-MyModule {
             Import-MyModule -Name AzureAD -MinimumVersion 2.0.0 -Force -Verbose
             Imports the AzureAD module with a minimum version of 2.0.0, forcing the import
             even if it's already loaded, and provides verbose output.
+
+        .EXAMPLE
+            Import-MyModule -Name ServerManager -FallbackToWindowsPowerShell
+            Attempts to import the ServerManager module, falling back to Windows PowerShell compatibility
+            mode if direct import fails in PowerShell Core.
+
+        .INPUTS
+            System.String
+            You can pipe module names to this function.
+
+        .OUTPUTS
+            System.Management.Automation.PSModuleInfo
+            Returns the imported module object when -PassThru is specified.
 
         .NOTES
             Used Functions:
@@ -70,12 +90,24 @@ Function Import-MyModule {
                 Get-FunctionDisplay                     ║ EguibarIT
 
         .NOTES
-            Version:        2.4
-            DateModified:   25/Apr/2025
-            LastModifiedBy: Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar IT
-                http://www.eguibarit.com
+            Version:        2.7
+            DateModified:   23/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Import-MyModule.ps1
+
+        .COMPONENT
+            PowerShell Module Management
+
+        .ROLE
+            System Administration
+
+        .FUNCTIONALITY
+            Module Import
     #>
 
     [CmdletBinding(
@@ -141,7 +173,11 @@ Function Import-MyModule {
 
         [Parameter(Mandatory = $false)]
         [switch]
-        $UseWindowsPowerShell
+        $UseWindowsPowerShell,
+
+        [Parameter(Mandatory = $false)]
+        [switch]
+        $FallbackToWindowsPowerShell
     )
 
     Begin {
@@ -172,6 +208,29 @@ Function Import-MyModule {
         # Initialize module tracking variables
         [System.Management.Automation.PSModuleInfo]$AvailableModule = $null
         [System.Management.Automation.PSModuleInfo]$ImportedModule = $null
+        # Check PowerShell version - are we running in PowerShell Core (7+)?
+        [bool]$IsPSCore = $PSVersionTable.PSVersion.Major -ge 7
+
+        Write-Verbose -Message (
+            '[{0}] Running in PowerShell version {1}.{2}. IsPSCore = {3}' -f
+            $FunctionName, $PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Minor, $IsPSCore
+        )
+
+        # List of known Windows PowerShell-only modules that need special handling
+        [string[]]$WindowsPSOnlyModules = @(
+            'ServerManager',
+            'GroupPolicy',
+            'ActiveDirectory',
+            'DFSN',
+            'DFSR'
+        )
+
+        # Should we try to use Windows PowerShell compatibility?
+        [bool]$TryWindowsCompatibility = $IsPSCore -and (
+            $FallbackToWindowsPowerShell -or
+            $UseWindowsPowerShell -or
+            ($WindowsPSOnlyModules -contains $Name)
+        )
 
         # Create import parameters hashtable
         [hashtable]$ImportParams = @{
@@ -216,12 +275,12 @@ Function Import-MyModule {
             $ImportParams['Scope'] = $Scope
         } #end If
 
-        if ($SkipEditionCheck) {
-            $ImportParams['SkipEditionCheck'] = $true
-        } #end If
-
-        if ($UseWindowsPowerShell) {
+        # Only add mutually exclusive parameters if not both set
+        # Priority: UseWindowsPowerShell (for Windows-only modules in PS Core), else SkipEditionCheck if explicitly requested
+        if ($IsPSCore -and ($UseWindowsPowerShell -or ($WindowsPSOnlyModules -contains $Name))) {
             $ImportParams['UseWindowsPowerShell'] = $true
+        } elseif ($SkipEditionCheck) {
+            $ImportParams['SkipEditionCheck'] = $true
         } #end If
 
         # Handle Verbose parameter correctly
@@ -253,6 +312,9 @@ Function Import-MyModule {
                             $FunctionName, $GpPath
                         )
 
+                        # Reset previously imported module variable to prevent confusion
+                        $ImportedModule = $null
+
                     } else {
 
                         Write-Error -Message (
@@ -276,6 +338,9 @@ Function Import-MyModule {
                             $FunctionName, $SmPath
                         )
 
+                        # Reset previously imported module variable to prevent confusion
+                        $ImportedModule = $null
+
                     } else {
 
                         Write-Error -Message (
@@ -286,81 +351,146 @@ Function Import-MyModule {
                     } #end If-else
 
                 } else {
-
                     Write-Error -Message (
                         'Module "{0}" is not installed. Please install the module before importing.' -f
                         $Name
                     )
                     return
-
-                } #end If-else
-
+                } #end If-elseIf-else
             } else {
-
                 Write-Verbose -Message (
                     '[{0}] Found module {1} installed on the system.' -f
                     $FunctionName, $Name
                 )
-
             } #end If
 
-            # Check if the module is already imported
-            $ImportedModule = Get-Module -Name $Name -ErrorAction SilentlyContinue -Verbose:$false
+            # Check if the module is already imported (only if we're not using a specific path)
+            # For specific paths (like GroupPolicy loaded from a direct path), we'll always attempt the import
+            if ($ImportParams['Name'] -eq $Name) {
+                $ImportedModule = Get-Module -Name $Name -ErrorAction SilentlyContinue -Verbose:$false
 
-            if ($null -ne $ImportedModule -and -not $Force) {
+                if ($null -ne $ImportedModule -and -not $Force) {
+                    Write-Verbose -Message (
+                        '[{0}] Module {1} is already imported.' -f
+                        $FunctionName, $Name
+                    )
 
-                Write-Verbose -Message (
-                    '[{0}] Module {1} is already imported.' -f
-                    $FunctionName, $Name
-                )
-
-                if ($PassThru) {
-
-                    return $ImportedModule
-
+                    if ($PassThru) {
+                        return $ImportedModule
+                    } #end If
+                    return
                 } #end If
-
-                return
-
             } #end If
 
             # Perform the import
             if ($PSCmdlet.ShouldProcess($Name, 'Import Module')) {
+                # First try to import directly
+                try {
+                    Write-Verbose -Message ('[{0}] Importing module {1}...' -f $FunctionName, $Name)
 
-                Write-Verbose -Message ('[{0}] Importing module {1}...' -f $FunctionName, $Name)
+                    # For PowerShell Core, try to use UseWindowsPowerShell if appropriate
+                    if ($IsPSCore -and
+                        $TryWindowsCompatibility -and
+                        (-not $ImportParams.ContainsKey('UseWindowsPowerShell'))) {
 
-                if ($PassThru) {
+                        Write-Verbose -Message (
+                            '[{0}] Running in PowerShell Core, adding UseWindowsPowerShell parameter' -f
+                            $FunctionName
+                        )
+                        $ImportParams['UseWindowsPowerShell'] = $true
+                    } #end If
 
-                    $ImportedModule = Import-Module @ImportParams -PassThru
+                    if ($PassThru) {
+                        $ImportedModule = Import-Module @ImportParams -PassThru
 
-                    Write-Verbose -Message (
-                        '[{0}] Successfully imported module {1}' -f
-                        $FunctionName, $Name
-                    )
-                    return $ImportedModule
+                        Write-Verbose -Message (
+                            '[{0}] Successfully imported module {1}' -f
+                            $FunctionName, $Name
+                        )
 
-                } else {
+                        # When using a specific path, we may need to return the module by name
+                        if ($null -eq $ImportedModule -and ($ImportParams['Name'] -match '\.ps[dm]1$')) {
+                            # Get the module by original name since the path-based import might not return the module correctly
+                            $ImportedModule = Get-Module -Name $Name -ErrorAction SilentlyContinue -Verbose:$false
 
-                    Import-Module @ImportParams
+                            if ($null -eq $ImportedModule) {
+                                # Try to get by path basename as a fallback
+                                $BaseName = [System.IO.Path]::GetFileNameWithoutExtension($ImportParams['Name'])
+                                $ImportedModule = Get-Module -Name $BaseName -ErrorAction SilentlyContinue -Verbose:$false
+                            } #end If
+                        } #end If
 
-                    Write-Verbose -Message (
-                        '[{0}] Successfully imported module {1}' -f
-                        $FunctionName, $Name
-                    )
+                        return $ImportedModule
+                    } else {
+                        Import-Module @ImportParams
 
-                } #end If-else
+                        Write-Verbose -Message (
+                            '[{0}] Successfully imported module {1}' -f
+                            $FunctionName, $Name
+                        )
+                    } #end If-else
 
+                } catch {
+                    # If we're in PowerShell Core and direct import failed, try compatibility measures
+                    if ($IsPSCore -and $FallbackToWindowsPowerShell) {
+                        Write-Verbose -Message (
+                            '[{0}] Direct import failed. Attempting Windows PowerShell compatibility for {1}' -f
+                            $FunctionName, $Name
+                        )
+
+                        # Explicitly use Windows PowerShell via PowerShell.exe to run the commands
+                        try {
+                            $ModuleCmds = powershell.exe -Command "
+                                `$ErrorActionPreference = 'Stop'
+                                Import-Module -Name $Name -Force -DisableNameChecking
+                                Get-Command -Module $Name | Select-Object -Property Name, CommandType | ConvertTo-Json
+                            "
+
+                            if ($null -ne $ModuleCmds -and $ModuleCmds -ne '') {
+                                $Commands = $ModuleCmds | ConvertFrom-Json
+
+                                Write-Verbose -Message (
+                                    '[{0}] Successfully retrieved {1} commands from {2} via Windows PowerShell' -f
+                                    $FunctionName, $Commands.Count, $Name
+                                )
+
+                                # Create a new module in memory for our compatibility wrapper
+                                $ModuleManifestPath = Join-Path -Path ([System.IO.Path]::GetTempPath()) -ChildPath "$Name-compat.psd1"
+
+                                # Return a "fake" module info if PassThru was specified
+                                if ($PassThru) {
+                                    $ImportedModule = New-Object -TypeName System.Management.Automation.PSModuleInfo -ArgumentList $ModuleManifestPath
+                                    return $ImportedModule
+                                } #end If
+
+                                Write-Verbose -Message ('[{0}] Created compatibility wrapper for {1}' -f $FunctionName, $Name)
+                                return
+
+                            } else {
+                                throw "Failed to retrieve commands from module $Name via Windows PowerShell"
+                            } #end If-else
+
+                        } catch {
+                            Write-Error -Message (
+                                '[{0}] Error creating Windows PowerShell compatibility for {1}: {2}' -f
+                                $FunctionName, $Name, $_.Exception.Message
+                            )
+                        } #end Try-Catch
+                    } else {
+                        # If not in PowerShell Core or not using compatibility, just report the original error
+                        Write-Error -Message (
+                            '[{0}] Error importing module {1}: {2}' -f
+                            $FunctionName, $Name, $_.Exception.Message
+                        )
+                    } #end if-else
+                } #end try-catch
             } #end If
-
         } catch {
-
             Write-Error -Message (
                 '[{0}] Error importing module {1}: {2}' -f
                 $FunctionName, $Name, $_.Exception.Message
             )
-
         } #end Try-Catch
-
     } #end Process
 
     End {
@@ -369,13 +499,10 @@ Function Import-MyModule {
 
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
-
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
                 'importing module.'
             )
             Write-Verbose -Message $txt
-
         } #end If
-
     } #end End
 } #end Function Import-MyModule

@@ -123,12 +123,13 @@
             Set-AdAclMngPrivilegedAccount          ║ EguibarIT
             Set-AdAclMngPrivilegedGroup            ║ EguibarIT
             Get-FunctionDisplay                    ║ EguibarIT
+            Get-SafeVariable                       ║ EguibarIT
             Get-ADUser                             ║ ActiveDirectory
             Get-ADGroup                            ║ ActiveDirectory
 
         .NOTES
             Version:         1.5
-            DateModified:    25/Apr/2025
+            DateModified:    07/May/2025
             LastModifiedBy:  Vicente Rodriguez Eguibar
                             vicente@eguibar.com
                             Eguibar IT
@@ -303,8 +304,6 @@
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'ServerManager' -SkipEditionCheck -Verbose:$false
-        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
@@ -313,286 +312,38 @@
         ##############################
         # Variables Definition
 
-
-        # Load the XML configuration file
-        try {
-            $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
-        } catch {
-            Write-Error -Message "Error reading XML file: $($_.Exception.Message)"
-            throw
-        }
-
-
-        # Naming conventions hashtable
-        $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix
-            'sg'     = $confXML.n.NC.GlobalGroupPreffix
-            'su'     = $confXML.n.NC.UniversalGroupPreffix
-            'Delim'  = $confXML.n.NC.Delimiter
-            'T0'     = $confXML.n.NC.AdminAccSufix0
-            'T1'     = $confXML.n.NC.AdminAccSufix1
-            'T2'     = $confXML.n.NC.AdminAccSufix2
-        }
-
-        #('{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.lg.PAWM.name, $NC['T0'])
-        # SG_PAWM_T0
-
-
-
-
         # parameters variable for splatting CMDlets
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
+        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+            $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
+        } #end If
 
-        $Splat = @{
-            Name  = 'SG_Operations'
-            Value = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Servers.GG.Operations.Name)
-            Scope = 'Global'
-            Force = $true
-        }
-        New-Variable @Splat
-        $Splat = @{
-            Name  = 'SG_ServerAdmins'
-            Value = ('SG{0}{1}' -f $NC['Delim'], $confXML.n.Servers.GG.ServerAdmins.Name)
-            Scope = 'Global'
-            Force = $true
-        }
-        New-Variable @Splat
+        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+            $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
+        } #end If
 
-        $Splat = @{
-            Name  = 'SL_SvrAdmRight'
-            Value = ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrAdmRight.Name)
-            Scope = 'Global'
-            Force = $true
-        }
-        New-Variable @Splat
-        $Splat = @{
-            Name  = 'SL_SvrOpsRight'
-            Value = ('SL{0}{1}' -f $NC['Delim'], $confXML.n.Servers.LG.SvrOpsRight.Name)
-            Scope = 'Global'
-            Force = $true
-        }
-        New-Variable @Splat
-
-        #endregion Files-Splatting
-
-
-        #region Users
-        $AdminName = $confXML.n.Admin.users.Admin.Name
-        $newAdminName = $confXML.n.Admin.users.NEWAdmin.Name
-        $GuestNewName = $confXML.n.Admin.users.Guest.Name
-
-
-        # Get the AD Objects by Well-Known SID
+        # Load the XML configuration file
         try {
-            # Administrator
-            $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
-            # Guest
-            $GuestNewName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-501' }
-            # Administrators
-            $Administrators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-544' }
-            # Domain Admins
-            $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
-            # Enterprise Admins
-            $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
-            # Schema Admins
-            $SchemaAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-518' }
-            # DomainControllers
-            $DomainControllers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-516' }
-            # RODC
-            $RODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-521' }
-            # Group Policy Creators Owner
-            $GPOCreatorsOwner = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
-            # Denied RODC Password Replication Group
-            $DeniedRODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-572' }
-            # Cryptographic Operators
-            $CryptoOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
-            # Event Log Readers
-            $EvtLogReaders = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-573' }
-            # Performance Log Users
-            $PerfLogUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-559' }
-            # Performance Monitor Users
-            $PerfMonitorUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-558' }
-            # Remote Desktop Users
-            $RemoteDesktopUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-555' }
-            # Server Operators
-            $ServerOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-549' }
-            # Remote Management Users
-            $RemoteMngtUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-580' }
-            # Account Operators
-            $AccountOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
-            # Network Configuration Operators
-            $NetConfOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-556' }
-
-            # DNS Administrators
-            $DnsAdmins = Get-ADGroup -Identity 'DnsAdmins'
-            # Protected Users
-            $ProtectedUsers = Get-ADGroup -Identity 'Protected Users'
-
+            [xml]$ConfXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
+            Write-Verbose -Message ('Successfully loaded configuration file: {0}' -f $PSBoundParameters['ConfigXMLFile'])
         } catch {
-            Write-Error -Message 'One or some of the User/Groups was not able to be retrieved. Please check'
+            Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
+            throw
         } #end Try-Catch
-        #endregion Users
 
-
-
-        # Organizational Units Names
-        # Iterate all OUs within Admin
-        Foreach ($node in $confXML.n.Admin.OUs.ChildNodes) {
-            $Splat = @{
-                Name        = "$($Node.LocalName)"
-                Value       = $Node.Name
-                Description = $Node.Description
-                Option      = 'ReadOnly'
-                Scope       = 'Global'
-                Force       = $true
-            }
-            # Create variable for current OUs name, Using the XML LocalName of the node for the variable
-            New-Variable @Splat
+        # Load naming conventions from XML
+        [hashtable]$NC = @{
+            'sl'    = $confXML.n.NC.LocalDomainGroupPreffix
+            'sg'    = $confXML.n.NC.GlobalGroupPreffix
+            'su'    = $confXML.n.NC.UniversalGroupPreffix
+            'Delim' = $confXML.n.NC.Delimiter
+            'T0'    = $confXML.n.NC.AdminAccSufix0
+            'T1'    = $confXML.n.NC.AdminAccSufix1
+            'T2'    = $confXML.n.NC.AdminAccSufix2
         }
 
-        #region DistinguishedNames
-        # Organizational Units Distinguished Names
 
-        #region Tier0DistinguishedNames
-        # Domain Controllers DistinguishedName
-        $DCsOuDn = ('OU=Domain Controllers,{0}' -f $Variables.AdDn)
-
-        # Admin Area
-
-        # IT Admin OU Distinguished Name
-        $Splat = @{
-            Name   = 'ItAdminOuDn'
-            Value  = 'OU={0},{1}' -f $ItAdminOu, $Variables.AdDn
-            Option = 'ReadOnly'
-            Scope  = 'Global'
-            Force  = $true
-        }
-        New-Variable @Splat
-
-        # It Admin Users OU Distinguished Name
-        $ItAdminAccountsOuDn = 'OU={0},{1}' -f $ItAdminAccountsOu, $ItAdminOuDn
-
-        # It Admin Groups OU Distinguished Name
-        $ItAdminGroupsOuDn = 'OU={0},{1}' -f $ItAdminGroupsOu, $ItAdminOuDn
-
-        # IT Administration purposes, containing groups used to grant local server Admin access.
-        $ItAdminSrvGroupsOUDn = 'OU={0},{1}' -f $ItAdminSrvGroupsOU, $ItAdminOuDn
-
-        # It Privileged Groups OU Distinguished Name
-        $ItPrivGroupsOUDn = 'OU={0},{1}' -f $ItPrivGroupsOU, $ItAdminOuDn
-
-        # It Admin Rights OU Distinguished Name
-        $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
-
-        # It Admin ServiceAccount OU Distinguished Name
-        $ItServiceAccountsOuDn = 'OU={0},{1}' -f $ItServiceAccountsOu, $ItAdminOuDn
-
-        # It Admin T0SA OU Distinguished Name
-        $ItSAT0OuDn = 'OU={0},{1}' -f $ItSAT0Ou, $ItServiceAccountsOuDn
-
-        # It Admin T0SA OU Distinguished Name
-        $ItSAT1OuDn = 'OU={0},{1}' -f $ItSAT1Ou, $ItServiceAccountsOuDn
-
-        # It Admin T0SA OU Distinguished Name
-        $ItSAT2OuDn = 'OU={0},{1}' -f $ItSAT2Ou, $ItServiceAccountsOuDn
-
-        # It PAW OU Distinguished Name
-        $ItPawOuDn = 'OU={0},{1}' -f $ItPawOu, $ItAdminOuDn
-
-        # It PAW T0 OU Distinguished Name
-        $ItPawT0OuDn = 'OU={0},{1}' -f $ItPawT0Ou, $ItPawOuDn
-
-        # It PAW T1 OU Distinguished Name
-        $ItPawT1OuDn = 'OU={0},{1}' -f $ItPawT1Ou, $ItPawOuDn
-
-        # It PAW T2 OU Distinguished Name
-        $ItPawT2OuDn = 'OU={0},{1}' -f $ItPawT2Ou, $ItPawOuDn
-
-        # It PAW Staging OU Distinguished Name
-        $ItPawStagingOuDn = 'OU={0},{1}' -f $ItPawStagingOu, $ItPawOuDn
-
-        # It Infrastructure Servers OU Distinguished Name
-        $ItInfraOuDn = 'OU={0},{1}' -f $ItInfraOu, $ItAdminOuDn
-
-        # It Infrastructure Servers T0 OU Distinguished Name
-        $ItInfraT0OuDn = 'OU={0},{1}' -f $ItInfraT0Ou, $ItInfraOuDn
-
-        # It Infrastructure Servers T1 OU Distinguished Name
-        $ItInfraT1OuDn = 'OU={0},{1}' -f $ItInfraT1Ou, $ItInfraOuDn
-
-        # It Infrastructure Servers T2 OU Distinguished Name
-        $ItInfraT2OuDn = 'OU={0},{1}' -f $ItInfraT2Ou, $ItInfraOuDn
-
-        # It Infrastructure Servers Staging OU Distinguished Name
-        $ItInfraStagingOuDn = 'OU={0},{1}' -f $ItInfraStagingOu, $ItInfraOuDn
-
-        # It HOUSEKEEPING OU Distinguished Name
-        $ItHousekeepingOuDn = 'OU={0},{1}' -f $ItHousekeepingOu, $ItAdminOuDn
-
-        #endregion Tier0DistinguishedNames
-
-
-        # Servers Area
-
-        # Servers OU
-        New-Variable -Name 'ServersOu' -Value $confXML.n.Servers.OUs.ServersOU.Name -Option ReadOnly -Scope Global -Force
-        # Servers OU Distinguished Name
-        $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $Variables.AdDn
-
-
-
-        # Sites Area
-
-        # Sites OU
-        New-Variable -Name 'SitesOu' -Value $confXML.n.Sites.OUs.SitesOU.name -Option ReadOnly -Scope Global -Force
-        # Sites OU Distinguished Name
-        $SitesOuDn = 'OU={0},{1}' -f $SitesOu, $Variables.AdDn
-
-        # Sites GLOBAL OU
-        $SitesGlobalOu = $confXML.n.Sites.OUs.OuSiteGlobal.name
-        # Sites GLOBAL OU Distinguished Name
-        $SitesGlobalOuDn = 'OU={0},{1}' -f $SitesGlobalOu, $SitesOuDn
-
-        # Sites GLOBAL GROUPS OU
-        $SitesGlobalGroupOu = $confXML.n.Sites.OUs.OuSiteGlobalGroups.name
-        # Sites GLOBAL GROUPS OU Distinguished Name
-        $SitesGlobalGroupOuDn = 'OU={0},{1}' -f $SitesGlobalGroupOu, $SitesGlobalOuDn
-
-        # Sites GLOBAL APPACCUSERS OU
-        $SitesGlobalAppAccUserOu = $confXML.n.Sites.OUs.OuSiteGlobalAppAccessUsers.name
-        # Sites GLOBAL APPACCUSERS OU Distinguished Name
-        $SitesGlobalAppAccUserOuDn = 'OU={0},{1}' -f $SitesGlobalAppAccUserOu, $SitesGlobalOuDn
-
-        #endregion DistinguishedNames
-
-
-
-        # Quarantine OU for PCs
-        $Splat = @{
-            Name   = 'ItQuarantinePcOu'
-            Value  = $confXML.n.Admin.OUs.ItNewComputersOU.name
-            Option = 'ReadOnly'
-            Scope  = 'Global'
-            Force  = $true
-        }
-        New-Variable @Splat
-        # PCs Quarantine OU Distinguished Name
-        $ItQuarantinePcOuDn = 'OU={0},{1}' -f $ItQuarantinePcOu, $Variables.AdDn
-
-        # Quarantine OU for Users
-        $Splat = @{
-            Name   = 'ItQuarantineUserOu'
-            Value  = $confXML.n.Admin.OUs.ItNewUsersOU.name
-            Option = 'ReadOnly'
-            Scope  = 'Global'
-            Force  = $true
-        }
-        New-Variable @Splat
-        # Users Quarantine OU Distinguished Name
-        $ItQuarantineUserOuDn = 'OU={0},{1}' -f $ItQuarantineUserOu, $Variables.AdDn
-
-        #endregion Declarations
-        ################################################################################
     } #end Begin
 
     Process {
@@ -611,7 +362,7 @@
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Create Admin Area and related structure...')
 
             # Create the IT Admin OU and sub OUs
-            New-Tier0CreateOU @Splat
+            New-Tier0CreateOU @Splat -EnableTranscript
 
 
 
@@ -620,7 +371,7 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Moving objects to Admin (Tier 0)...')
 
-            New-Tier0MoveObject @Splat
+            New-Tier0MoveObject @Splat -EnableTranscript
 
 
 
@@ -629,7 +380,7 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating and securing Admin accounts...')
 
-            New-Tier0AdminAccount @Splat
+            New-Tier0AdminAccount @Splat -EnableTranscript
 
 
             ###############################################################################
@@ -637,7 +388,7 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating Admin groups...')
 
-            New-Tier0AdminGroup @Splat
+            New-Tier0AdminGroup @Splat -EnableTranscript
 
 
 
@@ -646,7 +397,7 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Create Group Managed Service Account')
 
-            New-Tier0gMSA @Splat
+            New-Tier0gMSA @Splat -EnableTranscript
 
 
 
@@ -656,7 +407,7 @@
             Write-Verbose -Message ($Variables.NewRegionMessage -f
                 'Create a New Fine Grained Password Policy for Admins Accounts...')
 
-            New-Tier0FineGrainPasswordPolicy @Splat
+            New-Tier0FineGrainPasswordPolicy @Splat -EnableTranscript
 
 
 
@@ -666,7 +417,7 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Nesting groups...')
 
-            New-Tier0NestingGroup
+            New-Tier0NestingGroup @Splat -EnableTranscript
 
 
 
@@ -676,6 +427,12 @@
             Write-Verbose -Message ($Variables.NewRegionMessage -f
                 'Enabling Management Accounts to Modify the Membership of Protected Groups...'
             )
+
+            # ToDo: the GetSafeVariable is finding the variable, but variable has old DN. Interim fix filling the variable again
+            $SL_PGM = Get-AdObjectType -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PGM.Name)
+
+            # ToDo: the GetSafeVariable is finding the variable, but variable has old DN. Interim fix filling the variable again
+            $SL_PUM = Get-AdObjectType -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PUM.Name)
 
             # Enable PUM to manage Privileged Accounts (Reset PWD, enable/disable Administrator built-in account)
             Set-AdAclMngPrivilegedAccount -Group $SL_PUM
@@ -692,7 +449,7 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'redirect Users & Computers containers...')
 
-            New-Tier0Redirection @Splat
+            New-Tier0Redirection @Splat -EnableTranscript
 
 
 
@@ -701,7 +458,7 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Delegate Admin Area (Tier 0)...')
 
-            New-Tier0Delegation @Splat
+            New-Tier0Delegation @Splat -EnableTranscript
 
 
 
@@ -710,11 +467,11 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating Baseline GPOs and configure them accordingly...')
 
-            New-Tier0Gpo @Splat
+            New-Tier0Gpo @Splat -EnableTranscript
 
             # Configure Kerberos Claims and Authentication Policies/Silos
 
-            New-Tier0AuthPolicyAndSilo @Splat
+            New-Tier0AuthPolicyAndSilo @Splat -EnableTranscript
 
 
 
@@ -724,7 +481,7 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Configure GPO Restrictions based on Tier Model...')
 
-            New-Tier0GpoRestriction @Splat
+            New-Tier0GpoRestriction @Splat -EnableTranscript
 
 
 
@@ -733,7 +490,7 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating Servers Area (Tier 1)...')
 
-            New-Tier1 @Splat
+            New-Tier1 @Splat -EnableTranscript
 
 
 
@@ -742,7 +499,7 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating Sites Area (Tier 2)...')
 
-            New-Tier2 @Splat
+            New-Tier2 @Splat -EnableTranscript
 
 
 

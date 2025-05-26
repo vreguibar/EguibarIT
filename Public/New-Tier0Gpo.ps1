@@ -144,12 +144,53 @@
         )]
         [Alias('ScriptPath')]
         [string]
-        $DMScripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\',
+
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'Start transcript logging to DMScripts path with function name',
+            Position = 2)]
+        [Alias('Transcript', 'Log')]
+        [switch]
+        $EnableTranscript
 
     )
 
     Begin {
         Set-StrictMode -Version Latest
+
+        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+            $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
+        } #end If
+
+        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+            $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
+        } #end If
+
+        # If EnableTranscript is specified, start a transcript
+        if ($EnableTranscript) {
+            # Ensure DMScripts directory exists
+            if (-not (Test-Path -Path $DMScripts -PathType Container)) {
+                try {
+                    New-Item -Path $DMScripts -ItemType Directory -Force | Out-Null
+                    Write-Verbose -Message ('Created transcript directory: {0}' -f $DMScripts)
+                } catch {
+                    Write-Warning -Message ('Failed to create transcript directory: {0}' -f $_.Exception.Message)
+                } #end try-catch
+            } #end if
+
+            # Create transcript filename using function name and current date/time
+            $TranscriptFile = Join-Path -Path $DMScripts -ChildPath ('New-Tier0Gpo_{0}.LOG' -f (Get-Date -Format 'yyyyMMdd_HHmmss'))
+
+            try {
+                Start-Transcript -Path $TranscriptFile -Force -ErrorAction Stop
+                Write-Verbose -Message ('Transcript started: {0}' -f $TranscriptFile)
+            } catch {
+                Write-Warning -Message ('Failed to start transcript: {0}' -f $_.Exception.Message)
+            } #end try-catch
+        } #end if
 
         # Initialize logging
         if ($null -ne $Variables -and
@@ -166,7 +207,6 @@
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'ServerManager' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT' -Verbose:$false
@@ -177,6 +217,27 @@
 
         # parameters variable for splatting CMDlets
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+
+        # Resolve script path - parameter value has precedence over default value
+        [string]$ScriptPath = $DMScripts
+
+        # Validate script path exists and is not empty
+        if ([string]::IsNullOrWhiteSpace($ScriptPath)) {
+            Write-Warning -Message 'DMScripts path is empty. Using default path: C:\PsScripts\'
+            $ScriptPath = 'C:\PsScripts\'
+        }
+
+        # Normalize the script path
+        if (-not [System.IO.Path]::IsPathRooted($ScriptPath)) {
+            $ScriptPath = Join-Path -Path (Get-Location).Path -ChildPath $ScriptPath
+        }
+
+        # Ensure script path ends with trailing slash for consistency
+        if (-not $ScriptPath.EndsWith([System.IO.Path]::DirectorySeparatorChar)) {
+            $ScriptPath = $ScriptPath + [System.IO.Path]::DirectorySeparatorChar
+        }
+
+        Write-Debug -Message ('Using DMScripts path: {0}' -f $ScriptPath)
 
         # Load the XML configuration file
         try {
@@ -197,11 +258,10 @@
             'T2'    = $confXML.n.NC.AdminAccSufix2
         }
 
-        $GpoAdminRight = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.name
-
-        if ($null -ne $sl_GpoAdminRight) {
-            $sl_GpoAdminRight = Get-AdObjectType -Identity $GpoAdminRight
-        } #end If
+        $SL_GpoAdminRight = Get-SafeVariable -Name 'SL_GpoAdminRight' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
+            Get-AdObjectType -Identity $groupName
+        }
 
         # Build OU paths using string format for consistency
         [string]$ItAdminOuDn = ('OU={0},{1}' -f $ConfXML.n.Admin.OUs.ItAdminOU.name, $Variables.AdDn)
@@ -210,6 +270,28 @@
         [string]$ItPawOuDn = ('OU={0},{1}' -f $ConfXML.n.Admin.OUs.ItPawOU.name, $ItAdminOuDn)
         [string]$ItInfraOuDn = ('OU={0},{1}' -f $ConfXML.n.Admin.OUs.ItInfraOU.name, $ItAdminOuDn)
         [string]$ItHousekeepingOuDn = ('OU={0},{1}' -f $ConfXML.n.Admin.OUs.ItHousekeepingOU.name, $ItAdminOuDn)
+
+        # Verify and construct SecTmpl path
+        [string]$SecTmplPath = Join-Path -Path $ScriptPath -ChildPath 'SecTmpl'
+
+        Write-Debug -Message ('Checking if SecTmpl directory exists at: {0}' -f $SecTmplPath)
+
+        if (-not (Test-Path -Path $SecTmplPath -PathType Container)) {
+            Write-Error -Message "SecTmpl directory not found at path: $SecTmplPath. Please ensure it exists."
+            throw "SecTmpl directory not found at path: $SecTmplPath"
+        }
+
+        # Define progress tracking variables
+        [int]$TotalSteps = 25  # Total number of GPO creation operations
+        [int]$CurrentStep = 0
+        [string]$ProgressActivity = 'Creating Tier 0 GPO Structure'
+
+        # Hashtable for Write-Progress splatting
+        [hashtable]$ProgressSplat = @{
+            Activity        = $ProgressActivity
+            Status          = ''
+            PercentComplete = 0
+        }
 
     } #end Begin
 
@@ -222,10 +304,23 @@
                 gpoDescription = 'Baseline'
                 gpoLinkPath    = $Variables.AdDn
                 GpoAdmin       = $sl_GpoAdminRight
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = $SecTmplPath
             }
+
+
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Domain Computer Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat -gpoScope 'C' -gpoBackupID $confXML.n.Admin.GPOs.PCbaseline.backupID
+
+
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Domain User Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat -gpoScope 'U' -gpoBackupID $confXML.n.Admin.GPOs.Userbaseline.backupID
+
 
             # Domain Controllers
             $Splat = @{
@@ -234,19 +329,35 @@
                 gpoLinkPath    = 'OU=Domain Controllers,{0}' -f $Variables.AdDn
                 GpoAdmin       = $sl_GpoAdminRight
                 gpoBackupId    = $confXML.n.Admin.GPOs.DCBaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = $SecTmplPath
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Domain Controllers Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat
+
 
             # Admin Area
             $Splat = @{
                 gpoDescription = '{0}-Baseline' -f $confXML.n.Admin.GPOs.Adminbaseline.Name
                 gpoLinkPath    = $ItAdminOuDn
                 GpoAdmin       = $sl_GpoAdminRight
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = $SecTmplPath
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Admin Computer Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo -gpoScope 'C' @Splat
+
+
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Admin User Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo -gpoScope 'U' @Splat
+
 
             # Users
             $Splat = @{
@@ -254,10 +365,14 @@
                 gpoScope       = 'U'
                 gpoLinkPath    = $ItAdminAccountsOuDn
                 GpoAdmin       = $sl_GpoAdminRight
-                gpoBackupId    = $confXML.n.Admin.GPOs.AdminUserbaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = $SecTmplPath
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Admin Accounts Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat
+
 
             # Service Accounts
             $Splat = @{
@@ -268,22 +383,42 @@
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItServiceAccountsOU.Name)
                 gpoLinkPath    = $ItServiceAccountsOuDn
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Service Accounts Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
+
             $Splat1 = @{
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT0OU.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT0OU.Name, $ItServiceAccountsOuDn)
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating T0 Service Accounts Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
+
             $Splat1 = @{
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT1OU.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT1OU.Name, $ItServiceAccountsOuDn)
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating T1 Service Accounts Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
+
             $Splat1 = @{
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItSAT2OU.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItSAT2OU.Name, $ItServiceAccountsOuDn)
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating T2 Service Accounts Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
+
 
             # PAWs
             $Splat = @{
@@ -294,36 +429,56 @@
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawOU.Name)
                 gpoLinkPath    = $ItPawOuDn
                 gpoBackupID    = $confXML.n.Admin.GPOs.PAWbaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = $SecTmplPath
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating PAW Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
 
             $Splat1 = @{
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT0OU.Name, $ItPawOuDn)
                 gpoBackupID    = $confXML.n.Admin.GPOs.PawT0baseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = $SecTmplPath
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating T0 PAW Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
 
             $Splat1 = @{
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT1OU.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT1OU.Name, $ItPawOuDn)
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating T1 PAW Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
 
             $Splat1 = @{
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT2OU.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawT2OU.Name, $ItPawOuDn)
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating T2 PAW Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
 
             $Splat1 = @{
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItPawStagingOU.Name, $ItPawOuDn)
                 gpoBackupID    = $confXML.n.Admin.GPOs.PawStagingbaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = $SecTmplPath
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating PAW Staging Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
 
             # Infrastructure Servers
@@ -335,36 +490,56 @@
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name)
                 gpoLinkPath    = $ItInfraOuDn
                 gpoBackupID    = $confXML.n.Admin.GPOs.INFRAbaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = $SecTmplPath
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Infrastructure Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
 
             $Splat1 = @{
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT0Ou.Name, $ItInfraOuDn)
                 gpoBackupID    = $confXML.n.Admin.GPOs.INFRAT0baseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = $SecTmplPath
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating T0 Infrastructure Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
 
             $Splat1 = @{
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT1Ou.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT1Ou.Name, $ItInfraOuDn)
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating T1 Infrastructure Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
 
             $Splat1 = @{
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT2Ou.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraT2Ou.Name, $ItInfraOuDn)
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating T2 Infrastructure Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
 
             $Splat1 = @{
                 gpoDescription = ('{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name)
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItInfraStagingOU.Name, $ItInfraOuDn)
                 gpoBackupID    = $confXML.n.Admin.GPOs.INFRAStagingBaseline.backupID
-                gpoBackupPath  = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
+                gpoBackupPath  = $SecTmplPath
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Infrastructure Staging Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat @Splat1
 
             # redirected containers (X-Computers & X-Users)
@@ -374,13 +549,22 @@
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewComputersOU.Name, $Variables.AdDn)
                 GpoAdmin       = $sl_GpoAdminRight
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating New Computers Lockdown' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat
+
             $Splat = @{
                 gpoDescription = ('{0}-LOCKDOWN' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name)
                 gpoScope       = 'U'
                 gpoLinkPath    = ('OU={0},{1}' -f $confXML.n.Admin.OUs.ItNewUsersOU.Name, $Variables.AdDn)
                 GpoAdmin       = $sl_GpoAdminRight
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating New Users Lockdown' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat
 
             # Housekeeping
@@ -389,7 +573,16 @@
                 gpoLinkPath    = $ItHousekeepingOuDn
                 GpoAdmin       = $sl_GpoAdminRight
             }
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Housekeeping User Lockdown' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo -gpoScope 'U' @Splat
+
+            $CurrentStep++
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Housekeeping Computer Lockdown' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+            Write-Progress @ProgressSplat
             New-DelegateAdGpo -gpoScope 'C' @Splat
 
 
@@ -401,10 +594,18 @@
                 $splat = @{
                     BackupId   = $confXML.n.Admin.GPOs.DefaultDomain.backupID
                     TargetName = $confXML.n.Admin.GPOs.DefaultDomain.Name
-                    path       = Join-Path -Path $PSBoundParameters['DMScripts'] -ChildPath 'SecTmpl' -Resolve
+                    path       = $SecTmplPath
                 }
+                $CurrentStep++
+                $ProgressSplat.Status = 'Step {0} of {1}: Importing Default Domain Policy' -f $CurrentStep, $TotalSteps
+                $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
+                Write-Progress @ProgressSplat
                 Import-GPO @splat
             }
+
+            # Complete the progress bar
+            $ProgressSplat.Status = 'Completed'
+            Write-Progress @ProgressSplat -Completed
 
         } #end If ShouldProcess
 
@@ -419,5 +620,16 @@
             )
             Write-Verbose -Message $txt
         } #end If
+
+        # Stop transcript if it was started
+        if ($EnableTranscript) {
+            try {
+                Stop-Transcript -ErrorAction Stop
+                Write-Verbose -Message 'Transcript stopped successfully'
+            } catch {
+                Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
+            } #end Try-Catch
+        } #end If
+
     } #end End
 } #end Function New-Tier0Gpo

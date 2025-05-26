@@ -139,12 +139,53 @@
         )]
         [Alias('ScriptPath')]
         [string]
-        $DMScripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\',
+
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'Start transcript logging to DMScripts path with function name',
+            Position = 2)]
+        [Alias('Transcript', 'Log')]
+        [switch]
+        $EnableTranscript
 
     )
 
     Begin {
         Set-StrictMode -Version Latest
+
+        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+            $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
+        } #end If
+
+        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+            $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
+        } #end If
+
+        # If EnableTranscript is specified, start a transcript
+        if ($EnableTranscript) {
+            # Ensure DMScripts directory exists
+            if (-not (Test-Path -Path $DMScripts -PathType Container)) {
+                try {
+                    New-Item -Path $DMScripts -ItemType Directory -Force | Out-Null
+                    Write-Verbose -Message ('Created transcript directory: {0}' -f $DMScripts)
+                } catch {
+                    Write-Warning -Message ('Failed to create transcript directory: {0}' -f $_.Exception.Message)
+                } #end try-catch
+            } #end if
+
+            # Create transcript filename using function name and current date/time
+            $TranscriptFile = Join-Path -Path $DMScripts -ChildPath ('New-Tier0GpoRestriction_{0}.LOG' -f (Get-Date -Format 'yyyyMMdd_HHmmss'))
+
+            try {
+                Start-Transcript -Path $TranscriptFile -Force -ErrorAction Stop
+                Write-Verbose -Message ('Transcript started: {0}' -f $TranscriptFile)
+            } catch {
+                Write-Warning -Message ('Failed to start transcript: {0}' -f $_.Exception.Message)
+            } #end try-catch
+        } #end if
 
         # Initialize logging
         if ($null -ne $Variables -and
@@ -171,6 +212,18 @@
         # Parameters variable for splatting CMDlets
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
+        # Progress reporting variables
+        [int]$ProgressCounter = 0
+        [int]$ProgressTotal = 7  # Total number of main operations
+
+        # Progress splatting for consistent progress reporting
+        [hashtable]$ProgressSplat = @{
+            Activity        = 'Configuring GPO Restrictions'
+            Status          = ''
+            PercentComplete = 0
+            Id              = 1
+        }
+
         # Collection for groups that need logon rights
         [System.Collections.Generic.List[object]]$NetworkLogon = [System.Collections.Generic.List[object]]::New()
         [System.Collections.Generic.List[object]]$DenyNetworkLogon = [System.Collections.Generic.List[object]]::New()
@@ -183,7 +236,7 @@
         [System.Collections.Generic.List[object]]$ServiceLogon = [System.Collections.Generic.List[object]]::New()
         [System.Collections.Generic.List[object]]$DenyServiceLogon = [System.Collections.Generic.List[object]]::New()
         [System.Collections.Generic.List[object]]$Backup = [System.Collections.Generic.List[object]]::New()
-        [System.Collections.ArrayList]$ArrayList = [System.Collections.ArrayList]::New()
+        [System.Collections.Generic.List[object]]$ArrayList = [System.Collections.Generic.List[object]]::New()
 
         # Load the XML configuration file
         try {
@@ -207,135 +260,217 @@
         }
 
 
-        # Check if variables contain the corresponding AD Group
+        #region Users
+        $AdminName = Get-SafeVariable -Name 'AdminName' -CreateIfNotExist {
+            try {
+                Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Administrator name: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-        if ($null -ne $SG_AdAdmins) {
-            $AdAdmins = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $ConfXML.n.Admin.GG.AdAdmins.Name
-            $SG_AdAdmins = Get-AdObjectType -Identity $AdAdmins
-        } #end If
+        $NewAdminName = Get-SafeVariable -Name 'NewAdminExists' -CreateIfNotExist {
+            $newAdminName = $confXML.n.Admin.users.NEWAdmin.Name
+            if (-not [string]::IsNullOrEmpty($newAdminName)) {
+                Get-AdObjectType -Identity $newAdminName
+            } else {
+                $null
+            }
+        }
+        #endregion Users
 
-        if ($null -ne $SG_Tier0Admins) {
-            $Tier0Admins = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $ConfXML.n.Admin.GG.Tier0Admins.Name
-            $SG_Tier0Admins = Get-AdObjectType -Identity $Tier0Admins
-        } #end If
+        #region Well-Known groups Variables
+        $Administrators = Get-SafeVariable -Name 'Administrators' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Identity 'S-1-5-32-544'
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Administrators group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-        if ($null -ne $SG_Tier1Admins) {
-            $Tier1Admins = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $ConfXML.n.Admin.GG.Tier1Admins.Name
-            $SG_Tier1Admins = Get-AdObjectType -Identity $Tier1Admins
-        } #end If
+        $DomainAdmins = Get-SafeVariable -Name 'DomainAdmins' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Domain Admins group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-        if ($null -ne $SG_Tier2Admins) {
-            $Tier2Admins = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $ConfXML.n.Admin.GG.Tier2Admins.Name
-            $SG_Tier2Admins = Get-AdObjectType -Identity $Tier2Admins
-        } #end If
+        $EnterpriseAdmins = Get-SafeVariable -Name 'EnterpriseAdmins' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Enterprise Admins group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-        if ($null -ne $SG_Tier0ServiceAccount) {
-            $Tier0ServiceAccount = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $ConfXML.n.Admin.GG.Tier0ServiceAccount.Name
-            $SG_Tier0ServiceAccount = Get-AdObjectType -Identity $Tier0ServiceAccount
-        } #end If
+        $SchemaAdmins = Get-SafeVariable -Name 'SchemaAdmins' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-518' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Schema Admins group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-        if ($null -ne $SG_Tier1ServiceAccount) {
-            $Tier1ServiceAccount = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $ConfXML.n.Admin.GG.Tier1ServiceAccount.Name
-            $SG_Tier1ServiceAccount = Get-AdObjectType -Identity $Tier1ServiceAccount
-        } #end If
+        $AccountOperators = Get-SafeVariable -Name 'AccountOperators' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Identity 'S-1-5-32-548'
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Account Operators group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-        if ($null -ne $SG_Tier2ServiceAccount) {
-            $Tier2ServiceAccount = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $ConfXML.n.Admin.GG.Tier2ServiceAccount.Name
-            $SG_Tier2ServiceAccount = Get-AdObjectType -Identity $Tier2ServiceAccount
-        } #end If
+        $BackupOperators = Get-SafeVariable -Name 'BackupOperators' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Identity 'S-1-5-32-551'
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Backup Operators group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-        if ($null -ne $SL_PISM) {
-            $SL_PISM = Get-AdObjectType -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $ConfXML.n.Admin.LG.PISM.Name)
-        } #end If
+        $PrintOperators = Get-SafeVariable -Name 'PrintOperators' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Identity 'S-1-5-32-550'
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Print Operators group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-        if ($null -ne $SL_PAWM) {
-            $SL_PAWM = Get-AdObjectType -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $ConfXML.n.Admin.LG.PAWM.Name)
-        } #end If
+        $ServerOperators = Get-SafeVariable -Name 'ServerOperators' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Identity 'S-1-5-32-549'
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Server Operators group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-        if ($null -ne $SL_DcManagement) {
-            $DcManagement = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $ConfXML.n.Admin.LG.DcManagement.Name
-            $SL_DcManagement = Get-AdObjectType -Identity $DcManagement
-        } #end If
+        $CryptoOperators = Get-SafeVariable -Name 'CryptoOperators' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Cryptographic Operators group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $DomainControllers = Get-SafeVariable -Name 'DomainControllers' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-516' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Domain Controllers group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $RODC = Get-SafeVariable -Name 'RODC' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-521' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Read Only Domain Controllers group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $GPOCreatorsOwner = Get-SafeVariable -Name 'GPOCreatorsOwner' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Group Policy Creators Owner group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+
+        $LocalAccount = Get-SafeVariable -Name 'LocalAccount' -CreateIfNotExist {
+            try {
+                Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-113' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Local Account group: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+        #endregion Well-Known groups Variables
+
+        #region Global groups Variables
+
+        $SG_AdAdmins = Get-SafeVariable -Name 'SG_AdAdmins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AdAdmins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_Tier0Admins = Get-SafeVariable -Name 'SG_Tier0Admins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0Admins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_Tier1Admins = Get-SafeVariable -Name 'SG_Tier1Admins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1Admins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        $SG_Tier2Admins = Get-SafeVariable -Name 'SG_Tier2Admins' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2Admins.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+
+        # Tier Service Account Groups
+        # ToDo: the GetSafeVariable is finding the variable, but variable has old DN. Interim fix filling the variable again
+        $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier0ServiceAccount.Name)
+        $SG_Tier0ServiceAccount = Get-AdObjectType -Identity $groupName
 
 
-        # Set admin names
-        if ($null -ne $NewAdminName) {
-            $NewAdminName = Get-ADUser -Identity $ConfXML.n.Admin.users.NEWAdmin.Name
-        } #end If
+        # ToDo: the GetSafeVariable is finding the variable, but variable has old DN. Interim fix filling the variable again
+        $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier1ServiceAccount.Name)
+        $SG_Tier1ServiceAccount = Get-AdObjectType -Identity $groupName
 
-        # Get the AD Objects by Well-Known SID
-        try {
-            # Administrator
-            $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+        # ToDo: the GetSafeVariable is finding the variable, but variable has old DN. Interim fix filling the variable again
+        $groupName = ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.Tier2ServiceAccount.Name)
+        $SG_Tier2ServiceAccount = Get-AdObjectType -Identity $groupName
+        #endregion Global groups Variables
 
-            $Administrators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-544' }
+        #region Local groups Variables
+        $SL_PAWM = Get-SafeVariable -Name 'SL_PAWM' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PAWM.Name)
+            Get-AdObjectType -Identity $groupName
+        }
 
-            $AuthUsers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-11' }
+        $SL_PISM = Get-SafeVariable -Name 'SL_PISM' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PISM.Name)
+            Get-AdObjectType -Identity $groupName
+        }
 
-            $EnterpriseDCs = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-9' }
+        $SL_DcManagement = Get-SafeVariable -Name 'SL_DcManagement' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.DcManagement.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+        #endregion Local groups Variables
 
-            $LocalAccount = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-113' }
-
-            $BackupOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-551' }
-
-            $AccountOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
-
-            $PrintOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-550' }
-
-            $ServerOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-549' }
-
-            # RODC
-            $RODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-521' }
-            # Cryptographic Operators
-            $CryptoOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
-            # Domain Admins
-            $DomainAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-512' }
-            # Enterprise Admins
-            $EnterpriseAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-519' }
-            # Group Policy Creators Owner
-            $GPOCreatorsOwner = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-520' }
-
-            # Schema Admins
-            $SchemaAdmins = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-518' }
-            # Account Operators
-            $AccountOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
-            # Backup Operators
-            $BackupOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-551' }
-            # Server Operators
-            $ServerOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-549' }
-            # Print Operators
-            $PrintOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-550' }
-            # Domain Controllers
-            $DomainControllers = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-516' }
-
-            # Crypto Operators
-            $CryptoOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-569' }
-            # Read-only Domain Controllers
-            $RODC = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-521' }
-            # Administrators
-            $Administrators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-544' }
-
-            Write-Verbose -Message 'Successfully loaded all security principals by SID'
-        } catch {
-
-            Write-Error -Message ('Error initializing security principals: {0}' -f $_.Exception.Message)
-            throw
-
-        } #end Try-Catch
-
-        Write-Verbose -Message 'Begin block initialization completed successfully'
     } #end Begin
 
     Process {
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Configure Domain Baseline GPO Restrictions')) {
             try {
+                # Update progress
+                $ProgressCounter++
+                $ProgressSplat['Status'] = 'Configuring Domain Baseline GPO Restrictions'
+                $ProgressSplat['PercentComplete'] = ($ProgressCounter / $ProgressTotal) * 100
+                Write-Progress @ProgressSplat
+
                 Write-Verbose -Message 'Configuring Domain Baseline GPO Restrictions'
 
                 # Access this computer from the network
                 $NetworkLogon.Clear()
                 [void]$NetworkLogon.Add($Administrators)
-                [void]$NetworkLogon.Add($AuthUsers)
-                [void]$NetworkLogon.Add($EnterpriseDCs)
+                [void]$NetworkLogon.Add('Authenticated Users')
+                [void]$NetworkLogon.Add('Enterprise Domain Controllers')
 
                 # Deny access to this computer from the network
                 $DenyNetworkLogon.Clear()
@@ -459,6 +594,9 @@
                     DenyRemoteInteractiveLogon = $DenyRemoteInteractiveLogon
                     DenyBatchLogon             = $DenyBatchLogon
                     ServiceLogon               = $ServiceLogon
+                    Confirm                    = $false
+                    Verbose                    = $true
+                    Debug                      = $true
                 }
                 Set-GpoPrivilegeRight @Splat
                 Write-Verbose -Message 'Domain Baseline GPO configured successfully'
@@ -472,13 +610,19 @@
 
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Configure DomainControllers Baseline GPO Restrictions')) {
             try {
+                # Update progress
+                $ProgressCounter++
+                $ProgressSplat['Status'] = 'Configuring Domain Controllers Baseline GPO restrictions'
+                $ProgressSplat['PercentComplete'] = ($ProgressCounter / $ProgressTotal) * 100
+                Write-Progress @ProgressSplat
+
                 Write-Verbose -Message 'Configuring Domain Controllers Baseline GPO restrictions'
 
                 # Access this computer from the network
                 $NetworkLogon.Clear()
                 [void]$NetworkLogon.Add($Administrators)
-                [void]$NetworkLogon.Add($AuthUsers)
-                [void]$NetworkLogon.Add($EnterpriseDCs)
+                [void]$NetworkLogon.Add('Authenticated Users')
+                [void]$NetworkLogon.Add('Enterprise Domain Controllers')
 
                 # Allow Logon Locally / Allow Logon through RDP/TerminalServices
                 $InteractiveLogon.Clear()
@@ -628,6 +772,9 @@
                     Restore                    = $Backup
                     Shutdown                   = $Backup
                     TakeOwnership              = $Backup
+                    Confirm                    = $false
+                    Verbose                    = $true
+                    Debug                      = $true
                 }
                 Set-GpoPrivilegeRight @Splat
 
@@ -747,6 +894,9 @@
                     Restore              = $ArrayList
                     Shutdown             = $ArrayList
                     TakeOwnership        = $ArrayList
+                    Confirm              = $false
+                    Verbose              = $true
+                    Debug                = $true
                 }
                 Write-Verbose -Message 'Applying Admin/Tier0 Baseline GPO settings'
                 Set-GpoPrivilegeRight @Splat
@@ -756,6 +906,12 @@
 
 
                 #region HOUSEKEEPING
+
+                # Update progress
+                $ProgressCounter++
+                $ProgressSplat['Status'] = 'Configuring Housekeeping LOCKDOWN GPO'
+                $ProgressSplat['PercentComplete'] = ($ProgressCounter / $ProgressTotal) * 100
+                Write-Progress @ProgressSplat
 
                 # Access this computer from the network / Allow Logon Locally
                 $NetworkLogon.Clear()
@@ -784,6 +940,9 @@
                     InteractiveLogon = $InteractiveLogon
                     BatchLogon       = $BatchLogon
                     ServiceLogon     = $ServiceLogon
+                    Confirm          = $false
+                    Verbose          = $true
+                    Debug            = $true
                 }
 
                 Write-Verbose -Message 'Applying Housekeeping Lockdown GPO settings'
@@ -850,6 +1009,9 @@
                     Restore                = $ArrayList
                     Shutdown               = $ArrayList
                     TakeOwnership          = $ArrayList
+                    Confirm                = $false
+                    Verbose                = $true
+                    Debug                  = $true
                 }
 
                 Write-Verbose -Message 'Applying Infrastructure Baseline GPO settings'
@@ -897,6 +1059,9 @@
                     ManageVolume           = $InteractiveLogon
                     SystemProfile          = $InteractiveLogon
                     Shutdown               = $InteractiveLogon
+                    Confirm                = $false
+                    Verbose                = $true
+                    Debug                  = $true
                 }
 
                 Write-Verbose -Message 'Applying Tier0 Infrastructure Baseline GPO settings'
@@ -907,6 +1072,12 @@
 
 
                 #region Tier1 Infrastructure
+
+                # Update progress
+                $ProgressCounter++
+                $ProgressSplat['Status'] = 'Configuring Tier1 Infrastructure GPO restrictions'
+                $ProgressSplat['PercentComplete'] = ($ProgressCounter / $ProgressTotal) * 100
+                Write-Progress @ProgressSplat
 
                 # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
                 $Splat = @{
@@ -921,6 +1092,9 @@
                     ManageVolume           = $SG_Tier1Admins
                     SystemProfile          = $SG_Tier1Admins
                     Shutdown               = $SG_Tier1Admins
+                    Confirm                = $false
+                    Verbose                = $true
+                    Debug                  = $true
                 }
 
                 Write-Verbose -Message 'Applying Tier1 Infrastructure Baseline GPO settings'
@@ -931,6 +1105,12 @@
 
 
                 #region Tier2 Infrastructure
+
+                # Update progress
+                $ProgressCounter++
+                $ProgressSplat['Status'] = 'Configuring Tier2 Infrastructure GPO restrictions'
+                $ProgressSplat['PercentComplete'] = ($ProgressCounter / $ProgressTotal) * 100
+                Write-Progress @ProgressSplat
 
                 # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
                 $Splat = @{
@@ -945,6 +1125,9 @@
                     ManageVolume           = $SG_Tier2Admins
                     SystemProfile          = $SG_Tier2Admins
                     Shutdown               = $SG_Tier2Admins
+                    Confirm                = $false
+                    Verbose                = $true
+                    Debug                  = $true
                 }
 
                 Write-Verbose -Message 'Applying Tier2 Infrastructure Baseline GPO settings'
@@ -977,6 +1160,9 @@
                     ManageVolume           = $ArrayList
                     SystemProfile          = $ArrayList
                     Shutdown               = $ArrayList
+                    Confirm                = $false
+                    Verbose                = $true
+                    Debug                  = $true
                 }
 
                 Write-Verbose -Message 'Applying Staging Infrastructure Baseline GPO settings'
@@ -999,6 +1185,9 @@
                     ManageVolume           = $SL_PAWM
                     SystemProfile          = $SL_PAWM
                     Shutdown               = $SL_PAWM
+                    Confirm                = $false
+                    Verbose                = $true
+                    Debug                  = $true
                 }
 
                 Write-Verbose -Message 'Applying Staging PAWs Baseline GPO settings'
@@ -1011,10 +1200,13 @@
 
                 #region Tier0 PAWs
 
-                # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
-                # Deny Allow Logon Locally / Deny Allow Logon through RDP/TerminalServices
-                # Deny Logon as a Batch job / Deny Logon as a Service
+                # Update progress
+                $ProgressCounter++
+                $ProgressSplat['Status'] = 'Configuring PAW (Privileged Access Workstation) restrictions'
+                $ProgressSplat['PercentComplete'] = ($ProgressCounter / $ProgressTotal) * 100
+                Write-Progress @ProgressSplat
 
+                # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
                 $Splat = @{
                     GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name
                     InteractiveLogon           = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
@@ -1031,6 +1223,9 @@
                     ManageVolume               = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
                     SystemProfile              = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
                     Shutdown                   = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
+                    Confirm                    = $false
+                    Verbose                    = $true
+                    Debug                      = $true
                 }
 
                 Write-Verbose -Message 'Applying Tier0 PAWs Baseline GPO settings'
@@ -1061,6 +1256,9 @@
                     ManageVolume               = $SG_Tier1Admins
                     SystemProfile              = $SG_Tier1Admins
                     Shutdown                   = $SG_Tier1Admins
+                    Confirm                    = $false
+                    Verbose                    = $true
+                    Debug                      = $true
                 }
 
                 Write-Verbose -Message 'Applying Tier1 PAWs Baseline GPO settings'
@@ -1091,22 +1289,30 @@
                     ManageVolume               = $SG_Tier2Admins
                     SystemProfile              = $SG_Tier2Admins
                     Shutdown                   = $SG_Tier2Admins
+                    Confirm                    = $false
+                    Verbose                    = $true
+                    Debug                      = $true
                 }
 
                 Write-Verbose -Message 'Applying Tier2 PAWs Baseline GPO settings'
                 Set-GpoPrivilegeRight @Splat
 
+                #endregion Tier2 PAWs
+
                 Write-Verbose -Message 'Admin/Tier0 Baseline GPO configurations completed successfully'
 
-                #endregion Tier2 PAWs
             } catch {
                 Write-Error -Message ('Error configuring Admin/Tier0 Baseline GPO: {0}' -f $_.Exception.Message)
             }
+
+            # Ensure progress bar is removed on error
+            Write-Progress -Activity 'Configuring GPO restrictions' -Completed
         } #end If ShouldProcess
 
     } #end Process
 
     End {
+
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
@@ -1116,5 +1322,14 @@
             Write-Verbose -Message $txt
         } #end If
 
+        # Stop transcript if it was started
+        if ($EnableTranscript) {
+            try {
+                Stop-Transcript -ErrorAction Stop
+                Write-Verbose -Message 'Transcript stopped successfully'
+            } catch {
+                Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
+            } #end Try-Catch
+        } #end If
     } #end End
 } #end Function New-Tier0GpoRestriction

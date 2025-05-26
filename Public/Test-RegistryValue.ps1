@@ -1,31 +1,72 @@
 function Test-RegistryValue {
     <#
-        .Synopsis
-            Function to Test Registry Values
+        .SYNOPSIS
+            Tests if a specific registry value exists.
+
         .DESCRIPTION
-            Function to Test Registry Values
+            This function tests whether a specified registry value exists in a given registry path.
+            It provides a safe way to check registry values without throwing errors if the value
+            doesn't exist. The function returns a boolean value indicating the existence of the
+            specified registry value.
+
         .PARAMETER Path
-            Registry path to be tested
+            The registry path to check. Must be a valid registry path starting with one of the
+            PowerShell registry drives (HKLM:, HKCU:, etc.).
+
         .PARAMETER Value
-            Registry value to be tested
+            The name of the registry value to test for existence. This is the specific value
+            name within the specified registry key.
+
+        .INPUTS
+            System.String
+            You can pipe registry paths and value names to this function.
+
+        .OUTPUTS
+            System.Boolean
+            Returns $true if the registry value exists, $false otherwise.
+
         .EXAMPLE
             Test-RegistryValue -Path "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" -Value "AutoAdminLogon"
+
+            Tests if the AutoAdminLogon value exists in the Windows NT Winlogon registry key.
+
         .EXAMPLE
             Test-RegistryValue "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" "AutoAdminLogon"
+
+            Shows using positional parameters to test the existence of the AutoAdminLogon value.
+
+        .EXAMPLE
+            "HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" | Test-RegistryValue -Value "AutoAdminLogon"
+
+            Shows how to pipe a registry path to the function.
+
         .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Get-ItemProperty                       | Microsoft.PowerShell.Management
-                Get-CurrentErrorToDisplay              | EguibarIT
-                Get-FunctionDisplay                    | EguibarIT
+                Name                                       ║ Module/Namespace
+                ═══════════════════════════════════════════╬══════════════════════════════
+                Get-ItemProperty                           ║ Microsoft.PowerShell.Management
+                Get-CurrentErrorToDisplay                  ║ EguibarIT
+                Get-FunctionDisplay                        ║ EguibarIT
+
         .NOTES
-            Version:         1.0
-            DateModified:    16/Ene/2018
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Version:         1.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Test-RegistryValue.ps1
+
+        .COMPONENT
+            Windows Registry Management
+
+        .ROLE
+            System Administration
+
+        .FUNCTIONALITY
+            Registry Value Validation
   #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([Bool])]

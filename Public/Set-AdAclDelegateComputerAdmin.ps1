@@ -1,51 +1,103 @@
 # Group together all COMPUTER admin delegations
 function Set-AdAclDelegateComputerAdmin {
     <#
-        .Synopsis
-            Wrapper for all rights used for Computer object container.
+        .SYNOPSIS
+            Configures comprehensive computer management delegations in Active Directory.
+
         .DESCRIPTION
-            The function will consolidate all rights used for Computer object container.
+            This function consolidates all rights needed for complete computer object management
+            in Active Directory. It configures permissions for:
+            - Computer creation and deletion
+            - Password management
+            - DNS and SPN management
+            - Account restrictions
+            - BitLocker and TPM
+            - LAPS (Local Administrator Password Solution)
+            - Remote Desktop Gateway settings
+
+            The function supports both granting and removing these delegations, making it
+            suitable for managing the complete lifecycle of computer administration rights.
+
+        .PARAMETER Group
+            The security group receiving the delegation rights.
+            Should be a domain local group following the naming convention "SG_xxx".
+            This group will receive all computer management permissions.
+
+        .PARAMETER LDAPPath
+            Distinguished Name of the OU where permissions will be applied.
+            All computer objects within this OU will be manageable by the specified group.
+
+        .PARAMETER RemoveRule
+            When specified, removes the delegated permissions instead of granting them.
+            Use this for cleanup or permission revocation.
+
+        .INPUTS
+            System.String
+            You can pipe group names and LDAP paths to this function.
+
+        .OUTPUTS
+            System.Void
+            This function does not generate any output.
+
         .EXAMPLE
-            Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
+            Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Computers,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
+
+            Grants full computer management rights to the specified group in the given OU.
+
         .EXAMPLE
-            Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
+            Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Computers,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
+
+            Removes all computer management delegations from the specified group.
+
         .EXAMPLE
             $Splat = @{
                 Group      = "SG_SiteAdmins_XXXX"
-                LDAPPath   = "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
+                LDAPPath   = "OU=Computers,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
                 RemoveRule = $true
             }
             Set-AdAclDelegateComputerAdmin @Splat
-        .PARAMETER Group
-            Delegated Group Name
-        .PARAMETER LDAPPath
-            Distinguished Name of the OU where given group will fully manage a computer object.
-        .PARAMETER RemoveRule
-            If present, the access rule will be removed
+
+            Using splatting to remove delegations with better code readability.
+
         .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Set-AdAclCreateDeleteComputer          | EguibarIT.DelegationPS
-                Set-AdAclResetComputerPassword         | EguibarIT.DelegationPS
-                Set-AdAclChangeComputerPassword        | EguibarIT.DelegationPS
-                Set-AdAclValidateWriteDnsHostName      | EguibarIT.DelegationPS
-                Set-AdAclValidateWriteSPN              | EguibarIT.DelegationPS
-                Set-AdAclComputerAccountRestriction    | EguibarIT.DelegationPS
-                Set-AdAclDnsInfo                       | EguibarIT.DelegationPS
-                Set-AdAclMsTsGatewayInfo               | EguibarIT.DelegationPS
-                Set-AdAclBitLockerTPM                  | EguibarIT.DelegationPS
-                Set-DeleteOnlyComputer                 | EguibarIT.DelegationPS
-                Set-AdAclLaps                          | EguibarIT
-                Get-CurrentErrorToDisplay              | EguibarIT
-                Get-FunctionDisplay                    | EguibarIT
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Set-AdAclCreateDeleteComputer          ║ EguibarIT.DelegationPS
+                Set-AdAclResetComputerPassword         ║ EguibarIT.DelegationPS
+                Set-AdAclChangeComputerPassword        ║ EguibarIT.DelegationPS
+                Set-AdAclValidateWriteDnsHostName      ║ EguibarIT.DelegationPS
+                Set-AdAclValidateWriteSPN              ║ EguibarIT.DelegationPS
+                Set-AdAclComputerAccountRestriction    ║ EguibarIT.DelegationPS
+                Set-AdAclDnsInfo                       ║ EguibarIT.DelegationPS
+                Set-AdAclMsTsGatewayInfo              ║ EguibarIT.DelegationPS
+                Set-AdAclBitLockerTPM                  ║ EguibarIT.DelegationPS
+                Set-DeleteOnlyComputer                 ║ EguibarIT.DelegationPS
+                Set-AdAclLaps                          ║ EguibarIT
+                Get-CurrentErrorToDisplay              ║ EguibarIT
+                Get-FunctionDisplay                    ║ EguibarIT
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Debug                            ║ Microsoft.PowerShell.Utility
+
         .NOTES
-            Version:         1.0
-            DateModified:    19/Oct/2016
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Version:         1.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Set-AdAclDelegateComputerAdmin.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Security Administration
+
+        .FUNCTIONALITY
+            Computer Management Delegation
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]

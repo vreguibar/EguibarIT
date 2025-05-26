@@ -13,6 +13,22 @@
 
             The function uses StringBuilder for efficient string building operations.
 
+        .PARAMETER HashTable
+            Hashtable variable from calling function containing parameters to format accordingly.
+            Typically this will be $PsBoundParameters from the calling function.
+
+        .PARAMETER TabCount
+            Number of tab characters to use for indentation in the formatted output.
+            Default value is 2.
+
+        .INPUTS
+            [System.Collections.Hashtable]
+            You can pipe a hashtable to this function.
+
+        .OUTPUTS
+            [System.String]
+            Returns a formatted string representation of the provided hashtable.
+
         .EXAMPLE
             Get-FunctionDisplay -HashTable $PsBoundParameters
 
@@ -33,42 +49,36 @@
 
             Formats a custom hashtable with the default indentation.
 
-        .PARAMETER HashTable
-            Hashtable variable from calling function containing parameters to format accordingly.
-            Typically this will be $PsBoundParameters from the calling function.
-
-        .PARAMETER TabCount
-            Number of tab characters to use for indentation in the formatted output.
-            Default value is 2.
-
-        .OUTPUTS
-            [System.String]
-            Returns a formatted string representation of the provided hashtable.
-
         .NOTES
-            Version:         2.0
-            DateModified:    19/Mar/2025
-            LastModifiedBy:  Vicente Rodriguez Eguibar
-                            vicente@eguibar.com
-                            Eguibar IT
-                            http://www.eguibarit.com
-
             Used Functions:
                 Name                                       ║ Module/Namespace
                 ═══════════════════════════════════════════╬══════════════════════════════
                 Format-Table                               ║ Microsoft.PowerShell.Utility
                 Out-String                                 ║ Microsoft.PowerShell.Utility
-                Write-Verbose                              ║ Microsoft.PowerShell.Utility
                 Write-Warning                              ║ Microsoft.PowerShell.Utility
                 StringBuilder                              ║ [System.Text.StringBuilder]
 
-            Required Modules:
-                None - Uses built-in PowerShell cmdlets and .NET classes
+        .NOTES
+            Version:         2.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
-            https://github.com/vreguibar/EguibarIT.DelegationPS/blob/main/Private/Get-FunctionDisplay.ps1
+            https://github.com/vreguibar/EguibarIT/blob/main/Private/Get-FunctionDisplay.ps1
             https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/format-table
             https://learn.microsoft.com/en-us/dotnet/api/system.text.stringbuilder
+
+        .COMPONENT
+            Formatting
+
+        .ROLE
+            Utility
+
+        .FUNCTIONALITY
+            Parameter Visualization
     #>
 
     [CmdletBinding(

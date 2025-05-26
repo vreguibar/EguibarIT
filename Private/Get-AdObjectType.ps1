@@ -29,24 +29,11 @@
             Specifies the Active Directory Domain Services instance to connect to.
             If not specified, the default domain controller for the current domain is used.
 
-        .EXAMPLE
-            Get-AdObjectType -Identity "davader"
-            Retrieves the type of the Active Directory object with the SamAccountName "davader".
-
-        .EXAMPLE
-            Get-AdObjectType -Identity "CN=davade,OU=Users,OU=BAAD,OU=Sites,DC=EguibarIT,DC=local"
-            Retrieves the type of the Active Directory object with the
-            DistinguishedName "CN=davade,OU=Users,OU=BAAD,OU=Sites,DC=EguibarIT,DC=local".
-
-        .EXAMPLE
-            Get-AdObjectType -Identity "S-1-5-21-3484526001-1877030748-1169500100-1646"
-            Retrieves the type of the Active Directory object with the
-            SID "S-1-5-21-3484526001-1877030748-1169500100-1646".
-
-        .EXAMPLE
-            Get-AdObjectType -Identity "35b764b7-06df-4509-a54f-8fd4c26a0805"
-            Retrieves the type of the Active Directory object with the GUID
-            "35b764b7-06df-4509-a54f-8fd4c26a0805".
+        .INPUTS
+            System.String
+            Microsoft.ActiveDirectory.Management.ADObject
+            System.Security.Principal.SecurityIdentifier
+            You can pipe an ADObject, string, or SecurityIdentifier to this function.
 
         .OUTPUTS
             Microsoft.ActiveDirectory.Management.ADAccount or
@@ -57,17 +44,39 @@
             System.Security.Principal.SecurityIdentifier or
             System.String
 
-        .NOTES
-            Required modules/prerequisites:
-            - Windows PowerShell 5.1 or PowerShell 7+
-            - Active Directory module
+            The function returns the appropriate AD object type based on the provided identity.
 
+        .EXAMPLE
+            Get-AdObjectType -Identity "davader"
+
+            Retrieves the type of the Active Directory object with the SamAccountName "davader".
+
+        .EXAMPLE
+            Get-AdObjectType -Identity "CN=davade,OU=Users,OU=BAAD,OU=Sites,DC=EguibarIT,DC=local"
+
+            Retrieves the type of the Active Directory object with the
+            DistinguishedName "CN=davade,OU=Users,OU=BAAD,OU=Sites,DC=EguibarIT,DC=local".
+
+        .EXAMPLE
+            Get-AdObjectType -Identity "S-1-5-21-3484526001-1877030748-1169500100-1646"
+
+            Retrieves the type of the Active Directory object with the
+            SID "S-1-5-21-3484526001-1877030748-1169500100-1646".
+
+        .EXAMPLE
+            Get-AdObjectType -Identity "35b764b7-06df-4509-a54f-8fd4c26a0805"
+
+            Retrieves the type of the Active Directory object with the GUID
+            "35b764b7-06df-4509-a54f-8fd4c26a0805".
+
+        .NOTES
             Used Functions:
                 Name                                       ║ Module/Namespace
                 ═══════════════════════════════════════════╬══════════════════════════════
                 Write-Verbose                              ║ Microsoft.PowerShell.Utility
                 Write-Warning                              ║ Microsoft.PowerShell.Utility
                 Write-Error                                ║ Microsoft.PowerShell.Utility
+                Write-Output                               ║ Microsoft.PowerShell.Utility
                 Get-ADObject                               ║ ActiveDirectory
                 Get-ADUser                                 ║ ActiveDirectory
                 Get-ADGroup                                ║ ActiveDirectory
@@ -77,24 +86,33 @@
                 Import-MyModule                            ║ EguibarIT
                 Get-FunctionDisplay                        ║ EguibarIT
 
-            .NOTES
-                Version:         1.6
-                DateModified:    13/Mar/2025
-                LastModifiedBy:  Vicente Rodriguez Eguibar
-                    vicente@eguibar.com
-                    Eguibar Information Technology S.L.
-                    http://www.eguibarit.com
+        .NOTES
+            Version:         1.7
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
-            .LINK
-                https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adobject
-                https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-aduser
-                https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adgroup
-                https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adcomputer
-                https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adorganizationalunit
-                https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adserviceaccount
+        .LINK
+            https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adobject
+            https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-aduser
+            https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adgroup
+            https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adcomputer
+            https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adorganizationalunit
+            https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adserviceaccount
 
-            .LINK
-                https://github.com/vreguibar/EguibarIT.DelegationPS/blob/main/Private/Get-AdObjectType.ps1
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Private/Get-AdObjectType.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Identity Management
+
+        .FUNCTIONALITY
+            Active Directory Object Type Resolution
     #>
 
     [CmdletBinding(

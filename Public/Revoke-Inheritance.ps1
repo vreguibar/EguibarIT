@@ -1,48 +1,78 @@
 ﻿function Revoke-Inheritance {
     <#
-        .Synopsis
-        The function will Remove Specific/Non-Inherited ACL and enable inheritance on an object
+        .SYNOPSIS
+            Manages inheritance settings on Active Directory object access control lists.
 
         .DESCRIPTION
-        The function will Remove Specific/Non-Inherited ACL and enable inheritance on an object.
-        Control whether inheritance from the parent folder should be blocked ($True means no Inheritance)
-        and if the previously inherited access rules should be preserved ($False means remove
-        previously inherited permissions).
+            This function provides granular control over inheritance settings on Active Directory objects.
+            It allows administrators to:
+            - Block inheritance from parent objects
+            - Control whether previously inherited permissions are preserved or removed
+            - Apply these changes consistently across multiple objects via pipeline input
 
-        .EXAMPLE
-        Revoke-Inheritance -LDAPpath 'OU=Admin,DC=EguibarIT,DC=local' -RemoveInheritance -KeepPermissions
+            This is an essential function for implementing secure and well-structured permission
+            hierarchies in Active Directory.
 
         .PARAMETER LDAPpath
-        Distinguished Name of the object (or container)
+            Distinguished Name of the object (or container) to modify.
+            Must be a valid DN that can be resolved in the current domain.
 
         .PARAMETER RemoveInheritance
-        Remove inheritance from parent. If present Inheritance will be removed.
+            When specified, blocks inheritance from the parent object.
+            If not specified, inheritance remains enabled.
 
         .PARAMETER KeepPermissions
-        Previous inherited access rules will be kept. If present means rules will be copied
-        and maintained, otherwise rules will be removed.
+            When specified, previously inherited permissions are converted to explicit permissions.
+            If not specified, previously inherited permissions are removed.
+
+        .INPUTS
+            System.String
+            You can pipe distinguished names to this function.
 
         .OUTPUTS
-            [void]
+            System.Void
+            This function does not generate any output.
 
-        .NOTES
+        .EXAMPLE
+            Revoke-Inheritance -LDAPpath 'OU=Admin,DC=EguibarIT,DC=local' -RemoveInheritance -KeepPermissions
+
+            Blocks inheritance on the Admin OU while preserving all previously inherited permissions.
+
+        .EXAMPLE
+            Revoke-Inheritance -LDAPpath 'OU=Users,DC=EguibarIT,DC=local' -RemoveInheritance
+
+            Blocks inheritance on the Users OU and removes all previously inherited permissions.
+
+        .EXAMPLE
+            Get-ADOrganizationalUnit -Filter {Name -like 'Tier*'} | Select-Object -ExpandProperty DistinguishedName | Revoke-Inheritance -RemoveInheritance -KeepPermissions
+
+            Blocks inheritance while preserving permissions on all OUs with names starting with 'Tier'.        .NOTES
             Used Functions:
-                Name                                  ║ Module/Namespace
-                ══════════════════════════════════════╬════════════════════════
-                Test-IsValidDN                        ║ EguibarIT
-                Get-FunctionDisplay                   ║ EguibarIT
-                Get-Acl                               ║ Microsoft.PowerShell.Security
-                Set-Acl                               ║ Microsoft.PowerShell.Security
-                Write-Verbose                         ║ Microsoft.PowerShell.Utility
-                Write-Error                           ║ Microsoft.PowerShell.Utility
+                Name                                       ║ Module/Namespace
+                ═══════════════════════════════════════════╬══════════════════════════════
+                Test-IsValidDN                             ║ EguibarIT
+                Get-FunctionDisplay                        ║ EguibarIT
+                Get-Acl                                    ║ Microsoft.PowerShell.Security
+                Set-Acl                                    ║ Microsoft.PowerShell.Security
+                Write-Verbose                              ║ Microsoft.PowerShell.Utility
+                Write-Error                                ║ Microsoft.PowerShell.Utility            Version:         1.3
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
-        .NOTES
-        Version:         1.1
-        DateModified:    27/Mar/2024
-        LasModifiedBy:   Vicente Rodriguez Eguibar
-            vicente@eguibar.com
-            Eguibar Information Technology S.L.
-            http://www.eguibarit.com
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Revoke-Inheritance.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Security Administration
+
+        .FUNCTIONALITY
+            Access Control Management
     #>
 
     [CmdletBinding(

@@ -58,14 +58,14 @@
 
         .NOTES
             Version:         1.2
-            DateModified:    24/Apr/2025
+            DateModified:    22/May/2025
             LastModifiedBy:  Vicente Rodriguez Eguibar
                             vicente@eguibar.com
                             Eguibar IT
                             http://www.eguibarit.com
 
         .LINK
-            https://github.com/vreguibar/EguibarIT
+            https://github.com/vreguibar/EguibarIT/blob/main/Private/Initialize-EventLogging.ps1
 
         .COMPONENT
             Event Management
@@ -196,8 +196,8 @@
     } #end Begin
 
     Process {
-        # Retry logic with up to 3 attempts
-        while (-not $Variables.EventLogInitialized -and $RetryCount -lt 3) {
+        # Check if the event log is already initialized
+        if (-not $Variables.EventLogInitialized) {
 
             try {
                 # Check if the event source exists, and if not, create it
@@ -317,7 +317,7 @@
                 Start-Sleep -Seconds 2
             } #end Try-Catch
 
-        } #end While
+        } #end if
 
         if (-not $Variables.EventLogInitialized) {
             throw 'Failed to initialize event log after 3 attempts.'

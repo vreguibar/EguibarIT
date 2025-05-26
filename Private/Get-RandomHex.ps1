@@ -1,7 +1,7 @@
 Function Get-RandomHex {
     <#
         .SYNOPSIS
-        Generates a random hexadecimal string of specified length.
+            Generates a random hexadecimal string of specified length.
 
         .DESCRIPTION
             This function generates a cryptographically secure random hexadecimal string
@@ -12,44 +12,58 @@ Function Get-RandomHex {
             Must be a positive integer.
             Maximum value is 2147483647 (Int32.MaxValue).
 
-        .EXAMPLE
-            Get-RandomHex -Length 8
-            Generates an 8-character random hexadecimal string (e.g., "1A2B3C4D").
-
-        .EXAMPLE
-            Get-RandomHex -Length 16 -Verbose
-            Generates a 16-character random hexadecimal string with verbose output.
-
-        .EXAMPLE
-            1..5 | ForEach-Object { Get-RandomHex -Length 4 }
-            Generates five different 4-character random hexadecimal strings.
-
         .INPUTS
             System.Int32
+            You can pipe an integer representing the desired length to this function.
 
         .OUTPUTS
             System.String
             Returns a random hexadecimal string of specified length.
+
+        .EXAMPLE
+            Get-RandomHex -Length 8
+
+            Generates an 8-character random hexadecimal string (e.g., "1A2B3C4D").
+
+        .EXAMPLE
+            Get-RandomHex -Length 16 -Verbose
+
+            Generates a 16-character random hexadecimal string with verbose output.
+
+        .EXAMPLE
+            1..5 | ForEach-Object { Get-RandomHex -Length 4 }
+
+            Generates five different 4-character random hexadecimal strings.
 
         .NOTES
             Used Functions:
                 Name                                   ║ Module/Namespace
                 ═══════════════════════════════════════╬══════════════════════════════
                 Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Debug                            ║ Microsoft.PowerShell.Utility
                 Write-Error                            ║ Microsoft.PowerShell.Utility
                 Get-Random                             ║ Microsoft.PowerShell.Utility
                 Get-FunctionDisplay                    ║ EguibarIT
 
         .NOTES
-            Version:         2.0
-            DateModified:   26/Mar/2025
-            LastModifiedBy: Vicente Rodriguez Eguibar
-                        vicente@eguibar.com
-                        Eguibar IT
-                        http://www.eguibarit.com
+            Version:         2.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
             https://github.com/vreguibar/EguibarIT/blob/main/Private/Get-RandomHex.ps1
+
+        .COMPONENT
+            Security
+
+        .ROLE
+            Cryptography
+
+        .FUNCTIONALITY
+            Random Value Generation
     #>
 
     [CmdletBinding(

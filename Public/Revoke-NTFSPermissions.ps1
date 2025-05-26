@@ -1,22 +1,87 @@
 function Revoke-NTFSPermissions {
     <#
-    .Synopsis
-    Function to remove NTFS permissions to a folder
-    .DESCRIPTION
-    Function to remove NTFS permissions to a folder
-    .EXAMPLE
-    Revoke-NTFSPermissions path object permission
-    .INPUTS
-    Param1 path = The path to the folder
-    Param2 object = the identity which will get the permissions
-    Param3 permission = the permissions to be modified
-    .NOTES
-    Version:         1.0
-    DateModified:    31/Mar/2015
-    LasModifiedBy:   Vicente Rodriguez Eguibar
-    vicente@eguibar.com
-    Eguibar Information Technology S.L.
-    http://www.eguibarit.com
+        .SYNOPSIS
+            Revokes specific NTFS permissions from files and folders.
+
+        .DESCRIPTION
+            This function removes specific NTFS permissions from files and folders using
+            the .NET Security model. It provides granular control over permission removal
+            with support for:
+            - File and folder targets
+            - Specific security principals (users/groups)
+            - Individual permission levels
+            - Inheritance and propagation settings
+            - Pipeline input for batch operations
+
+        .PARAMETER path
+            The full path to the file or folder where permissions will be removed.
+            Must be a valid, accessible filesystem path.
+
+        .PARAMETER object
+            The security principal (user/group) from which permissions will be removed.
+            Can be specified in "Domain\User" or "Domain\Group" format.
+
+        .PARAMETER permission
+            The specific permission to remove. Must be a valid FileSystemRights value.
+            Common values include:
+            - Read
+            - Write
+            - ReadAndExecute
+            - Modify
+            - FullControl
+
+        .INPUTS
+            System.String
+            You can pipe path strings to this function.
+
+        .OUTPUTS
+            System.Void
+            This function does not generate any output.
+
+        .EXAMPLE
+            Revoke-NTFSPermissions -Path "D:\Shares\Finance" -Object "CONTOSO\FinanceUsers" -Permission "Write"
+
+            Removes Write permission for the FinanceUsers group from the Finance share.
+
+        .EXAMPLE
+            Revoke-NTFSPermissions -Path "E:\Data" -Object "CONTOSO\Contractors" -Permission "FullControl"
+
+            Removes Full Control permission for the Contractors group from the Data folder.
+
+        .EXAMPLE
+            Get-ChildItem -Path "D:\Projects" -Directory | Select-Object -ExpandProperty FullName |
+            Revoke-NTFSPermissions -Object "CONTOSO\Interns" -Permission "Modify"
+
+            Removes Modify permission for Interns from all subdirectories in the Projects folder.
+
+        .NOTES
+            Used Functions:
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Get-Acl                                ║ Microsoft.PowerShell.Security
+                Set-Acl                                ║ Microsoft.PowerShell.Security
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Get-FunctionDisplay                    ║ EguibarIT
+
+        .NOTES
+            Version:         1.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Revoke-NTFSPermissions.ps1
+
+        .COMPONENT
+            File System
+
+        .ROLE
+            Security Administration
+
+        .FUNCTIONALITY
+            NTFS Permissions Management
 #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]

@@ -1,49 +1,78 @@
 ﻿function Enable-KerberosClaimSupport {
     <#
         .SYNOPSIS
-            Enable claim support in the entire domain.
+            Enables claim-based authentication support across an Active Directory domain.
 
         .DESCRIPTION
             This function enables claim-based authentication (Cbac) and Armor for Kerberos
-            by configuring group policies on domain controllers and clients.
+            by configuring group policies on domain controllers and clients. It implements
+            the necessary registry settings in both the domain-wide policy and the domain
+            controllers policy to properly support claims and compound authentication.
+
+            This is a prerequisite for implementing advanced access control scenarios like
+            Dynamic Access Control (DAC) and conditional access based on device claims.
 
         .PARAMETER DomainDNSName
             The fully qualified domain name (FQDN) of the domain where claim support will be enabled.
+            Must be a valid domain that the executing account has permission to modify.
 
         .PARAMETER GeneralGPO
-            The name or GUID of the domain-wide general GPO to use. Falls back to the Default Domain Policy if not provided.
+            The name or GUID of the domain-wide general GPO to use.
+            Falls back to the Default Domain Policy if not provided.
 
         .PARAMETER DomainControllerGPO
             The name or GUID of the domain controller-specific GPO to use.
             Falls back to the Default Domain Controller Policy if not provided.
+
+        .INPUTS
+            System.String
+            You can pipe strings representing the domain name and GPO names to this function.
+
+        .OUTPUTS
+            System.Void
+            This function does not generate any output.
 
         .EXAMPLE
             Enable-KerberosClaimSupport -DomainDNSName "EguibarIT.local" -GeneralGPO "Custom-GeneralGPO" -DomainControllerGPO "Custom-DC-GPO"
 
             Enables claim support in the specified domain using custom GPOs.
 
-        .INPUTS
-            [string] - Fully qualified domain name (FQDN) of the domain.
-            [string] - Name or GUID of the GPOs.
+        .EXAMPLE
+            Enable-KerberosClaimSupport -DomainDNSName "EguibarIT.local" -Verbose
 
-        .OUTPUTS
-            [Void]
+            Enables claim support with verbose output using the default domain policies.
 
         .NOTES
-            Used Cmdlets:
-                Name                 | Module
-                ---------------------|-------------------------
-                Get-GPO              | GroupPolicy
-                Set-GPRegistryValue  | GroupPolicy
-                Write-Verbose        | Microsoft.PowerShell.Utility
+            Used Functions:
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Get-GPO                                ║ GroupPolicy
+                Set-GPRegistryValue                    ║ GroupPolicy
+                Import-MyModule                        ║ EguibarIT
+                Get-FunctionDisplay                    ║ EguibarIT
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Warning                          ║ Microsoft.PowerShell.Utility
+                Write-Error                            ║ Microsoft.PowerShell.Utility
 
         .NOTES
-            Version:         1.0
-            DateModified:    17/Dec/2024
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Version:         1.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Enable-KerberosClaimSupport.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            System Administration
+
+        .FUNCTIONALITY
+            Kerberos Authentication
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High')]
@@ -95,7 +124,7 @@
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
+        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$False
 
 
         ##############################

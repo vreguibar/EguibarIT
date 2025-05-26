@@ -28,23 +28,35 @@
 
         .OUTPUTS
             System.String
-            Returns the SDDL string representation of the ACL.
-
-        .NOTES
+            Returns the SDDL string representation of the ACL.        .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                AddAccessRule                          | .NET System.Security.AccessControl.FileSecurity
-                GetSecurityDescriptorSddlForm          | .NET System.Security.AccessControl.FileSecurity
-                Get-FunctionDisplay                    | EguibarIT
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                AddAccessRule                          ║ System.Security.AccessControl.FileSecurity
+                GetSecurityDescriptorSddlForm          ║ System.Security.AccessControl.FileSecurity
+                Get-FunctionDisplay                    ║ EguibarIT
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Debug                            ║ Microsoft.PowerShell.Utility
 
         .NOTES
-            Version:         1.0
-            DateModified:    18/Dec/2024
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Version:         1.1
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/New-AclSddl.ps1
+
+        .COMPONENT
+            Security
+
+        .ROLE
+            Security Administration
+
+        .FUNCTIONALITY
+            Access Control
 
     #>
 

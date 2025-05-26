@@ -12,40 +12,56 @@
             The GUID string to validate. Must be in the format "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
             where x represents hexadecimal digits (0-9, a-f, A-F).
 
+        .INPUTS
+            System.String
+            You can pipe one or more GUID strings to this function.
+
+        .OUTPUTS
+            System.Boolean
+            Returns $true if the input is a valid GUID, $false otherwise.
+
         .EXAMPLE
             Test-IsValidGUID -ObjectGUID '550e8400-e29b-41d4-a716-446655440000'
+
             Returns $true as this is a valid GUID format.
 
         .EXAMPLE
             '550e8400-e29b-41d4-a716-446655440000' | Test-IsValidGUID
+
             Shows pipeline input usage. Returns $true.
 
         .EXAMPLE
             Test-IsValidGUID -ObjectGUID 'invalid-guid'
-            Returns $false as this is not a valid GUID format.
 
-        .OUTPUTS
-            [bool]
-            Returns $true if the input is a valid GUID, $false otherwise.
+            Returns $false as this is not a valid GUID format.
 
         .NOTES
             Used Functions:
                 Name                   ║ Module/Namespace
                 ═══════════════════════╬══════════════════════════════
                 Write-Verbose          ║ Microsoft.PowerShell.Utility
-                Write-Error            ║ Microsoft.PowerShell.Utility
                 Write-Debug            ║ Microsoft.PowerShell.Utility
+                Write-Error            ║ Microsoft.PowerShell.Utility
 
         .NOTES
-            Version:         1.2
-            DateModified:    20/Mar/2024
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar IT
-                http://www.eguibarit.com
+            Version:         1.3
+            DateModified:    22/May/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
             https://github.com/vreguibar/EguibarIT/blob/main/Private/Test-IsValidGUID.ps1
+
+        .COMPONENT
+            Data Validation
+
+        .ROLE
+            Utility
+
+        .FUNCTIONALITY
+            GUID Validation
     #>
 
     [CmdletBinding(ConfirmImpact = 'Low',

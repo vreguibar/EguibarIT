@@ -66,11 +66,12 @@
                 Get-ADComputer                             ║ ActiveDirectory
                 Write-Verbose                              ║ Microsoft.PowerShell.Utility
                 Write-Error                                ║ Microsoft.PowerShell.Utility
+                Write-Progress                             ║ Microsoft.PowerShell.Utility
                 Get-FunctionDisplay                        ║ EguibarIT
 
         .NOTES
-            Version:         1.0
-            DateModified:    30/Apr/2025
+            Version:         1.1
+            DateModified:    9/May/2025
             LastModifiedBy:  Vicente Rodriguez Eguibar
                         vicente@eguibar.com
                         Eguibar IT
@@ -143,12 +144,85 @@
         )]
         [Alias('ScriptPath')]
         [string]
-        $DMScripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\',
+
+        [Parameter(Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'Start transcript logging to DMScripts path with function name',
+            Position = 2)]
+        [Alias('Transcript', 'Log')]
+        [switch]
+        $EnableTranscript
 
     )
 
     Begin {
         Set-StrictMode -Version Latest
+
+        # Check if running with administrative privileges
+        $CurrentIdentity = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+        $WindowsPrincipal = New-Object System.Security.Principal.WindowsPrincipal($CurrentIdentity)
+        $IsAdmin = $WindowsPrincipal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
+
+        if (-not $IsAdmin) {
+            $ErrorMessage = 'This function requires administrative privileges to create ' +
+            'and manage Authentication Policies in Active Directory.'
+            Write-Error -Message $ErrorMessage
+            throw $ErrorMessage
+        }
+
+        # Check if running as Domain Admin or equivalent (needed for AD Authentication Policies)
+        try {
+            $CurrentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+            $IsDomainAdmin = $false
+
+            # Check Domain Admins membership
+            $DomainAdmins = Get-ADGroup -Identity 'Domain Admins' -ErrorAction SilentlyContinue
+            if ($DomainAdmins) {
+                $IsDomainAdmin = Get-ADGroupMember -Identity $DomainAdmins -Recursive -ErrorAction SilentlyContinue |
+                    Where-Object { $_.SamAccountName -eq $CurrentUser.Split('\')[1] }
+            }
+
+            if (-not $IsDomainAdmin) {
+                Write-Warning -Message 'Current user is not a member of Domain Admins. ' +
+                'Authentication Policy operations may fail due to insufficient permissions.'
+            }
+        } catch {
+            Write-Warning -Message "Failed to verify domain privileges: $($_.Exception.Message)"
+        }
+
+        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+            $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
+        } #end If
+
+        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+            $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
+        } #end If
+
+        # If EnableTranscript is specified, start a transcript
+        if ($EnableTranscript) {
+            # Ensure DMScripts directory exists
+            if (-not (Test-Path -Path $DMScripts -PathType Container)) {
+                try {
+                    New-Item -Path $DMScripts -ItemType Directory -Force | Out-Null
+                    Write-Verbose -Message ('Created transcript directory: {0}' -f $DMScripts)
+                } catch {
+                    Write-Warning -Message ('Failed to create transcript directory: {0}' -f $_.Exception.Message)
+                } #end try-catch
+            } #end if
+
+            # Create transcript filename using function name and current date/time
+            $TranscriptFile = Join-Path -Path $DMScripts -ChildPath ('{0}_{1}.LOG' -f $MyInvocation.MyCommand.Name, (Get-Date -Format 'yyyyMMdd_HHmmss'))
+
+            try {
+                Start-Transcript -Path $TranscriptFile -Force -ErrorAction Stop
+                Write-Verbose -Message ('Transcript started: {0}' -f $TranscriptFile)
+            } catch {
+                Write-Warning -Message ('Failed to start transcript: {0}' -f $_.Exception.Message)
+            } #end try-catch
+        } #end if
 
         # Initialize logging
         if ($null -ne $Variables -and
@@ -165,8 +239,6 @@
         ##############################
         # Module imports
 
-        Import-MyModule -Name 'ServerManager' -SkipEditionCheck -Verbose:$false
-        Import-MyModule -Name 'GroupPolicy' -SkipEditionCheck -Verbose:$false
         Import-MyModule -Name 'ActiveDirectory' -Verbose:$false
         Import-MyModule -Name 'EguibarIT' -Verbose:$false
         Import-MyModule -Name 'EguibarIT.DelegationPS' -Verbose:$false
@@ -176,6 +248,12 @@
 
         # Parameters variable for splatting CMDlets
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+
+        # Progress reporting variables
+        [int]$ProgressID = 1
+        [int]$ProgressSteps = 5
+        [int]$CurrentStep = 0
+        [hashtable]$ProgressSplat = @{}
 
         # Authentication Policy variables
         [string]$AuditComputerPolicyName = 'T0_AuditOnly_Computers'
@@ -197,7 +275,7 @@
         # Load the XML configuration file
         try {
             $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
-            Write-Verbose -Message ('Successfully loaded configuration XML from: {0}' -f $PSBoundParameters['ConfigXMLFile'])
+            Write-Debug -Message ('Successfully loaded configuration XML from: {0}' -f $PSBoundParameters['ConfigXMLFile'])
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
@@ -216,44 +294,42 @@
         }
 
 
-        # Get SID information for PAWs and Infrastructure Servers
-        try {
-            # Verify that required security principal information is available
-            if ($null -eq $SL_PAWs) {
-                Write-Verbose -Message 'SL_PAWs variable not found, attempting to retrieve from configuration'
+        #region Users Variables
+        $AdminName = Get-SafeVariable -Name 'AdminName' -CreateIfNotExist {
+            try {
+                Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
+            } catch {
+                Write-Debug -Message ('Failed to retrieve Administrator account: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
 
-                $SL_PAWs = Get-AdObjectType -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PAWs.name)
+        $newAdminName = Get-SafeVariable -Name 'newAdminName' -CreateIfNotExist {
+            try {
+                $name = $confXML.n.Admin.users.NEWAdmin.Name
+                if ([string]::IsNullOrEmpty($name)) {
+                    return $null
+                }
+                Get-AdObjectType -Identity $name
+            } catch {
+                Write-Debug -Message ('Failed to retrieve new admin account: {0}' -f $_.Exception.Message)
+                $null
+            }
+        }
+        #endregion Users Variables
 
-            } #end If
+        #region Local groups Variables
+        $SL_PAWs = Get-SafeVariable -Name 'SL_PAWs' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PAWs.Name)
+            Get-AdObjectType -Identity $groupName
+        }
 
-            if ($null -eq $SL_InfrastructureServers) {
-                Write-Verbose -Message 'SL_InfrastructureServers variable not found, attempting to retrieve from configuration'
+        $SL_InfrastructureServers = Get-SafeVariable -Name 'SL_InfrastructureServers' -CreateIfNotExist {
+            $groupName = ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.InfraServers.Name)
+            Get-AdObjectType -Identity $groupName
+        }
+        #endregion Local groups Variables
 
-                $InfrastructureServers = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.InfraServers.name
-
-                $SL_InfrastructureServers = Get-AdObjectType -Identity $InfrastructureServers
-
-            } #end If
-
-            if ($null -eq $AdminName) {
-                Write-Verbose -Message 'AdminName variable not found, attempting to retrieve from configuration'
-
-                $AdminName = Get-AdObjectType -Identity $confXML.n.Admin.Users.Admin.name
-
-            } #end If
-
-            if ($null -eq $NewAdminExists) {
-                Write-Verbose -Message 'NewAdminExists variable not found, attempting to retrieve from configuration'
-
-                $NewAdminExists = Get-AdObjectType -Identity $confXML.n.Admin.Users.NEWAdmin.name
-
-            } #end If
-
-        } catch {
-
-            Write-Warning -Message ('Error retrieving security principal information: {0}' -f $_.Exception.Message)
-
-        } #end Try-Catch
 
     } #end Begin
 
@@ -262,6 +338,16 @@
         try {
             # Configure Kerberos Claims and Authentication Policies/Silos
             if ($PSCmdlet.ShouldProcess('Active Directory Security', 'Create Authentication Policies and Silos')) {
+
+                # Update progress: Enabling Kerberos Claims
+                $CurrentStep++
+                $ProgressSplat = @{
+                    Id              = $ProgressID
+                    Activity        = 'Creating Tier 0 Authentication Policies and Silos'
+                    Status          = 'Step {0}/{1}: Enabling Kerberos Claims support' -f $CurrentStep, $ProgressSteps
+                    PercentComplete = ($CurrentStep / $ProgressSteps) * 100
+                }
+                Write-Progress @ProgressSplat
 
                 # Enable Kerberos Claims support first - required for Authentication Policies
                 $Splat = @{
@@ -276,35 +362,52 @@
 
                 # Reference: https://learn.microsoft.com/en-us/windows-server/security/credentials-protection-and-management/authentication-policies-and-authentication-policy-silos
 
-                # Build SDDL
+                # Build SDDL string with proper format
+                # SDDL reference: https://learn.microsoft.com/en-us/windows/win32/secauthz/security-descriptor-string-format
 
-                # Add Owner SYSTEM
-                $AllowToAutenticateFromSDDL = 'O:SY'
+                # Using direct string instead of StringBuilder to avoid formatting issues
+                [string]$AllowToAuthenticateFromSDDL = 'O:SYG:SY'
 
-                # Add PrimaryGroup Administrators
-                $AllowToAutenticateFromSDDL += 'G:SY'
+                # Build the condition part using Domain Controllers SID and our custom groups
+                [string]$DCCondition = '(Member_of {SID(DD)})'
+                [string]$PawsCondition = '(Member_of_any {SID(' + $SL_PAWs.SID.Value + ')})'
+                [string]$InfraCondition = '(Member_of_any {SID(' + $SL_InfrastructureServers.SID.Value + ')})'
 
-                # Add DACL with Enterprise Domain Controllers (ED) SID and dynamic group SIDs
-                $AllowToAuthenticateFromSDDL += 'D:(XA;OICI;CR;;;WD;'  # Start DACL
+                # Combine conditions with OR operators
+                [string]$FullCondition = '(((' + $DCCondition + ' || ' + $PawsCondition + ' || ' + $InfraCondition + ')))'
 
-                # Add Enterprise Domain Controllers (ED)
-                $AllowToAuthenticateFromSDDL += '(Member_of_any {SID(ED)})'
+                # Add DACL with ACE - XA=ACCESS_ALLOWED_CALLBACK_ACE, OICI=inheritance flags, CR=control rights, WD=Everyone
+                $AllowToAuthenticateFromSDDL += 'D:(XA;OICI;CR;;;WD;' + $FullCondition + ')'
 
-                # Add our groups using OR (||)
-                $AllowToAuthenticateFromSDDL += " || (Member_of_any {SID($($SL_PAWs.SID.value))})"
-                $AllowToAuthenticateFromSDDL += " || (Member_of_any {SID($($SL_InfrastructureServers.SID.value))}))"
+                Write-Debug -Message ('SDDL string: {0}' -f $AllowToAuthenticateFromSDDL)
 
                 #region Create AuditOnly Policies
+                # Update progress: Creating audit policies
+                $CurrentStep++
+                $ProgressSplat = @{
+                    Id              = $ProgressID
+                    Activity        = 'Creating Tier 0 Authentication Policies and Silos'
+                    Status          = 'Step {0}/{1}: Creating AuditOnly authentication policies' -f $CurrentStep, $ProgressSteps
+                    PercentComplete = ($CurrentStep / $ProgressSteps) * 100
+                }
+                Write-Progress @ProgressSplat
                 Write-Verbose -Message 'Creating AuditOnly authentication policies'
 
                 # Computer AUDIT
-                If (-Not (Get-ADAuthenticationPolicy -Identity $AuditComputerPolicyName -ErrorAction SilentlyContinue)) {
+                [bool]$PolicyExists = $false
+                try {
+                    $PolicyExists = $null -ne (Get-ADAuthenticationPolicy -Filter "Name -eq '$AuditComputerPolicyName'" -ErrorAction Stop)
+                } catch {
+                    Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
+                    $PolicyExists = $false
+                } #end Try-Catch
 
+                If (-Not $PolicyExists) {
                     $Splat = @{
                         Name                            = $AuditComputerPolicyName
                         Description                     = 'This Kerberos Authentication policy used to AUDIT computer logon ' +
                         'from untrusted computers'
-                        ComputerAllowedToAuthenticateTo = $AllowToAutenticateFromSDDL
+                        ComputerAllowedToAuthenticateTo = $AllowToAuthenticateFromSDDL.ToString()
                         ComputerTGTLifetimeMins         = $ComputerTGTLifetime
                         ProtectedFromAccidentalDeletion = $true
                     }
@@ -318,14 +421,21 @@
                 } #end If-else
 
                 # User AUDIT
-                If (-Not (Get-ADAuthenticationPolicy -Identity $AuditUserPolicyName -ErrorAction SilentlyContinue)) {
+                $PolicyExists = $false
+                try {
+                    $PolicyExists = $null -ne (Get-ADAuthenticationPolicy -Filter "Name -eq '$AuditUserPolicyName'" -ErrorAction Stop)
+                } catch {
+                    Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
+                    $PolicyExists = $false
+                } #end Try-Catch
 
+                If (-Not $PolicyExists) {
                     $Splat = @{
                         Name                            = $AuditUserPolicyName
                         Description                     = 'This Kerberos Authentication policy used to AUDIT interactive logon ' +
                         'from untrusted users'
-                        UserAllowedToAuthenticateFrom   = $AllowToAutenticateFromSDDL
-                        UserAllowedToAuthenticateTo     = $AllowToAutenticateFromSDDL
+                        UserAllowedToAuthenticateFrom   = $AllowToAuthenticateFromSDDL.ToString()
+                        UserAllowedToAuthenticateTo     = $AllowToAuthenticateFromSDDL.ToString()
                         UserTGTLifetimeMins             = $UserTGTLifetime
                         ProtectedFromAccidentalDeletion = $true
                     }
@@ -339,14 +449,21 @@
                 } #end If-else
 
                 # ServiceAccounts AUDIT
-                If (-Not (Get-ADAuthenticationPolicy -Identity $AuditServicePolicyName -ErrorAction SilentlyContinue)) {
+                $PolicyExists = $false
+                try {
+                    $PolicyExists = $null -ne (Get-ADAuthenticationPolicy -Filter "Name -eq '$AuditServicePolicyName'" -ErrorAction Stop)
+                } catch {
+                    Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
+                    $PolicyExists = $false
+                } #end Try-Catch
 
+                If (-Not $PolicyExists) {
                     $Splat = @{
                         Name                             = $AuditServicePolicyName
                         Description                      = 'This Kerberos Authentication policy used to AUDIT ServiceAccount ' +
                         'logon from untrusted Service Accounts'
-                        ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
-                        ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
+                        ServiceAllowedToAuthenticateFrom = $AllowToAuthenticateFromSDDL.ToString()
+                        ServiceAllowedToAuthenticateTo   = $AllowToAuthenticateFromSDDL.ToString()
                         ServiceTGTLifetimeMins           = $ServiceTGTLifetime
                         ProtectedFromAccidentalDeletion  = $true
                     }
@@ -361,16 +478,32 @@
                 #endregion Create AuditOnly Policies
 
                 #region Create ENFORCE policies
+                # Update progress: Creating enforce policies
+                $CurrentStep++
+                $ProgressSplat = @{
+                    Id              = $ProgressID
+                    Activity        = 'Creating Tier 0 Authentication Policies and Silos'
+                    Status          = 'Step {0}/{1}: Creating Enforce authentication policies' -f $CurrentStep, $ProgressSteps
+                    PercentComplete = ($CurrentStep / $ProgressSteps) * 100
+                }
+                Write-Progress @ProgressSplat
                 Write-Verbose -Message 'Creating Enforcement authentication policies'
 
                 # Computer ENFORCE
-                If (-Not (Get-ADAuthenticationPolicy -Identity $EnforceComputerPolicyName -ErrorAction SilentlyContinue)) {
+                $PolicyExists = $false
+                try {
+                    $PolicyExists = $null -ne (Get-ADAuthenticationPolicy -Filter "Name -eq '$EnforceComputerPolicyName'" -ErrorAction Stop)
+                } catch {
+                    Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
+                    $PolicyExists = $false
+                } #end Try-Catch
 
+                If (-Not $PolicyExists) {
                     $Splat = @{
                         Name                            = $EnforceComputerPolicyName
                         Description                     = 'This Kerberos Authentication policy used to ENFORCE ' +
                         'interactive logon from untrusted computers'
-                        ComputerAllowedToAuthenticateTo = $AllowToAutenticateFromSDDL
+                        ComputerAllowedToAuthenticateTo = $AllowToAuthenticateFromSDDL.ToString()
                         ComputerTGTLifetimeMins         = $ComputerTGTLifetime
                         Enforce                         = $true
                         ProtectedFromAccidentalDeletion = $true
@@ -385,14 +518,21 @@
                 } #end If-else
 
                 # User Enforce
-                If (-Not (Get-ADAuthenticationPolicy -Identity $EnforceUserPolicyName -ErrorAction SilentlyContinue)) {
+                $PolicyExists = $false
+                try {
+                    $PolicyExists = $null -ne (Get-ADAuthenticationPolicy -Filter "Name -eq '$EnforceUserPolicyName'" -ErrorAction Stop)
+                } catch {
+                    Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
+                    $PolicyExists = $false
+                } #end Try-Catch
 
+                If (-Not $PolicyExists) {
                     $Splat = @{
                         Name                            = $EnforceUserPolicyName
                         Description                     = 'This Kerberos Authentication policy used to ENFORCE ' +
                         'interactive logon from untrusted users'
-                        UserAllowedToAuthenticateFrom   = $AllowToAutenticateFromSDDL
-                        UserAllowedToAuthenticateTo     = $AllowToAutenticateFromSDDL
+                        UserAllowedToAuthenticateFrom   = $AllowToAuthenticateFromSDDL.ToString()
+                        UserAllowedToAuthenticateTo     = $AllowToAuthenticateFromSDDL.ToString()
                         UserTGTLifetimeMins             = $UserTGTLifetime
                         Enforce                         = $true
                         ProtectedFromAccidentalDeletion = $true
@@ -407,14 +547,21 @@
                 } #end If-else
 
                 # ServiceAccounts ENFORCE
-                If (-Not (Get-ADAuthenticationPolicy -Identity $EnforceServicePolicyName -ErrorAction SilentlyContinue)) {
+                $PolicyExists = $false
+                try {
+                    $PolicyExists = $null -ne (Get-ADAuthenticationPolicy -Filter "Name -eq '$EnforceServicePolicyName'" -ErrorAction Stop)
+                } catch {
+                    Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
+                    $PolicyExists = $false
+                } #end Try-Catch
 
+                If (-Not $PolicyExists) {
                     $Splat = @{
                         Name                             = $EnforceServicePolicyName
                         Description                      = 'This Kerberos Authentication policy used to ENFORCE ' +
                         'interactive logon from untrusted ServiceAccounts'
-                        ServiceAllowedToAuthenticateFrom = $AllowToAutenticateFromSDDL
-                        ServiceAllowedToAuthenticateTo   = $AllowToAutenticateFromSDDL
+                        ServiceAllowedToAuthenticateFrom = $AllowToAuthenticateFromSDDL.ToString()
+                        ServiceAllowedToAuthenticateTo   = $AllowToAuthenticateFromSDDL.ToString()
                         ServiceTGTLifetimeMins           = $ServiceTGTLifetime
                         Enforce                          = $true
                         ProtectedFromAccidentalDeletion  = $true
@@ -430,12 +577,28 @@
                 #endregion Create ENFORCE policies
 
                 #region Create Audit-only authentication policy silo and assigning policies
+                # Update progress: Creating policy silos
+                $CurrentStep++
+                $ProgressSplat = @{
+                    Id              = $ProgressID
+                    Activity        = 'Creating Tier 0 Authentication Policies and Silos'
+                    Status          = 'Step {0}/{1}: Creating authentication policy silos' -f $CurrentStep, $ProgressSteps
+                    PercentComplete = ($CurrentStep / $ProgressSteps) * 100
+                }
+                Write-Progress @ProgressSplat
                 Write-Verbose -Message 'Creating authentication policy silos'
 
+                # Check if the audit silo already exists using filter-based query
+                [bool]$SiloExists = $false
                 try {
-                    # Check if the silo already exists
-                    if (-Not (Get-ADAuthenticationPolicySilo -Identity $AuditingSiloName -ErrorAction SilentlyContinue)) {
+                    $SiloExists = $null -ne (Get-ADAuthenticationPolicySilo -Filter "Name -eq '$AuditingSiloName'" -ErrorAction Stop)
+                } catch {
+                    Write-Debug -Message ('Error checking silo existence: {0}' -f $_.Exception.Message)
+                    $SiloExists = $false
+                } #end Try-Catch
 
+                if (-Not $SiloExists) {
+                    try {
                         $Splat = @{
                             ComputerAuthenticationPolicy    = (Get-ADAuthenticationPolicy -Identity $AuditComputerPolicyName)
                             ServiceAuthenticationPolicy     = (Get-ADAuthenticationPolicy -Identity $AuditServicePolicyName)
@@ -446,24 +609,26 @@
                         }
                         Write-Verbose -Message 'Creating T0_AuditingSilo authentication policy silo'
                         New-ADAuthenticationPolicySilo @Splat
-
-                    } else {
-                        Write-Verbose -Message 'T0_AuditingSilo authentication policy silo already exists'
-
-                    } #end If-else
-
-                } catch {
-
-                    Write-Error -Message ('Failed to create AuditingSilo: {0}' -f $_.Exception.Message)
-
-                } #end Try-Catch
+                    } catch {
+                        Write-Error -Message ('Failed to create AuditingSilo: {0}' -f $_.Exception.Message)
+                    } #end Try-Catch
+                } else {
+                    Write-Verbose -Message 'T0_AuditingSilo authentication policy silo already exists'
+                } #end If-else
                 #endregion
 
                 #region Create Enforced authentication policy silo and assigning policies
+                # Check if the enforce silo already exists using filter-based query
+                $SiloExists = $false
                 try {
-                    # Check if the silo already exists
-                    if (-Not (Get-ADAuthenticationPolicySilo -Identity $EnforceSiloName -ErrorAction SilentlyContinue)) {
+                    $SiloExists = $null -ne (Get-ADAuthenticationPolicySilo -Filter "Name -eq '$EnforceSiloName'" -ErrorAction Stop)
+                } catch {
+                    Write-Debug -Message ('Error checking silo existence: {0}' -f $_.Exception.Message)
+                    $SiloExists = $false
+                } #end Try-Catch
 
+                if (-Not $SiloExists) {
+                    try {
                         $Splat = @{
                             ComputerAuthenticationPolicy    = (Get-ADAuthenticationPolicy -Identity $EnforceComputerPolicyName)
                             ServiceAuthenticationPolicy     = (Get-ADAuthenticationPolicy -Identity $EnforceServicePolicyName)
@@ -475,33 +640,36 @@
                         }
                         Write-Verbose -Message 'Creating T0_EnforcedSilo authentication policy silo'
                         New-ADAuthenticationPolicySilo @Splat
-
-                    } else {
-
-                        Write-Verbose -Message 'T0_EnforcedSilo authentication policy silo already exists'
-
-                    } #end If-else
-
-                } catch {
-
-                    Write-Error -Message ('Failed to create EnforcedSilo: {0}' -f $_.Exception.Message)
-
-                } #end Try-Catch
+                    } catch {
+                        Write-Error -Message ('Failed to create EnforcedSilo: {0}' -f $_.Exception.Message)
+                    } #end Try-Catch
+                } else {
+                    Write-Verbose -Message 'T0_EnforcedSilo authentication policy silo already exists'
+                } #end If-else
                 #endregion
 
                 #region Grant access to silos and assign accounts and computers
+                # Update progress: Assigning accounts and computers
+                $CurrentStep++
+                $ProgressSplat = @{
+                    Id              = $ProgressID
+                    Activity        = 'Creating Tier 0 Authentication Policies and Silos'
+                    Status          = 'Step {0}/{1}: Granting access to silos and assigning accounts' -f $CurrentStep, $ProgressSteps
+                    PercentComplete = ($CurrentStep / $ProgressSteps) * 100
+                }
+                Write-Progress @ProgressSplat
                 Write-Verbose -Message 'Granting access to silos and assigning accounts and computers'
 
                 try {
                     # Verify accounts exist
-                    if ($null -eq $NewAdminExists) {
+                    if ($null -eq $NewAdminName) {
 
-                        Write-Warning -Message 'NewAdminExists account not defined'
+                        Write-Warning -Message 'NewAdminName account not defined'
 
                     } else {
 
-                        Write-Verbose -Message ('Granting {0} access to T0_AuditingSilo' -f $NewAdminExists.SamAccountName)
-                        Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account $NewAdminExists.SamAccountName
+                        Write-Verbose -Message ('Granting {0} access to T0_AuditingSilo' -f $NewAdminName.SamAccountName)
+                        Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account $NewAdminName.SamAccountName
 
                     } #end If-else
 
@@ -529,10 +697,10 @@
 
                     } #end If
 
-                    if ($null -ne $NewAdminExists) {
+                    if ($null -ne $NewAdminName) {
 
-                        Write-Verbose -Message ('Setting {0} to use T0_AuditingSilo' -f $NewAdminExists.SamAccountName)
-                        Set-ADUser -Identity $NewAdminExists -AuthenticationPolicySilo 'T0_AuditingSilo'
+                        Write-Verbose -Message ('Setting {0} to use T0_AuditingSilo' -f $NewAdminName.SamAccountName)
+                        Set-ADUser -Identity $NewAdminName -AuthenticationPolicySilo 'T0_AuditingSilo'
 
                     } # end If
 
@@ -584,6 +752,16 @@
                 'Creating Authentication Policies and Silos for Tier 0'
             )
             Write-Verbose -Message $txt
+        } #end If
+
+        # Stop transcript if it was started
+        if ($EnableTranscript) {
+            try {
+                Stop-Transcript -ErrorAction Stop
+                Write-Verbose -Message 'Transcript stopped successfully'
+            } catch {
+                Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
+            } #end Try-Catch
         } #end If
     } #end End
 } #end Function New-Tier0AuthPolicyAndSilo
