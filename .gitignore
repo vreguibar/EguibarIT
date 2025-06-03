@@ -1,5 +1,10 @@
 ﻿*.html
 *.old
+*.bak*
+*.new
+*.corrupted
+*.tmp
+*.fixed
 .gitignore
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
