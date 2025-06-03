@@ -210,7 +210,9 @@
     "files.associations": {
         "*.ps1": "powershell",
         "*.psm1": "powershell",
-        "*.psd1": "powershell"
+        "*.psd1": "powershell",
+        "*.prompt.md": "markdown",
+        "*.ps1xml": "xml", // If you use XML for PowerShell (e.g., format files)
     },
     "files.autoSave": "afterDelay",
     "files.autoSaveDelay": 20000,
@@ -236,41 +238,31 @@
         ".github/workflows/pipeline.yml"
     ],
     "github.copilot.autocomplete.enable": true,
-    "github.copilot.chat.testGeneration.instructions": [
-        {
-            "file": "code-style.md" // import instructions from file `code-style.md`
-        }
-    ],
-    "github.copilot.editor.enableAutoCompletions": true,
-    "github.copilot.inlineSuggest.enable": true,
     "github.copilot.suggestions.showHidden": true,
     "github.copilot.suggestionDelayMs": 0,
     "github.copilot.enable": {
         "*": true,
         "plaintext": true,
         "markdown": true,
-        "powershell": true
+        "powershell": true,
+        "json": true,
+        "enableAutoCompletions":true,
+        "inlineSuggest.enable": true,
+        "inlineSuggest.showInlineCompletions": true,
     },
     "github.copilot.advanced": {
-        "configFiles": [".github/mcp.json"],
-        "customPatterns": [
-            {
-                "name": "ad-operations",
-                "file": ".github/copilot/ad-operations.json"
-            },
-            {
-                "name": "pester-testing",
-                "file": ".github/copilot/pester-testing.json"
-            }
-        ],
+        // This is the most crucial setting: it tells Copilot to use your custom mcp.json.
+        // The path should be relative to your workspace root.
+        "debug.override.path": "${workspaceFolder}/.github/Copilot/mcp.json",
+        "files.associations": {
+            // Treat prompt files as markdown for proper rendering and linting
+            "*.prompt.md": "markdown"
+        },
         "indentationMode": {
             "powershell": "spaces"
         },
         "length": 500,
         "listCount": 10,
-        "precedents": [
-            ".github/copilot/powershell-best-practices.md"
-        ],
         "setAutocompleteTriggerTimeout": 500,
         "temperature": 0.3
     },
@@ -283,11 +275,20 @@
         "editor.defaultFormatter": "ms-vscode.powershell",
         "editor.formatOnSave": true,
         "editor.formatOnPaste": true,
-        "editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?"
+        "editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit" // Apply all available code fixes on save (e.g., from PSScriptAnalyzer)
+        },
+        // PSScriptAnalyzer integration - essential for enforcing best practices
+        "powershell.scriptAnalysis.enable": true,
+        // Point to your custom PSScriptAnalyzer settings file
+        "powershell.scriptAnalysis.settingsPath": "${workspaceFolder}/.vscode/PSScriptAnalyzerSettings.psd1",
+        // Additional formatting preferences that might not be in PSScriptAnalyzer settings
     },
     "powershell.codeFolding.enable": true,
     "powershell.codeFolding.showLastLine": true,
     "powershell.codeFormatting.addWhitespaceAroundPipe": true,
+    "powershell.codeFormatting.alignPipeline": "On",
     "powershell.codeFormatting.alignPropertyValuePairs": true,
     "powershell.codeFormatting.autoCorrectAliases": true,
     "powershell.codeFormatting.ignoreOneLineBlock": false,
@@ -297,9 +298,11 @@
     "powershell.codeFormatting.openBraceOnSameLine": true,
     "powershell.codeFormatting.preset": "Custom",
     "powershell.codeFormatting.provider": "PSScriptAnalyzer",
+    "powershell.codeFormatting.trimWhitespace": true,
     "powershell.codeFormatting.trimWhitespaceAroundPipe": true,
     "powershell.codeFormatting.useCorrectCasing": true,
     "powershell.codeFormatting.useConstantStrings": true,
+    "powershell.codeFormatting.useTabs": false,
     "powershell.codeFormatting.whitespaceAroundOperator": true,
     "powershell.codeFormatting.whitespaceAfterSeparator": true,
     "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
@@ -322,10 +325,13 @@
     "problems.decorations.enabled": true,
     "redhat.telemetry.enabled": true,
     "search.exclude": {
+        "**/.git": true,
         "**/node_modules": true,
         "**/bower_components": true,
         "logs/": true,
-        "out/": true
+        "out/": true,
+        "**/bin": true,
+        "**/obj": true
     },
     "security.workspace.trust.untrustedFiles": "open",
     "shellLauncher.shells.windows": [

@@ -213,7 +213,9 @@
         # Get the current domain controller for all operations
         try {
 
-            [string]$CurrentDC = (Get-ADDomainController -Discover -NextClosestSite -ErrorAction Stop).HostName[0]
+            # Define current domain controller
+            #[string]$CurrentDC = (Get-ADDomainController -Discover -NextClosestSite -ErrorAction Stop).HostName[0]
+            [string]$CurrentDC = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().FindDomainController().Name
             Write-Debug -Message ('Using domain controller: {0}' -f $CurrentDC)
 
         } catch {
@@ -339,8 +341,11 @@
     } #end Begin
 
     Process {
+
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Moving Tier0 objects')) {
+
             try {
+                
                 # Move, and if needed, rename the Admin account
                 if ($null -ne $AdminName -and
                     $null -ne $confXML.n.Admin.users.Admin.Name) {

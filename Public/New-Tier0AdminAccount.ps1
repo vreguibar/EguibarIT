@@ -129,7 +129,7 @@
             Help = 'Default Value is "C:\PsScripts\"',
             Value = 'C:\PsScripts\'
         )]
-        [Alias('ScriptPath')]
+        [Alias('ScriptPath', 'DelegationModelScripts', 'DMScriptsPath')]
         [string]
         $DMScripts = 'C:\PsScripts\',
 
@@ -284,11 +284,14 @@
 
             # Get picture if exist. Use default if not.
             if (Test-Path -Path ('{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $NewAdminName)) {
+
                 # Read the path and file name of JPG picture
                 $PhotoFile = '{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $NewAdminName
                 # Get the content of the JPG file
                 [byte[]]$Photo = [System.IO.File]::ReadAllBytes($PhotoFile)
+
             } else {
+
                 if (Test-Path -Path ('{0}\Pic\Default.jpg' -f $PSBoundParameters['DMScripts'])) {
                     # Read the path and file name of JPG picture
                     $PhotoFile = '{0}\Pic\Default.jpg' -f $PSBoundParameters['DMScripts']
@@ -333,7 +336,9 @@
 
                 # Update the existing admin user
                 Set-ADUser -Identity $NewAdminName @Splat
+
             } else {
+
                 # User was not Found! create new.
                 $Splat = @{
                     Path                  = $ItAdminAccountsOuDn
@@ -371,7 +376,6 @@
                 } catch {
                     Write-Error -Message ('Error when creating new Admin account: {0}' -f $_.Exception.Message)
                     throw
-
                 } #end Try-Catch
 
                 # Note on encryption types:
@@ -385,14 +389,10 @@
             # Move AD object to proper OU
             Get-ADUser -Identity $NewAdminName | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
 
-            # Refresh objects using Get-SafeVariable to update or create them if needed
-            $AdminName = Get-SafeVariable -Name 'AdminName' -CreateIfNotExist {
-                Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
-            }
+            # Refresh objects variables
+            $AdminName = Get-ADUser -Filter * | Where-Object { $_.SID -like 'S-1-5-21-*-500' }
 
-            $NewAdminExists = Get-SafeVariable -Name 'NewAdminExists' -CreateIfNotExist {
-                Get-ADUser -Identity $NewAdminName
-            }
+            $NewAdminExists = Get-ADUser -Identity $NewAdminName
 
             # Set the Protect against accidental deletions attribute
             # Identity ONLY accepts DistinguishedName or GUID -- DN fails I don't know why
@@ -433,11 +433,13 @@
 
             # Get picture for built-in Administrator if exists
             if (Test-Path -Path ('{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $AdminName.SamAccountName)) {
+
                 # Read the path and file name of JPG picture
                 $PhotoFile = '{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $AdminName.SamAccountName
 
                 # Get the content of the JPG file
                 [byte[]]$Photo = [System.IO.File]::ReadAllBytes($PhotoFile)
+
             } #end If
 
             if ($Photo) {

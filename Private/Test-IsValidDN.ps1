@@ -4,13 +4,17 @@
             Validates if the input string is a valid distinguished name (DN).
 
         .DESCRIPTION
-            This cmdlet checks if the provided input string adheres to the structure of a valid distinguished name in Active Directory.
-            It uses regex pattern matching to validate the DN structure without making actual AD queries.
+            This cmdlet checks if the provided input string adheres to the
+            structure of a valid distinguished name in Active Directory.
+            It uses regex pattern matching to validate the DN structure
+            without making actual AD queries.
 
-            The function is idempotent and can process multiple DNs through pipeline input efficiently.
+            The function is idempotent and can process multiple DNs
+            through pipeline input efficiently.
 
         .PARAMETER ObjectDN
-            The distinguished name to validate. This parameter accepts a string representing the DN of an Active Directory object.
+            The distinguished name to validate. This parameter accepts a
+            string representing the DN of an Active Directory object.
             Multiple DNs can be processed through pipeline input.
 
         .INPUTS

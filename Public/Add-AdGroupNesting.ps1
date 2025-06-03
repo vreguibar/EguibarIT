@@ -38,15 +38,6 @@ function Add-AdGroupNesting {
             Specifies the Active Directory Domain Services instance to connect to.
             If not specified, the function uses the default domain controller for the current domain.
 
-        .PARAMETER BatchSize
-            Specifies the number of members to process in each batch operation.
-            Default is 50. Useful for optimizing performance in large environments.
-
-        .PARAMETER NoRecursiveCheck
-            If specified, the function will not check for recursive membership,
-            which can improve performance for large groups. Use only when you are
-            certain there are no recursive membership concerns.
-
         .EXAMPLE
             Add-AdGroupNesting -Identity "Domain Admins" -Members "TheUser"
             Adds a single user to the Domain Admins group.

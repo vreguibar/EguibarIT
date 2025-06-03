@@ -289,7 +289,7 @@
     Begin {
         Set-StrictMode -Version Latest
 
-        # Initialize logging
+        # Display function header if variables exist
         if ($null -ne $Variables -and
             $null -ne $Variables.Header) {
 

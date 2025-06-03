@@ -64,7 +64,11 @@
         .FUNCTIONALITY
             Active Directory Environment Configuration
     #>
-    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
+
+    [CmdletBinding(
+        SupportsShouldProcess = $false,
+        ConfirmImpact = 'Low'
+    )]
     [OutputType([void])]
 
     Param (
@@ -95,11 +99,15 @@
                 Import-Module -Name 'ActiveDirectory' -Force -Verbose:$false | Out-Null
 
             } else {
+
                 Write-Warning -Message 'ActiveDirectory module is not available. Skipping AD-related functionality.'
+
             } #end If-Else
 
         } catch {
+
             Write-Error -Message ('Failed to import ActiveDirectory module: {0}' -f $_ )
+
         } #end Try-Catch
 
         ##############################
@@ -155,12 +163,14 @@
             } Catch {
 
                 [System.Text.StringBuilder]$sb = [System.Text.StringBuilder]::new()
+                [void]$sb.AppendLine( '' )
                 [void]$sb.AppendLine( '         ..:: $Variables ::..' )
                 [void]$sb.AppendLine( 'Something went wrong while trying to fill $Variables!' )
                 [void]$sb.AppendLine( '    Ensure that:' )
                 [void]$sb.AppendLine( '        * Machine is Domain Joined' )
                 [void]$sb.AppendLine( '        * Active Directory is available and working' )
                 [void]$sb.AppendLine( '        * Communication exist between this machine and AD' )
+                [void]$sb.AppendLine( '' )
 
                 Write-Error -Message $sb.ToString()
 
@@ -204,12 +214,14 @@
                 } catch {
 
                     [System.Text.StringBuilder]$sb = [System.Text.StringBuilder]::new()
+                    [void]$sb.AppendLine( '' )
                     [void]$sb.AppendLine( '         ..:: GuidMap ::..' )
                     [void]$sb.AppendLine( 'Something went wrong while trying to fill $Variables.GuidMap!' )
                     [void]$sb.AppendLine( '    Ensure that:' )
                     [void]$sb.AppendLine( '        * Machine is Domain Joined' )
                     [void]$sb.AppendLine( '        * Active Directory is available and working' )
                     [void]$sb.AppendLine( '        * Communication exist between this machine and AD' )
+                    [void]$sb.AppendLine( '' )
 
                     Write-Error -Message $sb.ToString()
 
@@ -251,12 +263,14 @@
                 } Catch {
 
                     [System.Text.StringBuilder]$sb = [System.Text.StringBuilder]::new()
+                    [void]$sb.AppendLine( '' )
                     [void]$sb.AppendLine( '         ..:: ExtendedRightsMap ::..' )
                     [void]$sb.AppendLine( 'Something went wrong while trying to fill $Variables.GuidMap!' )
                     [void]$sb.AppendLine( '    Ensure that:' )
                     [void]$sb.AppendLine( '        * Machine is Domain Joined' )
                     [void]$sb.AppendLine( '        * Active Directory is available and working' )
                     [void]$sb.AppendLine( '        * Communication exist between this machine and AD' )
+                    [void]$sb.AppendLine( '' )
 
                     Write-Error -Message $sb.ToString()
 

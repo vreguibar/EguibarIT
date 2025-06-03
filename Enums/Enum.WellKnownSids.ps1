@@ -95,7 +95,7 @@
 }
 New-Variable -Name WellKnownSIDs -Value $Variables.WellKnownSIDs -Scope Script -Force
 # Search by Key to get Value
-# $WellKnownSIDs['S-1-5-11']
+# $Variables.WellKnownSIDs['S-1-5-11']
 #
 # Search by Value to get Key
 # $Variables.WellKnownSIDs.keys.where{$Variables.WellKnownSIDs[$_] -eq 'authenticated users'}
