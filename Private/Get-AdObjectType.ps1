@@ -1,11 +1,13 @@
-﻿function Get-AdObjectType {
+function Get-AdObjectType {
+
     <#
         .SYNOPSIS
             Retrieves the type of an Active Directory object based on the provided identity.
 
         .DESCRIPTION
             The Get-AdObjectType function determines the type of an Active Directory object based on the given identity.
-            It supports various object types, including AD users, computers, groups, organizational units, and group managed service accounts.
+            It supports various object types, including AD users, computers, groups, organizational units, and
+            group managed service accounts.
             The function can handle different input formats such as AD objects, DistinguishedName, SamAccountName, SID, and GUID.
             It also includes support for Well-Known SIDs.
 
@@ -20,6 +22,7 @@
             - ADGroup object
             - ADOrganizationalUnit object
             - ADServiceAccount object
+            - Security Identifier
             - String representing DistinguishedName
             - String representing SID (including Well-Known SIDs)
             - String representing samAccountName (including Well-Known SID name)
@@ -69,6 +72,21 @@
             Retrieves the type of the Active Directory object with the GUID
             "35b764b7-06df-4509-a54f-8fd4c26a0805".
 
+        .EXAMPLE
+            Get-AdObjectType -Identity "S-1-1-0"
+
+            Retrieves the Well-Known SID "Everyone" (S-1-1-0) as a SecurityIdentifier object.
+
+        .EXAMPLE
+            Get-AdObjectType -Identity "Everyone"
+
+            Retrieves the Well-Known SID "Everyone" by name, returning the SecurityIdentifier object.
+
+        .EXAMPLE
+            Get-AdUser "testuser" | Get-AdObjectType
+
+            Pipes an ADUser object to Get-AdObjectType, which returns the same object.
+
         .NOTES
             Used Functions:
                 Name                                       ║ Module/Namespace
@@ -87,12 +105,12 @@
                 Get-FunctionDisplay                        ║ EguibarIT
 
         .NOTES
-            Version:         1.7
-            DateModified:    22/May/2025
-            LastModifiedBy:  Vicente Rodriguez Eguibar
-                            vicente@eguibar.com
-                            Eguibar IT
-                            http://www.eguibarit.com
+            Version:         1.1
+            DateModified:    03/Jun/2025
+            LasModifiedBy:   Vicente Rodriguez Eguibar
+                vicente@eguibar.com
+                Eguibar Information Technology S.L.
+                http://www.eguibarit.com
 
         .LINK
             https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adobject
@@ -103,7 +121,7 @@
             https://docs.microsoft.com/en-us/powershell/module/activedirectory/get-adserviceaccount
 
         .LINK
-            https://github.com/vreguibar/EguibarIT/blob/main/Private/Get-AdObjectType.ps1
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Get-AdObjectType.ps1
 
         .COMPONENT
             Active Directory
@@ -117,8 +135,7 @@
 
     [CmdletBinding(
         SupportsShouldProcess = $false,
-        ConfirmImpact = 'Low',
-        PositionalBinding = $false
+        ConfirmImpact = 'Low'
     )]
     [OutputType(
         [Microsoft.ActiveDirectory.Management.ADAccount],
@@ -131,7 +148,7 @@
     ]
 
     Param (
-        # Param1
+        # Identity parameter
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -150,7 +167,8 @@
             Position = 1)]
         [ValidateNotNullOrEmpty()]
         [Alias('DomainController', 'DC')]
-        [string]$Server
+        [string]
+        $Server
     )
 
     Begin {
@@ -181,7 +199,7 @@
         [object]$ReturnValue = $null
         [object]$NewObject = $null
 
-        # Add Server and Credential to splat parameters if specified
+        # Add Server parameter to splat parameters if specified
         if ($PSBoundParameters.ContainsKey('Server')) {
             $SplatADParams['Server'] = $PSBoundParameters['Server']
         } #end if
@@ -194,36 +212,46 @@
 
         try {
             # Check if identity is an AD object
-            if ($Identity -is [Microsoft.ActiveDirectory.Management.ADObject]) {
+            # If the identity is already an AD object, return it as is
+            if ($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount] -or
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADComputer] -or
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADGroup] -or
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit] -or
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADServiceAccount] -or
+                $Identity -is [Microsoft.ActiveDirectory.Management.ADObject]) {
 
-                Write-Verbose -Message ('Identity is an AD object of type: {0}' -f $Identity.GetType().Name)
+                Write-Debug -Message ('Identity is an AD object of type: {0}' -f $Identity.GetType().Name)
                 $ReturnValue = $Identity
 
             } elseif ($Identity -is [string]) {
                 # Check if identity is a string
 
-                Write-Verbose -Message ('Identity is a string: {0}. Resolving it...' -f $Identity)
+                Write-Debug -Message ('Identity is a string: {0}. Resolving it...' -f $Identity)
 
                 # Check if it's a Well-Known SID (by SID or name)
                 $wellKnownSid = $null
 
+                # Check if string is a Well-Known SID (e.g., "S-1-1-0") or name (e.g., "Everyone")
                 if ($Variables.WellKnownSIDs.Contains($Identity)) {
 
-                    # Input is a Well-Known SID (e.g., "S-1-1-0")
+                    # Input is a Well-Known SID (e.g., "S-1-1-0").
                     $wellKnownSid = $Identity
 
                 } elseif ($Variables.WellKnownSIDs.Values -contains $Identity) {
 
-                    # Input is a Well-Known SID name (e.g., "Everyone")
+                    # Input is a Well-Known SID name (e.g., "Everyone"). Get SID
                     $wellKnownSid = $Variables.WellKnownSIDs.GetEnumerator() |
                         Where-Object { $_.Value -eq $Identity } |
                             Select-Object -ExpandProperty Key
+
                 } #end If-elseif
 
+                # If we have a Well-Known SID, create a SecurityIdentifier object
                 if ($wellKnownSid) {
-                    Write-Verbose -Message ('
-                        Identity {0} is a Well-Known SID: {1}
-                        ' -f $Identity, $wellKnownSid
+
+                    Write-Verbose -Message (
+                        'Identity {0} is a Well-Known SID: {1}' -f
+                        $Identity, $wellKnownSid
                     )
 
                     try {
@@ -231,14 +259,27 @@
                         # Attempt to create a SecurityIdentifier object
                         $ReturnValue = [System.Security.Principal.SecurityIdentifier]::New($wellKnownSid)
 
+                        Write-Debug -Message (
+                            'Successfully created SecurityIdentifier object for Well-Known SID: {0}' -f
+                            $ReturnValue.Value
+                        )
+
                     } catch {
 
                         # Fallback to returning the SID as a string
                         $ReturnValue = $wellKnownSid
 
+                        Write-Debug -Message (
+                            'Failed to create SecurityIdentifier object for Well-Known SID: {0}.
+                            Returning SID as string.' -f
+                            $wellKnownSid
+                        )
+
                     } #end try-catch
 
                 } else {
+
+                    # Not a Well-Known SID, check if it's a DistinguishedName, SID, GUID, or SamAccountName
                     # Resolve identity using AD queries
 
                     $newObject = Get-ADObject -Filter {
@@ -266,6 +307,9 @@
                             'msDS-GroupManagedServiceAccount' {
                                 $ReturnValue = Get-ADServiceAccount -Identity $newObject @SplatADParams
                             }
+                            'msDS-ManagedServiceAccount' {
+                                $ReturnValue = Get-ADServiceAccount -Identity $newObject @SplatADParams
+                            }
                             default {
                                 Write-Error -Message ('Unsupported object type: {0}' -f $newObject.ObjectClass)
                                 return $null
@@ -274,9 +318,8 @@
 
                     } else {
 
-                        Write-Warning -Message ('
-                            Identity {0} could not be resolved to a valid AD object.
-                            ' -f $Identity
+                        Write-Warning -Message (
+                            'Identity {0} could not be resolved to a valid AD object.' -f $Identity
                         )
                         return $null
 
@@ -292,8 +335,8 @@
 
         } catch {
 
-            Write-Error -Message ('
-                Failed to resolve identity: {0}.
+            Write-Error -Message (
+                'Failed to resolve identity: {0}.
                 Error: {1}' -f
                 $Identity, $_.Exception.Message
             )
@@ -310,7 +353,7 @@
             $null -ne $Variables.Footer) {
 
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-                'getting AD object type (Private Function).'
+                'getting AD object type.'
             )
             Write-Verbose -Message $txt
         } #end if

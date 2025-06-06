@@ -156,7 +156,7 @@ function Start-AdCleanOU {
         # Get Account Operators group
         try {
 
-            $AccountOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-548' }
+            $AccountOperators = Get-ADGroup -Filter { SID -like 'S-1-5-32-548' }
 
             $Splat = @{
                 Group      = $AccountOperators

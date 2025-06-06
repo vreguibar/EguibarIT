@@ -1,5 +1,11 @@
 {
     "@azure.argTenant": "",
+    "chat.instructionsFilesLocations": {
+        ".github/references": true
+    },
+    "chat.mcp.discovery.enabled": true,
+    "chat.mcp.discovery.path": ".github/mcp.json",
+    "chat.mcp.discovery.useWorkspaceRoot": true,
     "cSpell.enabledFiletypes": [
         "!elixir",
         "!erlang",
@@ -98,6 +104,8 @@
         "RODC",
         "RSAT",
         "SAGM",
+        "Sched",
+        "Sddl",
         "setreg",
         "sitelink",
         "Stagingbaseline",
@@ -212,6 +220,7 @@
         "*.psm1": "powershell",
         "*.psd1": "powershell",
         "*.prompt.md": "markdown",
+        "*.instructions.md": "markdown",
         "*.ps1xml": "xml", // If you use XML for PowerShell (e.g., format files)
     },
     "files.autoSave": "afterDelay",
@@ -237,6 +246,23 @@
     "github-actions.workflows.pinned.workflows": [
         ".github/workflows/pipeline.yml"
     ],
+    "github.copilot.advanced": {
+        // This is the most crucial setting: it tells Copilot to use your custom mcp.json.
+        // The path should be relative to your workspace root.
+        "debug.override.path": "${workspaceFolder}/.github/mcp.json",
+        "files.associations": {
+            // Treat prompt files as markdown for proper rendering and linting
+            "*.prompt.md": "markdown",
+            "*.instructions.md": "markdown"
+        },
+        "indentationMode": {
+            "powershell": "spaces"
+        },
+        "length": 500,
+        "listCount": 10,
+        "setAutocompleteTriggerTimeout": 500,
+        "temperature": 0.3
+    },
     "github.copilot.autocomplete.enable": true,
     "github.copilot.suggestions.showHidden": true,
     "github.copilot.suggestionDelayMs": 0,
@@ -250,22 +276,50 @@
         "inlineSuggest.enable": true,
         "inlineSuggest.showInlineCompletions": true,
     },
-    "github.copilot.advanced": {
-        // This is the most crucial setting: it tells Copilot to use your custom mcp.json.
-        // The path should be relative to your workspace root.
-        "debug.override.path": "${workspaceFolder}/.github/Copilot/mcp.json",
-        "files.associations": {
-            // Treat prompt files as markdown for proper rendering and linting
-            "*.prompt.md": "markdown"
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+    "github.copilot.chat.codeGeneration.instructions": [
+        {
+            "file": "Code-Style.instructions.md"
         },
-        "indentationMode": {
-            "powershell": "spaces"
+        {
+            "file": "Debugging-Guide.instructions.md"
         },
-        "length": 500,
-        "listCount": 10,
-        "setAutocompleteTriggerTimeout": 500,
-        "temperature": 0.3
-    },
+        {
+            "file": "Module-Development-Guide.instructions.md"
+        },
+        {
+            "file": "powershell-best-practices.instructions.md"
+        },
+        {
+            "file": "AD-Operations-QuickRef.instructions.md"
+        },
+        {
+            "file": "copilot-advanced-patterns.instructions.md"
+        },
+        {
+            "file": "Copilot-Automation-Examples.instructions.md"
+        },
+        {
+            "file": "Security-Principal-Validation.instructions.md"
+        }
+    ],
+    "github.copilot.chat.testGeneration.instructions": [
+        {
+            "file": "test.instructions.md"
+        }
+    ],
+    "github.copilot.chat.reviewSelection.instructions": [
+        {
+            "file": ".copilot-review-instructions.md"
+        }
+    ],
+    "github.copilot.chat.commitMessageGeneration.instructions": [
+        {
+            "file": ".copilot-commit-message-instructions.md"
+        }
+    ],
+    "github.copilot.chat.codesearch.enabled": true,
+    "github.copilot.chat.edits.temporalContext.enabled": true,
     "json.format.enable": true,
     // Ignore the MD rule:
     "markdownlint.config": {
@@ -309,6 +363,9 @@
     "powershell.codeFormatting.whitespaceBeforeOpenParen": true,
     "powershell.codeFormatting.whitespaceBetweenParameters": true,
     "powershell.debugging.createTemporaryIntegratedConsole": true,
+    "powershell.developer.editorServicesLogLevel": "Trace",
+    "powershell.helpCompletion": "BlockComment",
+    "powershell.integratedConsole.showOnStartup": true,
     "powershell.integratedConsole.focusConsoleOnExecute": false, // Prevent focus switch to integrated console
     "powershell.pester.codeLens": false,
     "powershell.pester.useLegacyCodeLens": false,
@@ -389,7 +446,4 @@
     "yaml.schemas": {
         "file:///c%3A/Users/RODRIGUEZEGUIBARVice/.vscode/extensions/docsmsft.docs-yaml-1.0.1/dist/toc.schema.json": "/toc\\.yml/i"
     },
-    "cSpell.words": [
-        "Sched"
-    ]
 }

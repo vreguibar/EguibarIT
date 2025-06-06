@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "PowerShell: DC1 - Debug Module",
+            "type": "PowerShell",
+            "request": "launch",
+            "script": "$session = New-PSSession -ComputerName 'DC1' -Credential (Get-Credential -Username TheGood -Message 'Enter credentials for DC1'); Import-Module EguibarIT -Force; Debug-Runspace -Name (Get-Runspace | Select-Object -First 1).Name",
+            "cwd": "${workspaceFolder}",
+            "createTemporaryIntegratedConsole": true
+        },
+        {
             "name": "PowerShell: Module Interactive Session",
             "type": "PowerShell",
             "request": "launch",

@@ -309,7 +309,7 @@
 
 
             $CurrentStep++
-            $ProgressSplat.Status = 'Step {0} of {1}: Creating Domain Computer Baseline' -f $CurrentStep, $TotalSteps
+            $ProgressSplat.Status = 'Step {0} of {1}: Creating Domain Controllers Baseline' -f $CurrentStep, $TotalSteps
             $ProgressSplat.PercentComplete = (($CurrentStep / $TotalSteps) * 100)
             Write-Progress @ProgressSplat
             New-DelegateAdGpo @Splat -gpoScope 'C' -gpoBackupID $confXML.n.Admin.GPOs.PCbaseline.backupID

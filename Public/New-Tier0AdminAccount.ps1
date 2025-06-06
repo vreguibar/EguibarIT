@@ -283,18 +283,18 @@
             $NewAdminExists = Get-ADUser -Filter { SamAccountName -eq $NewAdminName } -ErrorAction SilentlyContinue
 
             # Get picture if exist. Use default if not.
-            if (Test-Path -Path ('{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $NewAdminName)) {
+            if (Test-Path -Path ('{0}Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $NewAdminName)) {
 
                 # Read the path and file name of JPG picture
-                $PhotoFile = '{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $NewAdminName
+                $PhotoFile = '{0}Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $NewAdminName
                 # Get the content of the JPG file
                 [byte[]]$Photo = [System.IO.File]::ReadAllBytes($PhotoFile)
 
             } else {
 
-                if (Test-Path -Path ('{0}\Pic\Default.jpg' -f $PSBoundParameters['DMScripts'])) {
+                if (Test-Path -Path ('{0}Pic\Default.jpg' -f $PSBoundParameters['DMScripts'])) {
                     # Read the path and file name of JPG picture
-                    $PhotoFile = '{0}\Pic\Default.jpg' -f $PSBoundParameters['DMScripts']
+                    $PhotoFile = '{0}Pic\Default.jpg' -f $PSBoundParameters['DMScripts']
 
                     # Get the content of the JPG file
                     [byte[]]$Photo = [System.IO.File]::ReadAllBytes($PhotoFile)
@@ -350,7 +350,7 @@
                     SamAccountName        = $NewAdminName
                     DisplayName           = $NewAdminName
                     Description           = $ConfXML.n.Admin.users.NEWAdmin.description
-                    employeeId            = $ConfXML.n.Admin.users.NEWAdmin.employeeId
+                    employeeId            = '0123456'
                     TrustedForDelegation  = $false
                     AccountNotDelegated   = $true
                     Company               = $ConfXML.n.RegisteredOrg
@@ -432,10 +432,10 @@
             }
 
             # Get picture for built-in Administrator if exists
-            if (Test-Path -Path ('{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $AdminName.SamAccountName)) {
+            if (Test-Path -Path ('{0}Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $AdminName.SamAccountName)) {
 
                 # Read the path and file name of JPG picture
-                $PhotoFile = '{0}\Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $AdminName.SamAccountName
+                $PhotoFile = '{0}Pic\{1}.jpg' -f $PSBoundParameters['DMScripts'], $AdminName.SamAccountName
 
                 # Get the content of the JPG file
                 [byte[]]$Photo = [System.IO.File]::ReadAllBytes($PhotoFile)
