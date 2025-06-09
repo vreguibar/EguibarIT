@@ -176,11 +176,12 @@
 
             } #end Try-Catch
 
-
             # Well-Known SIDs
             # Following functions must be the last ones to be called, otherwise error is thrown.
             # Hashtable containing the mappings between ClassSchema/AttributeSchema and GUID's
-            If ($Variables.GuidMap.Count -eq 0) {
+            If ($null -eq $Variables.GuidMap -or
+                $Variables.GuidMap.Count -eq 0) {
+
                 Try {
                     [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
                     [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
@@ -229,7 +230,9 @@
             } #end If
 
             # Hashtable containing the mappings between SchemaExtendedRights and GUID's
-            If ($Variables.ExtendedRightsMap.Count -eq 0) {
+            If ($null -eq $Variables.ExtendedRightsMap -or
+                $Variables.ExtendedRightsMap.Count -eq 0) {
+
                 Try {
                     [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
                     [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
