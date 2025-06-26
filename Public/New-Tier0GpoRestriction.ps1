@@ -470,7 +470,6 @@
                 $NetworkLogon.Clear()
                 [void]$NetworkLogon.Add($Administrators)
                 [void]$NetworkLogon.Add('Authenticated Users')
-                [void]$NetworkLogon.Add('Enterprise Domain Controllers')
 
                 # Deny access to this computer from the network
                 $DenyNetworkLogon.Clear()
@@ -751,7 +750,7 @@
                     TimeZone                   = $Backup
                     CreatePagefile             = $Backup
                     CreateSymbolicLink         = $Backup
-                    EnableDelegation           = $Backup
+                    EnableDelegation           = @($Backup, $Administrators)
                     RemoteShutDown             = $Backup
                     Impersonate                = @(
                         $Administrators,
@@ -968,25 +967,27 @@
                 $RemoteInteractiveLogon = $InteractiveLogon
 
 
+
                 $ArrayList.Clear()
+                [void]$ArrayList.Add($DomainAdmins)
                 [void]$ArrayList.Add($Administrators)
                 if ($null -ne $SG_Tier0Admins) {
                     [void]$ArrayList.Add($SG_Tier0Admins)
                 }
                 if ($null -ne $SL_PISM) {
-                    [void]$ArrayList.Add($SG_AdAdmins)
+                    [void]$ArrayList.Add($SG_PISM)
                 }
 
 
                 # Modify all rights in one shot
                 $Splat = @{
-                    GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraT0OU.Name
+                    GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraOU.Name
                     InteractiveLogon       = $InteractiveLogon
                     RemoteInteractiveLogon = $RemoteInteractiveLogon
                     MachineAccount         = $ArrayList
                     Backup                 = $ArrayList
-                    CreateGlobal           = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE', 'NETWORK SERVICE')
-                    SystemTime             = @($Administrators, $SG_Tier0Admins, $SG_AdAdmins, 'LOCAL SERVICE')
+                    CreateGlobal           = @($Administrators, $SG_Tier0Admins, $SG_PISM, 'LOCAL SERVICE', 'NETWORK SERVICE')
+                    SystemTime             = @($Administrators, $SG_Tier0Admins, $SG_PISM, 'LOCAL SERVICE')
                     TimeZone               = $ArrayList
                     CreatePagefile         = $ArrayList
                     CreateSymbolicLink     = $ArrayList
@@ -994,12 +995,13 @@
                     Impersonate            = @(
                         $Administrators,
                         $SG_Tier0Admins,
-                        $SG_AdAdmins,
+                        $SG_PISM,
                         'LOCAL SERVICE',
                         'NETWORK SERVICE',
                         'SERVICE'
                     )
                     IncreaseBasePriority   = $ArrayList
+                    ChangeNotify           = $ArrayList
                     LoadDriver             = $ArrayList
                     AuditSecurity          = $ArrayList
                     SystemEnvironment      = $ArrayList
@@ -1035,7 +1037,6 @@
                 $RemoteInteractiveLogon.Clear()
                 $RemoteInteractiveLogon = $InteractiveLogon
 
-
                 # Logon as a Batch job / Logon as a Service
                 $BatchLogon.Clear()
                 [void]$BatchLogon.Add('Network Service')
@@ -1053,12 +1054,6 @@
                     RemoteInteractiveLogon = $RemoteInteractiveLogon
                     BatchLogon             = $BatchLogon
                     ServiceLogon           = $ServiceLogon
-                    RemoteShutdown         = $InteractiveLogon
-                    SystemTime             = $InteractiveLogon
-                    ChangeNotify           = $InteractiveLogon
-                    ManageVolume           = $InteractiveLogon
-                    SystemProfile          = $InteractiveLogon
-                    Shutdown               = $InteractiveLogon
                     Confirm                = $false
                     Verbose                = $true
                     Debug                  = $true
@@ -1154,12 +1149,6 @@
                     GpoToModify            = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItInfraStagingOU.name
                     InteractiveLogon       = $ArrayList
                     RemoteInteractiveLogon = $ArrayList
-                    RemoteShutdown         = $ArrayList
-                    SystemTime             = $ArrayList
-                    ChangeNotify           = $ArrayList
-                    ManageVolume           = $ArrayList
-                    SystemProfile          = $ArrayList
-                    Shutdown               = $ArrayList
                     Confirm                = $false
                     Verbose                = $true
                     Debug                  = $true
@@ -1180,11 +1169,32 @@
                     InteractiveLogon       = @($SL_PAWM, $Administrators)
                     RemoteInteractiveLogon = $SL_PAWM
                     RemoteShutdown         = $SL_PAWM
-                    SystemTime             = $SL_PAWM
+                    SystemTime             = @($SL_PAWM, 'LOCAL SERVICE')
                     ChangeNotify           = $SL_PAWM
                     ManageVolume           = $SL_PAWM
                     SystemProfile          = $SL_PAWM
                     Shutdown               = $SL_PAWM
+                    MachineAccount         = $SL_PAWM
+                    Backup                 = $SL_PAWM
+                    CreateGlobal           = @($SL_PAWM, 'LOCAL SERVICE', 'NETWORK SERVICE')
+                    TimeZone               = $SL_PAWM
+                    CreatePagefile         = $SL_PAWM
+                    CreateSymbolicLink     = $SL_PAWM
+                    Impersonate            = @(
+                        $Administrators,
+                        $SG_Tier0Admins,
+                        $SL_PAWM,
+                        'LOCAL SERVICE',
+                        'NETWORK SERVICE',
+                        'SERVICE'
+                    )
+                    IncreaseBasePriority   = $SL_PAWM
+                    LoadDriver             = $SL_PAWM
+                    AuditSecurity          = $SL_PAWM
+                    SystemEnvironment      = $SL_PAWM
+                    ProfileSingleProcess   = $SL_PAWM
+                    Restore                = $SL_PAWM
+                    TakeOwnership          = $SL_PAWM
                     Confirm                = $false
                     Verbose                = $true
                     Debug                  = $true
@@ -1206,23 +1216,83 @@
                 $ProgressSplat['PercentComplete'] = ($ProgressCounter / $ProgressTotal) * 100
                 Write-Progress @ProgressSplat
 
+                $ArrayList.Clear()
+                [void]$ArrayList.Add($Administrators)
+                [void]$ArrayList.Add($AdminName)
+                [void]$ArrayList.Add($NewAdminName)
+                if ($null -ne $SG_Tier0Admins) {
+                    [void]$ArrayList.Add($SG_Tier0Admins)
+                }
+                if ($null -ne $SL_PAWM) {
+                    [void]$ArrayList.Add($SL_PAWM)
+                }
+
                 # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
                 $Splat = @{
                     GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.OUs.ItPawT0OU.Name
-                    InteractiveLogon           = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
-                    RemoteInteractiveLogon     = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
+                    InteractiveLogon           = $ArrayList
+                    RemoteInteractiveLogon     = $ArrayList
                     BatchLogon                 = $SG_Tier0ServiceAccount
                     ServiceLogon               = $SG_Tier0ServiceAccount
                     DenyInteractiveLogon       = @($SG_Tier1Admins, $SG_Tier2Admins)
                     DenyRemoteInteractiveLogon = @($SG_Tier1Admins, $SG_Tier2Admins)
                     DenyBatchLogon             = @($SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount)
                     DenyServiceLogon           = @($SG_Tier1ServiceAccount, $SG_Tier2ServiceAccount)
-                    RemoteShutdown             = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
-                    SystemTime                 = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
-                    ChangeNotify               = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
-                    ManageVolume               = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
-                    SystemProfile              = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
-                    Shutdown                   = @($SL_PAWM, $Administrators, $SG_Tier0Admins, $AdminName, $NewAdminName)
+
+                    RemoteShutdown             = $ArrayList
+                    SystemTime                 = @(
+                        $SL_PAWM,
+                        $Administrators,
+                        $SG_Tier0Admins,
+                        $AdminName,
+                        $NewAdminName,
+                        'LOCAL SERVICE'
+                    )
+                    ChangeNotify               = @(
+                        $SL_PAWM,
+                        $Administrators,
+                        $SG_Tier0Admins,
+                        $AdminName,
+                        $NewAdminName,
+                        'LOCAL SERVICE',
+                        'NETWORK SERVICE'
+                    )
+                    ManageVolume               = $ArrayList
+                    SystemProfile              = $ArrayList
+                    Shutdown                   = $ArrayList
+                    Backup                     = $ArrayList
+                    CreateGlobal               = @(
+                        $SL_PAWM,
+                        $Administrators,
+                        $SG_Tier0Admins,
+                        $AdminName,
+                        $NewAdminName,
+                        'LOCAL SERVICE',
+                        'NETWORK SERVICE'
+                    )
+                    TimeZone                   = $ArrayList
+                    CreatePagefile             = $ArrayList
+                    CreateSymbolicLink         = $ArrayList
+                    EnableDelegation           = $ArrayList
+                    Impersonate                = @(
+                        $SL_PAWM,
+                        $Administrators,
+                        $SG_Tier0Admins,
+                        $AdminName,
+                        $NewAdminName,
+                        'LOCAL SERVICE',
+                        'NETWORK SERVICE',
+                        'SERVICE'
+                    )
+                    IncreaseBasePriority       = $ArrayList
+                    LoadDriver                 = $ArrayList
+                    AuditSecurity              = $ArrayList
+                    SystemEnvironment          = $ArrayList
+                    ProfileSingleProcess       = $ArrayList
+                    AssignPrimaryToken         = @('LOCAL SERVICE', 'NETWORK SERVICE')
+                    Restore                    = $ArrayList
+                    TakeOwnership              = $ArrayList
+
                     Confirm                    = $false
                     Verbose                    = $true
                     Debug                      = $true
