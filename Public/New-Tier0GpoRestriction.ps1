@@ -623,6 +623,11 @@
                 [void]$NetworkLogon.Add('Authenticated Users')
                 [void]$NetworkLogon.Add('Enterprise Domain Controllers')
 
+                # DENY Access this computer from the network
+                $DenyNetworkLogon.Clear()
+                [void]$DenyNetworkLogon.Add('NT AUTHORITY\Local Account')
+                [void]$DenyNetworkLogon.Add('Guests')
+
                 # Allow Logon Locally / Allow Logon through RDP/TerminalServices
                 $InteractiveLogon.Clear()
                 [void]$InteractiveLogon.Add($SchemaAdmins)
@@ -638,9 +643,12 @@
                 if ($null -ne $SG_Tier0Admins) {
                     [void]$InteractiveLogon.Add($SG_Tier0Admins)
                 }
+                if ($null -ne $SG_AdAdmins) {
+                    [void]$InteractiveLogon.Add($SG_AdAdmins)
+                }
                 $RemoteInteractiveLogon.Clear()
                 $RemoteInteractiveLogon = $InteractiveLogon
-
+                [void]$InteractiveLogon.Add('System Managed Accounts Group')
 
                 # Deny Logon Locally / Deny Logon through RDP/TerminalServices
                 $DenyInteractiveLogon.Clear()
@@ -712,6 +720,7 @@
                 # Shut down the system / Take ownership of files or other objects
                 $Backup.Clear()
                 [void]$Backup.Add($Administrators)
+                [void]$Backup.Add($DomainAdmins)
                 if ($null -ne $SG_Tier0Admins) {
                     [void]$Backup.Add($SG_Tier0Admins)
                 }
@@ -723,6 +732,7 @@
                 $Splat = @{
                     GpoToModify                = 'C-{0}-Baseline' -f $confXML.n.Admin.GPOs.DCBaseline.Name
                     NetworkLogon               = $NetworkLogon
+                    DenyNetworkLogon           = $DenyNetworkLogon
                     InteractiveLogon           = $InteractiveLogon
                     RemoteInteractiveLogon     = $RemoteInteractiveLogon
                     DenyRemoteInteractiveLogon = $DenyRemoteInteractiveLogon
@@ -732,13 +742,6 @@
                     DenyServiceLogon           = $DenyServiceLogon
                     DenyBatchLogon             = $DenyBatchLogon
                     Backup                     = $Backup
-                    ChangeNotify               = @(
-                        $Administrators,
-                        $SG_Tier0Admins,
-                        $SG_AdAdmins,
-                        'LOCAL SERVICE',
-                        'NETWORK SERVICE'
-                    )
                     CreateGlobal               = @(
                         $Administrators,
                         $SG_Tier0Admins,
@@ -760,14 +763,16 @@
                         'NETWORK SERVICE',
                         'SERVICE'
                     )
-                    IncreaseBasePriority       = $Backup
+                    IncreaseBasePriority       = @($Backup, 'Window Manager\Window Manager Group')
                     LoadDriver                 = $Backup
+                    Audit                      = @('LOCAL SERVICE', 'NETWORK SERVICE')
                     AuditSecurity              = $Backup
                     SystemEnvironment          = $Backup
                     ManageVolume               = $Backup
                     ProfileSingleProcess       = $Backup
-                    SystemProfile              = $Backup
+                    SystemProfile              = @($Backup, 'NT SERVICE\WdiServiceHost')
                     AssignPrimaryToken         = @('LOCAL SERVICE', 'NETWORK SERVICE')
+                    IncreaseQuota              = @($Backup, 'LOCAL SERVICE', 'NETWORK SERVICE')
                     Restore                    = $Backup
                     Shutdown                   = $Backup
                     TakeOwnership              = $Backup
@@ -810,6 +815,8 @@
                 Write-Verbose -Message 'Configuring Admin/Tier0 Baseline GPO restrictions'
 
                 #region Admin Area = Baseline
+
+                # "C-ItAdmin-Baseline" GPO linked to "OU=Admin,DC=EguibarIT,DC=local"
 
                 # Logon as a Batch job / Logon as a Service
                 $BatchLogon.Clear()
@@ -953,6 +960,8 @@
 
                 #region Infrastructure
 
+                # "C-Infra-Baseline" GPO linked to "OU=Infra,OU=Admin,DC=EguibarIT,DC=local"
+
                 # Allow Logon Locally / Allow Logon through RDP/TerminalServices
                 $InteractiveLogon.Clear()
                 [void]$InteractiveLogon.Add($DomainAdmins)
@@ -1024,6 +1033,8 @@
 
                 #Region Tier0 Infrastructure
 
+                # "C-InfraT0-Baseline" GPO linked to "OU=InfraT0,OU=Infra,OU=Admin,DC=EguibarIT,DC=local"
+
                 # Allow Logon Locally / Allow Logon throug RDP/TerminalServices
                 $InteractiveLogon.Clear()
                 [void]$InteractiveLogon.Add($DomainAdmins)
@@ -1068,6 +1079,8 @@
 
                 #region Tier1 Infrastructure
 
+                # "C-InfraT1-Baseline" GPO linked to "OU=InfraT1,OU=Infra,OU=Admin,DC=EguibarIT,DC=local"
+
                 # Update progress
                 $ProgressCounter++
                 $ProgressSplat['Status'] = 'Configuring Tier1 Infrastructure GPO restrictions'
@@ -1100,6 +1113,8 @@
 
 
                 #region Tier2 Infrastructure
+
+                # "C-InfraT2-Baseline" GPO linked to "OU=InfraT2,OU=Infra,OU=Admin,DC=EguibarIT,DC=local"
 
                 # Update progress
                 $ProgressCounter++
@@ -1135,6 +1150,8 @@
 
                 #region Staging Infrastructure
 
+                # "C-InfraStaging-Baseline" GPO linked to "OU=InfraStaging,OU=Infra,OU=Admin,DC=EguibarIT,DC=local"
+
                 # Allow Logon Locally / Allow Logon through RDP/TerminalServices
                 $ArrayList.Clear()
                 [void]$ArrayList.Add($DomainAdmins)
@@ -1162,6 +1179,8 @@
 
 
                 #region Staging PAWs
+
+                # "C-PawStaging-Baseline" GPO linked to "OU=PawStaging,OU=Paw,OU=Admin,DC=EguibarIT,DC=local"
 
                 # Allow Logon Locally / Allow Logon through RDP/TerminalServices
                 $Splat = @{
@@ -1209,6 +1228,8 @@
 
 
                 #region Tier0 PAWs
+
+                # "C-PawT0-Baseline" GPO linked to "OU=PawT0,OU=Paw,OU=Admin,DC=EguibarIT,DC=local"
 
                 # Update progress
                 $ProgressCounter++
@@ -1307,6 +1328,8 @@
 
                 #region Tier1 PAWs
 
+                # "C-PawT1-Baseline" GPO linked to "OU=PawT1,OU=Paw,OU=Admin,DC=EguibarIT,DC=local"
+
                 # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
                 # Deny Allow Logon Locally / Deny Allow Logon through RDP/TerminalServices
                 # Deny Logon as a Batch job / Deny Logon as a Service
@@ -1339,6 +1362,8 @@
 
 
                 #region Tier2 PAWs
+
+                # "C-PawT2-Baseline" GPO linked to "OU=PawT2,OU=Paw,OU=Admin,DC=EguibarIT,DC=local"
 
                 # Allow Logon Locally / Allow Logon through RDP/TerminalServices / Logon as a Batch job / Logon as a Service
                 # Deny Allow Logon Locally / Deny Allow Logon through RDP/TerminalServices
