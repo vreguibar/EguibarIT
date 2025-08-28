@@ -101,7 +101,10 @@ function Install-SqlServer {
             Enable TCP/IP protocol. Default is True.
 
         .PARAMETER TcpPort
-            TCP port for SQL Server. Default is 1433.
+            TCP port for SQL Server. Default is 1433. Note: Port configuration is handled post-installation via SQL Server Configuration Manager.
+
+        .PARAMETER ConfigureFirewall
+            Configure Windows Firewall rules for SQL Server connectivity. Default is True.
 
         .EXAMPLE
             Install-SqlServer
@@ -181,18 +184,18 @@ function Install-SqlServer {
 
     param(
 
-        [Parameter(
-            Mandatory = $false,
+        [Parameter(Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
             Position = 0,
             HelpMessage = 'Path to SQL Server ISO file or auto-detect DVD drives'
-        )]        [PSDefaultValue(
+        )]
+        [PSDefaultValue(
             Help = 'Auto-detects DVD drives, uses SQLSERVER_ISOPATH, or downloads SQL Server 2019',
             value = { $ENV:SQLSERVER_ISOPATH }
         )]
         [String]
-        $IsoPath = $ENV:SQLSERVER_ISOPATH,
+        $IsoPath,
 
         [Parameter(
             Mandatory = $false,
@@ -226,17 +229,18 @@ function Install-SqlServer {
         )]
         [PSDefaultValue(
             Help = 'Default Value is SQLEngine',
-            value = { @('SQLEngine') }
+            value = { @('SQLEngine', 'Tools') }
         )]
         [String[]]
-        $Features = @('SQLEngine'),
+        $Features = @('SQLEngine', 'Tools'),
 
         [Parameter(
             Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
             HelpMessage = 'Non-default installation directory'
-        )]        [String]
+        )]
+        [String]
         $InstallDir,
 
         [Parameter(
@@ -246,7 +250,9 @@ function Install-SqlServer {
             HelpMessage = 'Data directory for SQL Server'
         )]
         [String]
-        $DataDir, [Parameter(
+        $DataDir,
+
+        [Parameter(
             Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
@@ -548,11 +554,29 @@ function Install-SqlServer {
         )]
         [ValidateRange(1, 65535)]
         [Int32]
-        $TcpPort = 1433
+        $TcpPort = 1433,
+
+        [Parameter(
+            Mandatory = $false,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            HelpMessage = 'Configure Windows Firewall rules for SQL Server connectivity'
+        )]
+        [PSDefaultValue(
+            Help = 'Default Value is $true',
+            Value = $true
+        )]
+        [Boolean]
+        $ConfigureFirewall = $true
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
+
+        # Note: We don't set IsoPath default value here anymore because we want to:
+        # 1. Check DVD drives first
+        # 2. Then check for user-provided ISO or environment variable
+        # 3. Download as last resort
 
         # Display function header if variables exist
         try {
@@ -589,7 +613,7 @@ function Install-SqlServer {
         [String]$ScriptName = $MyInvocation.MyCommand.Name.Replace('.ps1', '')
         [DateTime]$StartTime = Get-Date
         [String]$LogFileName = '{0}-{1}.log' -f $ScriptName, $StartTime.ToString('s').Replace(':', '-')
-        [String]$LogPath = Join-Path -Path $PSScriptRoot -ChildPath $LogFileName
+        [String]$TranscriptLogPath = Join-Path -Path $PSScriptRoot -ChildPath $LogFileName
         [String]$DefaultIsoUrl = 'https://download.microsoft.com/download/7/c/1/' +
         '7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SQLServer2019-x64-ENU-Dev.iso'
         [Boolean]$InstallationResult = $false
@@ -668,208 +692,271 @@ function Install-SqlServer {
         Write-Verbose -Message ('Starting SQL Server installation at {0}' -f $StartTime)
     } #end Begin
 
-    Process {
+    process {
         try {
             # Start transcript logging
-            Start-Transcript -Path $LogPath -Force
+            Start-Transcript -Path $TranscriptLogPath -Force
 
-            # Handle ISO path resolution and DVD drive detection
-            [Boolean]$UseIsoFile = $true
-            [String]$SqlServerDrive = $null
+            # Check for required privileges for SQL Server installation
+            Write-Verbose -Message 'Checking user privileges for SQL Server installation...'
 
-            if (-not $IsoPath) {
-                Write-Verbose -Message 'ISO path not specified, checking for mounted DVD drives...'
+            $CurrentUser = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+            $Principal = [System.Security.Principal.WindowsPrincipal]$CurrentUser
+            $IsAdmin = $Principal.IsInRole([System.Security.Principal.WindowsBuiltInRole]::Administrator)
 
-                # Check for DVD drives with SQL Server installation media                $DvdDrives = Get-CimInstance -ClassName Win32_LogicalDisk |
-                Where-Object { $_.DriveType -eq 5 -and $_.Size -gt 0 }
+            if (-not $IsAdmin) {
+                Write-Warning -Message 'Current session is not running as Administrator.'
+                Write-Warning -Message 'SQL Server installation requires the following privileges:'
+                Write-Warning -Message '  - Back up files and directories (SeBackupPrivilege)'
+                Write-Warning -Message '  - Manage auditing and security log (SeSecurityPrivilege)'
+                Write-Warning -Message '  - Debug programs (SeDebugPrivilege)'
+                Write-Warning -Message ''
+                Write-Warning -Message 'To resolve this issue:'
+                Write-Warning -Message '1. Run PowerShell as Administrator, OR'
+                Write-Warning -Message '2. Use runas command: runas /user:Administrator "powershell.exe"'
+                Write-Warning -Message '3. Grant the required user rights via Local Security Policy (secpol.msc)'
+                Write-Warning -Message ''
+                Write-Warning -Message 'Continuing with installation attempt...'
+            } else {
+                Write-Verbose -Message 'Running as Administrator - required privileges should be available.'
+            } #end if-else
 
-                Write-Verbose -Message ('Found {0} DVD drive(s) with media' -f @($DvdDrives).Count)
+            # Check for existing SQL Server installations
+            Write-Verbose -Message 'Checking for existing SQL Server installations...'
 
-                foreach ($Drive in $DvdDrives) {
-                    # Ensure DeviceID is properly cast as string
-                    $DriveId = [string]$Drive.DeviceID
-                    Write-Verbose -Message ('Checking drive {0} for SQL Server installation media...' -f $DriveId)
-                    $SetupPath = Join-Path -Path $DriveId -ChildPath 'setup.exe'
+            $ExistingSqlProducts = Get-WmiObject -Class Win32_Product |
+                Where-Object { $_.Name -like '*SQL Server*' }
 
-                    if (Test-Path -Path $SetupPath) {
-                        Write-Verbose -Message ('Found setup.exe on drive: {0}' -f $DriveId)
-
-                        # Verify it's a SQL Server setup by checking for required files
-                        $SqlSetupIndicators = @(
-                            Join-Path -Path $DriveId -ChildPath 'DefaultSetup.ini',
-                            Join-Path -Path $DriveId -ChildPath 'x64\setup.exe',
-                            Join-Path -Path $DriveId -ChildPath 'autorun.inf'
-                        )
-
-                        # Test each file and provide detailed diagnostics
-                        $SqlSetupFound = @()
-                        foreach ($Indicator in $SqlSetupIndicators) {
-                            if (Test-Path -Path $Indicator) {
-                                Write-Verbose -Message ('Found SQL Server indicator: {0}' -f $Indicator)
-                                $SqlSetupFound += $Indicator
-                            } else {
-                                Write-Verbose -Message ('Missing SQL Server indicator: {0}' -f $Indicator)
-                            } #end if-else
-                        } #end foreach
-
-                        if ($SqlSetupFound.Count -ge 2) {
-                            # Double-check drive accessibility
-                            try {
-                                Get-ChildItem -Path $DriveId -ErrorAction Stop | Out-Null
-                                Write-Verbose -Message ('SQL Server installation media verified on drive: {0}' -f $DriveId)
-                                $SqlServerDrive = $DriveId
-                                $UseIsoFile = $false
-                                break
-                            } catch {
-                                Write-Warning -Message (
-                                    'Drive {0} became inaccessible: {1}' -f $DriveId, $_.Exception.Message
-                                )
-                                continue
-                            } #end try-catch
-                        } else {
-                            Write-Verbose -Message (
-                                'Drive {0} does not contain sufficient SQL Server indicators ({1}/3 found)' -f
-                                $DriveId, $SqlSetupFound.Count
-                            )
-                        } #end if-else
-                    } else {
-                        Write-Verbose -Message ('No setup.exe found on drive: {0}' -f $Drive.DeviceID)
-                    } #end if-else
+            if ($ExistingSqlProducts) {
+                Write-Warning -Message ('Found {0} existing SQL Server product(s):' -f $ExistingSqlProducts.Count)
+                foreach ($Product in $ExistingSqlProducts) {
+                    Write-Warning -Message ('  - {0} (Version: {1})' -f $Product.Name, $Product.Version)
                 } #end foreach
 
-                if ($UseIsoFile) {
-                    Write-Verbose -Message 'No SQL Server DVD found, checking environment variables and defaults'
-                    $IsoPath = $DefaultIsoUrl
-                    $SaveDir = Join-Path -Path $Env:TEMP -ChildPath $ScriptName
+                Write-Warning -Message ''
+                Write-Warning -Message 'Existing SQL Server installations can cause installation failures.'
+                Write-Warning -Message 'If you encounter errors during installation, consider:'
+                Write-Warning -Message '1. Uninstalling existing SQL Server using: Uninstall-SqlServer'
+                Write-Warning -Message '2. Using Add/Remove Programs to remove SQL Server components'
+                Write-Warning -Message '3. Running SQL Server setup with /ACTION=Uninstall'
+                Write-Warning -Message ''
+                Write-Warning -Message 'Continuing with installation attempt...'
+            } else {
+                Write-Verbose -Message 'No existing SQL Server installations detected.'
+            } #end if-else
 
-                    if (-not (Test-Path -Path $SaveDir)) {
-                        New-Item -Path $SaveDir -ItemType Directory -Force | Out-Null
-                    } #end if
+            # Handle installation media detection with proper priority:
+            # 1. Check for DVD drives with SQL Server media (highest priority)
+            # 2. Check for user-provided ISO path or environment variable
+            # 3. Download from internet (last resort)
 
-                    $IsoName = $IsoPath -split '/' | Select-Object -Last 1
-                    $SavePath = Join-Path -Path $SaveDir -ChildPath $IsoName
+            [Boolean]$UseIsoFile = $true
+            [String]$SqlServerDrive = $null
+            [Boolean]$DvdMediaFound = $false
 
-                    # Initialize hash variables
-                    $Hash = $null
-                    $OldHash = $null
+            # PRIORITY 1: Check for DVD drives with SQL Server installation media
+            Write-Verbose -Message 'Checking for mounted DVD drives with SQL Server media...'
 
-                    if (Test-Path -Path $SavePath) {
-                        Write-Verbose -Message 'ISO already downloaded, checking hash...'
-                        $Hash = Get-FileHash -Algorithm SHA256 -Path $SavePath | Select-Object -ExpandProperty Hash
-                        $OldHash = Get-Content -Path "$SavePath.sha256" -ErrorAction SilentlyContinue
-                    } #end if
+            $DvdDrives = Get-CimInstance -ClassName Win32_LogicalDisk |
+                Where-Object { $_.DriveType -eq 5 -and $_.Size -gt 0 }
 
-                    if ($Hash -and $Hash -eq $OldHash) {
-                        Write-Verbose -Message 'Hash verification successful'
+            Write-Verbose -Message ('Found {0} DVD drive(s) with media' -f @($DvdDrives).Count)
+
+            foreach ($Drive in $DvdDrives) {
+                # Use Name property which contains the drive letter (e.g., "D:")
+                # Ensure it's properly converted to string and trimmed
+                $DriveId = [string]$Drive.Name
+                $DriveId = $DriveId.Trim()
+                Write-Verbose -Message ('Checking drive {0} for setup.exe...' -f $DriveId)
+                $SetupPath = Join-Path -Path $DriveId -ChildPath 'setup.exe'
+
+                if (Test-Path -Path $SetupPath) {
+                    Write-Verbose -Message ('Found setup.exe on drive: {0}' -f $DriveId)
+
+                    # Verify drive accessibility
+                    try {
+                        Get-ChildItem -Path $DriveId -ErrorAction Stop | Out-Null
+                        Write-Verbose -Message ('DVD installation media verified on drive: {0}' -f $DriveId)
+                        $SqlServerDrive = $DriveId
+                        $UseIsoFile = $false
+                        $DvdMediaFound = $true
+                        Write-Verbose -Message ('Using DVD drive {0} for installation' -f $DriveId)
+                        break
+                    } catch {
+                        Write-Warning -Message (
+                            'Drive {0} became inaccessible: {1}' -f $DriveId, $_.Exception.Message
+                        )
+                        continue
+                    } #end try-catch
+                } else {
+                    Write-Verbose -Message ('No setup.exe found on drive: {0}' -f $DriveId)
+                } #end if-else
+            } #end foreach
+
+            # PRIORITY 2: Check for ISO path (user-provided or environment variable)
+            if (-not $DvdMediaFound) {
+                # Check if user provided IsoPath parameter
+                if ($IsoPath) {
+                    Write-Verbose -Message ('Using provided ISO path: {0}' -f $IsoPath)
+                    if (Test-Path -Path $IsoPath) {
+                        Write-Verbose -Message ('ISO file exists: {0}' -f $IsoPath)
+                        $UseIsoFile = $true
                     } else {
-                        if ($Hash) {
-                            Write-Warning -Message 'Hash verification failed, re-downloading ISO'
-                        } #end if
+                        Write-Warning -Message ('Provided ISO path does not exist: {0}' -f $IsoPath)
+                        Write-Verbose -Message 'Will attempt to download SQL Server ISO from internet'
+                        $IsoPath = $null  # Reset to trigger download
+                    } #end if-else
+                    # Check environment variable if no parameter provided
+                } elseif ($ENV:SQLSERVER_ISOPATH -and $ENV:SQLSERVER_ISOPATH -ne '') {
+                    $IsoPath = $ENV:SQLSERVER_ISOPATH
+                    Write-Verbose -Message ('Using ISO path from environment variable: {0}' -f $IsoPath)
+                    if (Test-Path -Path $IsoPath) {
+                        Write-Verbose -Message ('ISO file exists: {0}' -f $IsoPath)
+                        $UseIsoFile = $true
+                    } else {
+                        Write-Warning -Message ('ISO path from environment variable does not exist: {0}' -f $IsoPath)
+                        Write-Verbose -Message 'Will attempt to download SQL Server ISO from internet'
+                        $IsoPath = $null  # Reset to trigger download
+                    } #end if-else
+                } else {
+                    Write-Verbose -Message 'No ISO path provided and no environment variable set, will download SQL Server ISO from internet'
+                } #end if-elseif-else
+            } #end if
 
-                        Write-Verbose -Message ('Downloading: {0}' -f $IsoPath)
+            # PRIORITY 3: Download from internet (last resort)
+            if (-not $DvdMediaFound -and -not $IsoPath) {
+                Write-Verbose -Message 'No SQL Server DVD found and no valid ISO path, downloading from internet...'
+                $IsoPath = $DefaultIsoUrl
+                $SaveDir = Join-Path -Path $Env:TEMP -ChildPath $ScriptName
 
-                        if ($UseBitsTransfer) {
-                            Write-Verbose -Message 'Using BITS transfer'
-                            $ProxySplat = @{}
-                            if ($ENV:HTTP_PROXY) {
-                                $ProxySplat = @{
-                                    ProxyList  = $ENV:HTTP_PROXY -replace 'http?://'
-                                    ProxyUsage = 'Override'
-                                }
-                            } #end if
-                            Start-BitsTransfer -Source $IsoPath -Destination $SaveDir @ProxySplat
-                        } else {
-                            # Enhanced web proxy handling with multiple fallback strategies
-                            $DownloadSuccess = $false
-                            $DownloadAttempts = @()
+                if (-not (Test-Path -Path $SaveDir)) {
+                    New-Item -Path $SaveDir -ItemType Directory -Force | Out-Null
+                }
 
-                            # Strategy 1: Try with system proxy if configured
-                            if ($ENV:HTTP_PROXY -and $ENV:HTTP_PROXY -ne '') {
-                                $DownloadAttempts += @{
-                                    Name  = 'System Proxy'
-                                    Splat = @{
-                                        Uri             = $IsoPath
-                                        OutFile         = $SavePath
-                                        UseBasicParsing = $true
-                                        Proxy           = $ENV:HTTP_PROXY
-                                    }
-                                }
-                            } #end if
+                $IsoName = $IsoPath -split '/' | Select-Object -Last 1
+                $SavePath = Join-Path -Path $SaveDir -ChildPath $IsoName
 
-                            # Strategy 2: Try with default proxy (system default)
-                            $DownloadAttempts += @{
-                                Name  = 'Default Proxy'
-                                Splat = @{
-                                    Uri                   = $IsoPath
-                                    OutFile               = $SavePath
-                                    UseBasicParsing       = $true
-                                    UseDefaultCredentials = $true
-                                }
+                # Check if file already exists and validate hash
+                $Hash = $null
+                $OldHash = $null
+
+                if (Test-Path -Path $SavePath) {
+                    Write-Verbose -Message 'ISO already downloaded, checking hash...'
+                    $Hash = Get-FileHash -Algorithm SHA256 -Path $SavePath | Select-Object -ExpandProperty Hash
+                    $OldHash = Get-Content -Path "$SavePath.sha256" -ErrorAction SilentlyContinue
+                }
+
+                if ($Hash -and $Hash -eq $OldHash) {
+                    Write-Verbose -Message 'Hash verification successful'
+                } else {
+                    if ($Hash) {
+                        Write-Warning -Message 'Hash verification failed, re-downloading ISO'
+                    }
+
+                    Write-Verbose -Message ('Downloading: {0}' -f $IsoPath)
+
+                    if ($UseBitsTransfer) {
+                        Write-Verbose -Message 'Using BITS transfer'
+                        $ProxySplat = @{}
+                        if ($ENV:HTTP_PROXY) {
+                            $ProxySplat = @{
+                                ProxyList  = $ENV:HTTP_PROXY -replace 'http?://'
+                                ProxyUsage = 'Override'
                             }
+                        }
+                        Start-BitsTransfer -Source $IsoPath -Destination $SaveDir @ProxySplat
+                    } else {
+                        # Enhanced web proxy handling with multiple fallback strategies
+                        $DownloadSuccess = $false
+                        $DownloadAttempts = @()
 
-                            # Strategy 3: Try without proxy
+                        # Strategy 1: Try with system proxy if configured
+                        if ($ENV:HTTP_PROXY -and $ENV:HTTP_PROXY -ne '') {
                             $DownloadAttempts += @{
-                                Name  = 'Direct Connection'
+                                Name  = 'System Proxy'
                                 Splat = @{
                                     Uri             = $IsoPath
                                     OutFile         = $SavePath
                                     UseBasicParsing = $true
-                                    Proxy           = ''
+                                    Proxy           = $ENV:HTTP_PROXY
                                 }
                             }
+                        }
 
-                            # Attempt each download strategy
-                            foreach ($Attempt in $DownloadAttempts) {
-                                try {
-                                    Write-Verbose -Message ('Attempting download using: {0}' -f $Attempt.Name)
-                                    Invoke-WebRequest @($Attempt.Splat)
-                                    $DownloadSuccess = $true
-                                    Write-Verbose -Message ('Download successful using: {0}' -f $Attempt.Name)
-                                    break
-                                } catch [System.Net.WebException] {
-                                    Write-Warning -Message (
-                                        'Download attempt failed using {0}: {1}' -f
-                                        $Attempt.Name, $_.Exception.Message
-                                    )
-                                    # Clean up partial file if it exists
-                                    if (Test-Path -Path $SavePath) {
-                                        Remove-Item -Path $SavePath -Force -ErrorAction SilentlyContinue
-                                    } #end if
-                                } catch {
-                                    Write-Warning -Message (
-                                        'Unexpected error using {0}: {1}' -f
-                                        $Attempt.Name, $_.Exception.Message
-                                    )
-                                    # Clean up partial file if it exists
-                                    if (Test-Path -Path $SavePath) {
-                                        Remove-Item -Path $SavePath -Force -ErrorAction SilentlyContinue
-                                    } #end if
-                                } #end try-catch
-                            } #end foreach
+                        # Strategy 2: Try with default proxy (system default)
+                        $DownloadAttempts += @{
+                            Name  = 'Default Proxy'
+                            Splat = @{
+                                Uri                   = $IsoPath
+                                OutFile               = $SavePath
+                                UseBasicParsing       = $true
+                                UseDefaultCredentials = $true
+                            }
+                        }
 
-                            if (-not $DownloadSuccess) {
-                                throw 'All download strategies failed. Please check network connectivity and proxy settings.'
-                            } #end if
-                        } #end if-else
+                        # Strategy 3: Try without proxy
+                        $DownloadAttempts += @{
+                            Name  = 'Direct Connection'
+                            Splat = @{
+                                Uri             = $IsoPath
+                                OutFile         = $SavePath
+                                UseBasicParsing = $true
+                                Proxy           = ''
+                            }
+                        }
 
-                        $NewHash = Get-FileHash -Algorithm SHA256 -Path $SavePath | Select-Object -ExpandProperty Hash
-                        $NewHash | Out-File -FilePath "$SavePath.sha256" -Force
-                    } #end if-else
+                        # Attempt each download strategy
+                        foreach ($Attempt in $DownloadAttempts) {
+                            try {
+                                Write-Verbose -Message ('Attempting download using: {0}' -f $Attempt.Name)
+                                $SplatParams = $Attempt.Splat
+                                Invoke-WebRequest @SplatParams
+                                $DownloadSuccess = $true
+                                Write-Verbose -Message ('Download successful using: {0}' -f $Attempt.Name)
+                                break
+                            } catch [System.Net.WebException] {
+                                Write-Warning -Message (
+                                    'Download attempt failed using {0}: {1}' -f
+                                    $Attempt.Name, $_.Exception.Message
+                                )
+                                # Clean up partial file if it exists
+                                if (Test-Path -Path $SavePath) {
+                                    Remove-Item -Path $SavePath -Force -ErrorAction SilentlyContinue
+                                }
+                            } catch {
+                                Write-Warning -Message (
+                                    'Unexpected error using {0}: {1}' -f
+                                    $Attempt.Name, $_.Exception.Message
+                                )
+                                # Clean up partial file if it exists
+                                if (Test-Path -Path $SavePath) {
+                                    Remove-Item -Path $SavePath -Force -ErrorAction SilentlyContinue
+                                }
+                            }
+                        }
 
-                    $IsoPath = $SavePath
-                } else {
-                    Write-Verbose -Message ('Using SQL Server installation media from DVD drive: {0}' -f $SqlServerDrive)
-                } #end if-else
-            } else {
-                Write-Verbose -Message ('Using specified ISO path: {0}' -f $IsoPath)
-            } #end if
+                        if (-not $DownloadSuccess) {
+                            throw 'All download strategies failed. Please check network connectivity and proxy settings.'
+                        }
+                    }
 
-            # Display installation source information
-            if ($UseIsoFile) {
-                Write-Verbose -Message ('ISO Path: {0}' -f $IsoPath)
-            } else {
-                Write-Verbose -Message ('DVD Drive: {0}' -f $SqlServerDrive)
-            } #end if-else
+                    $NewHash = Get-FileHash -Algorithm SHA256 -Path $SavePath | Select-Object -ExpandProperty Hash
+                    $NewHash | Out-File -FilePath "$SavePath.sha256" -Force
+                }
+
+                $IsoPath = $SavePath
+                Write-Verbose -Message ('Downloaded and will use ISO: {0}' -f $IsoPath)
+
+                # Update UseIsoFile flag since we have an ISO now
+                $UseIsoFile = $true
+            }
+
+            # Display installation source information based on what we determined
+            if ($DvdMediaFound) {
+                Write-Verbose -Message ('Using SQL Server installation media from DVD drive: {0}' -f $SqlServerDrive)
+            } elseif ($UseIsoFile) {
+                Write-Verbose -Message ('Using ISO path: {0}' -f $IsoPath)
+            } #end if-elseif
 
             if ($PSCmdlet.ShouldProcess(
                     $(if ($UseIsoFile) {
@@ -927,11 +1014,14 @@ function Install-SqlServer {
 
                 # Build setup command arguments
                 $SetupArgs = [System.Collections.Generic.List[String]]::new()
-                $SetupArgs.Add('/Q')                                    # Silent install
+                $SetupArgs.Add('/QUIETSIMPLEQ')                         # runs and shows progress through the UI
                 $SetupArgs.Add('/INDICATEPROGRESS')                     # Verbose logging to console
                 $SetupArgs.Add('/IACCEPTSQLSERVERLICENSETERMS')         # Accept license terms
+                $SetupArgs.Add('/SUPPRESSPRIVACYSTATEMENTNOTICE')       # Suppress privacy statement notice
+                $SetupArgs.Add('/ENU')                                  # Set language to English
                 $SetupArgs.Add('/ACTION=install')                       # Installation action
-                $SetupArgs.Add('/UPDATEENABLED=false')                  # Disable product updates
+                $SetupArgs.Add('/UPDATEENABLED=true')                   # Enable product updates
+                $SetupArgs.Add('/ADDCURRENTUSERASSQLADMIN')             # Add current user as SQL admin
 
                 # Optional directories
                 if ($InstallDir) {
@@ -974,6 +1064,21 @@ function Install-SqlServer {
                             'Domain service account specified but no password provided. This may cause installation to fail.'
                         )
                     } elseif ($IsGMSA) {
+                        # Validate gMSA account accessibility before proceeding
+                        try {
+                            $gMSAName = $ServiceAccountName.TrimEnd('$')
+                            Test-ADServiceAccount -Identity $gMSAName -ErrorAction Stop
+                            Write-Verbose -Message ('gMSA account validated successfully: {0}' -f $ServiceAccountName)
+                        } catch {
+                            Write-Warning -Message (
+                                'gMSA account {0} is not accessible or does not exist: {1}' -f
+                                $ServiceAccountName, $_.Exception.Message
+                            )
+                            Write-Warning -Message 'Falling back to default NT Service accounts for SQL Server installation'
+                            # Remove the service account parameter to use default NT Service accounts
+                            $SetupArgs.RemoveAt($SetupArgs.Count - 1)  # Remove the /SQLSVCACCOUNT parameter
+                        }
+
                         Write-Verbose -Message ('Using group Managed Service Account (gMSA): {0}' -f $ServiceAccountName)
                         # gMSA accounts don't use passwords
                         if ($ServiceAccountPasswordPlain) {
@@ -990,6 +1095,7 @@ function Install-SqlServer {
                 $SetupArgs.Add('/SQLSVCSTARTUPTYPE=automatic')
                 $SetupArgs.Add('/AGTSVCSTARTUPTYPE=automatic')
                 $SetupArgs.Add('/ASSVCSTARTUPTYPE=manual')
+                $SetupArgs.Add('/BROWSERSVCSTARTUPTYPE=automatic')
 
                 # SQL Server Configuration Parameters
                 # Collation
@@ -1027,7 +1133,9 @@ function Install-SqlServer {
                 # TCP/IP Configuration
                 if ($EnableTcpIp) {
                     $SetupArgs.Add('/TCPENABLED=1')
-                    $SetupArgs.Add('/SQLSVCPORT={0}' -f $TcpPort)
+                    # Note: TCP port is configured post-installation via SQL Server Configuration Manager
+                    # The /SQLSVCPORT parameter is not valid for SQL Server 2022 setup
+                    Write-Verbose -Message ('TCP/IP enabled. Port {0} will need to be configured post-installation.' -f $TcpPort)
                 } else {
                     $SetupArgs.Add('/TCPENABLED=0')
                 } #end if-else
@@ -1069,7 +1177,58 @@ function Install-SqlServer {
                     Write-Warning -Message 'SQL Server installation completed but requires system reboot'
                     $InstallationResult = $true
                 } else {
+                    # Enhanced error reporting with SQL Server log analysis
                     $ErrorMessage = 'SQL Server installation failed with exit code: {0}' -f $SetupProcess.ExitCode
+
+                    # Try to find and read SQL Server setup logs for more details
+                    try {
+                        $LogPath = "$env:ProgramFiles\Microsoft SQL Server\*\Setup Bootstrap\Log"
+                        $LatestLogDir = Get-ChildItem -Path $LogPath -Directory |
+                            Sort-Object LastWriteTime -Descending |
+                            Select-Object -First 1
+
+                        if ($LatestLogDir) {
+                            Write-Verbose -Message ('Checking SQL Server setup logs in: {0}' -f $LatestLogDir.FullName)
+
+                            # Look for Summary.txt file
+                            $SummaryFile = Join-Path -Path $LatestLogDir.FullName -ChildPath 'Summary.txt'
+                            if (Test-Path -Path $SummaryFile) {
+                                Write-Verbose -Message 'Reading SQL Server setup summary...'
+                                $SummaryContent = Get-Content -Path $SummaryFile -Raw
+
+                                # Extract key error information
+                                if ($SummaryContent -match 'Exit message:\s*(.+?)(?:\r?\n|$)') {
+                                    $ExitMessage = $Matches[1].Trim()
+                                    Write-Error -Message ('SQL Server Setup Exit Message: {0}' -f $ExitMessage)
+                                } #end if
+
+                                if ($SummaryContent -match 'Exception type:\s*(.+?)(?:\r?\n|$)') {
+                                    $ExceptionType = $Matches[1].Trim()
+                                    Write-Error -Message ('Exception Type: {0}' -f $ExceptionType)
+                                } #end if
+
+                                # Check for specific privilege-related errors
+                                if ($SummaryContent -match 'right to back up files|SeBackupPrivilege|SeSecurityPrivilege|SeDebugPrivilege') {
+                                    Write-Error -Message 'SOLUTION: SQL Server setup failed due to insufficient user privileges.'
+                                    Write-Error -Message 'Even when running as Administrator, you may need to explicitly grant user rights.'
+                                    Write-Error -Message 'Try one of these solutions:'
+                                    Write-Error -Message '1. Run the Grant-SqlServerPrivileges.ps1 script from this module'
+                                    Write-Error -Message '2. Use Local Security Policy (secpol.msc) to grant these rights manually:'
+                                    Write-Error -Message '   - Back up files and directories (SeBackupPrivilege)'
+                                    Write-Error -Message '   - Manage auditing and security log (SeSecurityPrivilege)'
+                                    Write-Error -Message '   - Debug programs (SeDebugPrivilege)'
+                                    Write-Error -Message '3. Or create a local administrator account and use that for installation'
+                                } #end if
+
+                                # Output summary file content for detailed analysis
+                                Write-Verbose -Message 'Summary.txt file:'
+                                Write-Output $SummaryContent
+                            } #end if
+                        } #end if
+                    } catch {
+                        Write-Warning -Message ('Could not read SQL Server setup logs: {0}' -f $_.Exception.Message)
+                    } #end try-catch
+
                     throw $ErrorMessage
                 } #end if-elseif-else
 
@@ -1080,7 +1239,7 @@ function Install-SqlServer {
 
                     try {
 
-                        $NamespaceFilter = { $_.Name -Match 'ComputerManagement' }
+                        $NamespaceFilter = { $_.Name -match 'ComputerManagement' }
 
                         $SqlCM = Get-CimInstance -Namespace 'root\Microsoft\SqlServer' -ClassName '__NAMESPACE' |
                             Where-Object $NamespaceFilter |
@@ -1112,6 +1271,47 @@ function Install-SqlServer {
                         Write-Verbose -Message ('SQL Server service {0} restarted' -f $InstanceName)
                     } catch {
                         Write-Warning -Message ('Failed to enable protocols: {0}' -f $_.Exception.Message)
+                    } #end try-catch
+                } #end if
+
+                # Configure Windows Firewall for SQL Server connectivity
+                if ($InstallationResult -and $ConfigureFirewall) {
+                    Write-Verbose -Message 'Configuring Windows Firewall for SQL Server connectivity...'
+
+                    try {
+                        # Configure firewall with appropriate options
+                        $FirewallSplat = @{
+                            InstanceName    = $InstanceName
+                            TcpPort        = $TcpPort
+                            Verbose        = $VerbosePreference
+                        }
+
+                        # Enable browser service for named instances
+                        if ($InstanceName -ne 'MSSQLSERVER') {
+                            $FirewallSplat.EnableBrowserService = $true
+                        } #end if
+
+                        # Call the firewall configuration function
+                        $FirewallResult = Set-SqlServerFirewall @FirewallSplat
+
+                        if ($FirewallResult) {
+                            Write-Verbose -Message '✓ Windows Firewall configured for SQL Server!'
+                            Write-Verbose -Message ('  Database Engine accessible on TCP port {0}' -f $TcpPort)
+                            if ($InstanceName -ne 'MSSQLSERVER') {
+                                Write-Verbose -Message ('  Browser Service enabled on UDP port 1434')
+                            } #end if
+                            Write-Verbose -Message '  Remote connections should now work properly'
+                        } else {
+                            Write-Warning -Message 'Failed to configure Windows Firewall'
+                            Write-Warning -Message 'You may need to manually configure firewall rules for SQL Server connectivity'
+                            Write-Warning -Message "Run: Set-SqlServerFirewall -InstanceName '$InstanceName' -TcpPort $TcpPort"
+                        } #end if-else
+
+                    } catch {
+                        Write-Warning -Message ('Failed to configure Windows Firewall: {0}' -f $_.Exception.Message)
+                        Write-Warning -Message 'SQL Server installed successfully but firewall may be blocking connections'
+                        Write-Warning -Message "Manual firewall configuration may be required"
+                        Write-Warning -Message "Run: Set-SqlServerFirewall -InstanceName '$InstanceName' -TcpPort $TcpPort"
                     } #end try-catch
                 } #end if
 
@@ -1189,23 +1389,20 @@ function Install-SqlServer {
         } #end try-catch-finally
     } #end Process
 
-    End {
+    end {
         $EndTime = Get-Date
         $Duration = $EndTime - $StartTime
         Write-Verbose -Message ('Installation completed in {0:F1} minutes' -f $Duration.TotalMinutes)
 
         # Display function footer if variables exist
-        try {
-            if ($null -ne $Variables -and $null -ne $Variables.Footer) {
-                $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-                    'installing SQL Server with specified configuration.'
-                )
-                Write-Verbose -Message $txt
-            } #end If
-        } catch {
-            # Module variables not available, continue without footer
-            Write-Verbose -Message 'Function Install-SqlServer finished installing SQL Server with specified configuration.'
-        } #end try-catch
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Footer) {
+            $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
+                'installing SQL Server with specified configuration.'
+            )
+            Write-Verbose -Message $txt
+        } #end If
+
 
         return $InstallationResult
     } #end End
