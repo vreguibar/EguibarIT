@@ -91,7 +91,9 @@ function Add-AdGroupNesting {
                             http://www.eguibarit.com
 
         .LINK
-            https://github.com/vreguibar/EguibarIT/blob/main/Public/Add-AdGroupNesting.ps1        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Add-AdGroupNesting.ps1
+
+        .LINK
             https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/
             implementing-least-privilege-administrative-models
 
@@ -118,7 +120,7 @@ function Add-AdGroupNesting {
     )]
     [OutputType([PSCustomObject])]
 
-    Param (
+    param (
         # Param1 Group which membership is to be changed
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
@@ -148,7 +150,7 @@ function Add-AdGroupNesting {
         $Server
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Initialize logging
@@ -209,22 +211,22 @@ function Add-AdGroupNesting {
 
     } #end Begin
 
-    Process {
+    process {
 
         # Get group members
-        Try {
+        try {
 
             Write-Debug -Message ('Getting members of group {0}' -f $Identity)
             $CurrentMembers = Get-ADGroupMember -Identity $Identity -Recursive @CommonParams
 
-            If ($null -eq $CurrentMembers) {
+            if ($null -eq $CurrentMembers) {
                 Write-Debug -Message ('Group {0} has no members' -f $Identity)
 
-            } Else {
+            } else {
                 Write-CustomLog -EventInfo ([EventIDs]::GetGroupMembership) -Message ('Got members from group {0}' -f $Identity)
             } #end If-Else
 
-        } Catch {
+        } catch {
 
             $Splat = @{
                 CreateWindowsEvent = $true
@@ -240,14 +242,14 @@ function Add-AdGroupNesting {
             Write-Debug -Message ('Adding members to group..: {0}' -f $Identity.SamAccountName)
 
             # Iterate members
-            Foreach ($item in $Members) {
+            foreach ($item in $Members) {
                 $item = Get-AdObjectType -Identity $item
 
                 Write-Debug -Message ('Validated member object: {0}' -f $Item.DistinguishedName)
 
                 # Check if member is already in the group
                 # FIX: Changed from -notcontains to -contains for correct logical check
-                If (($null -ne $CurrentMembers) -and
+                if (($null -ne $CurrentMembers) -and
                     ($CurrentMembers.DistinguishedName -contains $item.DistinguishedName)) {
 
                     Write-Debug -Message ('
@@ -261,7 +263,7 @@ function Add-AdGroupNesting {
                 try {
                     Write-Debug -Message ('Adding: {0}' -f $Item)
 
-                    If ($PSCmdlet.ShouldProcess($Identity.DistinguishedName, "Add member $item")) {
+                    if ($PSCmdlet.ShouldProcess($Identity.DistinguishedName, "Add member $item")) {
                         $Splat = @{
                             Identity = $Identity
                             Members  = $item
@@ -302,7 +304,7 @@ function Add-AdGroupNesting {
 
     } #end Process
 
-    End {
+    end {
         # Report results
         if ($processedMembers.Count -gt 0) {
 
