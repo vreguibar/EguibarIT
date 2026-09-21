@@ -8,6 +8,7 @@ on:
   workflow_dispatch: # Enables the possibility to trigger the workflow manually
 
   push:
+    branches: [main] # Trigger on direct pushes to main
     tags:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 
