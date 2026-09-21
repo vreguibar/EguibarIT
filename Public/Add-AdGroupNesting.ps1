@@ -49,7 +49,9 @@ function Add-AdGroupNesting {
 
         .EXAMPLE
             "ServiceAccounts" | Add-AdGroupNesting -Members "svc_backup" -WhatIf
-            Shows what would happen when adding a service account to a group.        .INPUTS
+            Shows what would happen when adding a service account to a group.
+
+        .INPUTS
             System.String
             You can pipe the Identity parameter to this function.
             The Identity parameter accepts string values representing AD group identifiers.

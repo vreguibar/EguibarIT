@@ -65,18 +65,25 @@ function Get-AllAdSubnet {
         .FUNCTIONALITY
             Site and Subnet Management
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Medium')]
     [OutputType([array])]
 
-    Param ()
+    param ()
 
-    Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+    begin {
+        Set-StrictMode -Version Latest
+
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -87,23 +94,23 @@ function Get-AllAdSubnet {
         ##############################
         # Variables Definition
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         #Get a reference to the RootDSE of the current domain
         $ADConfigurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext
 
         [array] $ADSubnets = Get-ADObject -Filter {
             objectclass -eq 'subnet'
         } -SearchBase $ADConfigurationNamingContext -Properties *
-    } #end Process
+    } #end process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'getting AD Subnets.'
         )
         Write-Verbose -Message $txt
 
-        Return $ADSubnets
-    } #end End
+        return $ADSubnets
+    } #end end
 } #end Function

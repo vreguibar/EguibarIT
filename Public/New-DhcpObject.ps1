@@ -1,37 +1,77 @@
-﻿Function New-DHCPobject {
+﻿function New-DHCPobject {
     <#
-        .Synopsis
-            Create DHCP Objects and Delegations
+        .SYNOPSIS
+            Creates DHCP objects and delegations.
+
         .DESCRIPTION
-            Create the DHCP Objects used to manage
-            this organization by following the defined Delegation Model.
-        .EXAMPLE
-            New-DHCPobjects
-        .EXAMPLE
-            New-DfsObjects -ConfigXMLFile 'C:\PsScripts\Config.xml'
+            Creates the DHCP objects used to manage this organization by following the defined
+            Delegation Model. Key features:
+            - Creates DHCP-specific security groups
+            - Configures DHCP server permissions
+            - Delegates DHCP management rights
+
         .PARAMETER ConfigXMLFile
-            [String] Full path to the configuration.xml file
+            [System.IO.FileInfo] Full path to the configuration XML file.
+            The XML file must contain required naming conventions and OU structure.
+
+        .EXAMPLE
+            New-DHCPobject -ConfigXMLFile 'C:\PsScripts\Config.xml'
+
+            Creates DHCP objects using the specified configuration file.
+
+        .EXAMPLE
+            New-DHCPobject -ConfigXMLFile 'C:\PsScripts\Config.xml' -Verbose
+
+            Creates DHCP objects with verbose output.
+
+        .EXAMPLE
+            New-DHCPobject -ConfigXMLFile 'C:\PsScripts\Config.xml' -WhatIf
+
+            Shows what would happen when creating DHCP objects.
         .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Add-AdGroupNesting                     | EguibarIT
-                Get-CurrentErrorToDisplay              | EguibarIT
-                New-AdDelegatedGroup                   | EguibarIT
-                Set-AdAclFullControlDHCP               | EguibarIT.DelegationPS
-                Add-ADFineGrainedPasswordPolicySubject | ActiveDirectory
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Get-FunctionDisplay                    ║ EguibarIT
+                Add-AdGroupNesting                     ║ EguibarIT
+                New-AdDelegatedGroup                   ║ EguibarIT
+                Import-MyModule                        ║ EguibarIT
+                Set-AdAclFullControlDHCP               ║ EguibarIT.DelegationPS
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Error                            ║ Microsoft.PowerShell.Utility
+
         .NOTES
-            Version:         1.0
-            DateModified:    29/Oct/2019
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Version:         1.1
+            DateModified:    21/Sep/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/New-DhcpObject.ps1
+
+        .INPUTS
+            [System.String]
+            You can pipe the path to the XML configuration file to this function.
+
+        .OUTPUTS
+            [void]
+            This function does not return any output.
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Infrastructure Administration
+
+        .FUNCTIONALITY
+            DHCP Object Management
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
-    Param
+    param
     (
         # PARAM1 full path to the configuration.xml file
         [Parameter(Mandatory = $true,
@@ -44,15 +84,20 @@
         $ConfigXMLFile
     )
 
-    Begin {
-        $error.Clear()
+    begin {
+        Set-StrictMode -Version Latest
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -65,9 +110,9 @@
 
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If (-Not (Test-Path -Path variable:confXML)) {
+            if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
+                if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
@@ -113,65 +158,67 @@
 
     } #end Begin
 
-    Process {
-        ###############################################################################
-        # Create OU Admin groups
-        $parameters = @{
-            Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.AdminXtra.GG.DHCPAdmins.Name
-            GroupCategory                 = 'Security'
-            GroupScope                    = 'Global'
-            DisplayName                   = $confXML.n.AdminXtra.GG.DHCPAdmins.DisplayName
-            Path                          = $ItPGOuDn
-            Description                   = $confXML.n.AdminXtra.GG.DHCPAdmins.Description
-            ProtectFromAccidentalDeletion = $True
-            RemoveAccountOperators        = $True
-            RemoveEveryone                = $True
-            RemovePreWin2000              = $True
-        }
-        $SG_DHCPAdmins = New-AdDelegatedGroup @parameters
+    process {
+        if ($PSCmdlet.ShouldProcess('Active Directory', 'Create DHCP objects and delegations')) {
+            ###############################################################################
+            # Create OU Admin groups
+            $parameters = @{
+                Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.AdminXtra.GG.DHCPAdmins.Name
+                GroupCategory                 = 'Security'
+                GroupScope                    = 'Global'
+                DisplayName                   = $confXML.n.AdminXtra.GG.DHCPAdmins.DisplayName
+                Path                          = $ItPGOuDn
+                Description                   = $confXML.n.AdminXtra.GG.DHCPAdmins.Description
+                ProtectFromAccidentalDeletion = $True
+                RemoveAccountOperators        = $True
+                RemoveEveryone                = $True
+                RemovePreWin2000              = $True
+            }
+            $SG_DHCPAdmins = New-AdDelegatedGroup @parameters
 
-        $parameters = @{
-            Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.AdminXtra.LG.DHCPRight.Name
-            GroupCategory                 = 'Security'
-            GroupScope                    = 'DomainLocal'
-            DisplayName                   = $confXML.n.AdminXtra.LG.DHCPRight.DisplayName
-            Path                          = $ItRightsOuDn
-            Description                   = $confXML.n.AdminXtra.LG.DHCPRight.Description
-            ProtectFromAccidentalDeletion = $True
-            RemoveAccountOperators        = $True
-            RemoveEveryone                = $True
-            RemovePreWin2000              = $True
-        }
-        $SL_DHCPRight = New-AdDelegatedGroup @parameters
+            $parameters = @{
+                Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.AdminXtra.LG.DHCPRight.Name
+                GroupCategory                 = 'Security'
+                GroupScope                    = 'DomainLocal'
+                DisplayName                   = $confXML.n.AdminXtra.LG.DHCPRight.DisplayName
+                Path                          = $ItRightsOuDn
+                Description                   = $confXML.n.AdminXtra.LG.DHCPRight.Description
+                ProtectFromAccidentalDeletion = $True
+                RemoveAccountOperators        = $True
+                RemoveEveryone                = $True
+                RemovePreWin2000              = $True
+            }
+            $SL_DHCPRight = New-AdDelegatedGroup @parameters
 
-        # Apply the PSO to the SL_DfsRights and SG_DfsAdmin Group
-        Add-ADFineGrainedPasswordPolicySubject -Identity $confXML.n.Admin.PSOs.ItAdminsPSO.Name -Subjects $SG_DHCPAdmins, $SL_DHCPRight
-
-
-        ###############################################################################
-        # Nest Groups - Security for RODC
-        # Avoid having privileged or semi-privileged groups copy to RODC
-
-        Add-ADGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SG_DHCPAdmins, $SL_DHCPRight
+            # Apply the PSO to the SL_DfsRights and SG_DfsAdmin Group
+            Add-ADFineGrainedPasswordPolicySubject -Identity $confXML.n.Admin.PSOs.ItAdminsPSO.Name -Subjects $SG_DHCPAdmins, $SL_DHCPRight
 
 
-        ###############################################################################
-        # Nest Groups - Extend Rights through delegation model groups
+            ###############################################################################
+            # Nest Groups - Security for RODC
+            # Avoid having privileged or semi-privileged groups copy to RODC
 
-        Add-AdGroupNesting -Identity $SL_DHCPRight -Members $SG_DHCPAdmins
-
-        Add-AdGroupNesting -Identity $SG_DHCPAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AdAdmins.Name)
+            Add-ADGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SG_DHCPAdmins, $SL_DHCPRight
 
 
-        ###############################################################################
-        # START Delegation to SL_DHCPRight
+            ###############################################################################
+            # Nest Groups - Extend Rights through delegation model groups
 
-        # Dynamic Host Configuration Protocol (DHCP)
-        Set-AdAclFullControlDHCP -Group $SL_DHCPRight.SamAccountName
+            Add-AdGroupNesting -Identity $SL_DHCPRight -Members $SG_DHCPAdmins
 
+            Add-AdGroupNesting -Identity $SG_DHCPAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.AdAdmins.Name)
+
+
+            ###############################################################################
+            # START Delegation to SL_DHCPRight
+
+            # Dynamic Host Configuration Protocol (DHCP)
+            Set-AdAclFullControlDHCP -Group $SL_DHCPRight.SamAccountName
+
+        } #end If ShouldProcess
     } #end Process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating DHCP objects and Delegations.'
         )

@@ -65,11 +65,10 @@ function ConvertTo-IPv4Integer {
         .FUNCTIONALITY
             IP Address Conversion
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
     [OutputType([System.UInt32])]
 
-    Param
-    (
+    param (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -79,7 +78,7 @@ function ConvertTo-IPv4Integer {
         $Ipv4Address
     )
 
-    Begin {
+    begin {
         $txt = ($Variables.Header -f
             (Get-Date).ToString('dd/MMM/yyyy'),
             $MyInvocation.Mycommand,
@@ -92,11 +91,11 @@ function ConvertTo-IPv4Integer {
 
         ##############################
         # Variables Definition
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
-        Try {
+        try {
             $ipAddress = [IPAddress]::Parse($IPv4Address)
 
             $bytes = $ipAddress.GetAddressBytes()
@@ -105,17 +104,17 @@ function ConvertTo-IPv4Integer {
 
             [System.BitConverter]::ToUInt32($bytes, 0)
 
-        } Catch {
+        } catch {
             Write-Error -Exception $_.Exception -Category $_.CategoryInfo.Category
         } #end Try-Catch
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'converting IPv4 to Integer.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 
 } #end Function

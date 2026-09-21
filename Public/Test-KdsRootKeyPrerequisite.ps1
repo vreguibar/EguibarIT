@@ -80,21 +80,32 @@
             Security
             Prerequisite Validation
     #>
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
     [OutputType([PSCustomObject])]
     param ()
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
-        if ($null -ne $Variables -and $null -ne $Variables.Header) {
-            $txt = ($Variables.Header -f (Get-Date).ToString('dd/MMM/yyyy'), $MyInvocation.Mycommand, (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False))
+
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
             Write-Verbose -Message $txt
         } #end If
+
         ##############################
         # Module imports
         Import-Module -Name ActiveDirectory -ErrorAction Stop
+
         ##############################
         # Variables Definition
+
         [string]$ForestMode = ''
         [string]$DomainMode = ''
         [string]$KdsServiceStatus = ''
@@ -107,9 +118,10 @@
         [string]$ConfigNC = ''
         [string]$Recommendation = ''
         [string]$ErrorMessage = ''
-    } #end Begin
 
-    Process {
+    } #end begin
+
+    process {
         try {
             # Check forest and domain functional level
             $Forest = Get-ADForest
@@ -200,12 +212,12 @@
             Recommendation       = $Recommendation
             ErrorMessage         = $ErrorMessage
         }
-    } #end Process
+    } #end process
 
-    End {
+    end {
         if ($null -ne $Variables -and $null -ne $Variables.Footer) {
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName, 'KDS Root Key prerequisite diagnostics.')
             Write-Verbose -Message $txt
         } #end If
-    } #end End
-} #end Function Test-KdsRootKeyPrerequisites
+    } #end end
+} #end function Test-KdsRootKeyPrerequisites

@@ -67,7 +67,7 @@ function ConvertTo-WmiFilter {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
-    Param (
+    param (
 
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
@@ -81,14 +81,20 @@ function ConvertTo-WmiFilter {
 
     )
 
-    Begin {
-        $error.Clear()
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+    begin {
+        Set-StrictMode -Version Latest
+
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -108,7 +114,7 @@ function ConvertTo-WmiFilter {
 
     } #end Begin
 
-    Process {
+    process {
 
         # Iterate each ADObject
         foreach ($item in $ADObject) {
@@ -150,7 +156,7 @@ function ConvertTo-WmiFilter {
         } #end Foreach
     } #end Process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'converting the WMI filter.'
         )

@@ -1,7 +1,7 @@
 function New-DelegateAdOU {
     <#
-        .Synopsis
-            Creates new custom delegated Active Directory Organizational Unit.
+        .SYNOPSIS
+            Creates a new custom delegated Active Directory Organizational Unit.
 
         .DESCRIPTION
             Creates a new Organizational Unit (OU) in Active Directory with enhanced security
@@ -68,13 +68,17 @@ function New-DelegateAdOU {
 
             Creates a new OU for remote sites with location attributes.
 
+        .INPUTS
+            [System.String]
+            You can pipe the OU name or path to this function.
+
         .OUTPUTS
             [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]
             Returns the created OU object.
 
         .NOTES
             Used Functions:
-                Name                                  ║ Module
+                Name                                  ║ Module/Namespace
                 ══════════════════════════════════════╬════════════════════════
                 Get-AdOrganizationalUnit              ║ ActiveDirectory
                 New-ADOrganizationalUnit              ║ ActiveDirectory
@@ -87,18 +91,26 @@ function New-DelegateAdOU {
 
         .NOTES
             Version:         1.3
-        DateModified:   31/Mar/2024
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar IT
-                http://www.eguibarit.com
+            DateModified:    31/Mar/2024
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
-        https://github.com/vreguibar/EguibarIT
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/New-DelegateAdOU.ps1
 
         .LINK
             https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models
 
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Infrastructure Administration
+
+        .FUNCTIONALITY
+            OU Delegation Management
     #>
     [CmdletBinding(
         SupportsShouldProcess = $true,

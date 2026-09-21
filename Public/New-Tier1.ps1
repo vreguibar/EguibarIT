@@ -2,16 +2,89 @@ function New-Tier1 {
 
     <#
         .SYNOPSIS
-
+            Creates and configures the complete Tier 1 (server administration) structure in Active Directory.
 
         .DESCRIPTION
+            Creates and configures the Tier 1 server administration structure including:
+            - Organisational Units for Tier 1 objects
+            - Security groups for server administration
+            - Group Policy Objects with Tier 1 security baselines
+            - Rights delegation for server management
+            - Fine-grained password policies for Tier 1 accounts
 
+            Tier 1 administers member servers and infrastructure services following
+            Microsoft's three-tier administration model.
 
         .PARAMETER ConfigXMLFile
             [System.IO.FileInfo] Full path to the XML configuration file.
             Contains all naming conventions, OU structure, and security settings.
             Must be a valid XML file with required schema elements.
             Default: C:\PsScripts\Config.xml
+
+        .PARAMETER DMScripts
+            [String] Path to all supporting scripts and files needed by this function.
+            Default: C:\PsScripts\
+
+        .PARAMETER EnableTranscript
+            [Switch] When specified, starts transcript logging to the DMScripts path.
+
+        .EXAMPLE
+            New-Tier1 -ConfigXMLFile 'C:\PsScripts\Config.xml'
+
+            Creates the Tier 1 structure using the default configuration file.
+
+        .EXAMPLE
+            $Splat = @{
+                ConfigXMLFile = 'C:\PsScripts\Config.xml'
+                DMScripts     = 'D:\AdminScripts\'
+            }
+            New-Tier1 @Splat -Verbose
+
+            Creates the Tier 1 structure with verbose output using a custom scripts directory.
+
+        .EXAMPLE
+            New-Tier1 -ConfigXMLFile 'C:\PsScripts\Config.xml' -WhatIf
+
+            Shows what would happen when creating the Tier 1 structure.
+
+        .INPUTS
+            [System.IO.FileInfo]
+            You can pipe the path to the XML configuration file to this function.
+
+        .OUTPUTS
+            [System.String]
+            Returns a completion status string.
+
+        .NOTES
+            Used Functions:
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Get-FunctionDisplay                    ║ EguibarIT
+                Import-MyModule                        ║ EguibarIT
+                New-DelegateAdOU                       ║ EguibarIT
+                New-AdDelegatedGroup                   ║ EguibarIT
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Error                            ║ Microsoft.PowerShell.Utility
+
+        .NOTES
+            Version:         1.0
+            DateModified:    21/Sep/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/New-Tier1.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Infrastructure Administration
+
+        .FUNCTIONALITY
+            Tier 1 Structure Provisioning
     #>
 
     [CmdletBinding(

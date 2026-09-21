@@ -110,16 +110,20 @@
         $DomainControllerGPO
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
-        $error.clear()
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -134,7 +138,7 @@
         $DefaultDomainPolicy = '31B2F340-016D-11D2-945F-00C04FB984F9'
 
         # Check if domain GPO was parsed
-        If ($GeneralGPO) {
+        if ($GeneralGPO) {
 
             # Initialize $ParsedGuid to null
             [Guid]$ParsedGuid = [Guid]::Empty
@@ -170,7 +174,7 @@
         } #end If
 
         # Check if DomainControllers GPO was parsed
-        If ($DomainControllerGPO) {
+        if ($DomainControllerGPO) {
 
             # Initialize $ParsedGuid to null
             [Guid]$ParsedGuid = [Guid]::Empty
@@ -205,7 +209,7 @@
 
     } # End Begin
 
-    Process {
+    process {
 
         # Core Logic for processing each pipeline input
         Write-Verbose -Message ('Processing domain: {0}' -f $DomainDNSName)
@@ -267,7 +271,7 @@
         } #end Try-Catch
     } # End Process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'processing Enable-KerberosClaimSupport function.'
         )

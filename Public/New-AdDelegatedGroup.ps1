@@ -14,22 +14,7 @@
 
             The function follows the Active Directory tiering model and adheres to security best practices.
 
-        .EXAMPLE
-            New-AdDelegatedGroup -Name "Poor Admins" -GroupCategory Security -GroupScope DomainLocal
-            -DisplayName "Poor Admins" -Path 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local' -Description 'New Admin Group'
-            -ProtectFromAccidentalDeletion -RemoveAuthUsers
-
-        .EXAMPLE
-            $splat = @{
-                Name                          = 'Poor Admins'
-                GroupCategory                 = 'Security'
-                GroupScope                    = 'DomainLocal'
-                DisplayName                   = 'Poor Admins'
-                Path                          = 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local'
-                Description                   = 'New Admin Group'
-                ProtectFromAccidentalDeletion = $true
-            }
-            New-AdDelegatedGroup @Splat        .PARAMETER Name
+        .PARAMETER Name
             Name of the group to be created (SamAccountName).
             Must be 1-256 characters, using only alphanumeric characters, spaces, hyphens, underscores, and periods.
 
@@ -71,7 +56,33 @@
 
         .PARAMETER RemovePreWin2000
             When specified, removes the Pre-Windows 2000 Compatible Access built-in group from the ACL.
-            Improves security by removing legacy access.        .INPUTS
+            Improves security by removing legacy access.
+
+        .EXAMPLE
+            New-AdDelegatedGroup -Name 'Poor Admins' -GroupCategory Security -GroupScope DomainLocal -DisplayName 'Poor Admins' -Path 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local' -Description 'New Admin Group' -ProtectFromAccidentalDeletion -RemoveAuthUsers
+
+            Creates a new domain local security group with protection from accidental deletion.
+
+        .EXAMPLE
+            $Splat = @{
+                Name                          = 'Poor Admins'
+                GroupCategory                 = 'Security'
+                GroupScope                    = 'DomainLocal'
+                DisplayName                   = 'Poor Admins'
+                Path                          = 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local'
+                Description                   = 'New Admin Group'
+                ProtectFromAccidentalDeletion = $true
+            }
+            New-AdDelegatedGroup @Splat
+
+            Creates a new domain local security group using splatting.
+
+        .EXAMPLE
+            New-AdDelegatedGroup -Name 'T0-GroupMgmt' -GroupCategory Security -GroupScope DomainLocal -DisplayName 'Tier0 Group Mgmt' -Path 'OU=Groups,OU=Admin,DC=EguibarIT,DC=local' -Description 'Tier 0 group management' -RemoveAccountOperators -RemoveEveryone -RemoveAuthUsers -RemovePreWin2000
+
+            Creates a hardened Tier 0 security group with all built-in groups removed from its ACL.
+
+        .INPUTS
             System.String
             You can pipe group name strings to this function.
 

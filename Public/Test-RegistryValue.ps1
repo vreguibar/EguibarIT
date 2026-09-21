@@ -68,10 +68,10 @@ function Test-RegistryValue {
         .FUNCTIONALITY
             Registry Value Validation
   #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
     [OutputType([Bool])]
 
-    Param (
+    param (
         [parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -93,7 +93,7 @@ function Test-RegistryValue {
         $Value
     )
 
-    Begin {
+    begin {
 
         ##############################
         # Module imports
@@ -101,19 +101,19 @@ function Test-RegistryValue {
         ##############################
         # Variables Definition
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         try {
             Get-ItemProperty -Path $Path | Select-Object -ExpandProperty $Value -ErrorAction Stop | Out-Null
             return $true
         } catch {
             return $false
         }
-    } #end Process
+    } #end process
 
-    End {
+    end {
 
-    } #end End
+    } #end end
 
-} #end Function
+} #end function

@@ -69,6 +69,10 @@ Function New-LAPSobject {
 
             Shows what changes would be made using specified config file.
 
+        .INPUTS
+            [System.IO.FileInfo]
+            You can pipe the path to the XML configuration file to this function.
+
         .OUTPUTS
             [void]
             This function does not generate any output.
@@ -103,7 +107,7 @@ Function New-LAPSobject {
                 http://www.eguibarit.com
 
         .LINK
-            https://github.com/vreguibar/EguibarIT
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/New-LapsObject.ps1
 
         .LINK
             https://techcommunity.microsoft.com/t5/core-infrastructure-and-security/local-administrator-password-solution-laps-implementation-hints-and/ba-p/258019
@@ -114,6 +118,14 @@ Function New-LAPSobject {
         .LINK
             https://learn.microsoft.com/en-us/windows-server/identity/securing-privileged-access/securing-privileged-access-reference-material
 
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Security Administration
+
+        .FUNCTIONALITY
+            LAPS Object Management
     #>
 
     [CmdletBinding(

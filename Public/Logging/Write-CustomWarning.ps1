@@ -75,11 +75,28 @@
             DateModified:    01/Apr/2025
             LastModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
-                Eguibar Information Technology S.L.
+                EguibarIT
                 http://www.eguibarit.com
 
         .LINK
             https://github.com/vreguibar/EguibarIT/blob/main/Public/Logging/Write-CustomWarning.ps1
+
+        .INPUTS
+            [System.String]
+            You can pipe the message string to this function.
+
+        .OUTPUTS
+            [void]
+            This function does not return any output.
+
+        .COMPONENT
+            Logging
+
+        .ROLE
+            Diagnostics
+
+        .FUNCTIONALITY
+            Warning Logging
     #>
 
     [CmdletBinding(

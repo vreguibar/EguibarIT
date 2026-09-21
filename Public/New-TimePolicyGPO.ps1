@@ -1,25 +1,68 @@
-Function New-TimePolicyGPO {
+function New-TimePolicyGPO {
     <#
-        .Synopsis
+        .SYNOPSIS
+            Creates a new Group Policy Object (GPO) for time synchronization policy.
 
         .DESCRIPTION
+            Creates and configures a Group Policy Object to enforce Windows Time service
+            settings across the organization, including NTP server configuration and
+            synchronization hierarchy settings.
 
         .EXAMPLE
             New-TimePolicyGPO
+
+            Creates the time policy GPO with default settings.
+
+        .EXAMPLE
+            New-TimePolicyGPO -Verbose
+
+            Creates the time policy GPO with verbose output.
+
+        .EXAMPLE
+            New-TimePolicyGPO -WhatIf
+
+            Shows what would happen when creating the time policy GPO.
+
         .INPUTS
+            [void]
+            This function does not accept pipeline input.
+
+        .OUTPUTS
+            [void]
+            This function does not return any output.
 
         .NOTES
-            Version:         1.0
-            DateModified:    25/Mar/2014
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Used Functions:
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                New-DelegateAdGpo                      ║ EguibarIT
+                Get-FunctionDisplay                    ║ EguibarIT
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+
+        .NOTES
+            Version:         1.1
+            DateModified:    21/Sep/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/New-TimePolicyGPO.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Infrastructure Administration
+
+        .FUNCTIONALITY
+            Time Policy GPO Management
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
-    Param
+    param
     (
         # Param1 GPO Name
         [Parameter(Mandatory = $true,
@@ -87,13 +130,20 @@ Function New-TimePolicyGPO {
         $DisableVMTimeSync
     )
 
-    Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+    begin {
+        Set-StrictMode -Version Latest
+
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -138,90 +188,92 @@ Function New-TimePolicyGPO {
         $array = @()
     }
 
-    Process {
-        If ($null -ne $ExistingWMIFilters) {
-            foreach ($ExistingWMIFilter in $ExistingWMIFilters) {
-                $array += $ExistingWMIFilter.'msWMI-Name'
-            }
-        } Else {
-            $array += 'no filters'
-        } #end If-Else
+    process {
+        if ($PSCmdlet.ShouldProcess($PSBoundParameters['gpoName'], 'Create Time Policy GPO')) {
+            if ($null -ne $ExistingWMIFilters) {
+                foreach ($ExistingWMIFilter in $ExistingWMIFilters) {
+                    $array += $ExistingWMIFilter.'msWMI-Name'
+                }
+            } else {
+                $array += 'no filters'
+            } #end If-Else
 
-        if ($array -notcontains $msWMIName) {
-            Write-Output ('Creating the {0} WMI Filter...' -f $msWMIName)
-            $WMIFilterADObject = New-ADObject -name $WMICN -type 'msWMI-Som' -Path $WMIPath -OtherAttributes $Attr
-        } Else {
-            Write-Warning -Message ('The {0} WMI Filter already exists.' -f $msWMIName)
-        } #end If-Else
+            if ($array -notcontains $msWMIName) {
+                Write-Output ('Creating the {0} WMI Filter...' -f $msWMIName)
+                $WMIFilterADObject = New-ADObject -Name $WMICN -Type 'msWMI-Som' -Path $WMIPath -OtherAttributes $Attr
+            } else {
+                Write-Warning -Message ('The {0} WMI Filter already exists.' -f $msWMIName)
+            } #end If-Else
 
-        $WMIFilterADObject = $null
+            $WMIFilterADObject = $null
 
-        # Get WMI filter
-        $WMIFilterADObject = Get-ADObject -Filter 'objectClass -eq "msWMI-Som"' -Properties 'msWMI-Name', 'msWMI-Parm1', 'msWMI-Parm2' |
-            Where-Object {
-                $_.'msWMI-Name' -eq "$msWMIName"
-            }
+            # Get WMI filter
+            $WMIFilterADObject = Get-ADObject -Filter 'objectClass -eq "msWMI-Som"' -Properties 'msWMI-Name', 'msWMI-Parm1', 'msWMI-Parm2' |
+                Where-Object {
+                    $_.'msWMI-Name' -eq "$msWMIName"
+                }
 
-        $ExistingGPO = get-gpo -Name $PSBoundParameters['gpoName'] -ErrorAction 'SilentlyContinue'
+            $ExistingGPO = Get-GPO -Name $PSBoundParameters['gpoName'] -ErrorAction 'SilentlyContinue'
 
-        If ($null -eq $ExistingGPO) {
-            Write-Output ('Creating the {0} Group Policy Object...' -f $PSBoundParameters['gpoName'])
+            if ($null -eq $ExistingGPO) {
+                Write-Output ('Creating the {0} Group Policy Object...' -f $PSBoundParameters['gpoName'])
 
-            # Create new GPO shell
-            $GPO = New-GPO -Name $PSBoundParameters['gpoName']
+                # Create new GPO shell
+                $GPO = New-GPO -Name $PSBoundParameters['gpoName']
 
-            # Disable User Settings
-            $GPO.GpoStatus = 'UserSettingsDisabled'
+                # Disable User Settings
+                $GPO.GpoStatus = 'UserSettingsDisabled'
 
-            # Add the WMI Filter
-            $GPO.WmiFilter = ConvertTo-WmiFilter $WMIFilterADObject
+                # Add the WMI Filter
+                $GPO.WmiFilter = ConvertTo-WmiFilter $WMIFilterADObject
 
-            # Set the three registry keys in the Preferences section of the new GPO
-            $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
-                -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Config' `
-                -Type DWord -ValueName 'AnnounceFlags' -Value $PSBoundParameters['AnnounceFlags']
+                # Set the three registry keys in the Preferences section of the new GPO
+                $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
+                    -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Config' `
+                    -Type DWord -ValueName 'AnnounceFlags' -Value $PSBoundParameters['AnnounceFlags']
 
-            $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
-                -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters' `
-                -Type String -ValueName 'NtpServer' -Value "$PSBoundParameters['NtpServer']"
-
-            $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
-                -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters' `
-                -Type String -ValueName 'Type' -Value "$PSBoundParameters['Type']"
-
-            If ($PSBoundParameters['DisableVMTimeSync']) {
-                # Disable the Hyper-V time synchronization integration service.
                 $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
                     -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters' `
-                    -Type DWord -ValueName 'Enabled' -Value 0
+                    -Type String -ValueName 'NtpServer' -Value "$PSBoundParameters['NtpServer']"
 
-                # Used to control how often the time service synchronizes to 15 minutes
                 $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
-                    -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\TimeProviders\NtpClient' `
-                    -Type DWord -ValueName 'SpecialPollInterval' -Value 900
+                    -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters' `
+                    -Type String -ValueName 'Type' -Value "$PSBoundParameters['Type']"
 
-                # Set the three registry keys in the Preferences section of the new GPO
-                $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
-                    -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Config' `
-                    -Type DWord -ValueName 'MaxPosPhaseCorrection' -Value 3600
+                if ($PSBoundParameters['DisableVMTimeSync']) {
+                    # Disable the Hyper-V time synchronization integration service.
+                    $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
+                        -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Parameters' `
+                        -Type DWord -ValueName 'Enabled' -Value 0
 
-                # Set the three registry keys in the Preferences section of the new GPO
-                $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
-                    -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Config' `
-                    -Type DWord -ValueName 'MaxNegPhaseCorrection' -Value 3600
-            }#end if
+                    # Used to control how often the time service synchronizes to 15 minutes
+                    $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
+                        -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\TimeProviders\NtpClient' `
+                        -Type DWord -ValueName 'SpecialPollInterval' -Value 900
 
-            # Link the new GPO to the Domain Controllers OU
-            Write-Output ('Linking the {0} Group Policy Object to the OU=Domain Controllers,{1} ...' -f $PSBoundParameters['gpoName'], ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString())
-            $null = New-GPLink -Name $PSBoundParameters['gpoName'] -Target ('OU=Domain Controllers,{0}' -f ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString())
-        } Else {
-            Write-Warning -Message ('The {0} Group Policy Object already exists.' -f $PSBoundParameters['gpoName'])
-            Write-Output ('Adding the {0} WMI Filter...' -f $msWMIName)
-            $ExistingGPO.WmiFilter = ConvertTo-WmiFilter $WMIFilterADObject
-        } #end If-Else
+                    # Set the three registry keys in the Preferences section of the new GPO
+                    $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
+                        -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Config' `
+                        -Type DWord -ValueName 'MaxPosPhaseCorrection' -Value 3600
+
+                    # Set the three registry keys in the Preferences section of the new GPO
+                    $null = Set-GPPrefRegistryValue -Name $PSBoundParameters['gpoName'] -Action Update -Context Computer `
+                        -Key 'HKLM\SYSTEM\CurrentControlSet\Services\W32Time\Config' `
+                        -Type DWord -ValueName 'MaxNegPhaseCorrection' -Value 3600
+                }#end if
+
+                # Link the new GPO to the Domain Controllers OU
+                Write-Output ('Linking the {0} Group Policy Object to the OU=Domain Controllers,{1} ...' -f $PSBoundParameters['gpoName'], ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString())
+                $null = New-GPLink -Name $PSBoundParameters['gpoName'] -Target ('OU=Domain Controllers,{0}' -f ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString())
+            } else {
+                Write-Warning -Message ('The {0} Group Policy Object already exists.' -f $PSBoundParameters['gpoName'])
+                Write-Output ('Adding the {0} WMI Filter...' -f $msWMIName)
+                $ExistingGPO.WmiFilter = ConvertTo-WmiFilter $WMIFilterADObject
+            } #end If-Else
+        } #end If ShouldProcess
     } #end Process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating the Time Policy GPO.'
         )

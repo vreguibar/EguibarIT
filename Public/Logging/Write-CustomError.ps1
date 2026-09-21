@@ -59,9 +59,28 @@
             DateModified:    18/Oct/2024
             LastModifiedBy:   Vicente Rodriguez Eguibar
                 vicente@eguibar.com
-                Eguibar Information Technology S.L.
+                EguibarIT
                 http://www.eguibarit.com
 
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Logging/Write-CustomError.ps1
+
+        .INPUTS
+            [System.String]
+            You can pipe the message string to this function.
+
+        .OUTPUTS
+            [void]
+            This function does not return any output.
+
+        .COMPONENT
+            Logging
+
+        .ROLE
+            Diagnostics
+
+        .FUNCTIONALITY
+            Error Logging
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = 'Default')]

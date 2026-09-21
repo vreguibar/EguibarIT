@@ -65,10 +65,10 @@ function ConvertTo-IntegerIPv4 {
         .FUNCTIONALITY
             IP Address Conversion
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
-    [OutputType([System.Net.IpAddress])]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
+    [OutputType([System.Net.IPAddress])]
 
-    Param     (
+    param     (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -78,13 +78,20 @@ function ConvertTo-IntegerIPv4 {
         $Integer
     )
 
-    Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+    begin {
+        Set-StrictMode -Version Latest
+
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -92,27 +99,27 @@ function ConvertTo-IntegerIPv4 {
         ##############################
         # Variables Definition
 
-    } #end Begin
+    } #end begin
 
-    Process {
-        Try {
+    process {
+        try {
             $bytes = [System.BitConverter]::GetBytes($Integer)
 
             [Array]::Reverse($bytes)
 
             ([IPAddress]($bytes)).ToString()
 
-        } Catch {
+        } catch {
             Write-Error -Message 'Error when converting Integer to IPv4'
             throw
         }
-    } #end Process
+    } #end process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'converting Integer to IPv4.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 
 } #end Function

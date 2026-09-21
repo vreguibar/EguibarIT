@@ -57,18 +57,25 @@ function Get-AdSite {
         .FUNCTIONALITY
             Site Management
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Medium')]
     [OutputType([array])]
 
-    Param ()
+    param ()
 
-    Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+    begin {
+        Set-StrictMode -Version Latest
+
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -78,19 +85,19 @@ function Get-AdSite {
 
         ##############################
         # Variables Definition
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         Write-Verbose -Message "Get AD Site List `r"
         [array] $ADSites = [DirectoryServices.ActiveDirectory.Forest]::GetCurrentForest().Sites
-    } #end Process
+    } #end process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'getting AD Sites.'
         )
         Write-Verbose -Message $txt
 
-        Return $ADSites
-    } #end End
+        return $ADSites
+    } #end end
 } #end Function

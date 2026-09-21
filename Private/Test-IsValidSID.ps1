@@ -61,7 +61,7 @@
         .FUNCTIONALITY
             SID Validation
     #>
-    [CmdletBinding(ConfirmImpact = 'Low', SupportsShouldProcess = $true)]
+    [CmdletBinding(ConfirmImpact = 'Low', SupportsShouldProcess = $false)]
     [OutputType([bool])]
 
     param

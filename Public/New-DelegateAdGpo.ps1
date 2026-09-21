@@ -1,7 +1,7 @@
 ﻿function New-DelegateAdGpo {
     <#
-        .Synopsis
-             Creates and Links new GPO with delegated permissions.
+        .SYNOPSIS
+            Creates and links a new GPO with delegated permissions.
 
         .DESCRIPTION
             Create new custom delegated GPO, Delegate rights to an existing group and links it to
@@ -56,9 +56,15 @@
             }
             New-DelegateAdGpo @Splat
 
+            Creates a GPO from backup using splatting.
+
+        .INPUTS
+            [System.String]
+            You can pipe the GPO description or link path to this function.
+
         .OUTPUTS
-        [Microsoft.GroupPolicy.Gpo]
-        Returns the created or modified GPO object.
+            [Microsoft.GroupPolicy.Gpo]
+            Returns the created or modified GPO object.
 
         .NOTES
             Used Functions:
@@ -76,18 +82,26 @@
 
         .NOTES
             Version:         1.3
-        DateModified:   31/Mar/2024
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar IT
-                http://www.eguibarit.com
+            DateModified:    31/Mar/2024
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
-        https://github.com/vreguibar/EguibarIT
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/New-DelegateAdGpo.ps1
 
         .LINK
             https://learn.microsoft.com/en-us/previous-versions/windows/desktop/wmi_v2/class-library/gppermissiontype-enumeration-microsoft-grouppolicy
 
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Security Administration
+
+        .FUNCTIONALITY
+            GPO Delegation Management
     #>
     [CmdletBinding(
         SupportsShouldProcess = $true,

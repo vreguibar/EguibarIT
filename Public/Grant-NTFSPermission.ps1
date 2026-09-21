@@ -73,11 +73,13 @@ function Grant-NTFSPermission {
 
             Grants full control to the Executives group without inheritance and returns the modified ACL.
 
-        .OUTPUTS
-            [System.Security.AccessControl.FileSecurity] when -PassThru is specified
-            [void] by default        .INPUTS
+        .INPUTS
             System.String
             You can pipe path strings to this function, allowing batch processing of multiple files and folders.
+
+        .OUTPUTS
+            [System.Security.AccessControl.FileSecurity] when -PassThru is specified
+            [void] by default
 
         .NOTES
             Used Functions:

@@ -68,7 +68,11 @@
 
         .LINK
             https://github.com/vreguibar/EguibarIT/blob/main/Private/Get-FunctionDisplay.ps1
+
+        .LINK
             https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/format-table
+
+        .LINK
             https://learn.microsoft.com/en-us/dotnet/api/system.text.stringbuilder
 
         .COMPONENT

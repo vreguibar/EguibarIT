@@ -64,6 +64,10 @@ function New-LocalLogonTask {
         .OUTPUTS
             [void]
 
+        .INPUTS
+            [System.String]
+            You can pipe the task name or command to this function.
+
         .NOTES
             Used Functions:
                 Name                                  ║ Module/Namespace
@@ -81,9 +85,19 @@ function New-LocalLogonTask {
                             http://www.eguibarit.com
 
         .LINK
-            https://github.com/vreguibar/EguibarIT
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/New-LocalLogonTask.ps1
+
         .LINK
             https://learn.microsoft.com/en-us/windows/win32/taskschd/task-scheduler-objects
+
+        .COMPONENT
+            Windows
+
+        .ROLE
+            Infrastructure Administration
+
+        .FUNCTIONALITY
+            Scheduled Task Management
     #>
 
     [CmdletBinding(

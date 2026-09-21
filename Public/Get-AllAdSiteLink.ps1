@@ -60,18 +60,25 @@ function Get-AllAdSiteLink {
         .FUNCTIONALITY
             Site Replication Management
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Medium')]
     [OutputType([array])]
 
-    Param ()
+    param ()
 
-    Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+    begin {
+        Set-StrictMode -Version Latest
+
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -85,9 +92,9 @@ function Get-AllAdSiteLink {
         $ADSiteDN = 'CN=Sites,{0}' -f $Variables.configurationNamingContext
         #$SubnetsDN     = 'CN=Subnets,{0}' -f $ADSiteDN
         #$ADSiteLinksDN = 'CN=IP,CN=Inter-Site Transports,{0}' -f $ADSiteDN
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         Write-Verbose -Message "Get List of AD Site Links `r"
 
         [array] $ADSiteLinks = Get-ADObject -Filter { ObjectClass -eq 'sitelink' } -SearchBase $ADSiteDN -Properties *
@@ -95,14 +102,14 @@ function Get-AllAdSiteLink {
         $ADSiteLinksCount = $ADSiteLinks.Count
 
         Write-Output -InputObject ("There are {0} AD Site Links in {1} `r" -f $ADSiteLinksCount, $env:USERDNSDOMAIN)
-    } #end Process
+    } #end process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'getting SiteLinks.'
         )
         Write-Verbose -Message $txt
 
-        Return $ADSiteLinks
-    } #end End
+        return $ADSiteLinks
+    } #end end
 } #end Function

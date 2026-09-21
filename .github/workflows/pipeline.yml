@@ -3,19 +3,18 @@
 name: Build and Release Module
 on:
   pull_request: # Only trigger the workflow if there is a pull request to the main branch
-    branches: [ main ]
+    branches: [main]
 
   workflow_dispatch: # Enables the possibility to trigger the workflow manually
 
   push:
-      tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
 
 env:
   BUILD_NUMBER: ${{ vars.BUILD_NUMBER }}
   MODULE_NAME: ${{ vars.MODULE_NAME }}
   VERSION_NUMBER: ${{ vars.VERSION_NUMBER }}
-
 
 jobs:
   # 1st Job -- Building the module
@@ -24,10 +23,34 @@ jobs:
     runs-on: windows-latest
 
     steps:
-        # Checkout the main branch
+      # Checkout the main branch
       - name: Checkout Repository
         uses: actions/checkout@v2
 
+      - name: Validate FunctionsToExport
+        shell: pwsh
+        run: |
+          $psd1 = Get-ChildItem -Path '.' -Filter '*.psd1' | Select-Object -First 1 -ExpandProperty FullName
+          $manifest = Import-PowerShellDataFile -Path $psd1
+          $currentExports = @($manifest.FunctionsToExport)
+          [array]$actualFunctions = (Get-ChildItem -Path '.\Public\*.ps1' -Recurse).BaseName | Sort-Object
+
+          if ($currentExports -contains '*') {
+              Write-Warning "FunctionsToExport = '*' — wildcard in use. Will be replaced with explicit list on build."
+          } else {
+              $missing = $actualFunctions | Where-Object { $_ -notin $currentExports }
+              $stale   = $currentExports   | Where-Object { $_ -notin $actualFunctions }
+
+              if ($missing) {
+                  Write-Warning "PUBLIC functions NOT in FunctionsToExport:`n  $($missing -join "`n  ")"
+              }
+              if ($stale) {
+                  Write-Warning "FunctionsToExport entries with NO matching .ps1 in Public/:`n  $($stale -join "`n  ")"
+              }
+              if (-not $missing -and -not $stale) {
+                  Write-Host 'FunctionsToExport is in sync with Public/ folder.'
+              }
+          }
 
       - name: Get Module Name
         shell: pwsh
@@ -91,13 +114,11 @@ jobs:
           MODULE_NAME: ${{ env.MODULE_NAME }}
           BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
 
-
       - name: Install PSScriptAnalyzer module
         shell: pwsh
         run: |
           Set-PSRepository PSGallery -InstallationPolicy Trusted
           Install-Module PSScriptAnalyzer -ErrorAction Stop
-
 
       - name: Lint with PSScriptAnalyzer
         shell: pwsh
@@ -106,7 +127,6 @@ jobs:
           Invoke-ScriptAnalyzer -Path .\Private -recurse
           Invoke-ScriptAnalyzer -Path .\Enums   -recurse
           Invoke-ScriptAnalyzer -Path .\Classes -recurse
-
 
         # Pushing the changes from InvokeBuild to the main branch
       - name: Push changes to Git Repository
@@ -117,8 +137,6 @@ jobs:
           git add .
           git commit -m "Build Module"
           git push
-
-
 
   # 2nd Job -- Releasing the module
   release:
@@ -145,7 +163,6 @@ jobs:
           BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
           VERSION_NUMBER: ${{ env.VERSION_NUMBER }}
 
-
       - name: Check if Release Exists
         id: check_release
         uses: actions/github-script@v4
@@ -161,7 +178,6 @@ jobs:
             console.log(`Release ${tagName} exists: ${releaseExists}`);
             console.log(`::set-output name=exists::${releaseExists}`);
 
-
         # Create a release to github
       - name: Create Release
         if: steps.check_release.outputs.exists != 'true'
@@ -173,7 +189,6 @@ jobs:
           release_name: Release ${{ env.BUILD_NUMBER }}
           draft: false
           prerelease: false
-
 
       - name: Publish module to PowerShell Gallery
         id: Publish_Module

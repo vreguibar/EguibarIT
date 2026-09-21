@@ -1,53 +1,103 @@
 # Group together all USER admin delegations
 function Set-AdAclDelegateUserAdmin {
     <#
-        .Synopsis
-            Wrapper for all rights used for USER object container.
+        .SYNOPSIS
+            Configures comprehensive user object management delegations in Active Directory.
+
         .DESCRIPTION
-            The function will consolidate all rights used for USER object container.
-        .EXAMPLE
-            Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
-        .EXAMPLE
-            Set-AdAclDelegateComputerAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
+            Consolidates all rights used for user object management. The function
+            configures permissions for:
+            - User account creation and deletion
+            - Password reset and change
+            - Account enable/disable and unlock
+            - Account restrictions and logon information
+            Supports both granting and removing delegations via -RemoveRule.
+
         .PARAMETER Group
-            Delegated Group Name
+            [Object] Security group receiving the user administration delegation rights.
+            Accepts SamAccountName, DistinguishedName, SID, or ADGroup object.
+
         .PARAMETER LDAPPath
-            Distinguished Name of the OU where given group will fully manage a User object.
+            [String] Distinguished Name of the OU where permissions will be applied.
+            Must be a valid AD path.
+
         .PARAMETER RemoveRule
-            If present, the access rule will be removed
+            [Switch] When specified, removes delegated permissions instead of granting them.
+
+        .EXAMPLE
+            Set-AdAclDelegateUserAdmin -Group 'SG_SiteAdmins_XXXX' -LDAPPath 'OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local'
+
+            Grants full user management rights to the specified group.
+
+        .EXAMPLE
+            Set-AdAclDelegateUserAdmin -Group 'SG_SiteAdmins_XXXX' -LDAPPath 'OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local' -RemoveRule
+
+            Removes user management rights from the specified group.
+
+        .EXAMPLE
+            $Splat = @{
+                Group    = 'SG_SiteAdmins_GOOD'
+                LDAPPath = 'OU=Users,OU=GOOD,OU=Sites,DC=EguibarIT,DC=local'
+            }
+            Set-AdAclDelegateUserAdmin @Splat -WhatIf
+
+            Shows what would happen when granting user admin rights.
+
+        .INPUTS
+            [System.String]
+            You can pipe the group name or LDAP path to this function.
+
+        .OUTPUTS
+            [void]
+            This function does not return any output.
+
         .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Set-AdAclCreateDeleteUser              | EguibarIT.DelegationPS
-                Set-AdAclResetUserPassword             | EguibarIT.DelegationPS
-                Set-AdAclChangeUserPassword            | EguibarIT.DelegationPS
-                Set-AdAclEnableDisableUser             | EguibarIT.DelegationPS
-                Set-AdAclUnlockUser                    | EguibarIT.DelegationPS
-                Set-AdAclUserAccountRestriction        | EguibarIT.DelegationPS
-                Set-AdAclUserLogonInfo                 | EguibarIT.DelegationPS
-                Get-CurrentErrorToDisplay              | EguibarIT
-                Get-FunctionDisplay                    | EguibarIT
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Set-AdAclCreateDeleteUser              ║ EguibarIT.DelegationPS
+                Set-AdAclResetUserPassword             ║ EguibarIT.DelegationPS
+                Set-AdAclChangeUserPassword            ║ EguibarIT.DelegationPS
+                Set-AdAclEnableDisableUser             ║ EguibarIT.DelegationPS
+                Set-AdAclUnlockUser                    ║ EguibarIT.DelegationPS
+                Set-AdAclUserAccountRestriction        ║ EguibarIT.DelegationPS
+                Set-AdAclUserLogonInfo                 ║ EguibarIT.DelegationPS
+                Get-FunctionDisplay                    ║ EguibarIT
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+
         .NOTES
-            Version:         1.1
-            DateModified:    12/Feb/2018
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Version:         1.2
+            DateModified:    21/Sep/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Set-AdAclDelegateUserAdmin.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Security Administration
+
+        .FUNCTIONALITY
+            User Object Delegation Management
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
-    Param
+    param
     (
         # PARAM1 STRING for the Delegated Group Name
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
+            HelpMessage = 'Identity of the group getting the delegation. Accepts SamAccountName, DistinguishedName, SID, or ADGroup object.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
+        [object]
         $Group,
 
         # PARAM2 Distinguished Name of the OU where given group can read the User password
@@ -85,14 +135,19 @@ function Set-AdAclDelegateUserAdmin {
     )
 
     begin {
-        $error.Clear()
+        Set-StrictMode -Version Latest
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -111,10 +166,10 @@ function Set-AdAclDelegateUserAdmin {
 
     } #end Begin
 
-    Process {
+    process {
         try {
             # Check if RemoveRule switch is present.
-            If ($PSBoundParameters['RemoveRule']) {
+            if ($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
                 $Splat.Add('RemoveRule', $true)
             }
@@ -146,7 +201,7 @@ function Set-AdAclDelegateUserAdmin {
             throw
         } #end Try-Catch
     } #end Process
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'delegating User Admin.'
         )

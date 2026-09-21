@@ -41,12 +41,16 @@ function Start-AdCleanOU {
 
             Removes all default groups and unknown SIDs with verbose logging.
 
+        .INPUTS
+            [System.String]
+            You can pipe the LDAP path to this function.
+
         .OUTPUTS
             [void]
 
         .NOTES
             Used Functions:
-                Name                                   ║ Module
+                Name                                   ║ Module/Namespace
                 ═══════════════════════════════════════╬════════════════════════
                 Set-AdAclCreateDeleteUser              ║ EguibarIT.DelegationPS
                 Set-AdAclCreateDeleteComputer          ║ EguibarIT.DelegationPS
@@ -65,17 +69,26 @@ function Start-AdCleanOU {
                 Get-ADGroup                            ║ ActiveDirectory
         .NOTES
             Version:         1.3
-            DateModified:   31/Mar/2024
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar IT
-                http://www.eguibarit.com
+            DateModified:    31/Mar/2024
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
 
         .LINK
-            https://github.com/vreguibar/EguibarIT
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Start-AdCleanOU.ps1
+
         .LINK
             https://docs.microsoft.com/en-us/windows-server/identity/ad-ds/plan/security-best-practices/implementing-least-privilege-administrative-models
 
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Security Administration
+
+        .FUNCTIONALITY
+            OU Access Control Cleanup
     #>
 
     [CmdletBinding(

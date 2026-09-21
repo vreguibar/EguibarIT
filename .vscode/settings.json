@@ -3,7 +3,12 @@
     "chat.instructionsFilesLocations": {
         ".github/references": true
     },
-    "chat.mcp.discovery.enabled": true,
+    "chat.mcp.discovery.enabled": {
+        "claude-desktop": true,
+        "windsurf": true,
+        "cursor-global": true,
+        "cursor-workspace": true
+    },
     "chat.mcp.discovery.path": ".github/mcp.json",
     "chat.mcp.discovery.useWorkspaceRoot": true,
     "cSpell.enabledFiletypes": [

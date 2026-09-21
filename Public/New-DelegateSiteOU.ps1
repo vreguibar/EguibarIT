@@ -1,7 +1,8 @@
 ﻿function New-DelegateSiteOU {
     <#
-        .Synopsis
-            Create New delegated Site OU
+        .SYNOPSIS
+            Creates a new delegated Site OU structure with security groups, GPOs, and delegations.
+
         .DESCRIPTION
             Create the new OU representing the SITE root on the pre-defined
             container (Sites, Country, etc.), then adding additional OU structure
@@ -30,118 +31,54 @@
             This function relies on Config.xml file.
         .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Add-AdGroupNesting                     | EguibarIT
-                Get-CurrentErrorToDisplay              | EguibarIT
-                New-DelegateAdOU                       | EguibarIT
-                New-DelegateAdGpo                      | EguibarIT
-                Start-AdDelegateSite                   | EguibarIT
-                Start-AdCleanOU                        | EguibarIT
-                Set-AdAclLaps                          | EguibarIT
-                Set-GpoPrivilegeRight                  | EguibarIT.DelegationPS
-                Get-ADGroup                            | ActiveDirectory
-                Get-AdOrganizationalUnit               | ActiveDirectory
-                Import-GPO                             | GroupPolicy
-                Set-GPPermissions                      | GroupPolicy
-
-
-
-                LocalDomainGroupPreffix
-                GlobalGroupPreffix
-                UniversalGroupPreffix
-                Delimiter
-                AdminAccSufix0
-                AdminAccSufix1
-                AdminAccSufix2
-
-                AllSiteAdmins
-                AllGalAdmins
-                ServiceDesk
-                GlobalPcAdmins
-                GlobalGroupAdmins
-                GlobalUserAdmins
-
-
-                ITAdminOu
-                ItAdminGroupsOu
-                ItRightsOu
-                SitesOu
-                ItQuarantinePcOu
-
-
-                OuSiteUser
-                OuSiteUser-Description
-                OuSiteUser-BackupID
-                OuSiteComputer
-                OuSiteComputer-Description
-                OuSiteComputer-BackupID
-                OuSiteLaptop
-                OuSiteLaptop-Description
-                OuSiteLaptop-BackupID
-                OuSiteGroup
-                OuSiteGroup-Description
-                OuSiteShares
-                OuSiteShares-Description
-                OuSitePrintQueue
-                OuSitePrintQueue-Description
-
-                PwdRight
-                PwdRight-DisplayName
-                PwdRight-Description
-                PcRight
-                PcRight-DisplayName
-                PcRight-Description
-                GroupRight
-                GroupRight-DisplayName
-                GroupRight-Description
-                CreateUserRight
-                CreateUserRight-DisplayName
-                CreateUserRight-Description
-                GALRight
-                GALRight-DisplayName
-                GALRight-Description
-                SiteRight
-                SiteRight-DisplayName
-                SiteRight-Description
-
-
-                PwdAdmins
-                PwdAdmins-DisplayName
-                PwdAdmins-Description
-                ComputerAdmins
-                ComputerAdmins-DisplayName
-                ComputerAdmins-Description
-                GroupAdmins
-                GroupAdmins-DisplayName
-                GroupAdmins-Description
-                UserAdmins
-                UserAdmins-DisplayName
-                UserAdmins-Description
-                GALAdmins
-                GALAdmins-DisplayName
-                GALAdmins-Description
-                SiteAdmins
-                SiteAdmins-DisplayName
-                SiteAdmins-Description
-
-
-
-
-
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Add-AdGroupNesting                     ║ EguibarIT
+                New-DelegateAdOU                       ║ EguibarIT
+                New-DelegateAdGpo                      ║ EguibarIT
+                Start-AdDelegateSite                   ║ EguibarIT
+                Start-AdCleanOU                        ║ EguibarIT
+                Set-AdAclLaps                          ║ EguibarIT
+                Get-FunctionDisplay                    ║ EguibarIT
+                Set-GpoPrivilegeRight                  ║ EguibarIT.DelegationPS
+                Get-ADGroup                            ║ ActiveDirectory
+                Get-AdOrganizationalUnit               ║ ActiveDirectory
+                Import-GPO                             ║ GroupPolicy
+                Set-GPPermissions                      ║ GroupPolicy
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
 
         .NOTES
-            Version:         1.2
-            DateModified:    11/Feb/2019
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Version:         1.3
+            DateModified:    21/Sep/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .INPUTS
+            [System.String]
+            You can pipe the OU name or configuration file path to this function.
+
+        .OUTPUTS
+            [void]
+            This function does not return any output.
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/New-DelegateSiteOU.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Infrastructure Administration
+
+        .FUNCTIONALITY
+            Site OU Delegation Management
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
-    Param (
+    param (
         # Param1 Site Name
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
@@ -253,15 +190,20 @@
 
     )
 
-    Begin {
-        $error.Clear()
+    begin {
+        Set-StrictMode -Version Latest
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -276,14 +218,14 @@
 
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If (-Not (Test-Path -Path variable:confXML)) {
+            if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
+                if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
             } #end if
-        } Catch {
+        } catch {
             Write-Error -Message 'Error when reading XML file'
             throw
         }
@@ -417,13 +359,14 @@
 
     } #end Begin
 
-    Process {
+    process {
+        if ($PSCmdlet.ShouldProcess($PSBoundParameters['ouName'], 'Create Site Organizational Unit structure')) {
         # Checking if the OU exist is done prior calling this function.
 
         Write-Verbose -Message ('Create Site root OU {0}' -f $PSBoundParameters['ouName'])
 
         # Check if the Site OU exists
-        If (-not(Get-ADOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $Variables.AdDn)) {
+        if (-not(Get-ADOrganizationalUnit -Filter { distinguishedName -eq $ouNameDN } -SearchBase $Variables.AdDn)) {
             $splat = @{
                 ouName           = $PSBoundParameters['ouName']
                 ouPath           = $SitesOuDn
@@ -508,7 +451,7 @@
         Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating the required Rights Local Domain groups')
 
         # Iterate through all Site-LocalGroups child nodes
-        Foreach ($node in $confXML.n.Sites.LG.ChildNodes) {
+        foreach ($node in $confXML.n.Sites.LG.ChildNodes) {
             [String]$Name = '{0}{1}{2}{1}{3}' -f $NC['sl'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
             Write-Verbose -Message ('Create group {0}' -f $Name)
             $Splat = @{
@@ -536,7 +479,7 @@
         Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating the required Admin Global groups')
 
         # Iterate through all Site-GlobalGroups child nodes
-        Foreach ($node in $confXML.n.Sites.GG.ChildNodes) {
+        foreach ($node in $confXML.n.Sites.GG.ChildNodes) {
             [String]$Name = '{0}{1}{2}{1}{3}' -f $NC['sg'], $NC['Delim'], $node.Name, $PSBoundParameters['ouName']
             Write-Verbose -Message ('Create group {0}' -f $Name)
             $Splat = @{
@@ -655,7 +598,7 @@
         Write-Verbose -Message ($Variables.NewRegionMessage -f 'Configuring GPO')
 
         # Configure Users
-        If ($confXML.n.Sites.OUs.OuSiteUser.backupID) {
+        if ($confXML.n.Sites.OUs.OuSiteUser.backupID) {
             $splat = @{
                 BackupId   = $confXML.n.Sites.OUs.OuSiteUser.backupID
                 TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteUser.Scope, $ouName, $confXML.n.Sites.OUs.OuSiteUser.Name
@@ -670,7 +613,7 @@
 
 
         # Configure Desktop Baseline
-        If ($confXML.n.Sites.OUs.OuSiteComputer.backupID) {
+        if ($confXML.n.Sites.OUs.OuSiteComputer.backupID) {
             $splat = @{
                 BackupId   = $confXML.n.Sites.OUs.OuSiteComputer.backupID
                 TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteComputer.Scope, $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteComputer.Name
@@ -752,7 +695,7 @@
 
 
         # Configure Laptop Baseline
-        If ($confXML.n.Sites.OUs.OuSiteLaptop.backupID) {
+        if ($confXML.n.Sites.OUs.OuSiteLaptop.backupID) {
             $splat = @{
                 BackupId   = $confXML.n.Sites.OUs.OuSiteLaptop.backupID
                 TargetName = '{0}-{1}-{2}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Scope, $PSBoundParameters['ouName'], $confXML.n.Sites.OUs.OuSiteLaptop.Name
@@ -894,7 +837,7 @@
 
         # --- Exchange Related
         ###############################################################################
-        If ($PSBoundParameters['CreateExchange']) {
+        if ($PSBoundParameters['CreateExchange']) {
             Start-AdDelegateSite -ConfigXMLFile $ConfigXMLFile -ouName $ouName -QuarantineDN $ItQuarantinePcOuDn -CreateExchange
 
             #create Sub-OUs
@@ -933,7 +876,7 @@
 
         # --- LAPS Related
         ###############################################################################
-        If ($PSBoundParameters['CreateLAPS']) {
+        if ($PSBoundParameters['CreateLAPS']) {
             # Desktop LAPS delegation
             $Splat = @{
                 ResetGroup = $SL_PwdRight
@@ -950,9 +893,10 @@
             }
             Set-AdAclLaps @Splat
         } #end If
+        } #end If ShouldProcess
     } #end Process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating Site OU structure.'
         )

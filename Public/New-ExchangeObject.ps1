@@ -1,26 +1,81 @@
-Function New-ExchangeObject {
+function New-ExchangeObject {
     <#
-      .Synopsis
-      Create Exchange Objects and Containers
-      .DESCRIPTION
-      Create the Exchange OU structure and objects used to manage
-      this organization by following the defined Delegation Model.
-      .EXAMPLE
-      New-ExchangeObjects
-      .INPUTS
+        .SYNOPSIS
+            Creates Exchange objects, containers and delegations.
 
-      .NOTES
-      Version:         1.0
-      DateModified:    19/Apr/2016
-      LasModifiedBy:   Vicente Rodriguez Eguibar
-      vicente@eguibar.com
-      Eguibar Information Technology S.L.
-      http://www.eguibarit.com
-  #>
+        .DESCRIPTION
+            Creates the Exchange OU structure and objects used to manage this organisation
+            by following the defined Delegation Model. Key features:
+            - Creates Exchange-specific security groups
+            - Creates Exchange-related organizational units
+            - Delegates appropriate Exchange management rights
+            - Supports the three-tier administration model
+
+        .PARAMETER ConfigXMLFile
+            [String] Full path to the configuration XML file.
+            The XML file must contain required naming conventions and OU structure.
+
+        .PARAMETER DMScripts
+            [String] Path to all supporting scripts and files needed by this function.
+            Default: C:\PsScripts\
+
+        .EXAMPLE
+            New-ExchangeObject -ConfigXMLFile 'C:\PsScripts\Config.xml'
+
+            Creates Exchange objects using the specified configuration file.
+
+        .EXAMPLE
+            New-ExchangeObject -ConfigXMLFile 'C:\PsScripts\Config.xml' -Verbose
+
+            Creates Exchange objects with verbose output.
+
+        .EXAMPLE
+            New-ExchangeObject -ConfigXMLFile 'C:\PsScripts\Config.xml' -WhatIf
+
+            Shows what would happen when creating Exchange objects.
+
+        .INPUTS
+            [System.String]
+            You can pipe the path to the XML configuration file to this function.
+
+        .OUTPUTS
+            [void]
+            This function does not return any output.
+
+        .NOTES
+            Used Functions:
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Get-FunctionDisplay                    ║ EguibarIT
+                New-AdDelegatedGroup                   ║ EguibarIT
+                Import-MyModule                        ║ EguibarIT
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+                Write-Error                            ║ Microsoft.PowerShell.Utility
+
+        .NOTES
+            Version:         1.1
+            DateModified:    21/Sep/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/New-ExchangeObject.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Infrastructure Administration
+
+        .FUNCTIONALITY
+            Exchange Object Management
+    #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
-    Param(
+    param(
         # PARAM1 full path to the configuration.xml file
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $True,
@@ -43,15 +98,20 @@ Function New-ExchangeObject {
         $DMScripts = 'C:\PsScripts\'
     )
 
-    Begin {
-        $error.Clear()
+    begin {
+        Set-StrictMode -Version Latest
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -66,9 +126,9 @@ Function New-ExchangeObject {
 
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If (-Not (Test-Path -Path variable:confXML)) {
+            if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
+                if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                 } #end if
@@ -188,175 +248,177 @@ Function New-ExchangeObject {
 
     } #end Begin
 
-    Process {
-        ###############################################################################
-        # Create Sub-OUs for admin
+    process {
+        if ($PSCmdlet.ShouldProcess('Active Directory', 'Create Exchange objects and delegations')) {
+            ###############################################################################
+            # Create Sub-OUs for admin
 
-        New-DelegateAdOU -ouName $ItExchangeOu -ouPath $ItAdminOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExchangeOU.Description
+            New-DelegateAdOU -ouName $ItExchangeOu -ouPath $ItAdminOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExchangeOU.Description
 
-        ###############################################################################
-        # Create Sub-Sub-OUs
-        New-DelegateAdOU -ouName $ItExDistGroupsOu -ouPath $ItExchangeOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExDistGroups.Description
-        New-DelegateAdOU -ouName $ItExExternalContactOu -ouPath $ItExchangeOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExExternalContact.Description
-        New-DelegateAdOU -ouName $ItExResourceOu -ouPath $ItExchangeOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExResource.Description
-        New-DelegateAdOU -ouName $ItExSharedOu -ouPath $ItExchangeOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExShared.Description
-        New-DelegateAdOU -ouName $ItExEquipOu -ouPath $ItExchangeOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExEquip.Description
+            ###############################################################################
+            # Create Sub-Sub-OUs
+            New-DelegateAdOU -ouName $ItExDistGroupsOu -ouPath $ItExchangeOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExDistGroups.Description
+            New-DelegateAdOU -ouName $ItExExternalContactOu -ouPath $ItExchangeOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExExternalContact.Description
+            New-DelegateAdOU -ouName $ItExResourceOu -ouPath $ItExchangeOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExResource.Description
+            New-DelegateAdOU -ouName $ItExSharedOu -ouPath $ItExchangeOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExShared.Description
+            New-DelegateAdOU -ouName $ItExEquipOu -ouPath $ItExchangeOuDn -ouDescription $confXML.n.AdminXtra.OUs.ItExEquip.Description
 
-        ###############################################################################
-        # Create OU Admin groups
-        $parameters = @{
-            Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.AdminXtra.GG.ExAdmins.Name
-            GroupCategory                 = 'Security'
-            GroupScope                    = 'Global'
-            DisplayName                   = $confXML.n.AdminXtra.GG.ExAdmins.DisplayName
-            Path                          = $ItPGOuDn
-            Description                   = $confXML.n.AdminXtra.GG.ExAdmins.Description
-            ProtectFromAccidentalDeletion = $True
-            RemoveAccountOperators        = $True
-            RemoveEveryone                = $True
-            RemovePreWin2000              = $True
-        }
-        $SG_ExAdmins = New-AdDelegatedGroup @parameters
+            ###############################################################################
+            # Create OU Admin groups
+            $parameters = @{
+                Name                          = '{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.AdminXtra.GG.ExAdmins.Name
+                GroupCategory                 = 'Security'
+                GroupScope                    = 'Global'
+                DisplayName                   = $confXML.n.AdminXtra.GG.ExAdmins.DisplayName
+                Path                          = $ItPGOuDn
+                Description                   = $confXML.n.AdminXtra.GG.ExAdmins.Description
+                ProtectFromAccidentalDeletion = $True
+                RemoveAccountOperators        = $True
+                RemoveEveryone                = $True
+                RemovePreWin2000              = $True
+            }
+            $SG_ExAdmins = New-AdDelegatedGroup @parameters
 
-        $parameters = @{
-            Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.AdminXtra.LG.ExRight.Name
-            GroupCategory                 = 'Security'
-            GroupScope                    = 'DomainLocal'
-            DisplayName                   = $confXML.n.AdminXtra.LG.ExRight.DisplayName
-            Path                          = $ItRightsOuDn
-            Description                   = $confXML.n.AdminXtra.LG.ExRight.Description
-            ProtectFromAccidentalDeletion = $True
-            RemoveAccountOperators        = $True
-            RemoveEveryone                = $True
-            RemovePreWin2000              = $True
-        }
-        $SL_ExRight = New-AdDelegatedGroup @parameters
+            $parameters = @{
+                Name                          = '{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.AdminXtra.LG.ExRight.Name
+                GroupCategory                 = 'Security'
+                GroupScope                    = 'DomainLocal'
+                DisplayName                   = $confXML.n.AdminXtra.LG.ExRight.DisplayName
+                Path                          = $ItRightsOuDn
+                Description                   = $confXML.n.AdminXtra.LG.ExRight.Description
+                ProtectFromAccidentalDeletion = $True
+                RemoveAccountOperators        = $True
+                RemoveEveryone                = $True
+                RemovePreWin2000              = $True
+            }
+            $SL_ExRight = New-AdDelegatedGroup @parameters
 
-        ###############################################################################
-        # Create a New Fine Grained Password Policy for Admins Accounts
-        #  and apply the PSO to the account ()
-        Add-ADFineGrainedPasswordPolicySubject -Identity $confXML.n.Admin.PSOs.ItAdminsPSO.Name -Subjects $SG_ExAdmins.SamAccountName, $SL_ExRight.SamAccountName
+            ###############################################################################
+            # Create a New Fine Grained Password Policy for Admins Accounts
+            #  and apply the PSO to the account ()
+            Add-ADFineGrainedPasswordPolicySubject -Identity $confXML.n.Admin.PSOs.ItAdminsPSO.Name -Subjects $SG_ExAdmins.SamAccountName, $SL_ExRight.SamAccountName
 
-        ###############################################################################
-        # Nest Groups - Security for RODC
-        # Avoid having privileged or semi-privileged groups copy to RODC
+            ###############################################################################
+            # Nest Groups - Security for RODC
+            # Avoid having privileged or semi-privileged groups copy to RODC
 
-        Add-ADGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SG_ExAdmins, $SL_ExRight
+            Add-ADGroupMember -Identity 'Denied RODC Password Replication Group' -Members $SG_ExAdmins, $SL_ExRight
 
 
-        ###############################################################################
-        # Nest Groups - Extend  Rights
+            ###############################################################################
+            # Nest Groups - Extend  Rights
 
-        Add-AdGroupNesting -Identity $SG_ExAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.InfraAdmins.Name)
-        Add-AdGroupNesting -Identity $SL_ExRight -Members $SG_ExAdmins
+            Add-AdGroupNesting -Identity $SG_ExAdmins -Members ('{0}{1}{2}' -f $NC['sg'], $NC['Delim'], $confXML.n.Admin.GG.InfraAdmins.Name)
+            Add-AdGroupNesting -Identity $SL_ExRight -Members $SG_ExAdmins
 
-        ###############################################################################
-        # START Delegation to SL_InfraRights group on ADMIN area
+            ###############################################################################
+            # START Delegation to SL_InfraRights group on ADMIN area
 
-        $SL_InfraRight = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.InfraRight.Name)
-        $SL_AdRight = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.AdRight.Name)
-        $SL_PGM = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PGM.Name)
+            $SL_InfraRight = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.InfraRight.Name)
+            $SL_AdRight = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.AdRight.Name)
+            $SL_PGM = Get-ADGroup -Identity ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.PGM.Name)
 
-        # Administration OU
-        Set-AdAclCreateDeleteGroup -Group $SL_InfraRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
-        Set-AdAclCreateDeleteGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItExDistGroupsOuDn
-        Set-AdAclCreateDeleteGroup -Group $SL_ExRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
+            # Administration OU
+            Set-AdAclCreateDeleteGroup -Group $SL_InfraRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
+            Set-AdAclCreateDeleteGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItExDistGroupsOuDn
+            Set-AdAclCreateDeleteGroup -Group $SL_ExRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
 
-        ###############################################################################
-        # START Delegation to SL_AdRights group on ADMIN area
+            ###############################################################################
+            # START Delegation to SL_AdRights group on ADMIN area
 
-        # Administration OU
-        Set-AdAclChangeGroup -Group $SL_AdRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
-        Set-AdAclChangeGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItExDistGroupsOuDn
-        Set-AdAclChangeGroup -Group $SL_ExRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
+            # Administration OU
+            Set-AdAclChangeGroup -Group $SL_AdRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
+            Set-AdAclChangeGroup -Group $SL_PGM.SamAccountName -LDAPPath $ItExDistGroupsOuDn
+            Set-AdAclChangeGroup -Group $SL_ExRight.SamAccountName -LDAPPath $ItExDistGroupsOuDn
 
-        ###############################################################################
-        # Create Servers and Sub OUs
-        # Create Sub-Sub-OUs for Exchange
-        New-DelegateAdOU -ouName $ExServersOu -ouPath $ServersOuDn -ouDescription $confXML.n.Servers.OUs.ExchangeOU.Description
-        New-DelegateAdOU -ouName $ExCasOu -ouPath $ExServersOuDn -ouDescription $confXML.n.Servers.OUs.ExCasOU.Description
-        New-DelegateAdOU -ouName $ExHubOu -ouPath $ExServersOuDn -ouDescription $confXML.n.Servers.OUs.ExHubOU.Description
-        New-DelegateAdOU -ouName $ExEdgeOu -ouPath $ExServersOuDn -ouDescription $confXML.n.Servers.OUs.ExEdgeOU.Description
-        New-DelegateAdOU -ouName $ExMailboxOu -ouPath $ExServersOuDn -ouDescription $confXML.n.Servers.OUs.ExMailboxOU.Description
-        New-DelegateAdOU -ouName $ExMixedOu -ouPath $ExServersOuDn -ouDescription $confXML.n.Servers.OUs.ExMixedRolOU.Description
+            ###############################################################################
+            # Create Servers and Sub OUs
+            # Create Sub-Sub-OUs for Exchange
+            New-DelegateAdOU -ouName $ExServersOu -ouPath $ServersOuDn -ouDescription $confXML.n.Servers.OUs.ExchangeOU.Description
+            New-DelegateAdOU -ouName $ExCasOu -ouPath $ExServersOuDn -ouDescription $confXML.n.Servers.OUs.ExCasOU.Description
+            New-DelegateAdOU -ouName $ExHubOu -ouPath $ExServersOuDn -ouDescription $confXML.n.Servers.OUs.ExHubOU.Description
+            New-DelegateAdOU -ouName $ExEdgeOu -ouPath $ExServersOuDn -ouDescription $confXML.n.Servers.OUs.ExEdgeOU.Description
+            New-DelegateAdOU -ouName $ExMailboxOu -ouPath $ExServersOuDn -ouDescription $confXML.n.Servers.OUs.ExMailboxOU.Description
+            New-DelegateAdOU -ouName $ExMixedOu -ouPath $ExServersOuDn -ouDescription $confXML.n.Servers.OUs.ExMixedRolOU.Description
 
-        ###############################################################################
-        # START Delegation to SL_InfraRights group on SERVERS area
+            ###############################################################################
+            # START Delegation to SL_InfraRights group on SERVERS area
 
-        # Servers OU
-        # Create/Delete Computers
-        Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExServersOuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExCasOuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExHubOuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExEdgeOuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExMailboxOuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExMixedOuDn -QuarantineDN $ItQuarantineOuDn
+            # Servers OU
+            # Create/Delete Computers
+            Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExServersOuDn -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExCasOuDn -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExHubOuDn -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExEdgeOuDn -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExMailboxOuDn -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_InfraRight.SamAccountName -LDAPPath $ExMixedOuDn -QuarantineDN $ItQuarantineOuDn
 
-        Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExServersOuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExCasOuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExHubOuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExEdgeOuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExMailboxOuDn -QuarantineDN $ItQuarantineOuDn
-        Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExMixedOuDn -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExServersOuDn -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExCasOuDn -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExHubOuDn -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExEdgeOuDn -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExMailboxOuDn -QuarantineDN $ItQuarantineOuDn
+            Set-AdAclDelegateComputerAdmin -Group $SL_ExRight.SamAccountName -LDAPPath $ExMixedOuDn -QuarantineDN $ItQuarantineOuDn
 
-        ###############################################################################
-        # START Delegation to SL_AdRights group
+            ###############################################################################
+            # START Delegation to SL_AdRights group
 
-        # Servers OU
-        # Change Public Info
-        Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExServersOuDn
-        Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExCasOuDn
-        Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExHubOuDn
-        Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExEdgeOuDn
-        Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExMailboxOuDn
-        Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExMixedOuDn
+            # Servers OU
+            # Change Public Info
+            Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExServersOuDn
+            Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExCasOuDn
+            Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExHubOuDn
+            Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExEdgeOuDn
+            Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExMailboxOuDn
+            Set-AdAclComputerPublicInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExMixedOuDn
 
-        Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExServersOuDn
-        Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExCasOuDn
-        Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExHubOuDn
-        Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExEdgeOuDn
-        Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExMailboxOuDn
-        Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExMixedOuDn
+            Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExServersOuDn
+            Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExCasOuDn
+            Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExHubOuDn
+            Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExEdgeOuDn
+            Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExMailboxOuDn
+            Set-AdAclComputerPublicInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExMixedOuDn
 
-        # Change Personal Info
-        Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExServersOuDn
-        Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExCasOuDn
-        Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExHubOuDn
-        Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExEdgeOuDn
-        Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExMailboxOuDn
-        Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExMixedOuDn
+            # Change Personal Info
+            Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExServersOuDn
+            Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExCasOuDn
+            Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExHubOuDn
+            Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExEdgeOuDn
+            Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExMailboxOuDn
+            Set-AdAclComputerPersonalInfo -Group $SL_AdRight.SamAccountName -LDAPPath $ExMixedOuDn
 
-        Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExServersOuDn
-        Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExCasOuDn
-        Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExHubOuDn
-        Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExEdgeOuDn
-        Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExMailboxOuDn
-        Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExMixedOuDn
+            Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExServersOuDn
+            Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExCasOuDn
+            Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExHubOuDn
+            Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExEdgeOuDn
+            Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExMailboxOuDn
+            Set-AdAclComputerPersonalInfo -Group $SL_ExRight.SamAccountName -LDAPPath $ExMixedOuDn
 
-        ###############################################################################
-        # Create basic GPOs for different types under Servers
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $ExCasOu) -gpoScope C -gpoLinkPath $ExCasOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $ExHubOu) -gpoScope C -gpoLinkPath $ExHubOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $ExMailboxOu) -gpoScope C -gpoLinkPath $ExMailboxOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
-        New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $ExEdgeOuDn) -gpoScope C -gpoLinkPath $ExEdgeOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
+            ###############################################################################
+            # Create basic GPOs for different types under Servers
+            New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $ExCasOu) -gpoScope C -gpoLinkPath $ExCasOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
+            New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $ExHubOu) -gpoScope C -gpoLinkPath $ExHubOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
+            New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $ExMailboxOu) -gpoScope C -gpoLinkPath $ExMailboxOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
+            New-DelegateAdGpo -gpoDescription ('{0}-Baseline' -f $ExEdgeOuDn) -gpoScope C -gpoLinkPath $ExEdgeOuDn -GpoAdmin ('{0}{1}{2}' -f $NC['sl'], $NC['Delim'], $confXML.n.Admin.LG.GpoAdminRight.Name)
 
-        ###############################################################################
-        # Import the security templates to the corresponding GPOs under Servers
+            ###############################################################################
+            # Import the security templates to the corresponding GPOs under Servers
 
-        # Configure Exchange ClientAccess GPO
-        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExCas.backupID     -TargetName ('C-{0}-Baseline' -f $ExCasOu) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
+            # Configure Exchange ClientAccess GPO
+            #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExCas.backupID     -TargetName ('C-{0}-Baseline' -f $ExCasOu) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
 
-        # Configure Exchange Hub GPO
-        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExHub.backupID     -TargetName ('C-{0}-Baseline' -f $ExHubOu) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
+            # Configure Exchange Hub GPO
+            #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExHub.backupID     -TargetName ('C-{0}-Baseline' -f $ExHubOu) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
 
-        # Configure Mailbox GPO
-        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExMailbox.backupID -TargetName ('C-{0}-Baseline' -f $ExMailboxOu) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
+            # Configure Mailbox GPO
+            #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExMailbox.backupID -TargetName ('C-{0}-Baseline' -f $ExMailboxOu) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
 
-        # Configure EDGE GPO
-        #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExEdge.backupID    -TargetName ('C-{0}-Baseline' -f $ExEdgeOuDn) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
+            # Configure EDGE GPO
+            #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExEdge.backupID    -TargetName ('C-{0}-Baseline' -f $ExEdgeOuDn) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
+        } #end If ShouldProcess
     } #end Process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating Exchange containers and objects.'
         )

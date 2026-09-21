@@ -64,11 +64,10 @@ function ConvertTo-IPv4MaskBit {
         .FUNCTIONALITY
             Subnet Mask Conversion
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
     [OutputType([System.Int32])]
 
-    Param
-    (
+    param (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -79,7 +78,7 @@ function ConvertTo-IPv4MaskBit {
         $MaskString
     )
 
-    Begin {
+    begin {
         $txt = ($Variables.Header -f
             (Get-Date).ToString('dd/MMM/yyyy'),
             $MyInvocation.Mycommand,
@@ -92,20 +91,20 @@ function ConvertTo-IPv4MaskBit {
 
         ##############################
         # Variables Definition
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         $mask = ([IPAddress] $MaskString).Address
         for ( $bitCount = 0; $mask -ne 0; $bitCount++ ) {
             $mask = $mask -band ($mask - 1)
         }
         $bitCount
-    } #end Process
+    } #end process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'returning the bits in a bitmask IPv4.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 } #end Function

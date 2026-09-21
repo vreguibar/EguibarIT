@@ -1,60 +1,107 @@
 ﻿# Delegate Local Administration Password Service (LAPS)
 function Set-AdAclLaps {
     <#
-        .Synopsis
-            Wrapper for all rights used for LAPS on a given container.
+        .SYNOPSIS
+            Configures all delegated rights for Local Administrator Password Solution (LAPS) on a container.
+
         .DESCRIPTION
-            The function will consolidate all rights used for LAPS on a given container.
-        .EXAMPLE
-            Set-AdAclLaps -ResetGroup "SG_SiteAdmins_XXXX" -ReadGroup "SG_GalAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
+            Consolidates all rights used for LAPS on a given container. Configures:
+            - Computer self-permission to update own LAPS password
+            - Read permission for the specified read group
+            - Reset permission for the specified reset group
+
         .PARAMETER ReadGroup
-            Identity of the group getting being able to READ the password
+            [Object] Identity of the group that is allowed to READ the LAPS password.
+            Accepts SamAccountName, DistinguishedName, SID, or ADGroup object.
+
         .PARAMETER ResetGroup
-            Identity of the group getting being able to RESET the password
+            [Object] Identity of the group that is allowed to RESET the LAPS password.
+            Accepts SamAccountName, DistinguishedName, SID, or ADGroup object.
+
         .PARAMETER LDAPPath
-            Distinguished Name of the OU where LAPS will apply to computer object.
+            [String] Distinguished Name of the OU where LAPS will apply to computer objects.
+
+        .EXAMPLE
+            Set-AdAclLaps -ResetGroup 'SG_SiteAdmins_XXXX' -ReadGroup 'SG_GalAdmins_XXXX' -LDAPPath 'OU=Computers,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local'
+
+            Configures LAPS delegation on the specified OU.
+
+        .EXAMPLE
+            $Splat = @{
+                ResetGroup = 'SG_SiteAdmins_GOOD'
+                ReadGroup  = 'SG_GalAdmins_GOOD'
+                LDAPPath   = 'OU=Computers,OU=GOOD,OU=Sites,DC=EguibarIT,DC=local'
+            }
+            Set-AdAclLaps @Splat
+
+            Configures LAPS delegation using splatting.
+
+        .EXAMPLE
+            Set-AdAclLaps -ResetGroup 'SG_SiteAdmins_XXXX' -ReadGroup 'SG_GalAdmins_XXXX' -LDAPPath 'OU=Computers,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local' -WhatIf
+
+            Shows what would happen when configuring LAPS delegation.
+
+        .INPUTS
+            [System.String]
+            You can pipe the group names or LDAP path to this function.
+
+        .OUTPUTS
+            [void]
+            This function does not return any output.
+
         .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Set-AdmPwdComputerSelfPermission       | EguibarIT.DelegationPS
-                Set-AdmPwdReadPasswordPermission       | EguibarIT.DelegationPS
-                Set-AdmPwdResetPasswordPermission      | EguibarIT.DelegationPS
-                Get-AttributeSchemaHashTable           | EguibarIT.DelegationPS
-                Get-CurrentErrorToDisplay              | EguibarIT
-                Get-FunctionDisplay                    | EguibarIT
-                Set-AdmPwdComputerSelfPermission       | AdmPwd.PS
-                Set-AdmPwdReadPasswordPermission       | AdmPwd.PS
-                Set-AdmPwdResetPasswordPermission      | AdmPwd.PS
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Set-AdmPwdComputerSelfPermission       ║ EguibarIT.DelegationPS
+                Set-AdmPwdReadPasswordPermission       ║ EguibarIT.DelegationPS
+                Set-AdmPwdResetPasswordPermission      ║ EguibarIT.DelegationPS
+                Get-FunctionDisplay                    ║ EguibarIT
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+
         .NOTES
-            Version:         1.0
-            DateModified:    19/Oct/2016
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Version:         1.1
+            DateModified:    21/Sep/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Set-AdAclLaps.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Security Administration
+
+        .FUNCTIONALITY
+            LAPS Delegation Management
     #>
 
     [CmdletBinding(ConfirmImpact = 'Low')]
     [OutputType([void])]
 
-    Param (
+    param (
         # PARAM1 STRING for the Delegated Group Name
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Identity of the group getting being able to READ the password.',
+            HelpMessage = 'Identity of the group allowed to READ the LAPS password. Accepts SamAccountName, DistinguishedName, SID, or ADGroup object.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
+        [object]
         $ReadGroup,
 
         # PARAM2 STRING for the Delegated Group Name
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Identity of the group getting being able to RESET the password.',
+            HelpMessage = 'Identity of the group allowed to RESET the LAPS password. Accepts SamAccountName, DistinguishedName, SID, or ADGroup object.',
             Position = 1)]
         [ValidateNotNullOrEmpty()]
+        [object]
         $ResetGroup,
 
         # PARAM3 Distinguished Name of the OU where given group can read the computer password
@@ -74,12 +121,19 @@ function Set-AdAclLaps {
     )
 
     begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        Set-StrictMode -Version Latest
+
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -96,7 +150,7 @@ function Set-AdAclLaps {
 
     } #end Begin
 
-    Process {
+    process {
         <#
         LEGACY LAPS not used anymore.
 
@@ -124,7 +178,7 @@ function Set-AdAclLaps {
         } #end If-Else
     } #end Process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'delegating LAPS Admin.'
         )

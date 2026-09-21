@@ -86,7 +86,7 @@ function Revoke-NTFSPermissions {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
-    Param
+    param
     (
         # Param1 path to the resource|folder
         [Parameter(Mandatory = $true,
@@ -125,15 +125,20 @@ function Revoke-NTFSPermissions {
         $permission
     )
 
-    Begin {
-        $error.Clear()
+    begin {
+        Set-StrictMode -Version Latest
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -150,17 +155,19 @@ function Revoke-NTFSPermissions {
         $DirectorySecurity = Get-Acl -Path $path
     } #end Begin
 
-    Process {
-        Try {
-            $DirectorySecurity.RemoveAccessRuleAll($FileSystemAccessRule)
-            Set-Acl -Path $path -AclObject $DirectorySecurity
-        } Catch {
-            Write-Error -Message 'Error when revoking NTFS permissions'
-            throw
-        } #end Try-Catch
+    process {
+        if ($PSCmdlet.ShouldProcess($path, 'Revoke NTFS permissions')) {
+            try {
+                $DirectorySecurity.RemoveAccessRuleAll($FileSystemAccessRule)
+                Set-Acl -Path $path -AclObject $DirectorySecurity
+            } catch {
+                Write-Error -Message 'Error when revoking NTFS permissions'
+                throw
+            } #end Try-Catch
+        } #end If ShouldProcess
     } #end Process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'removing User/Group from folder.'
         )

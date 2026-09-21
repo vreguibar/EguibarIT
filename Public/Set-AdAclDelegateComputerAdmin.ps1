@@ -102,14 +102,15 @@ function Set-AdAclDelegateComputerAdmin {
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
-    Param (
+    param (
         # PARAM1 STRING for the Delegated Group Name
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
+            HelpMessage = 'Identity of the group getting the delegation. Accepts SamAccountName, DistinguishedName, SID, or ADGroup object.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
+        [object]
         $Group,
 
         # PARAM2 Distinguished Name of the OU where given group can read the computer password
@@ -145,14 +146,19 @@ function Set-AdAclDelegateComputerAdmin {
     )
 
     begin {
-        $error.Clear()
+        Set-StrictMode -Version Latest
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -171,10 +177,10 @@ function Set-AdAclDelegateComputerAdmin {
 
     } #end Begin
 
-    Process {
+    process {
 
         # Check if RemoveRule switch is present.
-        If ($PSBoundParameters['RemoveRule']) {
+        if ($PSBoundParameters['RemoveRule']) {
             # Add the parameter to remove the rule
             $Splat.Add('RemoveRule', $true)
         } #end If
@@ -261,7 +267,7 @@ function Set-AdAclDelegateComputerAdmin {
 
     } #end Process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'delegating Computer Admin.'
         )

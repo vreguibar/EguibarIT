@@ -1,52 +1,100 @@
 # Group together all USER admin delegations
 function Set-AdAclDelegateGalAdmin {
     <#
-        .Synopsis
-            Wrapper for all rights used for GAL admin.
+        .SYNOPSIS
+            Configures all delegated rights required for Global Address List (GAL) administration.
+
         .DESCRIPTION
-            The function will consolidate all rights used for GAL admin.
-        .EXAMPLE
-            Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local"
-        .EXAMPLE
-            Set-AdAclDelegateGalAdmin -Group "SG_SiteAdmins_XXXX" -LDAPPath "OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local" -RemoveRule
+            Consolidates all rights used for Global Address List (GAL) administration. The function
+            configures permissions for:
+            - User group membership management
+            - Personal and public information attributes
+            - General, web, and email information
+            Supports both granting and removing delegations via -RemoveRule.
+
         .PARAMETER Group
-            Delegated Group Name
+            [Object] Security group receiving the GAL delegation rights.
+            Accepts SamAccountName, DistinguishedName, SID, or ADGroup object.
+
         .PARAMETER LDAPPath
-            Distinguished Name of the OU where given group will manage a User GAL.
+            [String] Distinguished Name of the OU where permissions will be applied.
+            Must be a valid AD path.
+
         .PARAMETER RemoveRule
-            If present, the access rule will be removed
+            [Switch] When specified, removes delegated permissions instead of granting them.
+
+        .EXAMPLE
+            Set-AdAclDelegateGalAdmin -Group 'SG_SiteAdmins_XXXX' -LDAPPath 'OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local'
+
+            Grants GAL administration rights to the specified group.
+
+        .EXAMPLE
+            Set-AdAclDelegateGalAdmin -Group 'SG_SiteAdmins_XXXX' -LDAPPath 'OU=Users,OU=XXXX,OU=Sites,DC=EguibarIT,DC=local' -RemoveRule
+
+            Removes GAL administration rights from the specified group.
+
+        .EXAMPLE
+            $Splat = @{
+                Group    = 'SG_SiteAdmins_GOOD'
+                LDAPPath = 'OU=Users,OU=GOOD,OU=Sites,DC=EguibarIT,DC=local'
+            }
+            Set-AdAclDelegateGalAdmin @Splat -WhatIf
+
+            Shows what would happen when granting GAL admin rights.
+
+        .INPUTS
+            [System.String]
+            You can pipe the group name or LDAP path to this function.
+
+        .OUTPUTS
+            [void]
+            This function does not return any output.
+
         .NOTES
             Used Functions:
-                Name                                   | Module
-                ---------------------------------------|--------------------------
-                Set-AdAclUserGroupMembership           | EguibarIT.DelegationPS
-                Set-AdAclUserPersonalInfo              | EguibarIT.DelegationPS
-                Set-AdAclUserPublicInfo                | EguibarIT.DelegationPS
-                Set-AdAclUserGeneralInfo               | EguibarIT.DelegationPS
-                Set-AdAclUserWebInfo                   | EguibarIT.DelegationPS
-                Set-AdAclUserEmailInfo                 | EguibarIT.DelegationPS
-                Get-CurrentErrorToDisplay              | EguibarIT
-                Get-FunctionDisplay                    | EguibarIT
+                Name                                   ║ Module/Namespace
+                ═══════════════════════════════════════╬══════════════════════════════
+                Set-AdAclUserGroupMembership           ║ EguibarIT.DelegationPS
+                Set-AdAclUserPersonalInfo              ║ EguibarIT.DelegationPS
+                Set-AdAclUserPublicInfo                ║ EguibarIT.DelegationPS
+                Set-AdAclUserGeneralInfo               ║ EguibarIT.DelegationPS
+                Set-AdAclUserWebInfo                   ║ EguibarIT.DelegationPS
+                Set-AdAclUserEmailInfo                 ║ EguibarIT.DelegationPS
+                Get-FunctionDisplay                    ║ EguibarIT
+                Write-Verbose                          ║ Microsoft.PowerShell.Utility
+
         .NOTES
-        .NOTES
-            Version:         1.1
-            DateModified:    12/Feb/2018
-            LasModifiedBy:   Vicente Rodriguez Eguibar
-                vicente@eguibar.com
-                Eguibar Information Technology S.L.
-                http://www.eguibarit.com
+            Version:         1.2
+            DateModified:    21/Sep/2025
+            LastModifiedBy:  Vicente Rodriguez Eguibar
+                            vicente@eguibar.com
+                            Eguibar IT
+                            http://www.eguibarit.com
+
+        .LINK
+            https://github.com/vreguibar/EguibarIT/blob/main/Public/Set-AdAclDelegateGalAdmin.ps1
+
+        .COMPONENT
+            Active Directory
+
+        .ROLE
+            Security Administration
+
+        .FUNCTIONALITY
+            User GAL Delegation Management
     #>
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
-    Param (
+    param (
         # PARAM1 STRING for the Delegated Group Name
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Identity of the group getting the delegation, usually a DomainLocal group.',
+            HelpMessage = 'Identity of the group getting the delegation. Accepts SamAccountName, DistinguishedName, SID, or ADGroup object.',
             Position = 0)]
         [ValidateNotNullOrEmpty()]
+        [object]
         $Group,
 
         # PARAM2 Distinguished Name of the OU where given group will manage a User GAL.
@@ -84,14 +132,19 @@ function Set-AdAclDelegateGalAdmin {
     )
 
     begin {
-        $error.Clear()
+        Set-StrictMode -Version Latest
 
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -112,10 +165,10 @@ function Set-AdAclDelegateGalAdmin {
 
     } #end Begin
 
-    Process {
+    process {
         try {
             # Check if RemoveRule switch is present.
-            If ($PSBoundParameters['RemoveRule']) {
+            if ($PSBoundParameters['RemoveRule']) {
                 # Add the parameter to remove the rule
                 $Splat.Add('RemoveRule', $true)
             }
@@ -145,7 +198,7 @@ function Set-AdAclDelegateGalAdmin {
         }
     } #end Process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'delegating GAL Admin.'
         )

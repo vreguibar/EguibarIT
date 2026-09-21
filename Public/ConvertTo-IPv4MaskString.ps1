@@ -64,11 +64,10 @@ function ConvertTo-IPv4MaskString {
         .FUNCTIONALITY
             Subnet Mask Conversion
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
     [OutputType([string])]
 
-    Param
-    (
+    param (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -79,13 +78,20 @@ function ConvertTo-IPv4MaskString {
         $MaskBits
     )
 
-    Begin {
-        $txt = ($Variables.Header -f
-            (Get-Date).ToString('dd/MMM/yyyy'),
-            $MyInvocation.Mycommand,
-            (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
-        )
-        Write-Verbose -Message $txt
+    begin {
+        Set-StrictMode -Version Latest
+
+        # Initialize logging
+        if ($null -ne $Variables -and
+            $null -ne $Variables.Header) {
+
+            $txt = ($Variables.Header -f
+                (Get-Date).ToString('dd/MMM/yyyy'),
+                $MyInvocation.Mycommand,
+                (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
+            )
+            Write-Verbose -Message $txt
+        } #end If
 
         ##############################
         # Module imports
@@ -93,19 +99,19 @@ function ConvertTo-IPv4MaskString {
         ##############################
         # Variables Definition
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         $mask = ([Math]::Pow(2, $MaskBits) - 1) * [Math]::Pow(2, (32 - $MaskBits))
         $bytes = [BitConverter]::GetBytes([UInt32] $mask)
         (($bytes.Count - 1)..0 | ForEach-Object { [String] $bytes[$_] }) -join '.'
-    } #end Process
+    } #end process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'converting bits to a networkmask string.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 
 } #end Function

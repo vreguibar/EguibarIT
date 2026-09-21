@@ -27,7 +27,7 @@
     CompanyName          = 'EguibarIT'
 
     # Copyright statement for this module
-    Copyright            = 'All rights reserved (c) 2025 - EguibarIT.'
+    Copyright            = 'All rights reserved (c) 2026 - EguibarIT.'
 
     # Description of the functionality provided by this module
     Description          = 'Functions used to implement the Delegation Model with Tiers on the given Active Directory.'
@@ -95,7 +95,7 @@
         PSData = @{
 
             # Tags applied to this module. These help with module discovery in online galleries.
-            Tags                       = 'Windows', 'ActiveDirectory', 'ActiveDirectory_Delegation', 'ActiveDirectory_Security', 'AD_Security', 'Security', 'Delegation', 'AD_Delegation', 'DelegationModel', 'TierModel', 'RBACmodel', 'RoleBasedAccessControl_model', 'DelegationModel', 'TierModel', 'RBACmodel', 'Infrastructure', 'Testing', 'Checks', 'Audits', 'Checklist', 'Validation', 'CredentialTheaf', 'Pass-the-Hash', 'Pass-the-Ticket', 'Golden_Ticket', 'Silver_Ticket'
+            Tags                       = 'Windows', 'ActiveDirectory', 'ActiveDirectory_Delegation', 'ActiveDirectory_Security', 'AD_Security', 'Security', 'Delegation', 'AD_Delegation', 'DelegationModel', 'TierModel', 'RBACmodel', 'RoleBasedAccessControl_model', 'Infrastructure', 'Testing', 'Checks', 'Audits', 'Checklist', 'Validation', 'CredentialTheaf', 'Pass-the-Hash', 'Pass-the-Ticket', 'Golden_Ticket', 'Silver_Ticket'
 
             # A URL to the license for this module.
             # LicenseUri = ''
@@ -104,7 +104,7 @@
             ProjectUri                 = 'https://github.com/vreguibar/EguibarIT'
 
             # A URL to an icon representing this module.
-            IconUri                    = 'https://EguibarIT.com/wp-content/uploads/2017/09/LOGO_FondoBlanco.png'
+            IconUri                    = 'https://www.eguibarit.com/assets/images/LOGO_SinFondo-180x180.png'
 
             # ReleaseNotes of this module
             # ReleaseNotes = ''
@@ -123,7 +123,7 @@
     } # End of PrivateData hashtable
 
     # HelpInfo URI of this module
-    HelpInfoURI          = 'https://eguibarit.eu/powershell/delegation-model-powershell-scripts/eguibarit-powershell-module/'
+    HelpInfoURI          = 'https://www.eguibarit.com/powershell/eguibarit.module.html'
 
     # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
     # DefaultCommandPrefix = ''

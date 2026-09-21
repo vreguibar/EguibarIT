@@ -1,4 +1,4 @@
-Function ConvertTo-IPv4NetworkAddress {
+function ConvertTo-IPv4NetworkAddress {
     <#
         .SYNOPSIS
             Calculates the network address for a given IP address and subnet mask.
@@ -78,10 +78,10 @@ Function ConvertTo-IPv4NetworkAddress {
         .FUNCTIONALITY
             IP Address Calculation
     #>
-    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
     [OutputType([System.Net.IpAddress])]
 
-    Param (
+    param (
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -112,7 +112,7 @@ Function ConvertTo-IPv4NetworkAddress {
         $PrefixLength
     )
 
-    Begin {
+    begin {
         $txt = ($Variables.Header -f
             (Get-Date).ToString('dd/MMM/yyyy'),
             $MyInvocation.Mycommand,
@@ -130,15 +130,15 @@ Function ConvertTo-IPv4NetworkAddress {
         $IntegerIPv4SubnetMask = 0
         $IntegerNetworkAddress = 0
         [IpAddress]$NetworkAddress
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         # Get IPv4 address as an Integer
         $IntegerIPv4Address = ConvertTo-IPv4Integer -Ipv4Address $IPv4Address
         Write-Verbose -Message ('IP Address {0} to Integer: {1}' -f $IPv4Address, $IntegerIPv4Address)
 
         # Get IPv4 subnet mask as an Integer
-        If ($PSCmdlet.ParameterSetName -eq 'PrefixLength') {
+        if ($PSCmdlet.ParameterSetName -eq 'PrefixLength') {
             $SubnetMask = (ConvertTo-IPv4MaskString -MaskBits $PrefixLength).ToString()
             Write-Verbose -Message ('PrefixLength of {0} to Integer: {1}' -f $SubnetMask, $IntegerIPv4SubnetMask)
         }
@@ -152,14 +152,14 @@ Function ConvertTo-IPv4NetworkAddress {
         # Convert Integer to Network Address
         $NetworkAddress = ConvertTo-IntegerIPv4 -Integer $IntegerNetworkAddress
         Write-Verbose -Message ('Network Address {0} to Integer: {1}' -f $NetworkAddress, $IntegerNetworkAddress)
-    } #end Process
+    } #end process
 
-    End {
+    end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'finding network address based on IP Address and Subnet Mask.'
         )
         Write-Verbose -Message $txt
 
         return $NetworkAddress
-    } #end End
+    } #end end
 } #end Function
