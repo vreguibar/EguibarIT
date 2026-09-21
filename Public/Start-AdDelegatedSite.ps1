@@ -1,4 +1,4 @@
-# Delegate Rights to SITE groups
+﻿# Delegate Rights to SITE groups
 function Start-AdDelegateSite {
     <#
         .SYNOPSIS

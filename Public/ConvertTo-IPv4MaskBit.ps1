@@ -1,4 +1,4 @@
-function ConvertTo-IPv4MaskBit {
+﻿function ConvertTo-IPv4MaskBit {
     <#
         .SYNOPSIS
             Converts a subnet mask string to its CIDR bit count (0-32).

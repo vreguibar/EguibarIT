@@ -1,4 +1,4 @@
-function New-DelegateAdOU {
+﻿function New-DelegateAdOU {
     <#
         .SYNOPSIS
             Creates a new custom delegated Active Directory Organizational Unit.

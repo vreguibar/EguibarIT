@@ -1,4 +1,4 @@
-function New-TimePolicyGPO {
+﻿function New-TimePolicyGPO {
     <#
         .SYNOPSIS
             Creates a new Group Policy Object (GPO) for time synchronization policy.

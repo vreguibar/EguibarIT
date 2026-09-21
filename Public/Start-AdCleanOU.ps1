@@ -1,4 +1,4 @@
-# Clean OU from default BuiltIn groups
+﻿# Clean OU from default BuiltIn groups
 function Start-AdCleanOU {
     <#
         .SYNOPSIS

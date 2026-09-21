@@ -1,4 +1,4 @@
-function ConvertTo-IPv4Integer {
+﻿function ConvertTo-IPv4Integer {
     <#
         .SYNOPSIS
             Converts an IPv4 address to its integer representation.

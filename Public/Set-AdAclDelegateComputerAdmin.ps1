@@ -1,4 +1,4 @@
-# Group together all COMPUTER admin delegations
+﻿# Group together all COMPUTER admin delegations
 function Set-AdAclDelegateComputerAdmin {
     <#
         .SYNOPSIS

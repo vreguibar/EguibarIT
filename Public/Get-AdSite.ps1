@@ -1,4 +1,4 @@
-function Get-AdSite {
+﻿function Get-AdSite {
     <#
         .SYNOPSIS
             Retrieves all Active Directory sites from the current forest.

@@ -1,4 +1,4 @@
-function Uninstall-SqlServer {
+﻿function Uninstall-SqlServer {
 
     <#
         .SYNOPSIS

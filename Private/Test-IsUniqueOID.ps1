@@ -1,4 +1,4 @@
-Function Test-IsUniqueOID {
+﻿Function Test-IsUniqueOID {
     <#
         .SYNOPSIS
             Checks if a given Certificate Template OID is unique within the specified context.

@@ -1,4 +1,4 @@
-function Get-IniContent {
+﻿function Get-IniContent {
     <#
         .SYNOPSIS
             Gets the content of an INI file and returns it as a hashtable.

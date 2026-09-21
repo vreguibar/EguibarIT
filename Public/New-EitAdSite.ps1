@@ -1,4 +1,4 @@
-function New-EitAdSite {
+﻿function New-EitAdSite {
     <#
         .SYNOPSIS
             Creates a new Active Directory site object.

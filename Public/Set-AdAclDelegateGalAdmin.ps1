@@ -1,4 +1,4 @@
-# Group together all USER admin delegations
+﻿# Group together all USER admin delegations
 function Set-AdAclDelegateGalAdmin {
     <#
         .SYNOPSIS

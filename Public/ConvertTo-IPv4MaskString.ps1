@@ -1,4 +1,4 @@
-function ConvertTo-IPv4MaskString {
+﻿function ConvertTo-IPv4MaskString {
     <#
         .SYNOPSIS
             Converts a CIDR bit count (0-32) to its equivalent subnet mask in dotted-decimal format.

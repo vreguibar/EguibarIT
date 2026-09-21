@@ -1,4 +1,4 @@
-function Add-AdGroupNesting {
+﻿function Add-AdGroupNesting {
 
     <#
         .SYNOPSIS

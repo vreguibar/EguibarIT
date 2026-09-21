@@ -1,4 +1,4 @@
-function New-LocalLogonTask {
+﻿function New-LocalLogonTask {
     <#
         .SYNOPSIS
             Creates a new scheduled task that runs on user logon.

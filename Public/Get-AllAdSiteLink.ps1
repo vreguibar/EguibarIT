@@ -1,4 +1,4 @@
-function Get-AllAdSiteLink {
+﻿function Get-AllAdSiteLink {
     <#
         .SYNOPSIS
             Retrieves all Active Directory site links from the current forest.

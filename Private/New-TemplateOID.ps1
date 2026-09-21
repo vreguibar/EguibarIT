@@ -1,4 +1,4 @@
-Function New-TemplateOID {
+﻿Function New-TemplateOID {
     <#
         .SYNOPSIS
             Generates a new OID for certificate templates.

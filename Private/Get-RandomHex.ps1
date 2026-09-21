@@ -1,4 +1,4 @@
-Function Get-RandomHex {
+﻿Function Get-RandomHex {
     <#
         .SYNOPSIS
             Generates a random hexadecimal string of specified length.

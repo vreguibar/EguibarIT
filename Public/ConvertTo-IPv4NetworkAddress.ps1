@@ -1,4 +1,4 @@
-function ConvertTo-IPv4NetworkAddress {
+﻿function ConvertTo-IPv4NetworkAddress {
     <#
         .SYNOPSIS
             Calculates the network address for a given IP address and subnet mask.

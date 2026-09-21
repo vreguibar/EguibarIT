@@ -1,4 +1,4 @@
-Function Publish-CertificateTemplate {
+﻿Function Publish-CertificateTemplate {
     <#
         .SYNOPSIS
             Publishes a certificate template to all available Certification Authorities (CAs).

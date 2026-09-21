@@ -1,4 +1,4 @@
-function New-AreaShareNTFS {
+﻿function New-AreaShareNTFS {
     <#
         .SYNOPSIS
             Creates a new NTFS-secured area folder share with role-based access groups.

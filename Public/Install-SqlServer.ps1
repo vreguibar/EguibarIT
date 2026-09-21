@@ -1,4 +1,4 @@
-function Install-SqlServer {
+﻿function Install-SqlServer {
 
     <#
         .SYNOPSIS

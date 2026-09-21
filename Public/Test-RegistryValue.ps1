@@ -1,4 +1,4 @@
-function Test-RegistryValue {
+﻿function Test-RegistryValue {
     <#
         .SYNOPSIS
             Tests if a specific registry value exists.

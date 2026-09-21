@@ -1,4 +1,4 @@
-function Get-AdObjectType {
+﻿function Get-AdObjectType {
 
     <#
         .SYNOPSIS

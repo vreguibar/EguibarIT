@@ -1,4 +1,4 @@
-function Revoke-NTFSPermissions {
+﻿function Revoke-NTFSPermissions {
     <#
         .SYNOPSIS
             Revokes specific NTFS permissions from files and folders.

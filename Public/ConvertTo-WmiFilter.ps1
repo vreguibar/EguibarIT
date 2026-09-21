@@ -1,4 +1,4 @@
-function ConvertTo-WmiFilter {
+﻿function ConvertTo-WmiFilter {
     <#
         .SYNOPSIS
             Converts an Active Directory object to a WMI filter object for Group Policy.

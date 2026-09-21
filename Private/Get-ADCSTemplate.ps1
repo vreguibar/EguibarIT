@@ -1,4 +1,4 @@
-Function Get-ADCSTemplate {
+﻿Function Get-ADCSTemplate {
     <#
         .SYNOPSIS
             Returns properties of Active Directory Certificate Template(s).

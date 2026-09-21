@@ -1,4 +1,4 @@
-function Test-IPv4MaskString {
+﻿function Test-IPv4MaskString {
     <#
         .SYNOPSIS
             Tests whether an IPv4 network mask string is valid.

@@ -1,4 +1,4 @@
-Function New-Template {
+﻿Function New-Template {
     <#
         .SYNOPSIS
             Creates a new PKI template in Active Directory Certificate Services.

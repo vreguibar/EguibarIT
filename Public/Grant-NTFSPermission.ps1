@@ -1,4 +1,4 @@
-function Grant-NTFSPermission {
+﻿function Grant-NTFSPermission {
     <#
         .SYNOPSIS
             Grants NTFS permissions to files and folders with enhanced security controls.

@@ -1,4 +1,4 @@
-function New-Tier1 {
+﻿function New-Tier1 {
 
     <#
         .SYNOPSIS

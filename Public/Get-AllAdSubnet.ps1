@@ -1,4 +1,4 @@
-function Get-AllAdSubnet {
+﻿function Get-AllAdSubnet {
     <#
         .SYNOPSIS
             Retrieves all Active Directory subnets defined in the current forest.

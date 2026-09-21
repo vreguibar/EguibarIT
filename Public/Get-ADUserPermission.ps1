@@ -1,4 +1,4 @@
-function Get-ADUserPermission {
+﻿function Get-ADUserPermission {
 
     <#
         .SYNOPSIS
@@ -157,7 +157,7 @@ function Get-ADUserPermission {
         [switch]$ExcludeGenericAll
     )
 
-    Begin {
+    begin {
         # Set strict mode
         Set-StrictMode -Version Latest
 
@@ -219,15 +219,25 @@ function Get-ADUserPermission {
 
     } #end Begin
 
-    Process {
+    process {
 
         try {
             # Get user object from AD
-            $UserObject = Get-ADUser -Identity $Identity -Properties ObjectSID, SamAccountName -ErrorAction Stop
+            $Splat = @{
+                Identity    = $Identity
+                Properties  = 'ObjectSID', 'SamAccountName'
+                ErrorAction = 'Stop'
+            }
+            $UserObject = Get-ADUser @Splat
             Write-Debug -Message ('Found user: {0}' -f $UserObject.SamAccountName)
 
             # Get groups the user is a member of (direct and nested)
-            $Groups = Get-ADGroup -LDAPFilter "(member:1.2.840.113556.1.4.1941:=$($UserObject.DistinguishedName))" -Properties ObjectSID
+            $Splat = @{
+                LDAPFilter  = "(member:1.2.840.113556.1.4.1941:=$($UserObject.DistinguishedName))"
+                Properties  = 'ObjectSID'
+                ErrorAction = 'Stop'
+            }
+            $Groups = Get-ADGroup @Splat
             Write-Debug -Message ('User is a member of {0} groups' -f $Groups.Count)
 
             # Build collection of security principals to check permissions for
@@ -261,7 +271,12 @@ function Get-ADUserPermission {
                 Write-Debug -Message ('LDAP filter: {0}' -f $LDAPFilter.ToString())
 
                 # Get objects with matching security descriptors
-                $TargetObjects = Get-ADObject -LDAPFilter $LDAPFilter.ToString() -Properties nTSecurityDescriptor -ResultSetSize 5000
+                $Splat = @{
+                    LDAPFilter    = $LDAPFilter.ToString()
+                    Properties    = 'nTSecurityDescriptor'
+                    ResultSetSize = 5000
+                }
+                $TargetObjects = Get-ADObject @Splat
                 Write-Verbose -Message ('Found {0} objects with ACEs for the user or their groups' -f $TargetObjects.Count)
             }
 
@@ -340,7 +355,7 @@ function Get-ADUserPermission {
 
     } #end Process
 
-    End {
+    end {
         # Return the results
         $Results
 

@@ -1,4 +1,4 @@
-function Set-SqlServerFirewall {
+﻿function Set-SqlServerFirewall {
 
     <#
         .SYNOPSIS

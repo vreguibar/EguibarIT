@@ -1,4 +1,4 @@
-Function New-LAPSobject {
+﻿Function New-LAPSobject {
     <#
         .SYNOPSIS
             Configures and manages Local Administrator Password Solution (LAPS) objects and delegations in Active Directory.

@@ -1,4 +1,4 @@
-function New-ExchangeObject {
+﻿function New-ExchangeObject {
     <#
         .SYNOPSIS
             Creates Exchange objects, containers and delegations.
