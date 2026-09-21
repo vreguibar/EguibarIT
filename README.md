@@ -91,6 +91,6 @@ Install and use the module for all users.
 
 To install the EguibarIT module, you can download it from the PowerShellGallery (or Github by cloning) and import it into your PowerShell session:
 
-Find-Module EguibarIT | InstallModule -Scope AllUsers -Force
+Find-Module EguibarIT | Install-Module -Scope AllUsers -Force
 
 Import-Module EguibarIT
