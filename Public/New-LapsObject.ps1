@@ -1,4 +1,4 @@
-﻿Function New-LAPSobject {
+﻿function New-LAPSobject {
     <#
         .SYNOPSIS
             Configures and manages Local Administrator Password Solution (LAPS) objects and delegations in Active Directory.
@@ -134,10 +134,10 @@
     )]
     [OutputType([void])]
 
-    Param
+    param
     (
         # PARAM1 full path to the configuration.xml file
-        [Parameter(Mandatory = $true,
+        [Parameter(Mandatory = $false,
             ValueFromPipeline = $True,
             ValueFromPipelineByPropertyName = $True,
             ValueFromRemainingArguments = $false,
@@ -147,12 +147,14 @@
             { Test-Path $_ },
             ErrorMessage = 'Config file not found or not accessible: {0}'
         )]
-        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Config.xml"')]
+        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Config.xml"',
+            Value = 'C:\PsScripts\Config.xml'
+        )]
         [System.IO.FileInfo]
         $ConfigXMLFile = 'C:\PsScripts\Config.xml'
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Initialize logging
@@ -181,9 +183,9 @@
 
         try {
             # Check if Config.xml file is loaded. If not, proceed to load it.
-            If (-Not (Test-Path -Path variable:confXML)) {
+            if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
-                If (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
+                if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
                     #Open the configuration XML file
                     $confXML = [xml](Get-Content $PSBoundParameters['ConfigXMLFile'])
                     Write-Debug -Message 'Successfully loaded configuration XML'
@@ -194,7 +196,7 @@
             throw
         }
 
-        If (-Not (Test-Path -Path variable:NC)) {
+        if (-not (Test-Path -Path variable:NC)) {
             # Naming conventions hashtable
             $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix
                 'sg'     = $confXML.n.NC.GlobalGroupPreffix
@@ -227,20 +229,20 @@
         # Organizational Units Distinguished Names
 
         # IT Admin OU
-        If (-Not (Test-Path -Path variable:ItAdminOu)) {
+        if (-not (Test-Path -Path variable:ItAdminOu)) {
             $ItAdminOu = $confXML.n.Admin.OUs.ItAdminOU.name
         }
         # IT Admin OU Distinguished Name
-        If (-Not (Test-Path -Path variable:ItAdminOuDn)) {
+        if (-not (Test-Path -Path variable:ItAdminOuDn)) {
             New-Variable -Name 'ItAdminOuDn' -Value ('OU={0},{1}' -f $ItAdminOu, $Variables.AdDn) -Option ReadOnly -Force
         }
 
         # Servers OU
-        If (-Not (Test-Path -Path variable:ServersOu)) {
+        if (-not (Test-Path -Path variable:ServersOu)) {
             $ServersOu = $confXML.n.Servers.OUs.ServersOU.name
         }
         # Servers OU Distinguished Name
-        If (-Not (Test-Path -Path variable:ServersOuDn)) {
+        if (-not (Test-Path -Path variable:ServersOuDn)) {
             $ServersOuDn = 'OU={0},{1}' -f $ServersOu, $Variables.AdDn
         }
 
@@ -303,7 +305,7 @@
 
         # Check if schema is extended for LAPS. Extend it if not.
         Write-Debug -Message 'Checking LAPS schema configuration'
-        Try {
+        try {
 
             if ($null -eq $Variables.GuidMap['msLAPS-Password']) {
 
@@ -347,12 +349,12 @@
         catch {
             Write-Error -Message 'Error when trying to update LAPS schema'
             throw
-        } Finally {
+        } finally {
             Write-Verbose -Message 'Schema was extended successfully for LAPS.'
         }#end finally
     } #end Begin
 
-    Process {
+    process {
         # Make Infrastructure Servers modifications
         $Splat = @{
             ResetGroup = $SL_PISM.SamAccountName
@@ -386,9 +388,9 @@
         $AllSubOu = Get-ADOrganizationalUnit @Splat | Select-Object -ExpandProperty DistinguishedName
 
         # Iterate through each sub OU and invoke delegation
-        Foreach ($Item in $AllSubOu) {
+        foreach ($Item in $AllSubOu) {
             # Exclude _Global OU from delegation
-            If (-not($item.Split(',')[0].Substring(3) -eq $confXML.n.Sites.OUs.OuSiteGlobal.name)) {
+            if (-not($item.Split(',')[0].Substring(3) -eq $confXML.n.Sites.OUs.OuSiteGlobal.name)) {
 
                 # Get group who manages Desktops and Laptops
                 $Id = ('{0}{1}{2}{1}{3}' -f $NC['sl'],
@@ -418,7 +420,7 @@
         }#end foreach
     } #end Process
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 

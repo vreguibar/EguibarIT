@@ -178,13 +178,15 @@
         $GpoBackupPath,
 
         # PARAM11 full path to the configuration.xml file
-        [Parameter(Mandatory = $true,
+        [Parameter(Mandatory = $false,
             ValueFromPipeline = $True,
             ValueFromPipelineByPropertyName = $True,
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 10)]
-        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Config.xml"')]
+        [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\Config.xml"',
+            Value = 'C:\PsScripts\Config.xml'
+        )]
         [string]
         $ConfigXMLFile = 'C:\PsScripts\Config.xml'
 
