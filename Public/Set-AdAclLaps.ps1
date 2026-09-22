@@ -80,7 +80,7 @@ function Set-AdAclLaps {
             LAPS Delegation Management
     #>
 
-    [CmdletBinding(ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
     param (
@@ -164,18 +164,22 @@ function Set-AdAclLaps {
         } #end If-Else
         #>
 
-        if ($Variables.GuidMap['msLAPS-Password']) {
+        if ($PSCmdlet.ShouldProcess($LDAPpath, 'Configure LAPS delegation')) {
 
-            Write-Verbose -Message 'LAPS is supported on this environment. We can proceed to configure it.'
+            if ($Variables.GuidMap['msLAPS-Password']) {
 
-            # LAPS CMDlets
-            Set-LapsADComputerSelfPermission -Identity $LDAPpath
-            Set-LapsADReadPasswordPermission -AllowedPrincipals $currentReadGroup.SID -Identity $PSBoundParameters['LDAPpath']
-            Set-LapsADResetPasswordPermission -AllowedPrincipals $currentResetGroup.SID -Identity $PSBoundParameters['LDAPpath']
+                Write-Verbose -Message 'LAPS is supported on this environment. We can proceed to configure it.'
 
-        } else {
-            Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for Windows LAPS.'
-        } #end If-Else
+                # LAPS CMDlets
+                Set-LapsADComputerSelfPermission -Identity $LDAPpath
+                Set-LapsADReadPasswordPermission -AllowedPrincipals $currentReadGroup.SID -Identity $PSBoundParameters['LDAPpath']
+                Set-LapsADResetPasswordPermission -AllowedPrincipals $currentResetGroup.SID -Identity $PSBoundParameters['LDAPpath']
+
+            } else {
+                Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for Windows LAPS.'
+            } #end If-Else
+
+        } #end If ShouldProcess
     } #end Process
 
     end {

@@ -60,7 +60,7 @@
 
     #>
 
-    [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'Low')]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Low')]
     [OutputType([string])]
 
     param (
@@ -146,7 +146,9 @@
                 )
 
                 # Add the access rule to the FileSecurity object
-                $fileSecurity.AddAccessRule($accessRule)
+                if ($PSCmdlet.ShouldProcess($identity, 'Add access rule')) {
+                    $fileSecurity.AddAccessRule($accessRule)
+                } #end If
 
                 Write-Verbose -Message (
                     'Added rule for identity: {0}, permissions: {1}, access type: {2}' -f
