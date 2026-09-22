@@ -240,9 +240,7 @@
                 } elseif ($Variables.WellKnownSIDs.Values -contains $Identity) {
 
                     # Input is a Well-Known SID name (e.g., "Everyone"). Get SID
-                    $wellKnownSid = $Variables.WellKnownSIDs.GetEnumerator() |
-                        Where-Object { $_.Value -eq $Identity } |
-                            Select-Object -ExpandProperty Key
+                    $wellKnownSid = ($Variables.WellKnownSIDs.Keys.Where({ $Variables.WellKnownSIDs[$_] -eq $Identity }))[0]
 
                 } #end if-elseif
 

@@ -202,11 +202,11 @@
         ##############################
         # Variables Definition
 
-        [Boolean]$ConfigurationResult = $false
-        [String]$RulePrefix = 'SQL Server'
+        [bool]$ConfigurationResult = $false
+        [string]$RulePrefix = 'SQL Server'
 
         # Define firewall rules to create/remove
-        $FirewallRules = @()
+        [System.Collections.Generic.List[hashtable]]$FirewallRules = [System.Collections.Generic.List[hashtable]]::new()
 
     } #end begin
 
@@ -247,7 +247,7 @@
                 Write-Verbose -Message 'Configuring Windows Firewall rules for SQL Server...'
 
                 # Core Database Engine rule (always created)
-                $FirewallRules += @{
+                [void]$FirewallRules.Add(@{
                     DisplayName = "$RulePrefix - Database Engine (TCP-In)"
                     Direction   = 'Inbound'
                     Protocol    = 'TCP'
@@ -258,7 +258,7 @@
 
                 # SQL Server Browser Service (for named instances)
                 if ($EnableBrowserService -or $InstanceName -ne 'MSSQLSERVER') {
-                    $FirewallRules += @{
+                    [void]$FirewallRules.Add(@{
                         DisplayName = "$RulePrefix - Browser Service (UDP-In)"
                         Direction   = 'Inbound'
                         Protocol    = 'UDP'
@@ -270,7 +270,7 @@
 
                 # Dedicated Administrator Connection (DAC)
                 if ($EnableDac) {
-                    $FirewallRules += @{
+                    [void]$FirewallRules.Add(@{
                         DisplayName = "$RulePrefix - DAC (TCP-In)"
                         Direction   = 'Inbound'
                         Protocol    = 'TCP'
@@ -282,7 +282,7 @@
 
                 # SQL Server Integration Services
                 if ($EnableSsisService) {
-                    $FirewallRules += @{
+                    [void]$FirewallRules.Add(@{
                         DisplayName = "$RulePrefix - Integration Services (TCP-In)"
                         Direction   = 'Inbound'
                         Protocol    = 'TCP'
@@ -294,7 +294,7 @@
 
                 # SQL Server Analysis Services
                 if ($EnableSsasService) {
-                    $FirewallRules += @{
+                    [void]$FirewallRules.Add(@{
                         DisplayName = "$RulePrefix - Analysis Services (TCP-In)"
                         Direction   = 'Inbound'
                         Protocol    = 'TCP'
@@ -306,16 +306,16 @@
 
                 # SQL Server Reporting Services
                 if ($EnableSsrsService) {
-                    $FirewallRules += @{
+                    [void]$FirewallRules.Add(@{
                         DisplayName = "$RulePrefix - Reporting Services HTTP (TCP-In)"
                         Direction   = 'Inbound'
                         Protocol    = 'TCP'
                         LocalPort   = 80
                         Action      = 'Allow'
                         Description = 'Allow inbound HTTP traffic to SQL Server Reporting Services on port 80'
-                    }
+                    })
 
-                    $FirewallRules += @{
+                    [void]$FirewallRules.Add(@{
                         DisplayName = "$RulePrefix - Reporting Services HTTPS (TCP-In)"
                         Direction   = 'Inbound'
                         Protocol    = 'TCP'

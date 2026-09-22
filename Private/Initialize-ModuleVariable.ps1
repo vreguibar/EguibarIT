@@ -120,19 +120,22 @@
         if ($adModuleAvailable) {
             try {
 
+                # Bind once to RootDSE to avoid multiple network round-trips
+                [ADSI]$RootDSE = [ADSI]'LDAP://RootDSE'
+
                 # Active Directory DistinguishedName
                 if ($Force -or $null -eq $Variables.AdDN) {
-                    $Variables.AdDN = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
+                    $Variables.AdDN = $RootDSE.DefaultNamingContext.ToString()
                 } #end if
 
                 # Configuration Naming Context
                 if ($Force -or $null -eq $Variables.configurationNamingContext) {
-                    $Variables.configurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
+                    $Variables.configurationNamingContext = $RootDSE.configurationNamingContext.ToString()
                 } #end if
 
                 # Active Directory DistinguishedName
                 if ($Force -or $null -eq $Variables.defaultNamingContext) {
-                    $Variables.defaultNamingContext = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
+                    $Variables.defaultNamingContext = $RootDSE.DefaultNamingContext.ToString()
                 } #end if
 
                 # Get current DNS domain name
@@ -142,22 +145,22 @@
 
                 # Naming Contexts
                 if ($Force -or $null -eq $Variables.namingContexts) {
-                    $Variables.namingContexts = ([ADSI]'LDAP://RootDSE').namingContexts
+                    $Variables.namingContexts = $RootDSE.namingContexts
                 } #end if
 
                 # Partitions Container
                 if ($Force -or $null -eq $Variables.PartitionsContainer) {
-                    $Variables.PartitionsContainer = (([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString())
+                    $Variables.PartitionsContainer = $RootDSE.configurationNamingContext.ToString()
                 } #end if
 
                 # Root Domain Naming Context
                 if ($Force -or $null -eq $Variables.rootDomainNamingContext) {
-                    $Variables.rootDomainNamingContext = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
+                    $Variables.rootDomainNamingContext = $RootDSE.rootDomainNamingContext.ToString()
                 } #end if
 
                 # Schema Naming Context
                 if ($Force -or $null -eq $Variables.SchemaNamingContext) {
-                    $Variables.SchemaNamingContext = ([ADSI]'LDAP://RootDSE').SchemaNamingContext.ToString()
+                    $Variables.SchemaNamingContext = $RootDSE.SchemaNamingContext.ToString()
                 } #end if
 
             } catch {
@@ -184,7 +187,7 @@
 
                 try {
                     [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
-                    [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+                    [hashtable]$Splat = @{}
 
                     Write-Verbose -Message '
                         The GUID map is null, empty, zero, or false.
@@ -235,7 +238,7 @@
 
                 try {
                     [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
-                    [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+                    [hashtable]$Splat = @{}
 
                     Write-Verbose -Message '
                         The Extended Rights map is null, empty, zero, or false.

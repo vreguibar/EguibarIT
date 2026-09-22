@@ -30,8 +30,8 @@
     # Schema Naming Context
     SchemaNamingContext        = $null
 
-    # Well-Known SIDs
-    WellKnownSIDs              = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
+    # Well-Known SIDs (populated by Enum.WellKnownSids.ps1)
+    WellKnownSIDs              = $null
 
     # Module Logging Config
     LogConfig                  = @{

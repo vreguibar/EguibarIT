@@ -228,8 +228,7 @@
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
         #$ArrayList = [System.Collections.ArrayList]::New()
         [System.Collections.Generic.List[object]]$ArrayList = [System.Collections.Generic.List[object]]::New()
-
-        $DenyLogon = [System.Collections.Generic.List[object]]::New()
+        [System.Collections.Generic.List[object]]$DenyLogon = [System.Collections.Generic.List[object]]::New()
 
         # Load the XML configuration file
         try {

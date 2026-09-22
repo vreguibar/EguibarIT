@@ -185,20 +185,20 @@
         $WMIPath = 'CN=SOM,CN=WMIPolicy,CN=System,{0}' -f $Variables.defaultNamingContext
 
         $ExistingWMIFilters = Get-ADObject -Filter 'objectClass -eq "msWMI-Som"' -Properties 'msWMI-Name', 'msWMI-Parm1', 'msWMI-Parm2'
-        $array = @()
+        [System.Collections.Generic.List[string]]$WmiFilterNames = [System.Collections.Generic.List[string]]::new()
     }
 
     process {
         if ($PSCmdlet.ShouldProcess($PSBoundParameters['gpoName'], 'Create Time Policy GPO')) {
             if ($null -ne $ExistingWMIFilters) {
                 foreach ($ExistingWMIFilter in $ExistingWMIFilters) {
-                    $array += $ExistingWMIFilter.'msWMI-Name'
+                    [void]$WmiFilterNames.Add($ExistingWMIFilter.'msWMI-Name')
                 }
             } else {
-                $array += 'no filters'
+                [void]$WmiFilterNames.Add('no filters')
             } #end if-Else
 
-            if ($array -notcontains $msWMIName) {
+            if ($WmiFilterNames -notcontains $msWMIName) {
                 Write-Output ('Creating the {0} WMI Filter...' -f $msWMIName)
                 $WMIFilterADObject = New-ADObject -Name $WMICN -Type 'msWMI-Som' -Path $WMIPath -OtherAttributes $Attr
             } else {

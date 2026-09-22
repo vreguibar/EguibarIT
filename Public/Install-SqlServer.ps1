@@ -496,7 +496,7 @@
             Help = 'Default Value is $true for performance optimization',
             Value = $true
         )]
-        [Boolean]
+        [bool]
         $PerformVolumeMaintenanceTasks = $true,
 
         [Parameter(
@@ -539,7 +539,7 @@
             Help = 'Default Value is $true',
             Value = $true
         )]
-        [Boolean]
+        [bool]
         $EnableTcpIp = $true,
 
         [Parameter(
@@ -566,7 +566,7 @@
             Help = 'Default Value is $true',
             Value = $true
         )]
-        [Boolean]
+        [bool]
         $ConfigureFirewall = $true
     )
 
@@ -616,7 +616,7 @@
         [String]$TranscriptLogPath = Join-Path -Path $PSScriptRoot -ChildPath $LogFileName
         [String]$DefaultIsoUrl = 'https://download.microsoft.com/download/7/c/1/' +
         '7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SQLServer2019-x64-ENU-Dev.iso'
-        [Boolean]$InstallationResult = $false
+        [bool]$InstallationResult = $false
 
         ##############################
         # Parameter Set Validation and gMSA Detection
@@ -750,9 +750,9 @@
             # 2. Check for user-provided ISO path or environment variable
             # 3. Download from internet (last resort)
 
-            [Boolean]$UseIsoFile = $true
-            [String]$SqlServerDrive = $null
-            [Boolean]$DvdMediaFound = $false
+            [bool]$UseIsoFile = $true
+            [string]$SqlServerDrive = $null
+            [bool]$DvdMediaFound = $false
 
             # PRIORITY 1: Check for DVD drives with SQL Server installation media
             Write-Verbose -Message 'Checking for mounted DVD drives with SQL Server media...'

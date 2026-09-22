@@ -242,7 +242,7 @@
 
 
         # Result variable
-        [boolean]$Result = $false
+        [bool]$Result = $false
 
     } #end begin
 

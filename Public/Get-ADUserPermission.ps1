@@ -212,8 +212,8 @@
         # Create a hashtable for splatting
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-        # Create an array to store results
-        [System.Collections.ArrayList]$Results = @()
+        # Create a list to store results
+        [System.Collections.Generic.List[object]]$Results = [System.Collections.Generic.List[object]]::new()
 
         Write-Verbose -Message 'Starting process'
 
@@ -241,7 +241,7 @@
             Write-Debug -Message ('User is a member of {0} groups' -f $Groups.Count)
 
             # Build collection of security principals to check permissions for
-            [System.Collections.ArrayList]$SecurityPrincipals = @()
+            [System.Collections.Generic.List[object]]$SecurityPrincipals = [System.Collections.Generic.List[object]]::new()
             [void]$SecurityPrincipals.Add($UserObject)
 
             if ($null -ne $Groups) {
@@ -306,7 +306,7 @@
                             }
 
                             # Map permissions to human-readable format
-                            [System.Collections.ArrayList]$MappedPermissions = @()
+                            [System.Collections.Generic.List[string]]$MappedPermissions = [System.Collections.Generic.List[string]]::new()
                             foreach ($Right in $ADRightsMapping.Keys) {
                                 if ($Ace.ActiveDirectoryRights -like "*$Right*") {
                                     [void]$MappedPermissions.Add($ADRightsMapping[$Right])

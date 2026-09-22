@@ -118,7 +118,6 @@
     process {
 
         try {
-            $ini = @{}
             switch -regex -file $PSBoundParameters['FilePath'] {
 
                 # Section

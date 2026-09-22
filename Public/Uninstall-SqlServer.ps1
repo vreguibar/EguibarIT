@@ -125,8 +125,8 @@
         ##############################
         # Variables Definition
 
-        [Boolean]$UninstallResult = $false
-        [String]$StartTime = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
+        [bool]$UninstallResult = $false
+        [string]$StartTime = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
 
     } #end begin
 

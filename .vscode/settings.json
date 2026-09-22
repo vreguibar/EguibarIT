@@ -1,494 +1,491 @@
 {
-    "@azure.argTenant": "",
-    "chat.instructionsFilesLocations": {
-        ".github/references": true
-    },
-    "chat.mcp.discovery.enabled": {
-        "claude-desktop": true,
-        "windsurf": true,
-        "cursor-global": true,
-        "cursor-workspace": true
-    },
-    "chat.mcp.discovery.path": ".github/mcp.json",
-    "chat.mcp.discovery.useWorkspaceRoot": true,
-    "cSpell.enabledFiletypes": [
-        "!elixir",
-        "!erlang",
-        "!go",
-        "!graphql",
-        "!jade",
-        "!jsonc",
-        "!jupyter",
-        "!latex",
-        "!properties",
-        "!pug",
-        "!restructuredtext",
-        "!rust",
-        "!scala",
-        "!scminput",
-        "!scss",
-        "!swift",
-        "!vue",
-        "csv",
-        "csv (whitespace)",
-        "excel",
-        "git-rebase",
-        "ignore",
-        "ini",
-        "Log",
-        "powershell"
-    ],
-    "cSpell.ignoreWords": [
-        "ADCS",
-        "addhours",
-        "Adminbaseline",
-        "ADSI",
-        "AGPM",
-        "APPACCUSERS",
-        "Autenticate",
-        "autofetch",
-        "Bitlocker",
-        "CACRL",
-        "Cbac",
-        "certsvc",
-        "certutil",
-        "Cloneable",
-        "Combound",
-        "cref",
-        "DACL",
-        "davader",
-        "DCOM",
-        "Descendents",
-        "DFSR",
-        "Dialin",
-        "Enabel",
-        "FSMO",
-        "GMSA",
-        "gpos",
-        "gpts",
-        "HKCU",
-        "HKLM",
-        "Hyperv",
-        "ignorecase",
-        "Inet",
-        "INFRAT",
-        "IUSRS",
-        "jdoe",
-        "KRBTGT",
-        "LDAPP",
-        "ldifde",
-        "localname",
-        "LOCKDOWN",
-        "LOGONSERVER",
-        "markdownissues",
-        "Mngt",
-        "msiexec",
-        "Mycommand",
-        "networkmask",
-        "noexit",
-        "notcontains",
-        "NTDS",
-        "NTFS",
-        "OCSP",
-        "Oexists",
-        "OICI",
-        "Oright",
-        "Oroles",
-        "OUDN",
-        "Passthru",
-        "PAWM",
-        "PISM",
-        "Preffix",
-        "PRINTQUEUE",
-        "PSAM",
-        "PSPKI",
-        "pwsh",
-        "PZPWSTR",
-        "redircmp",
-        "redirusr",
-        "RODC",
-        "RSAT",
-        "SAGM",
-        "Sched",
-        "Sddl",
-        "setreg",
-        "sitelink",
-        "Stagingbaseline",
-        "Sufix",
-        "Systemtime",
-        "SYSVOL",
-        "Templ",
-        "Tmpl",
-        "Undock",
-        "Userbaseline",
-        "USERDNSDOMAIN",
-        "varparam",
-        "windir",
-        "Xtra"
-    ],
-    "cSpell.language": "en,en-US",
-    "cSpell.userWords": [
-        "azcmagent",
-        "bofett",
-        "Cbac",
-        "chwook",
-        "Combound",
-        "COMPUTERNAME",
-        "Creds",
-        "damaul",
-        "dasidi",
-        "davade",
-        "Delim",
-        "Descendents",
-        "DISM",
-        "Eguibar",
-        "EguibarIT",
-        "Enabel",
-        "gpoc",
-        "guidmap",
-        "hiberfil",
-        "hiberfile",
-        "hsolo",
-        "Inet",
-        "jabink",
-        "LDAPP",
-        "luskyw",
-        "memberof",
-        "notlike",
-        "obiwan",
-        "Oright",
-        "Oroles",
-        "Passthru",
-        "premission",
-        "quickconfig",
-        "regkey",
-        "Remoting",
-        "scmanager",
-        "SDDL",
-        "sdset",
-        "sdshow",
-        "sitelink",
-        "Surename",
-        "Systemtime",
-        "SYSVOL",
-        "Theaf",
-        "throug",
-        "unattend",
-        "Undock",
-        "USERDNSDOMAIN",
-        "vhdx",
-        "Winlogon",
-        "wuauserv",
-        "yoda"
-    ],
-    "csv-preview.separator": ";",
-    "diffEditor.ignoreTrimWhitespace": false,
-    "editor.accessibilitySupport": "off",
-    "editor.autoClosingComments": "always",
-    "editor.autoIndent": "full",
-    "editor.autoClosingBrackets": "always",
-    "editor.bracketPairColorization.enabled": true,
-    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
-    "editor.codeLens": true,
-    "editor.defaultFormatter": "ms-vscode.powershell",
-    "editor.detectIndentation": true,
-    "editor.folding": true,
-    "editor.formatOnPaste": true,
-    "editor.formatOnSave": true,
-    "editor.formatOnSaveMode": "file",
-    "editor.formatOnType": true,
-    "editor.guides.bracketPairs": true,
-    "editor.guides.highlightActiveBracketPair": true,
-    "editor.guides.highlightActiveIndentation": true,
-    "editor.guides.indentation": true,
-    "editor.indentSize": "tabSize",
-    "editor.insertSpaces": true,
-    "editor.matchBrackets": "always",
-    "editor.renderControlCharacters": true,
-    "editor.renderWhitespace": "all",
-    "editor.rulers": [
-        130
-    ],
-    "editor.showDeprecated": true,
-    "editor.showUnused": true,
-    "editor.stickyScroll.enabled": true,
-    "editor.tabCompletion": "on",
-    "editor.tabSize": 4,
-    "editor.trimAutoWhitespace": true,
-    "editor.unicodeHighlight.ambiguousCharacters": true,
-    "editor.unicodeHighlight.invisibleCharacters": true,
-    "editor.unusualLineTerminators": "auto",
-    "editor.wordWrap": "on", // Enable word wrap for long lines
-    "editor.wordWrapColumn": 130,
+  "@azure.argTenant": "",
+  "chat.instructionsFilesLocations": {
+    ".github/references": true
+  },
+  "chat.mcp.discovery.enabled": {
+    "claude-desktop": true,
+    "windsurf": true,
+    "cursor-global": true,
+    "cursor-workspace": true
+  },
+  "chat.mcp.discovery.path": ".github/mcp.json",
+  "chat.mcp.discovery.useWorkspaceRoot": true,
+  "cSpell.enabledFiletypes": [
+    "!elixir",
+    "!erlang",
+    "!go",
+    "!graphql",
+    "!jade",
+    "!jsonc",
+    "!jupyter",
+    "!latex",
+    "!properties",
+    "!pug",
+    "!restructuredtext",
+    "!rust",
+    "!scala",
+    "!scminput",
+    "!scss",
+    "!swift",
+    "!vue",
+    "csv",
+    "csv (whitespace)",
+    "excel",
+    "git-rebase",
+    "ignore",
+    "ini",
+    "Log",
+    "powershell"
+  ],
+  "cSpell.ignoreWords": [
+    "ADCS",
+    "addhours",
+    "Adminbaseline",
+    "ADSI",
+    "AGPM",
+    "APPACCUSERS",
+    "Autenticate",
+    "autofetch",
+    "Bitlocker",
+    "CACRL",
+    "Cbac",
+    "certsvc",
+    "certutil",
+    "Cloneable",
+    "Combound",
+    "cref",
+    "DACL",
+    "davader",
+    "DCOM",
+    "Descendents",
+    "DFSR",
+    "Dialin",
+    "Enabel",
+    "FSMO",
+    "GMSA",
+    "gpos",
+    "gpts",
+    "HKCU",
+    "HKLM",
+    "Hyperv",
+    "ignorecase",
+    "Inet",
+    "INFRAT",
+    "IUSRS",
+    "jdoe",
+    "KRBTGT",
+    "LDAPP",
+    "ldifde",
+    "localname",
+    "LOCKDOWN",
+    "LOGONSERVER",
+    "markdownissues",
+    "Mngt",
+    "msiexec",
+    "Mycommand",
+    "networkmask",
+    "noexit",
+    "notcontains",
+    "NTDS",
+    "NTFS",
+    "OCSP",
+    "Oexists",
+    "OICI",
+    "Oright",
+    "Oroles",
+    "OUDN",
+    "Passthru",
+    "PAWM",
+    "PISM",
+    "Preffix",
+    "PRINTQUEUE",
+    "PSAM",
+    "PSPKI",
+    "pwsh",
+    "PZPWSTR",
+    "redircmp",
+    "redirusr",
+    "RODC",
+    "RSAT",
+    "SAGM",
+    "Sched",
+    "Sddl",
+    "setreg",
+    "sitelink",
+    "Stagingbaseline",
+    "Sufix",
+    "Systemtime",
+    "SYSVOL",
+    "Templ",
+    "Tmpl",
+    "Undock",
+    "Userbaseline",
+    "USERDNSDOMAIN",
+    "varparam",
+    "windir",
+    "Xtra"
+  ],
+  "cSpell.language": "en,en-US",
+  "cSpell.userWords": [
+    "azcmagent",
+    "bofett",
+    "Cbac",
+    "chwook",
+    "Combound",
+    "COMPUTERNAME",
+    "Creds",
+    "damaul",
+    "dasidi",
+    "davade",
+    "Delim",
+    "Descendents",
+    "DISM",
+    "Eguibar",
+    "EguibarIT",
+    "Enabel",
+    "gpoc",
+    "guidmap",
+    "hiberfil",
+    "hiberfile",
+    "hsolo",
+    "Inet",
+    "jabink",
+    "LDAPP",
+    "luskyw",
+    "memberof",
+    "notlike",
+    "obiwan",
+    "Oright",
+    "Oroles",
+    "Passthru",
+    "premission",
+    "quickconfig",
+    "regkey",
+    "Remoting",
+    "scmanager",
+    "SDDL",
+    "sdset",
+    "sdshow",
+    "sitelink",
+    "Surename",
+    "Systemtime",
+    "SYSVOL",
+    "Theaf",
+    "throug",
+    "unattend",
+    "Undock",
+    "USERDNSDOMAIN",
+    "vhdx",
+    "Winlogon",
+    "wuauserv",
+    "yoda"
+  ],
+  "csv-preview.separator": ";",
+  "diffEditor.ignoreTrimWhitespace": false,
+  "editor.accessibilitySupport": "off",
+  "editor.autoClosingComments": "always",
+  "editor.autoIndent": "full",
+  "editor.autoClosingBrackets": "always",
+  "editor.bracketPairColorization.enabled": true,
+  "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+  "editor.codeLens": true,
+  "editor.defaultFormatter": "ms-vscode.powershell",
+  "editor.detectIndentation": true,
+  "editor.folding": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "editor.formatOnType": true,
+  "editor.guides.bracketPairs": true,
+  "editor.guides.highlightActiveBracketPair": true,
+  "editor.guides.highlightActiveIndentation": true,
+  "editor.guides.indentation": true,
+  "editor.indentSize": "tabSize",
+  "editor.insertSpaces": true,
+  "editor.matchBrackets": "always",
+  "editor.renderControlCharacters": true,
+  "editor.renderWhitespace": "all",
+  "editor.rulers": [130],
+  "editor.showDeprecated": true,
+  "editor.showUnused": true,
+  "editor.stickyScroll.enabled": true,
+  "editor.tabCompletion": "on",
+  "editor.tabSize": 4,
+  "editor.trimAutoWhitespace": true,
+  "editor.unicodeHighlight.ambiguousCharacters": true,
+  "editor.unicodeHighlight.invisibleCharacters": true,
+  "editor.unusualLineTerminators": "auto",
+  "editor.wordWrap": "on", // Enable word wrap for long lines
+  "editor.wordWrapColumn": 130,
+  "files.associations": {
+    "*.ps1": "powershell",
+    "*.psm1": "powershell",
+    "*.psd1": "powershell",
+    "*.prompt.md": "markdown",
+    "*.instructions.md": "markdown",
+    "*.ps1xml": "xml" // If you use XML for PowerShell (e.g., format files)
+  },
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 20000,
+  "files.defaultLanguage": "powershell",
+  "files.encoding": "utf8bom",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/Thumbs.db": true,
+    "node_modules": true,
+    "markdownissues.txt": true
+  },
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": false,
+  "files.trimTrailingWhitespace": true,
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
+  "git.ignoreRebaseWarning": true,
+  "git.openRepositoryInParentFolders": "never",
+  "github-actions.workflows.pinned.workflows": [
+    ".github/workflows/pipeline.yml"
+  ],
+  "github.copilot.advanced": {
+    // This is the most crucial setting: it tells Copilot to use your custom mcp.json.
+    // The path should be relative to your workspace root.
+    "debug.override.path": "${workspaceFolder}/.github/mcp.json",
     "files.associations": {
-        "*.ps1": "powershell",
-        "*.psm1": "powershell",
-        "*.psd1": "powershell",
-        "*.prompt.md": "markdown",
-        "*.instructions.md": "markdown",
-        "*.ps1xml": "xml", // If you use XML for PowerShell (e.g., format files)
+      // Treat prompt files as markdown for proper rendering and linting
+      "*.prompt.md": "markdown",
+      "*.instructions.md": "markdown"
     },
-    "files.autoSave": "afterDelay",
-    "files.autoSaveDelay": 20000,
-    "files.defaultLanguage": "powershell",
-    "files.encoding": "utf8bom",
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/Thumbs.db": true,
-        "node_modules": true,
-        "markdownissues.txt": true
+    "indentationMode": {
+      "powershell": "spaces"
     },
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": false,
-    "files.trimTrailingWhitespace": true,
-    "git.autofetch": true,
-    "git.enableSmartCommit": true,
-    "git.ignoreRebaseWarning": true,
-    "git.openRepositoryInParentFolders": "never",
-    "github-actions.workflows.pinned.workflows": [
-        ".github/workflows/pipeline.yml"
-    ],
-    "github.copilot.advanced": {
-        // This is the most crucial setting: it tells Copilot to use your custom mcp.json.
-        // The path should be relative to your workspace root.
-        "debug.override.path": "${workspaceFolder}/.github/mcp.json",
-        "files.associations": {
-            // Treat prompt files as markdown for proper rendering and linting
-            "*.prompt.md": "markdown",
-            "*.instructions.md": "markdown"
-        },
-        "indentationMode": {
-            "powershell": "spaces"
-        },
-        "length": 500,
-        "listCount": 10,
-        "setAutocompleteTriggerTimeout": 500,
-        "temperature": 0.3
+    "length": 500,
+    "listCount": 10,
+    "setAutocompleteTriggerTimeout": 500,
+    "temperature": 0.3
+  },
+  "github.copilot.autocomplete.enable": true,
+  "github.copilot.suggestions.showHidden": true,
+  "github.copilot.suggestionDelayMs": 0,
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": true,
+    "powershell": true,
+    "json": true,
+    "enableAutoCompletions": true,
+    "inlineSuggest.enable": true,
+    "inlineSuggest.showInlineCompletions": true
+  },
+  "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "file": "Code-Style.instructions.md"
     },
-    "github.copilot.autocomplete.enable": true,
-    "github.copilot.suggestions.showHidden": true,
-    "github.copilot.suggestionDelayMs": 0,
-    "github.copilot.enable": {
-        "*": true,
-        "plaintext": true,
-        "markdown": true,
-        "powershell": true,
-        "json": true,
-        "enableAutoCompletions":true,
-        "inlineSuggest.enable": true,
-        "inlineSuggest.showInlineCompletions": true,
+    {
+      "file": "Debugging-Guide.instructions.md"
     },
-    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-    "github.copilot.chat.codeGeneration.instructions": [
-        {
-            "file": "Code-Style.instructions.md"
-        },
-        {
-            "file": "Debugging-Guide.instructions.md"
-        },
-        {
-            "file": "Module-Development-Guide.instructions.md"
-        },
-        {
-            "file": "powershell-best-practices.instructions.md"
-        },
-        {
-            "file": "AD-Operations-QuickRef.instructions.md"
-        },
-        {
-            "file": "copilot-advanced-patterns.instructions.md"
-        },
-        {
-            "file": "Copilot-Automation-Examples.instructions.md"
-        },
-        {
-            "file": "Security-Principal-Validation.instructions.md"
-        }
-    ],
-    "github.copilot.chat.testGeneration.instructions": [
-        {
-            "file": "test.instructions.md"
-        }
-    ],
-    "github.copilot.chat.reviewSelection.instructions": [
-        {
-            "file": ".copilot-review-instructions.md"
-        }
-    ],
-    "github.copilot.chat.commitMessageGeneration.instructions": [
-        {
-            "file": ".copilot-commit-message-instructions.md"
-        }
-    ],
-    "github.copilot.chat.codesearch.enabled": true,
-    "github.copilot.chat.edits.temporalContext.enabled": true,
-    "json.format.enable": true,
-    // Ignore the MD rule:
-    "markdownlint.config": {
-        "MD024": false // no-duplicate-header
+    {
+      "file": "Module-Development-Guide.instructions.md"
     },
-    "[powershell]": {
-        "editor.defaultFormatter": "ms-vscode.powershell",
-        "editor.formatOnSave": true,
-        "editor.formatOnPaste": true,
-        "editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
-        "editor.codeActionsOnSave": {
-            "source.fixAll": "explicit" // Apply all available code fixes on save (e.g., from PSScriptAnalyzer)
-        },
-        // PSScriptAnalyzer integration - essential for enforcing best practices
-        "powershell.scriptAnalysis.enable": true,
-        // Point to your custom PSScriptAnalyzer settings file
-        "powershell.scriptAnalysis.settingsPath": "${workspaceFolder}/.vscode/PSScriptAnalyzerSettings.psd1",
-        // Additional formatting preferences that might not be in PSScriptAnalyzer settings
+    {
+      "file": "powershell-best-practices.instructions.md"
     },
-    "powershell.codeFolding.enable": true,
-    "powershell.codeFolding.showLastLine": true,
-    "powershell.codeFormatting.addWhitespaceAroundPipe": true,
-    "powershell.codeFormatting.alignPipeline": "On",
-    "powershell.codeFormatting.alignPropertyValuePairs": true,
-    "powershell.codeFormatting.autoCorrectAliases": true,
-    "powershell.codeFormatting.ignoreOneLineBlock": false,
-    "powershell.codeFormatting.pipelineIndentationStyle": "IncreaseIndentationAfterEveryPipeline",
-    "powershell.codeFormatting.newLineAfterOpenBrace": true,
-    "powershell.codeFormatting.newLineAfterCloseBrace": false,
-    "powershell.codeFormatting.openBraceOnSameLine": true,
-    "powershell.codeFormatting.preset": "Custom",
-    "powershell.codeFormatting.provider": "PSScriptAnalyzer",
-    "powershell.codeFormatting.trimWhitespace": true,
-    "powershell.codeFormatting.trimWhitespaceAroundPipe": true,
-    "powershell.codeFormatting.useCorrectCasing": true,
-    "powershell.codeFormatting.useConstantStrings": true,
-    "powershell.codeFormatting.useTabs": false,
-    "powershell.codeFormatting.whitespaceAroundOperator": true,
-    "powershell.codeFormatting.whitespaceAfterSeparator": true,
-    "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
-    "powershell.codeFormatting.whitespaceBeforeOpenParen": true,
-    "powershell.codeFormatting.whitespaceBetweenParameters": true,
-    "powershell.debugging.createTemporaryIntegratedConsole": true,
-    "powershell.developer.editorServicesLogLevel": "Trace",
-    "powershell.helpCompletion": "BlockComment",
-    "powershell.integratedConsole.showOnStartup": true,
-    "powershell.integratedConsole.focusConsoleOnExecute": false, // Prevent focus switch to integrated console
-    "powershell.pester.codeLens": false,
-    "powershell.pester.useLegacyCodeLens": false,
-    "powershell.promptToUpdatePowerShell": true,
-    "powershell.powerShellAdditionalExePaths": {
-        "exePath": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-        "versionName": "PowerShell 7.5.0"
+    {
+      "file": "AD-Operations-QuickRef.instructions.md"
     },
-    "powershell.powerShellDefaultVersion": "PowerShell (x64)",
+    {
+      "file": "copilot-advanced-patterns.instructions.md"
+    },
+    {
+      "file": "Copilot-Automation-Examples.instructions.md"
+    },
+    {
+      "file": "Security-Principal-Validation.instructions.md"
+    }
+  ],
+  "github.copilot.chat.testGeneration.instructions": [
+    {
+      "file": "test.instructions.md"
+    }
+  ],
+  "github.copilot.chat.reviewSelection.instructions": [
+    {
+      "file": ".copilot-review-instructions.md"
+    }
+  ],
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "file": ".copilot-commit-message-instructions.md"
+    }
+  ],
+  "github.copilot.chat.codesearch.enabled": true,
+  "github.copilot.chat.edits.temporalContext.enabled": true,
+  "json.format.enable": true,
+  // Ignore the MD rule:
+  "markdownlint.config": {
+    "MD024": false // no-duplicate-header
+  },
+  "[powershell]": {
+    "editor.defaultFormatter": "ms-vscode.powershell",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.wordSeparators": "`~!@#$%^&*()-=+[{]}\\|;:'\",.<>/?",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit" // Apply all available code fixes on save (e.g., from PSScriptAnalyzer)
+    },
+    // PSScriptAnalyzer integration - essential for enforcing best practices
     "powershell.scriptAnalysis.enable": true,
-    "powershell.scriptAnalysis.settingsPath": ".vscode/PSScriptAnalyzerSettings.psd1",
-    "powershell.startAutomatically": true,
-    "problems.autoReveal": true,
-    "problems.decorations.enabled": true,
-    "redhat.telemetry.enabled": true,
-    "search.exclude": {
-        "**/.git": true,
-        "**/node_modules": true,
-        "**/bower_components": true,
-        "logs/": true,
-        "out/": true,
-        "**/bin": true,
-        "**/obj": true
+    // Point to your custom PSScriptAnalyzer settings file
+    "powershell.scriptAnalysis.settingsPath": "${workspaceFolder}/.vscode/PSScriptAnalyzerSettings.psd1"
+    // Additional formatting preferences that might not be in PSScriptAnalyzer settings
+  },
+  "powershell.codeFolding.enable": true,
+  "powershell.codeFolding.showLastLine": true,
+  "powershell.codeFormatting.addWhitespaceAroundPipe": true,
+  "powershell.codeFormatting.alignPipeline": "On",
+  "powershell.codeFormatting.alignPropertyValuePairs": true,
+  "powershell.codeFormatting.autoCorrectAliases": true,
+  "powershell.codeFormatting.ignoreOneLineBlock": false,
+  "powershell.codeFormatting.pipelineIndentationStyle": "IncreaseIndentationAfterEveryPipeline",
+  "powershell.codeFormatting.newLineAfterOpenBrace": true,
+  "powershell.codeFormatting.newLineAfterCloseBrace": false,
+  "powershell.codeFormatting.openBraceOnSameLine": true,
+  "powershell.codeFormatting.preset": "Custom",
+  "powershell.codeFormatting.provider": "PSScriptAnalyzer",
+  "powershell.codeFormatting.trimWhitespace": true,
+  "powershell.codeFormatting.trimWhitespaceAroundPipe": true,
+  "powershell.codeFormatting.useCorrectCasing": true,
+  "powershell.codeFormatting.useConstantStrings": true,
+  "powershell.codeFormatting.useTabs": false,
+  "powershell.codeFormatting.whitespaceAroundOperator": true,
+  "powershell.codeFormatting.whitespaceAfterSeparator": true,
+  "powershell.codeFormatting.whitespaceBeforeOpenBrace": true,
+  "powershell.codeFormatting.whitespaceBeforeOpenParen": true,
+  "powershell.codeFormatting.whitespaceBetweenParameters": true,
+  "powershell.debugging.createTemporaryIntegratedConsole": true,
+  "powershell.developer.editorServicesLogLevel": "Trace",
+  "powershell.helpCompletion": "BlockComment",
+  "powershell.integratedConsole.showOnStartup": true,
+  "powershell.integratedConsole.focusConsoleOnExecute": false, // Prevent focus switch to integrated console
+  "powershell.pester.codeLens": false,
+  "powershell.pester.useLegacyCodeLens": false,
+  "powershell.promptToUpdatePowerShell": true,
+  "powershell.powerShellAdditionalExePaths": {
+    "exePath": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+    "versionName": "PowerShell 7.5.0"
+  },
+  "powershell.powerShellDefaultVersion": "PowerShell (x64)",
+  "powershell.scriptAnalysis.enable": true,
+  "powershell.scriptAnalysis.settingsPath": ".vscode/PSScriptAnalyzerSettings.psd1",
+  "powershell.startAutomatically": true,
+  "problems.autoReveal": true,
+  "problems.decorations.enabled": true,
+  "redhat.telemetry.enabled": true,
+  "search.exclude": {
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "logs/": true,
+    "out/": true,
+    "**/bin": true,
+    "**/obj": true
+  },
+  "security.workspace.trust.untrustedFiles": "open",
+  "shellLauncher.shells.windows": [
+    {
+      "shell": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+      "label": "PowerShell 7 Core"
     },
-    "security.workspace.trust.untrustedFiles": "open",
-    "shellLauncher.shells.windows": [
-        {
-            "shell": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-            "label": "PowerShell 7 Core"
-        },
-        {
-            "shell": "C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe",
-            "label": "Windows PowerShell 5.1"
-        }
-    ],
-    "terminal.integrated.defaultProfile.windows": "PowerShell 7 Core",
-    "terminal.integrated.profiles.windows": {
-        "PowerShell 5": {
-            "source": "PowerShell",
-            "icon": "terminal-powershell"
-        },
-        "PowerShell 7 Core": {
-            "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-            "args": [
-                "-noexit"
-            ]
-        },
-        "Command Prompt": {
-            "path": [
-                "${env:windir}\\Sysnative\\cmd.exe",
-                "${env:windir}\\System32\\cmd.exe"
-            ],
-            "args": [],
-            "icon": "terminal-cmd"
-        }
+    {
+      "shell": "C:\\Windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "label": "Windows PowerShell 5.1"
+    }
+  ],
+  "terminal.integrated.defaultProfile.windows": "PowerShell 7 Core",
+  "terminal.integrated.profiles.windows": {
+    "PowerShell 5": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell"
     },
-    "terminal.integrated.shell.windows": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-    "terminal.integrated.shellIntegration.decorationsEnabled": "both",
-    "terminal.integrated.shellIntegration.enabled": true,
-    // Lock the TypeScript SDK path to the version we use
-    "typescript.tsdk": "./node_modules/typescript/lib",
-    "vscode-edge-devtools.webhint": false,
-    "workbench.settings.applyToAllProfiles": [
-        "powershell.scriptAnalysis.settingsPath",
-        "powershell.scriptAnalysis.enable",
-        "powershell.codeFormatting.whitespaceBeforeOpenBrace"
-    ],
-    "xml.server.binary.trustedHashes": [
-        "160c3a783fc8ba5cb4b00a98357069c0c8e34ce8816f4f966cee4c1515baa767",
-        "21f0b7c10580cec5f82b383fb180ac4dfcde2a6f193af780c3a2c87f83ce2b79"
-    ],
-    "xml.codeLens.enabled": true,
-    "xml.foldings.includeClosingTagInFold": true,
-    "xml.format.closingBracketNewLine": true,
-    "[xml]": {
-        "editor.defaultFormatter": "redhat.vscode-xml"
+    "PowerShell 7 Core": {
+      "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+      "args": ["-noexit"]
     },
-    "yaml.schemas": {
-        "file:///c%3A/Users/RODRIGUEZEGUIBARVice/.vscode/extensions/docsmsft.docs-yaml-1.0.1/dist/toc.schema.json": "/toc\\.yml/i"
-    },
-    "cSpell.words": [
-        "AGTSVCSTARTUPTYPE",
-        "ASSVCSTARTUPTYPE",
-        "autorun",
-        "Bstr",
-        "DREPLAY",
-        "IACCEPTSQLSERVERLICENSETERMS",
-        "INDICATEPROGRESS",
-        "installpath",
-        "INSTALLSQLDATADIR",
-        "INSTANCENAME",
-        "ISOPATH",
-        "LASTEXITCODE",
-        "MAXDOP",
-        "Netfx",
-        "Preinstallation",
-        "SAPWD",
-        "SECURITYMODE",
-        "SNAC",
-        "SQLBACKUPDIR",
-        "sqlcmd",
-        "SQLCOLLATION",
-        "SQLSVCACCOUNT",
-        "SQLSVCINSTANTFILEINIT",
-        "SQLSVCPASSWORD",
-        "SQLSVCPORT",
-        "SQLSVCSTARTUPTYPE",
-        "SQLSYSADMINACCOUNTS",
-        "SQLTEMPDBDIR",
-        "SQLTEMPDBFILECOUNT",
-        "SQLTEMPDBFILEGROWTH",
-        "SQLTEMPDBFILESIZE",
-        "SQLTEMPDBLOGFILEGROWTH",
-        "SQLTEMPDBLOGFILESIZE",
-        "SQLUSERDBDIR",
-        "SQLUSERDBLOGDIR",
-        "TCPENABLED",
-        "UPDATEENABLED",
-        "VAMT"
-    ],
+    "Command Prompt": {
+      "path": [
+        "${env:windir}\\Sysnative\\cmd.exe",
+        "${env:windir}\\System32\\cmd.exe"
+      ],
+      "args": [],
+      "icon": "terminal-cmd"
+    }
+  },
+  "terminal.integrated.shell.windows": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
+  "terminal.integrated.shellIntegration.decorationsEnabled": "both",
+  "terminal.integrated.shellIntegration.enabled": true,
+  // Lock the TypeScript SDK path to the version we use
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "vscode-edge-devtools.webhint": false,
+  "workbench.settings.applyToAllProfiles": [
+    "powershell.scriptAnalysis.settingsPath",
+    "powershell.scriptAnalysis.enable",
+    "powershell.codeFormatting.whitespaceBeforeOpenBrace"
+  ],
+  "xml.server.binary.trustedHashes": [
+    "160c3a783fc8ba5cb4b00a98357069c0c8e34ce8816f4f966cee4c1515baa767",
+    "21f0b7c10580cec5f82b383fb180ac4dfcde2a6f193af780c3a2c87f83ce2b79"
+  ],
+  "xml.codeLens.enabled": true,
+  "xml.foldings.includeClosingTagInFold": true,
+  "xml.format.closingBracketNewLine": true,
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml"
+  },
+  "yaml.schemas": {
+    "file:///c%3A/Users/RODRIGUEZEGUIBARVice/.vscode/extensions/docsmsft.docs-yaml-1.0.1/dist/toc.schema.json": "/toc\\.yml/i"
+  },
+  "cSpell.words": [
+    "AGTSVCSTARTUPTYPE",
+    "ASSVCSTARTUPTYPE",
+    "autorun",
+    "Bstr",
+    "DREPLAY",
+    "IACCEPTSQLSERVERLICENSETERMS",
+    "INDICATEPROGRESS",
+    "installpath",
+    "INSTALLSQLDATADIR",
+    "INSTANCENAME",
+    "ISOPATH",
+    "LASTEXITCODE",
+    "MAXDOP",
+    "Netfx",
+    "Preinstallation",
+    "SAPWD",
+    "SECURITYMODE",
+    "SNAC",
+    "SQLBACKUPDIR",
+    "sqlcmd",
+    "SQLCOLLATION",
+    "SQLSVCACCOUNT",
+    "SQLSVCINSTANTFILEINIT",
+    "SQLSVCPASSWORD",
+    "SQLSVCPORT",
+    "SQLSVCSTARTUPTYPE",
+    "SQLSYSADMINACCOUNTS",
+    "SQLTEMPDBDIR",
+    "SQLTEMPDBFILECOUNT",
+    "SQLTEMPDBFILEGROWTH",
+    "SQLTEMPDBFILESIZE",
+    "SQLTEMPDBLOGFILEGROWTH",
+    "SQLTEMPDBLOGFILESIZE",
+    "SQLUSERDBDIR",
+    "SQLUSERDBLOGDIR",
+    "TCPENABLED",
+    "UPDATEENABLED",
+    "VAMT"
+  ],
+  "chat.sessionSync.enabled": true
 }

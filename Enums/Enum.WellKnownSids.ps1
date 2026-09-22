@@ -96,7 +96,6 @@
     'S-1-5-64-14'                                = 'schannel authentication'
     'S-1-5-64-21'                                = 'digest authentication'
 }
-New-Variable -Name WellKnownSIDs -Value $Variables.WellKnownSIDs -Scope Script -Force
 # Search by Key to get Value
 # $Variables.WellKnownSIDs['S-1-5-11']
 #
