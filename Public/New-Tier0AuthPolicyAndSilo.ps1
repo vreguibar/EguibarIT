@@ -186,8 +186,8 @@
             }
 
             if (-not $IsDomainAdmin) {
-                Write-Warning -Message 'Current user is not a member of Domain Admins. ' +
-                'Authentication Policy operations may fail due to insufficient permissions.'
+                Write-Warning -Message ('Current user is not a member of Domain Admins. ' +
+                    'Authentication Policy operations may fail due to insufficient permissions.')
             }
         } catch {
             Write-Warning -Message "Failed to verify domain privileges: $($_.Exception.Message)"

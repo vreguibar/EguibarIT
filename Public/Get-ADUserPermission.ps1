@@ -357,7 +357,7 @@
 
     end {
         # Return the results
-        $Results
+        [PSCustomObject[]]$Results
 
         # Display function footer if variables exist
         if ($null -ne $Variables -and
