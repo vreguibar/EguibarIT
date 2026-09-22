@@ -237,7 +237,7 @@
 
     )
 
-    Begin {
+    begin {
         $ErrorActionPreference = 'Stop'
 
         # Mask sensitive data
@@ -257,7 +257,7 @@
             $eventName = $EventInfo.Name
             $eventCategory = $EventInfo.Category
             $severity = $EventInfo.DefaultSeverity
-        } #end If-Else
+        } #end if-Else
 
         $entryType = switch ($severity) {
             'Information' {
@@ -283,9 +283,9 @@
         $sb.AppendLine("Event Category : $eventCategory") | Out-Null
         $sb.AppendLine("Details        : $maskedMessage") | Out-Null
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         if ($PSCmdlet.ShouldProcess(
                 "Event log entry for '$eventName' with ID $eventId",
                 'Write to Event Log',
@@ -361,7 +361,7 @@
                     $logObject | ConvertTo-Json | Out-File -FilePath $jsonFile -Append
 
                     Write-Verbose -Message ('Event {0} was logged successfully to JSON.' -f $eventName)
-                } #end If
+                } #end if
 
                 Write-Verbose -Message ('
                     Event {0} with ID {1}
@@ -391,11 +391,11 @@
                 )
                 throw
 
-            } #end Try-Catch
-        } #end If
-    } #end Process
+            } #end try-catch
+        } #end if
+    } #end process
 
-    End {
+    end {
         Write-Verbose -Message 'Logging process completed.'
-    } #end End
-} #end Function
+    } #end end
+} #end function

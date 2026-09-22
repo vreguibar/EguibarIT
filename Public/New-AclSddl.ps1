@@ -91,7 +91,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -119,7 +119,7 @@
         # Add default rules to the FileSecurity object
         foreach ($rule in $defaultRules) {
             $fileSecurity.AddAccessRule($rule)
-        } #end Foreach
+        } #end foreach
 
         Write-Verbose -Message 'Default rules for SYSTEM and Administrators added.'
     } #end begin
@@ -148,7 +148,7 @@
                 # Add the access rule to the FileSecurity object
                 if ($PSCmdlet.ShouldProcess($identity, 'Add access rule')) {
                     $fileSecurity.AddAccessRule($accessRule)
-                } #end If
+                } #end if
 
                 Write-Verbose -Message (
                     'Added rule for identity: {0}, permissions: {1}, access type: {2}' -f
@@ -156,8 +156,8 @@
                 )
             } catch {
                 Write-Error -Message ('Failed to process entry for identity: {0}. Error: {1}' -f $identity, $_)
-            } #end Try-Catch
-        } #end Foreach
+            } #end try-catch
+        } #end foreach
     } #end process
 
     end {

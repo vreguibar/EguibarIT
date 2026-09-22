@@ -110,7 +110,7 @@
     )]
     [OutputType([Object])]
 
-    Param (
+    param (
         # Param1 GPO description, used to generate name
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
@@ -188,7 +188,7 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Get the GroupPolicy functionality through module import instead of direct assembly loading
@@ -203,7 +203,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -230,11 +230,11 @@
 
             Write-Warning -Message 'Unable to locate primary domain controller'
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } # End Begin Section
+    } # end begin Section
 
-    Process {
+    process {
         # Check if the GPO already exist
         $gpoAlreadyExist = Get-GPO -Name $gpoName -ErrorAction SilentlyContinue
         Write-Debug -Message ('Checking for existing GPO: {0}' -f $gpoName)
@@ -250,7 +250,7 @@
             if ($PSCmdlet.ShouldProcess("Creating GPO '$gpoName'", 'Confirm creation?')) {
                 $gpoAlreadyExist = New-GPO @Splat
                 Start-Sleep -Seconds 1
-            } #end If
+            } #end if
 
             # https://learn.microsoft.com/en-us/previous-versions/windows/desktop/wmi_v2/class-library/gppermissiontype-enumeration-microsoft-grouppolicy
             # Give Rights to SL_GpoAdminRight
@@ -264,17 +264,17 @@
             }
             if ($PSCmdlet.ShouldProcess("Giving permissions to GPO '$gpoName'", 'Confirm giving permissions?')) {
                 Set-GPPermissions @Splat
-            }  #end If
+            }  #end if
 
 
             # Disable the corresponding Settings section of the GPO
-            If ($gpoScope -eq 'C') {
+            if ($gpoScope -eq 'C') {
                 if ($PSCmdlet.ShouldProcess("Disabling Users section on GPO '$gpoName'", 'Confirm disabling user section?')) {
 
                     Write-Debug -Message ('Disable Policy User Settings on GPO {0}' -f $gpoAlreadyExist.DisplayName)
                     $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
 
-                } #end If
+                } #end if
 
             } else {
 
@@ -284,8 +284,8 @@
                     Write-Debug -Message ('Disable Policy Computer Settings on GPO {0}' -f $gpoAlreadyExist.DisplayName)
                     $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
 
-                } #end If
-            } #end If-Else
+                } #end if
+            } #end if-Else
 
             Write-Debug -Message 'Add GPO-link to corresponding OU'
             $Splat = @{
@@ -298,7 +298,7 @@
 
                 New-GPLink @Splat
 
-            } #end If
+            } #end if
 
             # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             # Adding settings
@@ -338,17 +338,17 @@
                 # SomPlanning
                 # SomLink
 
-            }  #end If
+            }  #end if
 
             # Disable the corresponding Settings section of the GPO
-            If ($gpoScope -eq 'C') {
+            if ($gpoScope -eq 'C') {
 
                 if ($PSCmdlet.ShouldProcess("Disabling Users section on GPO '$gpoName'", 'Confirm disabling user section?')) {
 
                     Write-Debug -Message 'Disable Policy User Settings'
                     $gpoAlreadyExist.GpoStatus = 'UserSettingsDisabled'
 
-                } #end If
+                } #end if
             } else {
 
                 if ($PSCmdlet.ShouldProcess("Disabling Computers section on GPO '$gpoName'", 'Confirm disabling computer section?')) {
@@ -356,9 +356,9 @@
                     Write-Debug -Message 'Disable Policy Computer Settings'
                     $gpoAlreadyExist.GpoStatus = 'ComputerSettingsDisabled'
 
-                } #end If
-            } #end If-Else
-        } # End If
+                } #end if
+            } #end if-Else
+        } # end if
 
 
         # Check if Backup needs to be imported
@@ -373,7 +373,7 @@
                 $PSBoundParameters['gpoBackupID'], $PSBoundParameters['gpoBackupPath'], $gpoName
             )
 
-            Try {
+            try {
                 $Splat = @{
                     BackupId   = $PSBoundParameters['gpoBackupID']
                     TargetGuid = $gpoAlreadyExist.Id
@@ -383,18 +383,18 @@
 
                     Import-GPO @Splat
 
-                } #end If
+                } #end if
 
-            } Catch {
+            } catch {
 
                 Write-Error -Message ('No valid backup was found on {0}!' -f $PSBoundParameters['gpoBackupPath'])
 
-            } #end Try-Catch
-        } # End If
+            } #end try-catch
+        } # end if
 
-    } # End Process Section
+    } # end process Section
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
@@ -402,8 +402,8 @@
                 'creating GPO.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         return $gpoAlreadyExist
-    } # End END Section
-} #end Function New-DelegatedAdGpo
+    } # end END Section
+} #end function New-DelegatedAdGpo

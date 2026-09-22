@@ -118,7 +118,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -130,7 +130,7 @@
         # Variables Definition
 
         try {
-            # Check if Config.xml file is loaded. If not, proceed to load it.
+            # Check if Config.xml file is loaded. if not, proceed to load it.
             if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
                 if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
@@ -141,7 +141,7 @@
         } catch {
             Write-Error -Message 'Error when reading XML file'
             throw
-        } #end Try-Catch
+        } #end try-catch
 
 
 
@@ -177,7 +177,7 @@
 
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-    } #end Begin
+    } #end begin
 
     process {
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Create AGPM Service Account and objects')) {
@@ -381,14 +381,14 @@
             #
             # 1.- Privileged groups are empty
             # 2.- AGPM will control all GPOs
-        } #end If ShouldProcess
-    } #end Process
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating objects and Delegations.'
         )
         Write-Verbose -Message $txt
-    }#end End
+    }#end end
 
-} #end Function
+} #end function

@@ -105,7 +105,7 @@
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -158,7 +158,7 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Check if running with administrative privileges
@@ -193,15 +193,15 @@
             Write-Warning -Message "Failed to verify domain privileges: $($_.Exception.Message)"
         }
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -234,7 +234,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -279,7 +279,7 @@
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
 
         # Load naming conventions from XML
@@ -331,9 +331,9 @@
         #endregion Local groups Variables
 
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         try {
             # Configure Kerberos Claims and Authentication Policies/Silos
@@ -400,9 +400,9 @@
                 } catch {
                     Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
                     $PolicyExists = $false
-                } #end Try-Catch
+                } #end try-catch
 
-                If (-Not $PolicyExists) {
+                if (-not $PolicyExists) {
                     $Splat = @{
                         Name                            = $AuditComputerPolicyName
                         Description                     = 'This Kerberos Authentication policy used to AUDIT computer logon ' +
@@ -418,7 +418,7 @@
 
                     Write-Verbose -Message 'T0_AuditOnly_Computers authentication policy already exists'
 
-                } #end If-else
+                } #end if-else
 
                 # User AUDIT
                 $PolicyExists = $false
@@ -427,9 +427,9 @@
                 } catch {
                     Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
                     $PolicyExists = $false
-                } #end Try-Catch
+                } #end try-catch
 
-                If (-Not $PolicyExists) {
+                if (-not $PolicyExists) {
                     $Splat = @{
                         Name                            = $AuditUserPolicyName
                         Description                     = 'This Kerberos Authentication policy used to AUDIT interactive logon ' +
@@ -446,7 +446,7 @@
 
                     Write-Verbose -Message 'T0_AuditOnly_Users authentication policy already exists'
 
-                } #end If-else
+                } #end if-else
 
                 # ServiceAccounts AUDIT
                 $PolicyExists = $false
@@ -455,9 +455,9 @@
                 } catch {
                     Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
                     $PolicyExists = $false
-                } #end Try-Catch
+                } #end try-catch
 
-                If (-Not $PolicyExists) {
+                if (-not $PolicyExists) {
                     $Splat = @{
                         Name                             = $AuditServicePolicyName
                         Description                      = 'This Kerberos Authentication policy used to AUDIT ServiceAccount ' +
@@ -474,7 +474,7 @@
 
                     Write-Verbose -Message 'T0_AuditOnly_ServiceAccounts authentication policy already exists'
 
-                } #end If-else
+                } #end if-else
                 #endregion Create AuditOnly Policies
 
                 #region Create ENFORCE policies
@@ -496,9 +496,9 @@
                 } catch {
                     Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
                     $PolicyExists = $false
-                } #end Try-Catch
+                } #end try-catch
 
-                If (-Not $PolicyExists) {
+                if (-not $PolicyExists) {
                     $Splat = @{
                         Name                            = $EnforceComputerPolicyName
                         Description                     = 'This Kerberos Authentication policy used to ENFORCE ' +
@@ -515,7 +515,7 @@
 
                     Write-Verbose -Message 'T0_Enforce_Computers authentication policy already exists'
 
-                } #end If-else
+                } #end if-else
 
                 # User Enforce
                 $PolicyExists = $false
@@ -524,9 +524,9 @@
                 } catch {
                     Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
                     $PolicyExists = $false
-                } #end Try-Catch
+                } #end try-catch
 
-                If (-Not $PolicyExists) {
+                if (-not $PolicyExists) {
                     $Splat = @{
                         Name                            = $EnforceUserPolicyName
                         Description                     = 'This Kerberos Authentication policy used to ENFORCE ' +
@@ -544,7 +544,7 @@
 
                     Write-Verbose -Message 'T0_Enforce_Users authentication policy already exists'
 
-                } #end If-else
+                } #end if-else
 
                 # ServiceAccounts ENFORCE
                 $PolicyExists = $false
@@ -553,9 +553,9 @@
                 } catch {
                     Write-Debug -Message ('Error checking policy existence: {0}' -f $_.Exception.Message)
                     $PolicyExists = $false
-                } #end Try-Catch
+                } #end try-catch
 
-                If (-Not $PolicyExists) {
+                if (-not $PolicyExists) {
                     $Splat = @{
                         Name                             = $EnforceServicePolicyName
                         Description                      = 'This Kerberos Authentication policy used to ENFORCE ' +
@@ -573,7 +573,7 @@
 
                     Write-Verbose -Message 'T0_Enforce_ServiceAccounts authentication policy already exists'
 
-                } #end If-else
+                } #end if-else
                 #endregion Create ENFORCE policies
 
                 #region Create Audit-only authentication policy silo and assigning policies
@@ -595,9 +595,9 @@
                 } catch {
                     Write-Debug -Message ('Error checking silo existence: {0}' -f $_.Exception.Message)
                     $SiloExists = $false
-                } #end Try-Catch
+                } #end try-catch
 
-                if (-Not $SiloExists) {
+                if (-not $SiloExists) {
                     try {
                         $Splat = @{
                             ComputerAuthenticationPolicy    = (Get-ADAuthenticationPolicy -Identity $AuditComputerPolicyName)
@@ -611,10 +611,10 @@
                         New-ADAuthenticationPolicySilo @Splat
                     } catch {
                         Write-Error -Message ('Failed to create AuditingSilo: {0}' -f $_.Exception.Message)
-                    } #end Try-Catch
+                    } #end try-catch
                 } else {
                     Write-Verbose -Message 'T0_AuditingSilo authentication policy silo already exists'
-                } #end If-else
+                } #end if-else
                 #endregion
 
                 #region Create Enforced authentication policy silo and assigning policies
@@ -625,9 +625,9 @@
                 } catch {
                     Write-Debug -Message ('Error checking silo existence: {0}' -f $_.Exception.Message)
                     $SiloExists = $false
-                } #end Try-Catch
+                } #end try-catch
 
-                if (-Not $SiloExists) {
+                if (-not $SiloExists) {
                     try {
                         $Splat = @{
                             ComputerAuthenticationPolicy    = (Get-ADAuthenticationPolicy -Identity $EnforceComputerPolicyName)
@@ -642,10 +642,10 @@
                         New-ADAuthenticationPolicySilo @Splat
                     } catch {
                         Write-Error -Message ('Failed to create EnforcedSilo: {0}' -f $_.Exception.Message)
-                    } #end Try-Catch
+                    } #end try-catch
                 } else {
                     Write-Verbose -Message 'T0_EnforcedSilo authentication policy silo already exists'
-                } #end If-else
+                } #end if-else
                 #endregion
 
                 #region Grant access to silos and assign accounts and computers
@@ -671,7 +671,7 @@
                         Write-Verbose -Message ('Granting {0} access to T0_AuditingSilo' -f $NewAdminName.SamAccountName)
                         Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account $NewAdminName.SamAccountName
 
-                    } #end If-else
+                    } #end if-else
 
                     if ($null -eq $AdminName) {
 
@@ -682,7 +682,7 @@
                         Write-Verbose -Message ('Granting {0} access to T0_AuditingSilo' -f $AdminName.SamAccountName)
                         Grant-ADAuthenticationPolicySiloAccess -Identity 'T0_AuditingSilo' -Account $AdminName.SamAccountName
 
-                    } #end If-else
+                    } #end if-else
 
                     # Get current computer account
                     $CurrentComputer = Get-ADComputer $env:COMPUTERNAME -ErrorAction Stop
@@ -695,14 +695,14 @@
                         Write-Verbose -Message ('Setting {0} to use T0_AuditingSilo' -f $AdminName.SamAccountName)
                         Set-ADUser -Identity $AdminName -AuthenticationPolicySilo 'T0_AuditingSilo'
 
-                    } #end If
+                    } #end if
 
                     if ($null -ne $NewAdminName) {
 
                         Write-Verbose -Message ('Setting {0} to use T0_AuditingSilo' -f $NewAdminName.SamAccountName)
                         Set-ADUser -Identity $NewAdminName -AuthenticationPolicySilo 'T0_AuditingSilo'
 
-                    } # end If
+                    } # end if
 
                     # Assign computer to silo
                     Write-Verbose -Message ('Setting {0} to use T0_AuditingSilo' -f $env:COMPUTERNAME)
@@ -712,13 +712,13 @@
 
                     Write-Error -Message ('Failed to assign authentication policy silos: {0}' -f $_.Exception.Message)
 
-                } #end Try-Catch
+                } #end try-catch
                 #endregion
 
-                # Return success status
+                # return success status
                 Write-Verbose -Message 'Successfully created and configured Tier 0 Authentication Policies and Silos'
 
-            } #end If ShouldProcess
+            } #end if ShouldProcess
 
         } catch [Microsoft.ActiveDirectory.Management.ADIdentityNotFoundException] {
 
@@ -740,11 +740,11 @@
             Write-Error -Message ('Unexpected error: {0}' -f $_.Exception.Message)
             throw
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
@@ -752,7 +752,7 @@
                 'Creating Authentication Policies and Silos for Tier 0'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Stop transcript if it was started
         if ($EnableTranscript) {
@@ -761,7 +761,7 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
-    } #end End
-} #end Function New-Tier0AuthPolicyAndSilo
+            } #end try-catch
+        } #end if
+    } #end end
+} #end function New-Tier0AuthPolicyAndSilo

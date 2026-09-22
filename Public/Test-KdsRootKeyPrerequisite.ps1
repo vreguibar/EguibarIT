@@ -97,7 +97,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -190,13 +190,13 @@
             $Recommendation += 'Master Root Keys container missing in AD schema. '
         }
         if (-not $KdsRootKeyExists) {
-            $Recommendation += 'No KDS Root Key found. Try creating with Add-KdsRootKey -EffectiveTime ((Get-Date).AddHours(-10)). '
+            $Recommendation += 'No KDS Root Key found. try creating with Add-KdsRootKey -EffectiveTime ((Get-Date).AddHours(-10)). '
         }
         if ($ErrorMessage) {
             $Recommendation += 'Error encountered: ' + $ErrorMessage
         }
         if ($Recommendation -eq '') {
-            $Recommendation = 'All prerequisites appear satisfied. If Add-KdsRootKey still fails, check event logs and consider AD schema health.'
+            $Recommendation = 'All prerequisites appear satisfied. if Add-KdsRootKey still fails, check event logs and consider AD schema health.'
         }
         # Output diagnostic object
         [PSCustomObject]@{
@@ -218,6 +218,6 @@
         if ($null -ne $Variables -and $null -ne $Variables.Footer) {
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName, 'KDS Root Key prerequisite diagnostics.')
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
     } #end end
 } #end function Test-KdsRootKeyPrerequisites

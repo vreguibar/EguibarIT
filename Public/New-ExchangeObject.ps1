@@ -111,7 +111,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -125,7 +125,7 @@
         # Variables Definition
 
         try {
-            # Check if Config.xml file is loaded. If not, proceed to load it.
+            # Check if Config.xml file is loaded. if not, proceed to load it.
             if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
                 if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
@@ -246,7 +246,7 @@
         # Quarantine OU Distinguished Name
         $ItQuarantineOuDn = 'OU={0},{1}' -f $ItQuarantineOu, $Variables.AdDn
 
-    } #end Begin
+    } #end begin
 
     process {
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Create Exchange objects and delegations')) {
@@ -415,13 +415,13 @@
 
             # Configure EDGE GPO
             #Import-GPO -BackupId $confXML.n.AdminXtra.GPOs.ExEdge.backupID    -TargetName ('C-{0}-Baseline' -f $ExEdgeOuDn) -path (Join-Path -Path $DMScripts -ChildPath SecTmpl)
-        } #end If ShouldProcess
-    } #end Process
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating Exchange containers and objects.'
         )
         Write-Verbose -Message $txt
-    } #end End
-} #end Function
+    } #end end
+} #end function

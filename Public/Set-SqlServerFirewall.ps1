@@ -179,7 +179,7 @@
         $RemoveRules
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Display function header if variables exist
@@ -192,7 +192,7 @@
                 (Get-FunctionDisplay -Hashtable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -208,9 +208,9 @@
         # Define firewall rules to create/remove
         $FirewallRules = @()
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         try {
             if ($RemoveRules) {
@@ -383,9 +383,9 @@
             $ConfigurationResult = $false
         } #end try-catch
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         # Display function footer if variables exist
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
@@ -394,8 +394,8 @@
                 'configuring Windows Firewall for SQL Server.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         return $ConfigurationResult
-    } #end End
+    } #end end
 } #end function Set-SqlServerFirewall

@@ -138,7 +138,7 @@ function Start-AdDelegateSite {
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = 'If present It will create all needed Exchange objects and containers.',
+            HelpMessage = 'if present It will create all needed Exchange objects and containers.',
             Position = 3)]
         [switch]
         $CreateExchange
@@ -157,7 +157,7 @@ function Start-AdDelegateSite {
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -170,7 +170,7 @@ function Start-AdDelegateSite {
 
 
         try {
-            # Check if Config.xml file is loaded. If not, proceed to load it.
+            # Check if Config.xml file is loaded. if not, proceed to load it.
             if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
                 if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
@@ -224,7 +224,7 @@ function Start-AdDelegateSite {
         # parameters variable for splatting CMDlets
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-    } #end Begin
+    } #end begin
 
     process {
         if ($PSCmdlet.ShouldProcess($ouNameDN, 'Delegate Active Directory rights for site')) {
@@ -457,14 +457,14 @@ function Start-AdDelegateSite {
             }
             #endregion Exchange Related delegation
             ###############################################################################
-        } #end If ShouldProcess
-    } #end Process
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'Site delegation.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 
-} #end Function
+} #end function

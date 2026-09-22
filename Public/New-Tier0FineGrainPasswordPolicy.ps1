@@ -90,7 +90,7 @@
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -143,18 +143,18 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -187,7 +187,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -211,7 +211,7 @@
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
         # Naming conventions hashtable
         $NC = @{
@@ -495,9 +495,9 @@
             $SL_GlobalAppAccUserRight
         )
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Create Tier0 Fine Grain Password Policies')) {
 
@@ -548,13 +548,13 @@
                     }
                     $PSOexists = Get-ADFineGrainedPasswordPolicy @Splat
 
-                } #end Try-Catch
+                } #end try-catch
 
             } else {
 
                 Write-Verbose -Message ('PSO already exists: {0}' -f $PsoName)
 
-            } #end If PSO exists
+            } #end if PSO exists
 
             # Only proceed if PSO exists
             if ($null -ne $PSOexists) {
@@ -571,20 +571,20 @@
                 foreach ($Item in $AllGlobalGroupVariables) {
                     if ($null -ne $Item) {
                         [void]$ArrayList.Add($Item)
-                    } #end If
-                } #end ForEach
+                    } #end if
+                } #end foreach
 
                 # Add Local Groups to ArrayList
                 foreach ($Item in $AllLocalGroupVariables) {
                     if ($null -ne $Item) {
                         [void]$ArrayList.Add($Item)
-                    } #end If
-                } #end ForEach
+                    } #end if
+                } #end foreach
 
                 # Only add subjects if there are any
                 if ($ArrayList.Count -gt 0) {
                     try {
-                        # Process each subject individually to handle errors gracefully
+                        # process each subject individually to handle errors gracefully
                         foreach ($Subject in $ArrayList) {
                             try {
                                 Add-ADFineGrainedPasswordPolicySubject -Identity $PsoName -Subjects $Subject -ErrorAction Stop
@@ -596,10 +596,10 @@
                         }
                     } catch {
                         Write-Error -Message ('Failed to add groups to PSO {0}: {1}' -f $PsoName, $_.Exception.Message)
-                    } #end Try-Catch
+                    } #end try-catch
                 } else {
                     Write-Debug -Message ('No groups found to add to PSO: {0}' -f $PsoName)
-                } #end If ArrayList
+                } #end if ArrayList
 
                 $ArrayList.Clear()
 
@@ -613,7 +613,7 @@
                 # Only add subjects if there are any
                 if ($ArrayList.Count -gt 0) {
                     try {
-                        # Process each subject individually to handle errors gracefully
+                        # process each subject individually to handle errors gracefully
                         foreach ($Subject in $ArrayList) {
                             try {
                                 Add-ADFineGrainedPasswordPolicySubject -Identity $PsoName -Subjects $Subject -ErrorAction Stop
@@ -627,18 +627,18 @@
 
                         Write-Error -Message ('Failed to add users to PSO {0}: {1}' -f $PsoName, $_.Exception.Message)
 
-                    } #end Try-Catch
+                    } #end try-catch
                 } else {
 
                     Write-Debug -Message ('No individual users found to add to PSO: {0}' -f $PsoName)
 
-                } #end If ArrayList
+                } #end if ArrayList
 
             } else {
 
                 Write-Warning -Message ('Could not find or create PSO: {0}' -f $PsoName)
 
-            } #end If PSOexists
+            } #end if PSOexists
 
             #endregion
             ###############################################################################
@@ -684,20 +684,20 @@
                 } catch {
 
                     Write-Error -Message ('Failed to create PSO {0}: {1}' -f $PsoName, $_.Exception.Message)
-                    # Try to get the PSO if it was created despite the error
+                    # try to get the PSO if it was created despite the error
                     $Splat = @{
                         Filter      = { name -like $PsoName }
                         ErrorAction = 'SilentlyContinue'
                     }
                     $PSOexists = Get-ADFineGrainedPasswordPolicy @Splat
 
-                } #end Try-Catch
+                } #end try-catch
 
             } else {
 
                 Write-Debug -Message ('PSO already exists: {0}' -f $PsoName)
 
-            } #end If PSO exists
+            } #end if PSO exists
 
             # Only proceed if PSO exists
             if ($null -ne $PSOexists) {
@@ -722,7 +722,7 @@
                 # Only add subjects if there are any
                 if ($ArrayList.Count -gt 0) {
                     try {
-                        # Process each subject individually to handle errors gracefully
+                        # process each subject individually to handle errors gracefully
                         foreach ($Subject in $ArrayList) {
                             try {
                                 Add-ADFineGrainedPasswordPolicySubject -Identity $PsoName -Subjects $Subject -ErrorAction Stop
@@ -735,19 +735,19 @@
                     } catch {
                         Write-Error -Message ('Failed to add service accounts to PSO {0}: {1}' -f
                             $PsoName, $_.Exception.Message)
-                    } #end Try-Catch
+                    } #end try-catch
 
                 } else {
                     Write-Debug -Message ('No service account groups found to add to PSO: {0}' -f $PsoName)
-                } #end If ArrayList
-            } #end If PSOexists
+                } #end if ArrayList
+            } #end if PSOexists
 
             #endregion
             ###############################################################################
-        } #end If ShouldProcess
-    } #end Process
+        } #end if ShouldProcess
+    } #end process
 
-    End {
+    end {
         # Display function footer if variables exist
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
@@ -756,7 +756,7 @@
                 'Create Tier0 Fine Grain Password Policy.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Stop transcript if it was started
         if ($EnableTranscript) {
@@ -765,7 +765,7 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
-    } #end End
-} #end Function New-Tier0FineGrainPasswordPolicy
+            } #end try-catch
+        } #end if
+    } #end end
+} #end function New-Tier0FineGrainPasswordPolicy

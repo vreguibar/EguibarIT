@@ -88,7 +88,7 @@
         # Variables Definition
         [bool]$isValid = $false
 
-    } #end Begin
+    } #end begin
 
     process {
         # Handle pipeline input correctly
@@ -98,10 +98,10 @@
         if ($SIDToValidate -match '\\') {
             $SIDToValidate = $SIDToValidate.Split('\')[1]
             Write-Verbose -Message ('Domain format detected. Extracted SID: {0}' -f $SIDToValidate)
-        } #end If
+        } #end if
 
         if ($PSCmdlet.ShouldProcess($SIDToValidate, 'Validate SID format and existence')) {
-            # Try RegEx validation
+            # try RegEx validation
             try {
                 # Check if it's a well-known SID first
                 if ($null -ne $Variables -and
@@ -117,25 +117,25 @@
                     Write-Verbose -Message ('The SID {0} is valid.' -f $SIDToValidate)
                     $isValid = $true
                 }
-                # If neither, it's invalid
+                # if neither, it's invalid
                 else {
                     # This exact message format is expected by the test
                     Write-Verbose -Message ('[WARNING] The SID {0} is NOT valid!.' -f $SIDToValidate)
                     $isValid = $false
-                } #end If-Else
+                } #end if-Else
             } catch {
                 # Handle exceptions gracefully
                 Write-Error -Message ('An error occurred when validating the SID: {0}' -f $_.Exception.Message)
                 $isValid = $false
-            } #end Try-Catch
+            } #end try-catch
 
-            # Return the validation result within the ShouldProcess block
+            # return the validation result within the ShouldProcess block
             return $isValid
-        } #end If ShouldProcess
-    } #end Process
+        } #end if ShouldProcess
+    } #end process
 
     end {
-        # No action needed here since we return within Process
-    } #end End
+        # No action needed here since we return within process
+    } #end end
 
-} #end Function Test-IsValidSID
+} #end function Test-IsValidSID

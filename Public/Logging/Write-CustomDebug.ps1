@@ -95,7 +95,7 @@
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $true,
-            HelpMessage = 'If present a new event will be created in the corresponding Windows Event among Write-Verbose.',
+            HelpMessage = 'if present a new event will be created in the corresponding Windows Event among Write-Verbose.',
             Position = 0)]
         [switch]
         $CreateWindowsEvent,
@@ -161,22 +161,22 @@
 
     )
 
-    Begin {
+    begin {
 
         $ErrorActionPreference = 'Stop'
 
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         if ($PSCmdlet.ShouldProcess("Writing verbose log: $Message")) {
 
             # Handle logging to Windows Event Log if requested
-            If ($PSBoundParameters.ContainsKey('CreateWindowsEvent')) {
+            if ($PSBoundParameters.ContainsKey('CreateWindowsEvent')) {
 
                 # Use predefined event info if available, otherwise, use custom event details
-                If ($PSBoundParameters.ContainsKey('EventInfo')) {
+                if ($PSBoundParameters.ContainsKey('EventInfo')) {
 
                     # Predefined (Built-In) event to be used.
                     # Those are defined on the Class.Events.ps1 file under Classes folder.
@@ -195,16 +195,16 @@
                     }
                     Write-CustomLog @Splat
 
-                } #end Else-If
+                } #end Else-if
 
-            } #end If CreateWindowsEvent
+            } #end if CreateWindowsEvent
 
             # Call Write-Verbose with parsed message.
             Write-Debug -Message $Message -Verbose:$PSBoundParameters['Verbose']
         }
-    } #end Process
+    } #end process
 
-    End {
+    end {
 
-    } #end End
-} #end Function
+    } #end end
+} #end function

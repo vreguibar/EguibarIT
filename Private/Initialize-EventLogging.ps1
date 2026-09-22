@@ -133,18 +133,18 @@
         $Source
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Show ONLY if not Initialized.
-        If (-not $Variables.EventLogInitialized) {
+        if (-not $Variables.EventLogInitialized) {
             $txt = ($Variables.Header -f
                 (Get-Date).ToString('dd/MMM/yyyy'),
                 $MyInvocation.Mycommand,
                 (Get-FunctionDisplay -Hashtable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -163,7 +163,7 @@
 
         if (-not $IsAdmin) {
             Write-Warning -Message 'This function requires administrative privileges to create event logs.'
-        } #end If
+        } #end if
 
 
         # Ensure LogConfig exists in $Variables
@@ -172,7 +172,7 @@
                 LogName = 'EguibarIT-Events'
                 Source  = 'EguibarIT-PowerShellModule'
             }
-        } #end If
+        } #end if
 
         # Set default values for LogName and Source if not provided
         if (-not $PSBoundParameters.ContainsKey('LogName')) {
@@ -180,22 +180,22 @@
         } else {
             # Update the global variable with the new value
             $Variables.LogConfig.LogName = $LogName
-        } #end If-Else
+        } #end if-Else
 
         if (-not $PSBoundParameters.ContainsKey('Source')) {
             $Source = $Variables.LogConfig.Source
         } else {
             # Update the global variable with the new value
             $Variables.LogConfig.Source = $Source
-        } #end If-Else
+        } #end if-Else
 
         # Update maximum size and retention days
         $Variables.LogConfig.MaximumKilobytes = $MaximumKilobytes
         $Variables.LogConfig.RetentionDays = $RetentionDays
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         # Check if the event log is already initialized
         if (-not $Variables.EventLogInitialized) {
 
@@ -215,7 +215,7 @@
                         # Add Verbose if specified
                         if ($PSBoundParameters['Verbose']) {
                             $Splat['Verbose'] = $true
-                        } #end If
+                        } #end if
 
                         New-EventLog @Splat
 
@@ -231,7 +231,7 @@
                         # Add Verbose if specified
                         if ($PSBoundParameters['Verbose']) {
                             $Splat['Verbose'] = $true
-                        } #end If
+                        } #end if
 
                         Limit-EventLog @Splat
 
@@ -241,7 +241,7 @@
                             $MaximumKilobytes,
                             $RetentionDays
                         )
-                    } #end If ShouldProcess
+                    } #end if ShouldProcess
 
                 } else {
                     Write-Verbose -Message ('Event log source {0} already exists.' -f $Source)
@@ -259,7 +259,7 @@
                         # Add Verbose if specified
                         if ($PSBoundParameters['Verbose']) {
                             $Splat['Verbose'] = $true
-                        } #end If
+                        } #end if
 
                         Limit-EventLog @Splat
 
@@ -269,8 +269,8 @@
                             $MaximumKilobytes,
                             $RetentionDays
                         )
-                    } #end If ShouldProcess
-                } #end If-Else SourceExists
+                    } #end if ShouldProcess
+                } #end if-Else SourceExists
 
                 # Set Global Variable
                 $Variables.EventLogInitialized = $true
@@ -288,7 +288,7 @@
                     }
                     Write-EventLog @Splat
 
-                } #end If ShouldProcess
+                } #end if ShouldProcess
 
             } catch [System.Security.SecurityException] {
                 $RetryCount++
@@ -315,26 +315,26 @@
                 )
 
                 Start-Sleep -Seconds 2
-            } #end Try-Catch
+            } #end try-catch
 
         } #end if
 
         if (-not $Variables.EventLogInitialized) {
             throw 'Failed to initialize event log after 3 attempts.'
             return $false
-        } #end If
+        } #end if
 
         return $true
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         # Show ONLY if not Initialized.
-        If (-not $Variables.EventLogInitialized) {
+        if (-not $Variables.EventLogInitialized) {
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
                 'initializing Event Logging.'
             )
             Write-Verbose -Message $txt
-        } #end If
-    } #end End
-} #end Function Initialize-EventLogging
+        } #end if
+    } #end end
+} #end function Initialize-EventLogging

@@ -130,7 +130,7 @@
     [OutputType([void])]
     [OutputType([System.Security.AccessControl.FileSecurity], ParameterSetName = 'PassThru')]
 
-    Param (
+    param (
         # Param1 path to the resource|folder
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
@@ -186,16 +186,21 @@
         [switch]
         $ClearExisting,
 
-        # Return the modified ACL
+        # return the modified ACL
         [Parameter(Mandatory = $false,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Return the modified ACL',
+            HelpMessage = 'return the modified ACL',
             ParameterSetName = 'PassThru')]
         [switch]
-        $PassThru
+        $PassThru,
+
+        # Bypass ShouldContinue prompts when clearing existing permissions
+        [Parameter(Mandatory = $false)]
+        [switch]
+        $Force
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         if ($null -ne $Variables -and
@@ -207,7 +212,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -238,7 +243,7 @@
             [Security.AccessControl.InheritanceFlags]::ObjectInherit
             Write-Debug -Message 'Inheritance enabled for container and object'
 
-        } #end If-Else
+        } #end if-Else
 
         $PropagationFlag = [Security.AccessControl.PropagationFlags]::None
         $AccessControlType = [Security.AccessControl.AccessControlType]::Allow
@@ -257,34 +262,34 @@
                 # Uncomment this section if strict validation is required
                 <#
                 try {
-                    # Try to translate to SID to validate the account
+                    # try to translate to SID to validate the account
                     $null = $Account.Translate([System.Security.Principal.SecurityIdentifier])
                     Write-Debug -Message ('Security principal validated: {0}' -f $PSBoundParameters['Object'])
                 } catch {
                     throw ('Invalid security principal: {0}. Error: {1}' -f $PSBoundParameters['Object'], $_.Exception.Message)
                 }
                 #>
-            } #end If
+            } #end if
         } catch {
             $ErrorMsg = ('Error creating security principal object for {0}: {1}' -f
                 $PSBoundParameters['Object'], $_.Exception.Message)
             Write-Error -Message $ErrorMsg -Category InvalidArgument
             throw
-        } #end Try-Catch
+        } #end try-catch
 
         Write-Verbose -Message ('
             Beginning NTFS permission change for {0}
             with {1} rights' -f $PSBoundParameters['Object'], $PSBoundParameters['Permission']
         )
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         # Count total items for progress bar
         $TotalItems = $PSBoundParameters['Path'].Count
         $ProcessedItems = 0
 
-        # Process each path in the array
+        # process each path in the array
         foreach ($CurrentPath in $PSBoundParameters['Path']) {
             $ProcessedItems++
 
@@ -294,7 +299,7 @@
                 Write-Debug -Message ('Skipping duplicate path: {0}' -f $CurrentPath)
                 continue
 
-            } #end If
+            } #end if
 
             $ProcessedPaths.Add($CurrentPath)
 
@@ -327,13 +332,13 @@
                     $PSBoundParameters['Object'],
                     $CurrentPath)
 
-                # Process only if ShouldProcess approves
+                # process only if ShouldProcess approves
                 if ($PSCmdlet.ShouldProcess($CurrentPath, $ShouldProcessDescription)) {
 
                     # Clear existing permissions if requested
                     if ($PSBoundParameters['ClearExisting']) {
 
-                        if ($PSCmdlet.ShouldContinue(
+                        if ($Force -or $PSCmdlet.ShouldContinue(
                             ('WARNING: About to remove ALL existing permissions on {0}. Continue?' -f $CurrentPath),
                                 'Confirm Permission Removal')) {
 
@@ -345,8 +350,8 @@
                             Write-Verbose -Message ('User cancelled clearing permissions on {0}' -f $CurrentPath)
                             continue
 
-                        } #end If-Else
-                    } #end If
+                        } #end if-Else
+                    } #end if
 
                     # Add the new access rule
                     $DirectorySecurity.AddAccessRule($FileSystemAccessRule)
@@ -359,13 +364,13 @@
                         $PSBoundParameters['Object'],
                         $CurrentPath)
 
-                    # Return the ACL if PassThru is specified
+                    # return the ACL if PassThru is specified
                     if ($PSBoundParameters['PassThru']) {
 
                         Get-Acl -Path $CurrentPath
-                    } #end If
+                    } #end if
 
-                } #end If
+                } #end if
 
             } catch [System.UnauthorizedAccessException] {
 
@@ -395,15 +400,15 @@
                 Write-Error -Message $ErrorMsg
                 continue
 
-            } #end Try-Catch
-        } #end Foreach
+            } #end try-catch
+        } #end foreach
 
         # Complete progress bar
         Write-Progress -Activity 'Granting NTFS Permissions' -Completed
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
@@ -411,7 +416,7 @@
                 'changing NTFS permissions.'
             )
             Write-Verbose -Message $txt
-        } #end If
-    } #end End
+        } #end if
+    } #end end
 
-} #end Function Grant-NTFSPermission
+} #end function Grant-NTFSPermission

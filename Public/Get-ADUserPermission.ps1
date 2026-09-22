@@ -20,7 +20,7 @@
 
         .PARAMETER TargetObject
             Distinguished Name of the Active Directory object to check permissions against.
-            If not specified, the function retrieves permissions on all objects the user has access to.
+            if not specified, the function retrieves permissions on all objects the user has access to.
 
         .PARAMETER IncludeInherited
             When specified, includes inherited permissions in the results.
@@ -217,7 +217,7 @@
 
         Write-Verbose -Message 'Starting process'
 
-    } #end Begin
+    } #end begin
 
     process {
 
@@ -250,7 +250,7 @@
                 }
             }
 
-            # If TargetObject is specified, only check that object
+            # if TargetObject is specified, only check that object
             if ($PSBoundParameters.ContainsKey('TargetObject')) {
                 Write-Verbose -Message ('Checking permissions on target object: {0}' -f $TargetObject)
                 $TargetObjects = Get-ADObject -Identity $TargetObject -Properties nTSecurityDescriptor -ErrorAction Stop
@@ -280,7 +280,7 @@
                 Write-Verbose -Message ('Found {0} objects with ACEs for the user or their groups' -f $TargetObjects.Count)
             }
 
-            # Process each target object
+            # process each target object
             foreach ($Target in $TargetObjects) {
                 Write-Debug -Message ('Processing target object: {0}' -f $Target.DistinguishedName)
 
@@ -313,7 +313,7 @@
                                 }
                             }
 
-                            # If no mapped permissions found, use the raw value
+                            # if no mapped permissions found, use the raw value
                             if ($MappedPermissions.Count -eq 0) {
                                 [void]$MappedPermissions.Add($Ace.ActiveDirectoryRights.ToString())
                             }
@@ -351,12 +351,12 @@
             Write-Error -Message ('Access denied when querying permissions: {0}' -f $_.Exception.Message)
         } catch {
             Write-Error -Message ('Error: {0}' -f $_.Exception.Message)
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Process
+    } #end process
 
     end {
-        # Return the results
+        # return the results
         [PSCustomObject[]]$Results
 
         # Display function footer if variables exist
@@ -368,6 +368,6 @@
             )
             Write-Verbose -Message $txt
         } #end if
-    } #end End
+    } #end end
 
 } #end function Get-ADUserPermission

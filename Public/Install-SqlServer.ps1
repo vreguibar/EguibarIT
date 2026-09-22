@@ -11,7 +11,7 @@
             and includes production-ready performance optimizations.
 
         .PARAMETER IsoPath
-            Path to SQL Server ISO file. If not specified, the function will:
+            Path to SQL Server ISO file. if not specified, the function will:
             1. Check for mounted DVD drives with SQL Server installation media
             2. Use the SQLSERVER_ISOPATH environment variable if available
             3. Download SQL Server 2019 Developer Edition from Microsoft
@@ -589,7 +589,7 @@
                     (Get-FunctionDisplay -Hashtable $PsBoundParameters -Verbose:$False)
                 )
                 Write-Verbose -Message $txt
-            } #end If
+            } #end if
         } catch {
             # Module variables not available, continue without header
             Write-Verbose -Message 'EguibarIT module variables not available'
@@ -690,7 +690,7 @@
         } #end if
 
         Write-Verbose -Message ('Starting SQL Server installation at {0}' -f $StartTime)
-    } #end Begin
+    } #end begin
 
     process {
         try {
@@ -735,7 +735,7 @@
 
                 Write-Warning -Message ''
                 Write-Warning -Message 'Existing SQL Server installations can cause installation failures.'
-                Write-Warning -Message 'If you encounter errors during installation, consider:'
+                Write-Warning -Message 'if you encounter errors during installation, consider:'
                 Write-Warning -Message '1. Uninstalling existing SQL Server using: Uninstall-SqlServer'
                 Write-Warning -Message '2. Using Add/Remove Programs to remove SQL Server components'
                 Write-Warning -Message '3. Running SQL Server setup with /ACTION=Uninstall'
@@ -870,7 +870,7 @@
                         $DownloadSuccess = $false
                         $DownloadAttempts = @()
 
-                        # Strategy 1: Try with system proxy if configured
+                        # Strategy 1: try with system proxy if configured
                         if ($ENV:HTTP_PROXY -and $ENV:HTTP_PROXY -ne '') {
                             $DownloadAttempts += @{
                                 Name  = 'System Proxy'
@@ -883,7 +883,7 @@
                             }
                         }
 
-                        # Strategy 2: Try with default proxy (system default)
+                        # Strategy 2: try with default proxy (system default)
                         $DownloadAttempts += @{
                             Name  = 'Default Proxy'
                             Splat = @{
@@ -894,7 +894,7 @@
                             }
                         }
 
-                        # Strategy 3: Try without proxy
+                        # Strategy 3: try without proxy
                         $DownloadAttempts += @{
                             Name  = 'Direct Connection'
                             Splat = @{
@@ -1180,7 +1180,7 @@
                     # Enhanced error reporting with SQL Server log analysis
                     $ErrorMessage = 'SQL Server installation failed with exit code: {0}' -f $SetupProcess.ExitCode
 
-                    # Try to find and read SQL Server setup logs for more details
+                    # try to find and read SQL Server setup logs for more details
                     try {
                         $LogPath = "$env:ProgramFiles\Microsoft SQL Server\*\Setup Bootstrap\Log"
                         $LatestLogDir = Get-ChildItem -Path $LogPath -Directory |
@@ -1211,7 +1211,7 @@
                                 if ($SummaryContent -match 'right to back up files|SeBackupPrivilege|SeSecurityPrivilege|SeDebugPrivilege') {
                                     Write-Error -Message 'SOLUTION: SQL Server setup failed due to insufficient user privileges.'
                                     Write-Error -Message 'Even when running as Administrator, you may need to explicitly grant user rights.'
-                                    Write-Error -Message 'Try one of these solutions:'
+                                    Write-Error -Message 'try one of these solutions:'
                                     Write-Error -Message '1. Run the Grant-SqlServerPrivileges.ps1 script from this module'
                                     Write-Error -Message '2. Use Local Security Policy (secpol.msc) to grant these rights manually:'
                                     Write-Error -Message '   - Back up files and directories (SeBackupPrivilege)'
@@ -1387,7 +1387,7 @@
             # Always stop transcript
             Stop-Transcript -ErrorAction SilentlyContinue
         } #end try-catch-finally
-    } #end Process
+    } #end process
 
     end {
         $EndTime = Get-Date
@@ -1401,9 +1401,9 @@
                 'installing SQL Server with specified configuration.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
 
         return $InstallationResult
-    } #end End
+    } #end end
 } #end function Install-SqlServer

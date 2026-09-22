@@ -98,7 +98,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -109,16 +109,12 @@
         ##############################
         # Variables Definition
 
-        #Get a reference to the RootDSE of the current domain
-        Write-Verbose -Message 'Get the Root DSE of the forest'
-        $ADConfigurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
-
         # Get the Sites container
         $ADSiteDN = 'CN=Sites,{0}' -f $variables.configurationNamingContext
 
         Write-Verbose -Message "Set necessary site variables `r "
         $NewADSiteDN = 'CN={0},{1}' -f $PSBoundParameters['NewSiteName'], $ADSiteDN
-    } #end Begin
+    } #end begin
 
     process {
         if ($PSCmdlet.ShouldProcess($PSBoundParameters['NewSiteName'], 'Create AD Site')) {
@@ -147,8 +143,6 @@
                         New-ADObject -Name 'NTDS Site Settings' -Path $NewADSiteDN -Type NTDSSiteSettings
                         New-ADObject -Name 'Servers' -Path $NewADSiteDN -Type serversContainer
 
-                        Write-Verbose -Message 'Get New AD Site as variable `r '
-                        $NewADSiteInfo = Get-ADObject $NewADSiteDN
                     }  ## CLOSE TRY Create New Site Object Child Objects (NTDS Site Settings & Servers Container)
                     catch {
                         Write-Warning -Message ('An error occurred while attempting to create site {0} child objects in the AD Site Path: {1} `r ' -f $PSBoundParameters['NewSiteName'], $NewADSiteDN)
@@ -157,13 +151,13 @@
                     }
                 }#end elseIf
             }#end elseIf
-        } #end If ShouldProcess
-    } #end Process
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating new AD Site.'
         )
         Write-Verbose -Message $txt
-    } #end End
-} #end Function
+    } #end end
+} #end function

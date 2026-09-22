@@ -59,7 +59,7 @@
 
 '@
 
-    # Standard header used on each function on the Begin section
+    # Standard header used on each function on the begin section
     Header                     = @'
 
     ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
@@ -72,10 +72,10 @@
 
 '@
 
-    # Standard footer used on each function on the Begin section
+    # Standard footer used on each function on the begin section
     Footer                     = @'
 
-        Function {0} finished {1}"
+        function {0} finished {1}"
 
     ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
 
@@ -100,7 +100,7 @@ if (-not (Get-Variable -Name 'Variables' -Scope Global -ErrorAction SilentlyCont
 
 } else {
 
-    # If the variable exists, merge the new values with existing ones
+    # if the variable exists, merge the new values with existing ones
     $existingVariables = Get-Variable -Name 'Variables' -Scope Global -ValueOnly
 
     # For each key in your new $Variables hashtable
@@ -123,12 +123,12 @@ if (-not (Get-Variable -Name 'Variables' -Scope Global -ErrorAction SilentlyCont
                     $existingVariables[$key][$nestedKey] = $Variables[$key][$nestedKey]
                     Write-Verbose -Message ('Added new nested variable: {0}.{1}' -f $key, $nestedKey)
 
-                } #end If
+                } #end if
 
             } #end foreach
-        } #end If-Else
+        } #end if-Else
         # For other types (non-hashtable), we don't overwrite by default
-    } #end Foreach
+    } #end foreach
 
     Write-Verbose -Message 'Variables already exist. Merged new values with existing ones.'
-} #end If-Else
+} #end if-Else

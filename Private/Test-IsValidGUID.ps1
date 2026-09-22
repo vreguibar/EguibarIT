@@ -81,7 +81,7 @@
         $ObjectGUID
     )
 
-    Begin {
+    begin {
 
         Set-StrictMode -Version Latest
 
@@ -93,13 +93,13 @@
 
         [bool]$isValid = $false
 
-        Write-Debug 'Begin block: Regex pattern for GUID validation initialized.'
+        Write-Debug 'begin block: Regex pattern for GUID validation initialized.'
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
-        Try {
+        try {
 
             # Perform the actual validation
             #$isValid = $ObjectDN -match $distinguishedNameRegex
@@ -112,11 +112,11 @@
             # Handle exceptions gracefully
             Write-Error -Message 'Error when validating GUID'
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Process
+    } #end process
 
     end {
         return $isValid
-    } #end End
-} #end Function Test-IsValidGUID
+    } #end end
+} #end function Test-IsValidGUID

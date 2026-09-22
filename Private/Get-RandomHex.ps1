@@ -1,4 +1,4 @@
-﻿Function Get-RandomHex {
+﻿function Get-RandomHex {
     <#
         .SYNOPSIS
             Generates a random hexadecimal string of specified length.
@@ -84,7 +84,7 @@
         $Length
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Output header information
@@ -106,12 +106,12 @@
         # Variables Definition
 
         # Generating random hexadecimal string
-        $Hex = '0123456789ABCDEF'
+        $HexChars = '0123456789ABCDEF'
         [System.Text.StringBuilder]$StringBuilder = [System.Text.StringBuilder]::new($Length)
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         try {
             Write-Debug -Message ('Generating {0} character hex string' -f $Length)
 
@@ -127,21 +127,21 @@
 
             Write-Error -Message ('Failed to generate hex string: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-                'generating random hexadecimal string (Private Function).'
+                'generating random hexadecimal string (Private function).'
             )
             Write-Verbose -Message $txt
         } #end if
 
         # Returning the generated string
-        $Return
-    } #end End
+        $return
+    } #end end
 
-} #end Function Get-RandomHex
+} #end function Get-RandomHex

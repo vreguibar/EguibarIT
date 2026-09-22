@@ -1,4 +1,4 @@
-﻿Function Get-FunctionDisplay {
+﻿function Get-FunctionDisplay {
     <#
         .SYNOPSIS
             Formats and displays the PsBoundParameters hashtable in a visually appealing way.
@@ -93,7 +93,7 @@
     )]
     [OutputType([String])]
 
-    Param (
+    param (
         [Parameter(
             Mandatory = $true,
             ValueFromPipeline = $true,
@@ -125,7 +125,7 @@
         $TabCount = 2
     )
 
-    Begin {
+    begin {
         # Set strict mode
         Set-StrictMode -Version Latest
 
@@ -133,9 +133,9 @@
         [System.Text.StringBuilder]$sb = [System.Text.StringBuilder]::New(1024)
         [string]$IndentString = $Constants.HTab * $TabCount
 
-    } # end Begin
+    } # end begin
 
-    Process {
+    process {
         try {
             # Start with a new line
             [void]$sb.AppendLine()
@@ -145,7 +145,7 @@
                 # Get hashtable formatted as a table
                 $FormattedTable = $HashTable | Format-Table -AutoSize | Out-String
 
-                # Process each line of the table output
+                # process each line of the table output
                 $TableLines = $FormattedTable -split $Constants.NL
 
                 foreach ($Line in $TableLines) {
@@ -164,7 +164,7 @@
                 # Handle empty hashtable case
                 [void]$sb.AppendLine('Empty hashtable received, no parameters to display.')
 
-            } # end If
+            } # end if
 
             # Add extra newlines for readability
             [void]$sb.AppendLine()
@@ -177,13 +177,13 @@
             [void]$sb.AppendLine('Error formatting parameters: {0}' -f $_.Exception.Message)
 
         } # end try-catch
-    } # end Process
+    } # end process
 
-    End {
+    end {
 
-        # Return the final formatted output as string
+        # return the final formatted output as string
         return $sb.ToString()
 
-    } # end End
+    } # end end
 
-} # end Function Get-FunctionDisplay
+} # end function Get-FunctionDisplay

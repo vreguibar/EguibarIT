@@ -1,4 +1,4 @@
-﻿Function New-Template {
+﻿function New-Template {
     <#
         .SYNOPSIS
             Creates a new PKI template in Active Directory Certificate Services.
@@ -99,7 +99,7 @@
     )]
     [OutputType([void])]
 
-    Param(
+    param(
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
@@ -124,7 +124,7 @@
         $TemplateOtherAttributes
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Output header information
@@ -171,12 +171,12 @@
             Write-Error -Message ('Failed to initialize: {0}' -f $_.Exception.Message)
             throw
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } # End BEGIN section
+    } # end BEGIN section
 
-    Process {
-        Try {
+    process {
+        try {
 
             Write-Debug -Message ('Creating template: {0}' -f $DisplayName)
 
@@ -204,16 +204,16 @@
 
                 Write-Verbose -Message ('Created OID object: {0}' -f $OID.TemplateName)
 
-            } #end If
+            } #end if
 
             # Ensure if msPKI-Cert-Template-OID already add it to hashtable
-            If (-not $TemplateOtherAttributes.ContainsKey('msPKI-Cert-Template-OID')) {
+            if (-not $TemplateOtherAttributes.ContainsKey('msPKI-Cert-Template-OID')) {
 
                 #Create Template itself
                 $TemplateOtherAttributes += @{
                     'msPKI-Cert-Template-OID' = $OID.TemplateOID
                 }
-            } #end If
+            } #end if
             $TemplatePath = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,{0}' -f $ConfigNC
 
 
@@ -230,27 +230,27 @@
                 New-ADObject @Splat
 
                 Write-Verbose -Message ('Created template: {0}' -f $DisplayName)
-            } #end If
+            } #end if
 
         } catch {
 
             Write-Error -Message ('Failed to create template {0}: {1}' -f $DisplayName, $_.Exception.Message)
             throw
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } # End PROCESS section
+    } # end PROCESS section
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-                'adding new PKI template (Private Function).'
+                'adding new PKI template (Private function).'
             )
             Write-Verbose -Message $txt
         } #end if
 
-    } #end End section
+    } #end end section
 
-} # End Function New-Template
+} # end function New-Template

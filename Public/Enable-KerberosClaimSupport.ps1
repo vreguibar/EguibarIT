@@ -123,7 +123,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -158,7 +158,7 @@
                 # Get Custom "Domain Wide" GPO by using its name
                 $DomainGPO = Get-GPO -Name $GeneralGPO -Domain $DomainDNSName -ErrorAction Stop
 
-            } #end If
+            } #end if
 
 
             Write-Verbose -Message ('Resolved GPO: {0} to GUID: {1}' -f $DomainGPO.DisplayName, $DomainGPO.Id)
@@ -171,7 +171,7 @@
             )
             $DomainGPO = Get-GPO -Guid $DefaultDomainPolicy -Domain $DomainDNSName -ErrorAction Stop
 
-        } #end If
+        } #end if
 
         # Check if DomainControllers GPO was parsed
         if ($DomainControllerGPO) {
@@ -205,9 +205,9 @@
             )
             $DC_GPO = Get-GPO -Guid $DefaultDomainControllerPolicy -Domain $DomainDNSName -ErrorAction Stop
 
-        } #end If
+        } #end if
 
-    } # End Begin
+    } # end begin
 
     process {
 
@@ -228,7 +228,7 @@
                 Set-GPRegistryValue @KDCEnableClaim -Domain $DomainDNSName
                 Write-Verbose -Message ('KDC Support enabled in {0}' -f $DomainDNSName)
 
-            } #end If
+            } #end if
 
             # Enable client claim support for domain controllers
             $ClientClaimSupportDC = @{
@@ -243,12 +243,12 @@
                 Set-GPRegistryValue @ClientClaimSupportDC -Domain $DomainDNSName
                 Write-Verbose -Message ('Client claim support for domain controllers enabled in {0}' -f $DomainDNSName)
 
-            } #end If
+            } #end if
         } catch {
             Write-Error -Message ('Failed to update the Default Domain Controller Policy in {0}. {1}' -f $DomainDNSName, $_)
             Write-Error -Message 'Set Administrative Templates\KDC\Enable Combound authentication to supported'
             Write-Error -Message 'set Administrative Templates\Kerberos\Enabel client support to Enable'
-        } #end Try-Catch
+        } #end try-catch
 
         # Enable client claim support on any clients
         try {
@@ -264,17 +264,17 @@
                 Set-GPRegistryValue @ClientClaimSupportClients -Domain $DomainDNSName
                 Write-Verbose -Message ('Client claim support enabled on every client in {0}' -f $DomainDNSName)
 
-            } #end If
+            } #end if
         } catch {
             Write-Error -Message ('Failed to update the Domain Wide Policy in {0}. {1}' -f $DomainDNSName, $_)
             Write-Error -Message 'Enable Administrative Templates\Kerberos\Enable Claim support to enable'
-        } #end Try-Catch
-    } # End Process
+        } #end try-catch
+    } # end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'processing Enable-KerberosClaimSupport function.'
         )
         Write-Verbose -Message $txt
-    } # End End
-} #end Function
+    } # end end
+} #end function

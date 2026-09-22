@@ -1,4 +1,4 @@
-﻿Function Get-ADCSTemplate {
+﻿function Get-ADCSTemplate {
     <#
         .SYNOPSIS
             Returns properties of Active Directory Certificate Template(s).
@@ -8,10 +8,10 @@
             Configuration Naming Context. Supports pipeline input and credential delegation.
 
         .PARAMETER DisplayName
-            Name of the certificate template to retrieve. If omitted, returns all templates.
+            Name of the certificate template to retrieve. if omitted, returns all templates.
 
         .PARAMETER Server
-            FQDN of Active Directory Domain Controller to target. If not specified, discovers
+            FQDN of Active Directory Domain Controller to target. if not specified, discovers
             nearest writable DC.
 
         .INPUTS
@@ -106,7 +106,7 @@
         $Server
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Output header information
@@ -146,7 +146,7 @@
                 }
                 $Server = (Get-ADDomainController @GetDCParams).HostName[0]
                 Write-Verbose -Message ('Using Domain Controller: {0}' -f $Server)
-            } #end If
+            } #end if
 
             # Prepare common parameters
             $CommonParams = @{
@@ -159,16 +159,16 @@
             Write-Error -Message ('Failed to initialize: {0}' -f $_.Exception.Message)
             return
 
-        } #end Try
+        } #end try
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         try {
             # Get template path from configuration NC
             $TemplatePath = 'CN=Certificate Templates,CN=Public Key Services,CN=Services,{0}' -f $Variables.configurationNamingContext
 
-            # Process each template name if specified
+            # process each template name if specified
             if ($PSBoundParameters.ContainsKey('DisplayName')) {
 
                 $total = $DisplayName.Count
@@ -209,8 +209,8 @@
 
                         Write-Warning -Message ('Template not found: {0}' -f $template)
 
-                    } #end If-Else
-                } #end ForEach
+                    } #end if-Else
+                } #end foreach
 
                 Write-Progress -Activity 'Processing Certificate Templates' -Completed
 
@@ -230,7 +230,7 @@
                 $result = Get-ADObject @Splat
                 Write-Verbose -Message ('Found {0} templates' -f $result.Count)
                 $result
-            } #end If-Else
+            } #end if-Else
 
         } catch [Microsoft.ActiveDirectory.Management.ADServerDownException] {
 
@@ -244,20 +244,20 @@
 
             Write-Error -Message ('An error occurred: {0}' -f $_.Exception.Message)
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         # Display function footer if variables exist
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-                'getting Cert Template (Private Function).'
+                'getting Cert Template (Private function).'
             )
             Write-Verbose -Message $txt
         } #end if
-    } #end End
+    } #end end
 
-} #end Function Get-ADCSTemplate
+} #end function Get-ADCSTemplate

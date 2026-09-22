@@ -19,11 +19,11 @@
 
         .PARAMETER RemoveInheritance
             When specified, blocks inheritance from the parent object.
-            If not specified, inheritance remains enabled.
+            if not specified, inheritance remains enabled.
 
         .PARAMETER KeepPermissions
             When specified, previously inherited permissions are converted to explicit permissions.
-            If not specified, previously inherited permissions are removed.
+            if not specified, previously inherited permissions are removed.
 
         .INPUTS
             System.String
@@ -81,7 +81,7 @@
     )]
     [OutputType([void])]
 
-    Param
+    param
     (
         # PARAM1 STRING for the Object Name
         [Parameter(Mandatory = $true,
@@ -101,7 +101,7 @@
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Remove inheritance from parent. If present Inheritance will be removed.',
+            HelpMessage = 'Remove inheritance from parent. if present Inheritance will be removed.',
             Position = 1)]
         [switch]
         $RemoveInheritance,
@@ -109,14 +109,14 @@
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'Previous inherited access rules will be kept. If present means rules will
+            HelpMessage = 'Previous inherited access rules will be kept. if present means rules will
             be copied and maintained, otherwise rules will be removed.',
             Position = 1)]
         [switch]
         $KeepPermissions
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Initialize logging
@@ -129,7 +129,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -138,22 +138,22 @@
         # Variables Definition
 
 
-        If ($PSBoundParameters['RemoveInheritance']) {
+        if ($PSBoundParameters['RemoveInheritance']) {
             $isProtected = $true
         } else {
             $isProtected = $false
         }
 
-        If ($PSBoundParameters['KeepPermissions']) {
+        if ($PSBoundParameters['KeepPermissions']) {
             $preserveInheritance = $true
         } else {
             $preserveInheritance = $false
         }
 
-    } #end Begin
+    } #end begin
 
-    Process {
-        Try {
+    process {
+        try {
 
             # Get the ACL
             $DirectorySecurity = Get-Acl -Path ('AD:\{0}' -f $PSBoundParameters['LDAPpath'])
@@ -163,19 +163,19 @@
             # be preserved ($False means remove previously inherited permissions).
             $DirectorySecurity.SetAccessRuleProtection($isProtected, $preserveInheritance)
 
-            If ($PSCmdlet.ShouldProcess($PSBoundParameters['LDAPpath'], 'Remove inheritance?')) {
+            if ($PSCmdlet.ShouldProcess($PSBoundParameters['LDAPpath'], 'Remove inheritance?')) {
 
                 Set-Acl -Path ('AD:\{0}' -f $PSBoundParameters['LDAPpath']) -AclObject $DirectorySecurity
 
-            } #end If
+            } #end if
 
-        } Catch {
+        } catch {
             Write-Error -Message 'Error when revoking inheritance'
             throw
         }
-    } #end Process
+    } #end process
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
@@ -183,7 +183,7 @@
                 'removing inheritance.'
             )
             Write-Verbose -Message $txt
-        } #end If
-    } #end End
+        } #end if
+    } #end end
 
-} #end Function Revoke-Inheritance
+} #end function Revoke-Inheritance

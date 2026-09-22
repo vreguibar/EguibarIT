@@ -96,7 +96,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -108,7 +108,7 @@
         # Variables Definition
 
         try {
-            # Check if Config.xml file is loaded. If not, proceed to load it.
+            # Check if Config.xml file is loaded. if not, proceed to load it.
             if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
                 if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
@@ -156,7 +156,7 @@
 
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-    } #end Begin
+    } #end begin
 
     process {
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Create DFS objects and delegations')) {
@@ -234,13 +234,13 @@
             # Distributed File System
             # Full control over DFS-Configuration & DFSR-GlobalSettings
             Set-AdAclFullControlDFS -Group $SL_DfsRight.SamAccountName
-        } #end If ShouldProcess
-    } #end Process
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating DFS objects and Delegations.'
         )
         Write-Verbose -Message $txt
-    } #end End
-} #end Function
+    } #end end
+} #end function

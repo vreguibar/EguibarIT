@@ -75,7 +75,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -100,4 +100,4 @@
 
         return $ADSites
     } #end end
-} #end Function
+} #end function

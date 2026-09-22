@@ -99,7 +99,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -114,7 +114,7 @@
         $OsInstalationType = Get-ItemProperty -Path $RegKey | Select-Object -ExpandProperty InstallationType
 
         try {
-            # Check if Config.xml file is loaded. If not, proceed to load it.
+            # Check if Config.xml file is loaded. if not, proceed to load it.
             if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
                 if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
@@ -165,7 +165,7 @@
 
         #endregion Declarations
         ################################################################################
-    } #end Begin
+    } #end begin
 
     process {
         if ($PSCmdlet.ShouldProcess('Active Directory Certificate Services', 'Configure Certificate Authority')) {
@@ -253,11 +253,11 @@ LoadDefaultTemplates=0
 
                     # configure the web enrollment role service
                     Install-ADCSwebenrollment -Confirm
-                } # End If
+                } # end if
             } catch {
                 Write-Error -Message 'Error when installing Certificate Authority'
                 throw
-            } # End Try-Catch
+            } # end try-catch
             finally {
 
                 # Remove all distribution points
@@ -344,7 +344,7 @@ LoadDefaultTemplates=0
 
                 Restart-Service certsvc
 
-            } # End Try-Catch-Finally
+            } # end try-catch-Finally
 
             <#
         ###############################################################################
@@ -657,7 +657,7 @@ $TemplateName = "WindowsAdminCenter"
 # Install PSPKI module for managing Certification Authority
 Install-PackageProvider -Name NuGet -Force
 Install-Module -Name PSPKI -Force
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope process -Force
 Import-Module PSPKI
 
 #Set Cert Template permission
@@ -671,14 +671,14 @@ Invoke-Command -ComputerName $GatewayServerName -ScriptBlock {
 
 #>
 
-        } #end If ShouldProcess
-    } #end Process
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating created Certificate Authority objects and Delegations.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 
-} #end Function
+} #end function

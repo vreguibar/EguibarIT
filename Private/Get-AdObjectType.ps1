@@ -30,7 +30,7 @@
 
         .PARAMETER Server
             Specifies the Active Directory Domain Services instance to connect to.
-            If not specified, the default domain controller for the current domain is used.
+            if not specified, the default domain controller for the current domain is used.
 
         .INPUTS
             System.String
@@ -204,7 +204,7 @@
             $SplatADParams['Server'] = $PSBoundParameters['Server']
         } #end if
 
-    } # End Begin Section
+    } # end begin Section
 
     process {
 
@@ -212,7 +212,7 @@
 
         try {
             # Check if identity is an AD object
-            # If the identity is already an AD object, return it as is
+            # if the identity is already an AD object, return it as is
             if ($Identity -is [Microsoft.ActiveDirectory.Management.ADAccount] -or
                 $Identity -is [Microsoft.ActiveDirectory.Management.ADComputer] -or
                 $Identity -is [Microsoft.ActiveDirectory.Management.ADGroup] -or
@@ -244,9 +244,9 @@
                         Where-Object { $_.Value -eq $Identity } |
                             Select-Object -ExpandProperty Key
 
-                } #end If-elseif
+                } #end if-elseif
 
-                # If we have a Well-Known SID, create a SecurityIdentifier object
+                # if we have a Well-Known SID, create a SecurityIdentifier object
                 if ($wellKnownSid) {
 
                     Write-Verbose -Message (
@@ -345,7 +345,7 @@
 
         } #end try-catch
 
-    } # End Process Section
+    } # end process Section
 
     end {
         # Display function footer if variables exist
@@ -360,7 +360,7 @@
 
         if ($null -ne $ReturnValue) {
             Write-Output $ReturnValue
-        } #end If
-    } # End End Section
+        } #end if
+    } # end end Section
 
-} #end Function
+} #end function

@@ -120,7 +120,7 @@
     # https://docs.microsoft.com/en-us/dotnet/api/microsoft.activedirectory.management?view=activedirectory-management-10.0
     [OutputType([Microsoft.ActiveDirectory.Management.ADOrganizationalUnit])]
 
-    Param (
+    param (
         # Param1 Site Name
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
@@ -239,7 +239,7 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         if ($null -ne $Variables -and
@@ -251,7 +251,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -269,13 +269,13 @@
         $OUexists = [Microsoft.ActiveDirectory.Management.ADOrganizationalUnit]::New()
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         #
         if (-not $strOuDisplayName) {
             $strOuDisplayName = $PSBoundParameters['ouName']
-        } # End If
+        } # end if
 
         try {
             # Check if OU exists
@@ -289,11 +289,11 @@
             $OUexists = Get-ADOrganizationalUnit @Splat
 
             # Check if OU exists
-            If ($OUexists) {
+            if ($OUexists) {
                 # OU it does exists
                 Write-Warning -Message ('Organizational Unit {0} already exists. Exit the script.' -f $ouNameDN)
                 return
-            } #end If
+            } #end if
 
             if ($PSCmdlet.ShouldProcess("Creating the Organizational Unit '$OuName'")) {
                 Write-Verbose -Message ('Creating the {0} Organizational Unit' -f $PSBoundParameters['ouName'])
@@ -321,8 +321,8 @@
 
                         $Splat[$param.Key] = $PSBoundParameters[$param.Value]
 
-                    } #end If
-                } #end Foreach
+                    } #end if
+                } #end foreach
 
                 # Create the OU
                 $OUexists = New-ADOrganizationalUnit @Splat
@@ -333,7 +333,7 @@
             Write-Error -Message ('Error creating OU: {0}' -f $_)
             throw
 
-        } #end Try-Catch
+        } #end try-catch
 
         # Remove "Account Operators" and "Print Operators" built-in groups from OU. Any unknown/UnResolvable SID will be removed.
         Write-Debug -Message ('Cleaning OU permissions: {0}' -f $ouNameDN)
@@ -345,7 +345,7 @@
             Write-Verbose -Message ('Cleaning ACL inheritance: {0}' -f $ouNameDN)
             Revoke-Inheritance -LDAPpath $ouNameDN -RemoveInheritance -KeepPermissions
 
-        } #end If
+        } #end if
 
         # Remove Authenticated Users if requested
         if ($RemoveAuthenticatedUsers) {
@@ -353,10 +353,10 @@
             Write-Verbose -Message ('Removing Authenticated Users from: {0}' -f $ouNameDN)
             Remove-AuthUser -LDAPPath $ouNameDN
 
-        } #end If
-    } #end Process
+        } #end if
+    } #end process
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
@@ -364,8 +364,8 @@
                 'creating new delegated OU.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         return $OUexists
-    } #end End
-} #end Function New-DelegateAdOU
+    } #end end
+} #end function New-DelegateAdOU

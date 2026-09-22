@@ -104,7 +104,7 @@
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -157,18 +157,18 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -201,7 +201,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -223,7 +223,7 @@
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
         # Define OU names from XML configuration
         [hashtable]$OuNames = @{
@@ -301,9 +301,9 @@
         [int]$TotalSteps = 23  # Total number of OUs to create
         [int]$CurrentStep = 0
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Create Tier0 Organizational Units')) {
 
@@ -336,7 +336,7 @@
                     Write-Error -Message ('Failed to create {0} OU: {1}' -f $OuNames.ItAdminOu, $_.Exception.Message)
                     throw
 
-                } #end Try-Catch
+                } #end try-catch
 
                 # Remove inheritance and copy ACEs
                 $Splat = @{
@@ -726,13 +726,13 @@
                 # Ensure progress bar is removed on error
                 Write-Progress -Activity 'Creating Tier 0 OU Structure' -Completed
 
-            } #end Try-Catch-Finally
+            } #end try-catch-Finally
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         # Display function footer if variables exist
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
@@ -741,7 +741,7 @@
                 'creating Tier0 Organizational Units.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Stop transcript if it was started
         if ($EnableTranscript) {
@@ -750,11 +750,11 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
+            } #end try-catch
+        } #end if
 
-        # Return status message with count of created OUs and root OU path
+        # return status message with count of created OUs and root OU path
         return ('Tier 0 OU structure successfully created with {0} OUs. Root: {1}' -f
             $OuPaths.Count, $OuPaths.ItAdminOuDn)
-    } #end End
-} #end Function New-Tier0CreateOU
+    } #end end
+} #end function New-Tier0CreateOU

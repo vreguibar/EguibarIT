@@ -93,7 +93,7 @@
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -157,18 +157,18 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -201,7 +201,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -226,7 +226,7 @@
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
         # Set admin names
         [string]$NewAdminName = $ConfXML.n.Admin.users.NEWAdmin.Name
@@ -285,13 +285,13 @@
         [string]$ItAdminAccountsOu = $ConfXML.n.Admin.OUs.ItAdminAccountsOU.name
         [string]$ItAdminAccountsOuDn = ('OU={0},OU={1},{2}' -f $ItAdminAccountsOu, $ItAdminOu, $Variables.AdDn)
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         if ($PSCmdlet.ShouldProcess('Active Directory Identity', 'Create and Secure Tier0 Admin Accounts')) {
 
-            # Try to get the new Admin
+            # try to get the new Admin
             $NewAdminExists = Get-ADUser -Filter { SamAccountName -eq $NewAdminName } -ErrorAction SilentlyContinue
 
             # Get picture if exist. Use default if not.
@@ -312,11 +312,11 @@
                     [byte[]]$Photo = [System.IO.File]::ReadAllBytes($PhotoFile)
                 } else {
                     $Photo = $null
-                } #end If-Else
+                } #end if-Else
 
-            } #end If-Else
+            } #end if-Else
 
-            # Check if the new Admin account already exist. If not, then create it.
+            # Check if the new Admin account already exist. if not, then create it.
             if ($NewAdminExists) {
                 # The user was found. Proceed to modify it accordingly.
                 $Splat = @{
@@ -340,11 +340,11 @@
                     }
                 }
 
-                # If photo exist, add it to parameters
+                # if photo exist, add it to parameters
                 if ($Photo) {
                     # Only if photo exists, add it to splatting
                     $Splat.Replace.Add('thumbnailPhoto', $Photo)
-                } #end If
+                } #end if
 
                 # Update the existing admin user
                 Set-ADUser -Identity $NewAdminName @Splat
@@ -380,7 +380,7 @@
                 if ($Photo) {
                     # Only if photo exists, add it to splatting
                     $Splat.OtherAttributes.Add('thumbnailPhoto', $Photo)
-                } #end If
+                } #end if
 
                 # Create the new Admin with special values
                 try {
@@ -388,7 +388,7 @@
                 } catch {
                     Write-Error -Message ('Error when creating new Admin account: {0}' -f $_.Exception.Message)
                     throw
-                } #end Try-Catch
+                } #end try-catch
 
                 # Note on encryption types:
                 # msDS-SupportedEncryptionTypes:
@@ -396,7 +396,7 @@
                 # Kerberos AES 128 = 8
                 # Kerberos AES 256 = 16
                 # Value 24 = AES 128 + AES 256
-            } #end If-Else new user created
+            } #end if-Else new user created
 
             # Move AD object to proper OU
             Get-ADUser -Identity $NewAdminName | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
@@ -452,12 +452,12 @@
                 # Get the content of the JPG file
                 [byte[]]$Photo = [System.IO.File]::ReadAllBytes($PhotoFile)
 
-            } #end If
+            } #end if
 
             if ($Photo) {
                 # Only if photo exists, add it to splatting
                 $Params.Add('thumbnailPhoto', $Photo)
-            } #end If
+            } #end if
 
             # Apply settings to the built-in Administrator account
             $Splat = @{
@@ -469,11 +469,11 @@
             }
             Set-ADUser @Splat
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         # Display function footer if variables exist
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
@@ -482,7 +482,7 @@
                 'Create and Secure Tier0 Admin Accounts.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Stop transcript if it was started
         if ($EnableTranscript) {
@@ -491,7 +491,7 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
-    } #end End
-} #end Function New-Tier0AdminAccount
+            } #end try-catch
+        } #end if
+    } #end end
+} #end function New-Tier0AdminAccount

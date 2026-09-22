@@ -136,7 +136,7 @@
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -187,18 +187,18 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -231,7 +231,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -255,7 +255,7 @@
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
         # Naming conventions hashtable
         $NC = @{'sl' = $confXML.n.NC.LocalDomainGroupPreffix
@@ -363,8 +363,8 @@
                 [void]$ArrayList.Add($Item)
             } else {
                 Write-Error -Message ('Group not found: {0}' -f $Item)
-            } #end If GroupName
-        } #end ForEach
+            } #end if GroupName
+        } #end foreach
 
         # Build OU paths using string format for consistency
         [string]$ItAdminOuDn = ('OU={0},{1}' -f $ConfXML.n.Admin.OUs.ItAdminOU.name, $Variables.AdDn)
@@ -392,9 +392,9 @@
         [string]$ItSAT2OuDn = ('OU={0},OU={1},{2}' -f $ConfXML.n.Admin.OUs.ItSAT2OU.name, $ConfXML.n.Admin.OUs.ItServiceAccountsOU.name, $ItAdminOuDn)
 
         Write-Verbose -Message 'Starting the Tier0 delegation process...'
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         if ($PSCmdlet.ShouldProcess('Active Directory Security', 'Delegate Rights and Permissions to Tier0 Admin area')) {
 
@@ -552,7 +552,7 @@
             $ServiceCount = $AllServices.Count
             $ServiceIndex = 0
 
-            Foreach ($item in $AllServices) {
+            foreach ($item in $AllServices) {
                 $ServiceIndex++
                 # Update nested progress for service permissions
                 $NestedProgressSplat = @{
@@ -566,7 +566,7 @@
                 # ToDo: Error due Access Denied.
                 #Add-ServiceAcl -Group $SL_DcManagement -Service $Item.Name -verbose
 
-            } #end Foreach service
+            } #end foreach service
 
             # Complete the nested progress bar
             Write-Progress -Id 1 -Activity 'Configuring service permissions' -Completed
@@ -741,11 +741,11 @@
             # Complete the progress bar
             Write-Progress -Activity $ProgressActivity -Completed
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
@@ -753,7 +753,7 @@
                 'Delegate Rights and Permissions to Tier0 Admin area.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Stop transcript if it was started
         if ($EnableTranscript) {
@@ -762,7 +762,7 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
-    } #end End
-} #end Function New-Tier0Delegation
+            } #end try-catch
+        } #end if
+    } #end end
+} #end function New-Tier0Delegation

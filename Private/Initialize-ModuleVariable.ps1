@@ -1,4 +1,4 @@
-﻿Function Initialize-ModuleVariable {
+﻿function Initialize-ModuleVariable {
     <#
         .SYNOPSIS
             Initializes or reinitializes module-level variables for the module.
@@ -71,7 +71,7 @@
     )]
     [OutputType([void])]
 
-    Param (
+    param (
 
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $false,
@@ -83,7 +83,7 @@
 
     )
 
-    Begin {
+    begin {
 
         Set-StrictMode -Version Latest
 
@@ -102,20 +102,20 @@
 
                 Write-Warning -Message 'ActiveDirectory module is not available. Skipping AD-related functionality.'
 
-            } #end If-Else
+            } #end if-Else
 
         } catch {
 
             Write-Error -Message ('Failed to import ActiveDirectory module: {0}' -f $_ )
 
-        } #end Try-Catch
+        } #end try-catch
 
         ##############################
         # Variables Definition
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         if ($adModuleAvailable) {
             try {
@@ -123,44 +123,44 @@
                 # Active Directory DistinguishedName
                 if ($Force -or $null -eq $Variables.AdDN) {
                     $Variables.AdDN = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
-                } #end If
+                } #end if
 
                 # Configuration Naming Context
                 if ($Force -or $null -eq $Variables.configurationNamingContext) {
                     $Variables.configurationNamingContext = ([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString()
-                } #end If
+                } #end if
 
                 # Active Directory DistinguishedName
                 if ($Force -or $null -eq $Variables.defaultNamingContext) {
                     $Variables.defaultNamingContext = ([ADSI]'LDAP://RootDSE').DefaultNamingContext.ToString()
-                } #end If
+                } #end if
 
                 # Get current DNS domain name
                 if ($Force -or $null -eq $Variables.DnsFqdn) {
                     $Variables.DnsFqdn = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().Name
-                } #end If
+                } #end if
 
                 # Naming Contexts
                 if ($Force -or $null -eq $Variables.namingContexts) {
                     $Variables.namingContexts = ([ADSI]'LDAP://RootDSE').namingContexts
-                } #end If
+                } #end if
 
                 # Partitions Container
                 if ($Force -or $null -eq $Variables.PartitionsContainer) {
                     $Variables.PartitionsContainer = (([ADSI]'LDAP://RootDSE').configurationNamingContext.ToString())
-                } #end If
+                } #end if
 
                 # Root Domain Naming Context
                 if ($Force -or $null -eq $Variables.rootDomainNamingContext) {
                     $Variables.rootDomainNamingContext = ([ADSI]'LDAP://RootDSE').rootDomainNamingContext.ToString()
-                } #end If
+                } #end if
 
                 # Schema Naming Context
                 if ($Force -or $null -eq $Variables.SchemaNamingContext) {
                     $Variables.SchemaNamingContext = ([ADSI]'LDAP://RootDSE').SchemaNamingContext.ToString()
-                } #end If
+                } #end if
 
-            } Catch {
+            } catch {
 
                 [System.Text.StringBuilder]$sb = [System.Text.StringBuilder]::new()
                 [void]$sb.AppendLine( '' )
@@ -174,15 +174,15 @@
 
                 Write-Error -Message $sb.ToString()
 
-            } #end Try-Catch
+            } #end try-catch
 
             # Well-Known SIDs
             # Following functions must be the last ones to be called, otherwise error is thrown.
             # Hashtable containing the mappings between ClassSchema/AttributeSchema and GUID's
-            If ($null -eq $Variables.GuidMap -or
+            if ($null -eq $Variables.GuidMap -or
                 $Variables.GuidMap.Count -eq 0) {
 
-                Try {
+                try {
                     [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
                     [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
@@ -199,12 +199,12 @@
                     $AllSchema = Get-ADObject @Splat
 
                     Write-Verbose -Message 'Processing all schema class and attribute'
-                    Foreach ($item in $AllSchema) {
+                    foreach ($item in $AllSchema) {
 
                         # add current Guid to $TempMap
                         $TmpMap.Add($item.lDAPDisplayName, ([System.GUID]$item.schemaIDGUID).GUID)
 
-                    } #end ForEach
+                    } #end foreach
 
                     # Include "ALL [nullGUID]"
                     $TmpMap.Add('All', $Constants.guidNull)
@@ -226,14 +226,14 @@
 
                     Write-Error -Message $sb.ToString()
 
-                } #end Try-Catch
-            } #end If
+                } #end try-catch
+            } #end if
 
             # Hashtable containing the mappings between SchemaExtendedRights and GUID's
-            If ($null -eq $Variables.ExtendedRightsMap -or
+            if ($null -eq $Variables.ExtendedRightsMap -or
                 $Variables.ExtendedRightsMap.Count -eq 0) {
 
-                Try {
+                try {
                     [hashtable]$TmpMap = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
                     [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
@@ -250,12 +250,12 @@
                     $AllExtended = Get-ADObject @Splat
 
                     Write-Verbose -Message 'Processing all Extended attributes'
-                    ForEach ($Item in $AllExtended) {
+                    foreach ($Item in $AllExtended) {
 
                         # add current Guid to $TempMap
                         $TmpMap.Add($Item.displayName, ([system.guid]$Item.rightsGuid).GUID)
 
-                    } #end Foreach
+                    } #end foreach
 
                     # Include "ALL [nullGUID]"
                     $TmpMap.Add('All', $Constants.guidNull)
@@ -263,7 +263,7 @@
                     Write-Verbose -Message '$Variables.ExtendedRightsMap was empty. Adding values to it!'
                     $Variables.ExtendedRightsMap = $TmpMap
 
-                } Catch {
+                } catch {
 
                     [System.Text.StringBuilder]$sb = [System.Text.StringBuilder]::new()
                     [void]$sb.AppendLine( '' )
@@ -277,13 +277,13 @@
 
                     Write-Error -Message $sb.ToString()
 
-                } #end Try-Catch
-            } #end If
-        } #end If
+                } #end try-catch
+            } #end if
+        } #end if
 
 
-    } #end Process
+    } #end process
 
-    End {
-    } #end End
-} #end Function Initialize-ModuleVariable
+    end {
+    } #end end
+} #end function Initialize-ModuleVariable

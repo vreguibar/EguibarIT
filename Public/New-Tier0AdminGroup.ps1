@@ -83,7 +83,7 @@
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -139,18 +139,18 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -183,7 +183,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -207,7 +207,7 @@
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
         # Load naming conventions from XML
         [hashtable]$NC = @{
@@ -231,9 +231,9 @@
         [string]$ItRightsOuDn = ('OU={0},OU={1},{2}' -f $ItRightsOu, $ItAdminOu, $Variables.AdDn)
         [string]$ItPrivGroupsOuDn = ('OU={0},OU={1},{2}' -f $ItPrivGroupsOu, $ItAdminOu, $Variables.AdDn)
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         if ($PSCmdlet.ShouldProcess('Active Directory Privileged Groups', 'Create Tier0 Admin Groups')) {
 
@@ -244,7 +244,7 @@
             [int]$currentOperation = 0
 
             # Iterate through all Admin-LocalGroups child nodes
-            Foreach ($Node in $confXML.n.Admin.LG.ChildNodes) {
+            foreach ($Node in $confXML.n.Admin.LG.ChildNodes) {
                 $currentOperation++
 
                 # Update progress
@@ -282,10 +282,10 @@
 
                 # Clear variable for next use
                 $CreatedGroup = $null
-            } #end ForEach
+            } #end foreach
 
             # Iterate through all Admin-GlobalGroups child nodes
-            Foreach ($Node in $confXML.n.Admin.GG.ChildNodes) {
+            foreach ($Node in $confXML.n.Admin.GG.ChildNodes) {
                 $currentOperation++
 
                 # Update progress
@@ -323,7 +323,7 @@
 
                 # Clear variable for next use
                 $CreatedGroup = $null
-            } #end ForEach
+            } #end foreach
 
             # Create Servers Area / Tier1 Domain Local & Global Groups
             # Operations group
@@ -517,17 +517,17 @@
                         $Item.Name, $_.Exception.Message
                     )
 
-                } #end Try-Catch
+                } #end try-catch
             } #end foreach
 
             # Complete the group moving progress
             Write-Progress -Activity 'Moving Privileged Groups to Protected OU' -Completed
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         # Display function footer if variables exist
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
@@ -536,7 +536,7 @@
                 'Create Tier0 Admin Groups.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Stop transcript if it was started
         if ($EnableTranscript) {
@@ -545,7 +545,7 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
-    } #end End
-} #end Function New-Tier0AdminGroup
+            } #end try-catch
+        } #end if
+    } #end end
+} #end function New-Tier0AdminGroup

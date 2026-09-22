@@ -178,7 +178,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -190,14 +190,14 @@
         $FullShareName = '{0}\{1}\{2}' -f $PSBoundParameters['ShareLocation'], $PSBoundParameters['AreasName'], $PSBoundParameters['ShareName']
 
         $Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
-    } #end Begin
+    } #end begin
 
     process {
         if ($PSCmdlet.ShouldProcess($PSBoundParameters['ShareName'], 'Create shared folder with NTFS permissions')) {
             if (-not(Test-Path -Path $FullShareName)) {
                 # Create the new Directory
                 New-Item -Path $FullShareName -ItemType Directory
-            } #end If
+            } #end if
 
             # Create the associated READ group
             $Splat = @{
@@ -233,15 +233,15 @@
 
             if ($error.count -eq 0) {
                 Write-Verbose -Message ('The folder {0} was shared correctly.' -f $ShareName)
-            } #end If
-        } #end If ShouldProcess
-    } #end Process
+            } #end if
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating shares.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 
-} #end Function
+} #end function

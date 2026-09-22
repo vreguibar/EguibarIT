@@ -1,4 +1,4 @@
-﻿Function New-TemplateOID {
+﻿function New-TemplateOID {
     <#
         .SYNOPSIS
             Generates a new OID for certificate templates.
@@ -82,12 +82,12 @@
             OID Generation
     #>
     [CmdletBinding(
-        SupportsShouldProcess = $false,
+        SupportsShouldProcess = $true,
         ConfirmImpact = 'Low'
     )]
     [OutputType([System.Collections.Hashtable])]
 
-    Param(
+    param(
         [Parameter(Mandatory = $true,
             Position = 0,
             ValueFromPipeline = $true,
@@ -110,7 +110,7 @@
         $ConfigNC
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Output header information
@@ -138,9 +138,10 @@
         $script:MaxAttempts = 100
         $script:AttemptCount = 0
 
-    } # End BEGIN
+    } # end BEGIN
 
-    Process {
+    process {
+        if ($PSCmdlet.ShouldProcess($Server, 'Generate new unique template OID')) {
         try {
             <#
                 OID CN/Name                    [10000000-99999999].[32 hex characters]
@@ -194,27 +195,28 @@
             Write-Error -Message ('Failed to generate template OID: {0}' -f $_.Exception.Message)
             throw
 
-        } # End TRY/CATCH
+        } # end TRY/CATCH
+        } #end if ShouldProcess
 
-    } # End PROCESS
+    } # end PROCESS
 
-    End {
+    end {
         # Display function footer
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-                'creating new Template OID (Private Function).'
+                'creating new Template OID (Private function).'
             )
             Write-Verbose -Message $txt
         } #end if
 
-        # Return results
+        # return results
         @{
             TemplateOID  = $msPKICertTemplateOID
             TemplateName = $Name
         }
 
-    } # End END Section
+    } # end END Section
 
-} # End Function New-TemplateOID
+} # end function New-TemplateOID

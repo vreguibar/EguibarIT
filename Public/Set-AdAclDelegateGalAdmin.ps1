@@ -112,11 +112,11 @@ function Set-AdAclDelegateGalAdmin {
         [String]
         $LDAPpath,
 
-        # PARAM3 SWITCH If present, the access rule will be removed.
+        # PARAM3 SWITCH if present, the access rule will be removed.
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'If present, the access rule will be removed.',
+            HelpMessage = 'if present, the access rule will be removed.',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Switch]
@@ -125,7 +125,7 @@ function Set-AdAclDelegateGalAdmin {
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'If present, the function will not ask for confirmation when performing actions.',
+            HelpMessage = 'if present, the function will not ask for confirmation when performing actions.',
             Position = 3)]
         [Switch]
         $Force
@@ -144,7 +144,7 @@ function Set-AdAclDelegateGalAdmin {
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -163,7 +163,7 @@ function Set-AdAclDelegateGalAdmin {
             LDAPPath = $PSBoundParameters['LDAPpath']
         }
 
-    } #end Begin
+    } #end begin
 
     process {
         try {
@@ -191,18 +191,18 @@ function Set-AdAclDelegateGalAdmin {
 
                 # Change Email Info
                 Set-AdAclUserEmailInfo @Splat
-            } #end If
+            } #end if
         } catch {
             Write-Error -Message 'Error when delegating GAL amin'
             throw
         }
-    } #end Process
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'delegating GAL Admin.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 
-} #end Function
+} #end function

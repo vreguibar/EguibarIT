@@ -143,7 +143,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -196,14 +196,14 @@
                 }
             } else {
                 $array += 'no filters'
-            } #end If-Else
+            } #end if-Else
 
             if ($array -notcontains $msWMIName) {
                 Write-Output ('Creating the {0} WMI Filter...' -f $msWMIName)
                 $WMIFilterADObject = New-ADObject -Name $WMICN -Type 'msWMI-Som' -Path $WMIPath -OtherAttributes $Attr
             } else {
                 Write-Warning -Message ('The {0} WMI Filter already exists.' -f $msWMIName)
-            } #end If-Else
+            } #end if-Else
 
             $WMIFilterADObject = $null
 
@@ -269,14 +269,14 @@
                 Write-Warning -Message ('The {0} Group Policy Object already exists.' -f $PSBoundParameters['gpoName'])
                 Write-Output ('Adding the {0} WMI Filter...' -f $msWMIName)
                 $ExistingGPO.WmiFilter = ConvertTo-WmiFilter $WMIFilterADObject
-            } #end If-Else
-        } #end If ShouldProcess
-    } #end Process
+            } #end if-Else
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating the Time Policy GPO.'
         )
         Write-Verbose -Message $txt
-    } #end End
-} #end Function
+    } #end end
+} #end function

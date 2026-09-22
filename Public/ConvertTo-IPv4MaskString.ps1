@@ -91,7 +91,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -114,4 +114,4 @@
         Write-Verbose -Message $txt
     } #end end
 
-} #end Function
+} #end function

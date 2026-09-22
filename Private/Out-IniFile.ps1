@@ -1,4 +1,4 @@
-﻿Function Out-IniFile {
+﻿function Out-IniFile {
     <#
         .SYNOPSIS
             Write hash content to INI file
@@ -98,7 +98,7 @@
     [OutputType([System.IO.FileSystemInfo], ParameterSetName = 'PassThru')]
     [OutputType([void])]
 
-    Param(
+    param(
         [Parameter(Position = 0)]
         [switch]
         $Append,
@@ -120,7 +120,7 @@
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'If present, the function will not ask for confirmation when performing actions.',
+            HelpMessage = 'if present, the function will not ask for confirmation when performing actions.',
             Position = 3)]
         [Switch]
         $Force,
@@ -138,7 +138,7 @@
         $Passthru
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Output header information
@@ -151,7 +151,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Variables Definition
@@ -159,9 +159,9 @@
         # StringBuilder for better performance
         $sb = [System.Text.StringBuilder]::new()
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         try {
             # Create or get the file
@@ -177,15 +177,15 @@
                     $outFile = New-Item -ItemType File -Path $FilePath -Force:$Force -ErrorAction Stop
                     Write-Debug -Message ('Created new file: {0}' -f $FilePath)
 
-                } #End If
+                } #end if
 
-            } #end If-Else
+            } #end if-Else
 
             if (-not $outFile) {
-                Throw 'Could not create File'
-            } #end If
+                throw 'Could not create File'
+            } #end if
 
-            # Process each key in the hashtable
+            # process each key in the hashtable
             foreach ($section in $InputObject.Keys) {
 
                 Write-Debug -Message ('Processing section: {0}' -f $section)
@@ -213,45 +213,45 @@
 
                             [void]$sb.AppendLine('{0}={1}' -f $key, $InputObject[$section][$key])
                             Write-Debug -Message ('Writing key: {0}' -f $key)
-                        } #end If-Else
+                        } #end if-Else
 
-                    } #end Foreach
+                    } #end foreach
 
                     [void]$sb.AppendLine()
-                } #end If-Else
-            } #end Foreach
+                } #end if-Else
+            } #end foreach
 
             # Write content to file
             if ($PSCmdlet.ShouldProcess($FilePath, 'Write content')) {
 
                 Add-Content -Path $outFile -Value $sb.ToString() -Encoding $Encoding -ErrorAction Stop
 
-            } #end If
+            } #end if
 
             if ($PSBoundParameters['Passthru']) {
-                Return $outfile
-            } #end If
+                return $outfile
+            } #end if
 
         } catch {
 
             Write-Error -Message ('Failed to write INI file: {0}' -f $_.Exception.Message)
             throw
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
 
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-                'writing to INI file (Private Function).'
+                'writing to INI file (Private function).'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
-    } #end End
+    } #end end
 
-} #end Function Out-IniFile
+} #end function Out-IniFile

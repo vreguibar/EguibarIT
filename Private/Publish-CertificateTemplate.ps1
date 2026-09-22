@@ -1,4 +1,4 @@
-﻿Function Publish-CertificateTemplate {
+﻿function Publish-CertificateTemplate {
     <#
         .SYNOPSIS
             Publishes a certificate template to all available Certification Authorities (CAs).
@@ -17,7 +17,7 @@
 
         .PARAMETER Server
             Optional. FQDN of the Domain Controller to use.
-            If not specified, discovers nearest writable DC.
+            if not specified, discovers nearest writable DC.
 
         .INPUTS
             System.String
@@ -77,7 +77,7 @@
     )]
     [OutputType([void])]
 
-    Param (
+    param (
         [Parameter(Mandatory = $true,
             Position = 0,
             ValueFromPipeline = $true,
@@ -107,7 +107,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ######################
         # Initialize variables
@@ -136,7 +136,7 @@
                 $Server = (Get-ADDomainController @GetDCParams).HostName[0]
                 Write-Debug -Message ('Using Domain Controller: {0}' -f $Server)
 
-            } #end If
+            } #end if
             $CommonParams['Server'] = $PSBoundParameters['Server']
 
             # Get enrollment path
@@ -154,7 +154,7 @@
 
                 throw 'No Certificate Authorities found in the forest'
 
-            } #end If
+            } #end if
             Write-Verbose -Message ('Found {0} Certificate Authorities' -f $CAs.Count)
 
         } catch {
@@ -162,9 +162,9 @@
             Write-Error -Message ('Failed to initialize: {0}' -f $_.Exception.Message)
             throw
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Begin
+    } #end begin
 
     process {
 
@@ -211,7 +211,7 @@
         } #end foreach
         Write-Progress -Activity 'Publishing Certificate Template' -Completed
 
-    } #end Process
+    } #end process
 
     end {
 
@@ -219,11 +219,11 @@
             $null -ne $Variables.Footer) {
 
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-                'publishing Cert Template (Private Function).'
+                'publishing Cert Template (Private function).'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
-    } #end End
+    } #end end
 
-} #end Function Publish-CertificateTemplate
+} #end function Publish-CertificateTemplate

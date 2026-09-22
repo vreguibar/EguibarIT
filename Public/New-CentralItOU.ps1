@@ -32,27 +32,27 @@
             The XML file must contain required elements: Admin, Servers, Sites, and NC sections.
 
         .PARAMETER CreateExchange
-            If present, creates all Exchange-related objects, containers and delegations.
+            if present, creates all Exchange-related objects, containers and delegations.
             Requires valid Exchange configuration in the XML file.
 
         .PARAMETER CreateDfs
-            If present, creates all DFS-related objects, containers and delegations.
+            if present, creates all DFS-related objects, containers and delegations.
             Requires valid DFS configuration in the XML file.
 
         .PARAMETER CreateCa
-            If present, creates Certificate Authority (PKI) objects and delegations.
+            if present, creates Certificate Authority (PKI) objects and delegations.
             Requires valid PKI configuration in the XML file.
 
         .PARAMETER CreateAGPM
-            If present, creates Advanced Group Policy Management objects and delegations.
+            if present, creates Advanced Group Policy Management objects and delegations.
             Requires valid AGPM configuration in the XML file.
 
         .PARAMETER CreateLAPS
-            If present, creates Local Administrator Password Solution objects and delegations.
+            if present, creates Local Administrator Password Solution objects and delegations.
             Requires valid LAPS configuration in the XML file.
 
         .PARAMETER CreateDHCP
-            If present, creates DHCP-related objects, containers and delegations.
+            if present, creates DHCP-related objects, containers and delegations.
             Requires valid DHCP configuration in the XML file.
 
         .PARAMETER DMScripts
@@ -161,7 +161,7 @@
     )]
     [OutputType([String])]
 
-    Param (
+    param (
         # PARAM1 full path to the configuration.xml file
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $True,
@@ -170,7 +170,7 @@
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -197,12 +197,12 @@
         [System.IO.FileInfo]
         $ConfigXMLFile,
 
-        # Param2 If present It will create all needed Exchange objects, containers and delegations
+        # Param2 if present It will create all needed Exchange objects, containers and delegations
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = 'If present It will create all needed Exchange objects, containers and delegations.',
+            HelpMessage = 'if present It will create all needed Exchange objects, containers and delegations.',
             Position = 1)]
         [Alias('Exchange')]
         [switch]
@@ -213,7 +213,7 @@
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = 'If present It will create all needed DFS objects, containers and delegations.',
+            HelpMessage = 'if present It will create all needed DFS objects, containers and delegations.',
             Position = 2)]
         [Alias('DFS', 'DistributedFileSystem')]
         [switch]
@@ -224,7 +224,7 @@
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = 'If present It will create all needed Certificate Authority (PKI) objects, containers and delegations.',
+            HelpMessage = 'if present It will create all needed Certificate Authority (PKI) objects, containers and delegations.',
             Position = 3)]
         [Alias('PKI', 'CA', 'CertificateAuthority')]
         [switch]
@@ -235,7 +235,7 @@
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = 'If present It will create all needed AGPM objects, containers and delegations.',
+            HelpMessage = 'if present It will create all needed AGPM objects, containers and delegations.',
             Position = 4)]
         [Alias('GPM')]
         [switch]
@@ -246,7 +246,7 @@
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = 'If present It will create all needed LAPS objects, containers and delegations.',
+            HelpMessage = 'if present It will create all needed LAPS objects, containers and delegations.',
             Position = 5)]
         [switch]
         $CreateLAPS,
@@ -256,7 +256,7 @@
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = 'If present It will create all needed DHCP objects, containers and delegations.',
+            HelpMessage = 'if present It will create all needed DHCP objects, containers and delegations.',
             Position = 6)]
         [switch]
         $CreateDHCP,
@@ -286,7 +286,7 @@
         $DMScripts = 'C:\PsScripts\'
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Display function header if variables exist
@@ -299,7 +299,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -315,13 +315,13 @@
         # parameters variable for splatting CMDlets
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
         # Load the XML configuration file
         try {
@@ -330,7 +330,7 @@
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
         # Convert DefaultPassword from XML to SecureString exactly once; child functions receive SecureString only
         [System.Security.SecureString]$DefaultPassword = ConvertTo-SecureString -String $ConfXML.n.DefaultPassword -AsPlainText -Force
@@ -347,9 +347,9 @@
         }
 
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         # Create splat hashtable ensuring case matches exactly with parameter name
         $Splat = @{
@@ -508,7 +508,7 @@
 
 
             ###############################################################################
-            # Check if Exchange objects have to be created. Process if TRUE
+            # Check if Exchange objects have to be created. process if TRUE
             if ($PSBoundParameters['CreateExchange']) {
 
                 Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating Exchange On-Prem objects and delegations')
@@ -523,7 +523,7 @@
             }
 
             ###############################################################################
-            # Check if DFS objects have to be created. Process if TRUE
+            # Check if DFS objects have to be created. process if TRUE
             if ($PSBoundParameters['CreateDfs']) {
 
                 Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating DFS objects and delegations')
@@ -536,7 +536,7 @@
             }
 
             ###############################################################################
-            # Check if Certificate Authority (PKI) objects have to be created. Process if TRUE
+            # Check if Certificate Authority (PKI) objects have to be created. process if TRUE
             if ($PSBoundParameters['CreateCa']) {
 
                 Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating CA Services, objects and delegations')
@@ -545,7 +545,7 @@
             }
 
             ###############################################################################
-            # Check if Advanced Group Policy Management (AGPM) objects have to be created. Process if TRUE
+            # Check if Advanced Group Policy Management (AGPM) objects have to be created. process if TRUE
             if ($PSBoundParameters['CreateAGPM']) {
 
                 try {
@@ -565,12 +565,12 @@
 
                     Write-Error -Message ('Failed to create AGPM objects: {0}' -f $_.Exception.Message)
 
-                } #end Try-Catch
+                } #end try-catch
 
-            } #end If
+            } #end if
 
             ###############################################################################
-            # Check if MS Local Administrator Password Service (LAPS) is to be used. Process if TRUE
+            # Check if MS Local Administrator Password Service (LAPS) is to be used. process if TRUE
             if ($PSBoundParameters['CreateLAPS']) {
                 try {
 
@@ -589,12 +589,12 @@
 
                     Write-Error -Message ('Failed to create LAPS objects: {0}' -f $_.Exception.Message)
 
-                } #end Try-Catch
+                } #end try-catch
 
-            } #end If
+            } #end if
 
             ###############################################################################
-            # Check if DHCP is to be used. Process if TRUE
+            # Check if DHCP is to be used. process if TRUE
             if ($PSBoundParameters['CreateDHCP']) {
 
                 try {
@@ -613,15 +613,15 @@
 
                     Write-Error -Message ('Failed to create DHCP objects: {0}' -f $_.Exception.Message)
 
-                } #end Try-Catch
+                } #end try-catch
 
-            } #end If
+            } #end if
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
 
         # Display function footer if variables exist
         if ($null -ne $Variables -and
@@ -631,8 +631,8 @@
                 'creating Tier0 central IT OU structure and delegations.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
-    } #end End
+    } #end end
 
-} #end Function New-CentralItOu
+} #end function New-CentralItOu

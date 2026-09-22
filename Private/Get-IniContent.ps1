@@ -73,7 +73,7 @@
     )]
     [OutputType([System.Collections.Hashtable])]
 
-    Param(
+    param(
         [Parameter(Mandatory = $true,
             Position = 0,
             ValueFromPipeline = $true,
@@ -91,7 +91,7 @@
         $FilePath
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Output header information
@@ -113,11 +113,11 @@
         $script:currentSection = $null
         $script:commentCount = 0
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
-        Try {
+        try {
             $ini = @{}
             switch -regex -file $PSBoundParameters['FilePath'] {
 
@@ -162,22 +162,22 @@
             Write-Error -Message "An error occurred while processing the file: $_"
             throw
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } # End Process
+    } # end process
 
-    End {
+    end {
         # Display function footer
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
             $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
-                ('reading content from {0} file  (Private Function).' -f $PSBoundParameters['FilePath'])
+                ('reading content from {0} file  (Private function).' -f $PSBoundParameters['FilePath'])
             )
             Write-Verbose -Message $txt
         } #end if
 
-        # Return the populated hashtable
+        # return the populated hashtable
         return $script:ini
-    } #end End
-} #end Function Get-IniContent
+    } #end end
+} #end function Get-IniContent

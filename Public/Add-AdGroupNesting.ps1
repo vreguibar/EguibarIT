@@ -13,9 +13,9 @@
             - Validation of group objects
             - Support for batch operations
 
-            Function will check for valid AD group representing the identity parameter. It will check existing
-            group membership and verify each member. If the current member exist, it will remain as member
-            of the group. If user does not exist, or if it can't be found in the current AD, it will be removed.
+            function will check for valid AD group representing the identity parameter. It will check existing
+            group membership and verify each member. if the current member exist, it will remain as member
+            of the group. if user does not exist, or if it can't be found in the current AD, it will be removed.
             Last, each new member will checked on the current AD and will only be added to the group if is not
             already member of it.
 
@@ -36,7 +36,7 @@
 
         .PARAMETER Server
             Specifies the Active Directory Domain Services instance to connect to.
-            If not specified, the function uses the default domain controller for the current domain.
+            if not specified, the function uses the default domain controller for the current domain.
 
         .EXAMPLE
             Add-AdGroupNesting -Identity "Domain Admins" -Members "TheUser"
@@ -163,11 +163,11 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Build the message of the event
         $sb = [System.Text.StringBuilder]::new()
-        $sb.AppendLine('Function "{0}" was called successfully.' -f $MyInvocation.Mycommand) | Out-Null
+        $sb.AppendLine('function "{0}" was called successfully.' -f $MyInvocation.Mycommand) | Out-Null
         $sb.AppendLine('Parameters used by the function: ') | Out-Null
         $sb.AppendLine((Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)) | Out-Null
 
@@ -209,7 +209,7 @@
             $CommonParams['Server'] = $Server
         } #end IF
 
-    } #end Begin
+    } #end begin
 
     process {
 
@@ -224,7 +224,7 @@
 
             } else {
                 Write-CustomLog -EventInfo ([EventIDs]::GetGroupMembership) -Message ('Got members from group {0}' -f $Identity)
-            } #end If-Else
+            } #end if-Else
 
         } catch {
 
@@ -235,7 +235,7 @@
                 EventName          = 'GetGroupMembersError'
             }
             Write-CustomError @Splat
-        } #end Try-Catch
+        } #end try-catch
 
 
         try {
@@ -258,7 +258,7 @@
                         $item.Name, $Identity.Name
                     )
                     continue
-                } #end If
+                } #end if
 
                 try {
                     Write-Debug -Message ('Adding: {0}' -f $Item)
@@ -275,7 +275,7 @@
                         Write-CustomLog -EventInfo ([EventIDs]::SetGroupMembership) -Message ('Added member {0} to group {1}' -f
                             $item.Name, $Identity.Name)
 
-                    } #end If
+                    } #end if
                 } catch {
 
                     [void]$failedMembers.Add($item)
@@ -291,7 +291,7 @@
 
                 } #end try-catch
 
-            } #end Foreach
+            } #end foreach
 
             Write-Verbose -Message ('Members were added correctly to group {0}' -f $Identity.sAMAccountName)
 
@@ -300,9 +300,9 @@
             Write-Error -Message 'Error when adding group member'
             throw
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Process
+    } #end process
 
     end {
         # Report results
@@ -311,14 +311,14 @@
             Write-Verbose -Message ('Successfully added {0} members to {1}' -f
                 $processedMembers.Count, $Identity.Name)
 
-        } #end If
+        } #end if
 
         if ($failedMembers.Count -gt 0) {
 
             Write-Warning -Message ('Failed to add {0} members to {1}' -f
                 $failedMembers.Count, $Identity.Name)
 
-        } #end If
+        } #end if
 
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
@@ -327,7 +327,7 @@
                 'adding members to the group.'
             )
             Write-Verbose -Message $txt
-        } #end If
-    } #end End
+        } #end if
+    } #end end
 
-} #end Function Add-AdGroupNesting
+} #end function Add-AdGroupNesting

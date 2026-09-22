@@ -92,7 +92,7 @@
             Position = 0
         )]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -147,18 +147,18 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -191,7 +191,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$false)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -238,11 +238,11 @@
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         try {
             if ($PSCmdlet.ShouldProcess('Active Directory', 'Create Tier0 Group Managed Service Accounts')) {
@@ -276,16 +276,16 @@
                             [System.Text.StringBuilder]$sb = [System.Text.StringBuilder]::new()
                             $sb.AppendLine('Error creating KDS Root Key:')
                             $sb.AppendLine($_.Exception.Message)
-                            $sb.AppendLine('* Try adding the KEY from a domain-joined workstation/server.')
+                            $sb.AppendLine('* try adding the KEY from a domain-joined workstation/server.')
 
                             Write-Warning -Message $sb.ToString()
 
-                        } #end Try-Catch
+                        } #end try-catch
 
 
                     } else {
                         Write-Debug -Message ('KDS Root Key already exists with ID: {0}' -f $existingKey.KeyId)
-                    } #end If-Else
+                    } #end if-Else
 
                     # Verify KDS Root Key exists after our operation
                     $kdsKey = Get-KdsRootKey -ErrorAction SilentlyContinue
@@ -304,7 +304,7 @@
 
                         Write-Warning -Message $sb.ToString()
 
-                    } #end If-Else
+                    } #end if-Else
 
                 } catch {
 
@@ -314,7 +314,7 @@
                     )
                     # Don't throw here as we want to continue attempting gMSA creation
 
-                } #end Try-Catch
+                } #end try-catch
                 #endregion KDS Root Key Management
 
                 #region gMSA Creation
@@ -331,14 +331,14 @@
                         Write-Verbose -Message ('Service Account {0} already exists with DN: {1}' -f
                             $confXML.n.Admin.gMSA.AdTaskScheduler.Name, $ExistSA.DistinguishedName)
 
-                    } #end If
+                    } #end if
 
                 } catch {
 
                     Write-Warning -Message ('Error checking if service account exists: {0}' -f $_.Exception.Message)
                     # Continue and try to create it
 
-                } #end Try-Catch
+                } #end try-catch
 
                 if (-not $AdSchedSAExists) {
                     Write-Verbose -Message ('Creating service account: {0}' -f $confXML.n.Admin.gMSA.AdTaskScheduler.Name)
@@ -400,7 +400,7 @@
                             )
                             # Continue to try to use the account if it was created
 
-                        } #end Try-Catch
+                        } #end try-catch
 
                     } else {
                         # Older Windows Server
@@ -427,9 +427,9 @@
                             )
                             # Continue to try to use the account if it was created
 
-                        } #end Try-Catch
+                        } #end try-catch
 
-                    } #end If-Else
+                    } #end if-Else
                 } else {
 
                     Write-Warning -Message (
@@ -437,7 +437,7 @@
                         $confXML.n.Admin.gMSA.AdTaskScheduler.Name
                     )
 
-                } #end If-Else
+                } #end if-Else
                 #endregion gMSA Creation
 
                 #region gMSA Configuration
@@ -450,7 +450,7 @@
 
                         if ($null -eq $ExistSA) {
                             throw 'Service account not found'
-                        } #end If
+                        } #end if
 
                     } catch {
 
@@ -459,8 +459,8 @@
                             $gMSASamAccountName, $_.Exception.Message
                         )
                         throw
-                    } #end Try-Catch
-                } #end If
+                    } #end try-catch
+                } #end if
 
                 # Ensure the gMSA is member of Tier0 ServiceAccount group
                 try {
@@ -484,7 +484,7 @@
 
                     Write-Error -Message ('Error adding gMSA to Tier0 service account group: {0}' -f $_.Exception.Message)
 
-                } #end Try-Catch
+                } #end try-catch
 
                 # Configure gMSA so all members of group "Domain Controllers" can retrieve the password
                 try {
@@ -503,22 +503,22 @@
                         'Error configuring principals allowed to retrieve managed password: {0}' -f
                         $_.Exception.Message
                     )
-                } #end Try-Catch
+                } #end try-catch
                 #endregion gMSA Configuration
 
-                # Return the service account
+                # return the service account
                 return $ExistSA.DistinguishedName
-            } #end If ShouldProcess
+            } #end if ShouldProcess
         } catch {
 
             Write-Error -Message ('Error in New-Tier0gMSA: {0}' -f $_.Exception.Message)
             throw
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         # Display function footer if variables exist
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
@@ -527,7 +527,7 @@
                 'Create Tier0 Group Managed Service Accounts.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Stop transcript if it was started
         if ($EnableTranscript) {
@@ -536,7 +536,7 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
-    } #end End
-} #end Function New-Tier0gMSA
+            } #end try-catch
+        } #end if
+    } #end end
+} #end function New-Tier0gMSA

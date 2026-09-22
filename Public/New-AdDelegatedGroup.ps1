@@ -136,7 +136,7 @@
     )]
     [OutputType([Microsoft.ActiveDirectory.Management.AdGroup])]
 
-    Param (
+    param (
         # Param1 Group which membership is to be changed
         [Parameter(Mandatory = $true,
             ValueFromPipeline = $true,
@@ -263,14 +263,14 @@
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'If present, the function will not ask for confirmation when performing actions.',
+            HelpMessage = 'if present, the function will not ask for confirmation when performing actions.',
             Position = 11)]
         [Switch]
         $Force
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         if ($null -ne $Variables -and
@@ -282,7 +282,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -296,9 +296,9 @@
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
         $newGroup = [Microsoft.ActiveDirectory.Management.AdGroup]::New()
 
-    } # End Begin Section
+    } # end begin Section
 
-    Process {
+    process {
 
         #Check if group exist
         $groupExists = Get-ADGroup -Filter { SamAccountName -eq $Name } -ErrorAction SilentlyContinue
@@ -309,7 +309,7 @@
 
             if ($PSCmdlet.ShouldProcess("$Name", 'Group does not exist. Should it be created?')) {
 
-                Try {
+                try {
                     $Splat = @{
                         Name           = $Name
                         SamAccountName = $Name
@@ -328,9 +328,9 @@
                     Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
                     throw
 
-                } #end Try-Catch
+                } #end try-catch
 
-            } #end If
+            } #end if
 
         } else {
 
@@ -340,7 +340,7 @@
             Set-ADObject -Identity $groupExists -ProtectedFromAccidentalDeletion $False
 
             # Modify existing group
-            Try {
+            try {
                 $Splat = @{
                     Identity      = $groupExists
                     Description   = $PSBoundParameters['Description']
@@ -359,26 +359,26 @@
                         Start-Sleep 2
                         $newGroup = Get-ADGroup $groupExists
 
-                    } #end If
+                    } #end if
 
                     Write-Debug -Message ('Existing group {0} modified.' -f $newGroup)
-                } #end If
+                } #end if
 
-                If (-not($newGroup.DistinguishedName -contains $PSBoundParameters['path'])) {
+                if (-not($newGroup.DistinguishedName -contains $PSBoundParameters['path'])) {
 
                     # Move object to the corresponding OU
                     Move-ADObject -Identity $newGroup.DistinguishedName -TargetPath $PSBoundParameters['path'] -ErrorAction Stop
 
-                } #end If
+                } #end if
 
             } catch {
 
                 Write-Error -Message ('An error occurred while creating the group: {0})' -f $_.Exception.Message)
                 throw
 
-            } #end Try-Catch
+            } #end try-catch
 
-        } #end If-Else
+        } #end if-Else
 
 
 
@@ -392,52 +392,52 @@
 
             Write-Error -Message ('Error while trying to refresh group {0}' -f $name)
 
-        } #end Try-Catch
+        } #end try-catch
 
 
         # Protect From Accidental Deletion
-        If ($PSBoundParameters['ProtectFromAccidentalDeletion']) {
+        if ($PSBoundParameters['ProtectFromAccidentalDeletion']) {
 
             Set-ADObject -Identity $newGroup.DistinguishedName -ProtectedFromAccidentalDeletion $true
             Write-Debug -Message ('Group {0} Protect From Accidental Deletion' -f $name)
 
-        } #end If
+        } #end if
 
         # Remove Account Operators Built-In group
-        If ($PSBoundParameters['RemoveAccountOperators']) {
+        if ($PSBoundParameters['RemoveAccountOperators']) {
 
             Remove-AccountOperator -LDAPPath $newGroup.DistinguishedName
             Write-Debug -Message ('Group {0} Remove Account Operators' -f $name)
 
-        } #end If
+        } #end if
 
         # Remove Everyone Built-In group
-        If ($PSBoundParameters['RemoveEveryone']) {
+        if ($PSBoundParameters['RemoveEveryone']) {
 
             Remove-Everyone -LDAPPath $newGroup.DistinguishedName
             Write-Debug -Message ('Group {0} Remove Everyone' -f $name)
 
-        } #end If
+        } #end if
 
         # Remove Authenticated Users Built-In group
-        If ($PSBoundParameters['RemoveAuthUsers']) {
+        if ($PSBoundParameters['RemoveAuthUsers']) {
 
             Remove-AuthUser -LDAPPath $newGroup.DistinguishedName
             Write-Debug -Message ('Group {0} Remove Authenticated Users' -f $name)
 
-        } #end If
+        } #end if
 
         # Remove Pre-Windows 2000 Built-In group
-        If ($PSBoundParameters['RemovePreWin2000']) {
+        if ($PSBoundParameters['RemovePreWin2000']) {
 
             Remove-PreWin2000 -LDAPPath $newGroup.DistinguishedName
             Write-Debug -Message ('Group {0} Remove Pre-Windows 2000' -f $name)
 
-        } #end If
+        } #end if
 
-    } # End Process section
+    } # end process section
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
@@ -445,10 +445,10 @@
                 'creating Delegated Group.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
-        #Return the group object.
+        #return the group object.
         return $newGroup
-    } #end End
+    } #end end
 
-} #end Function New-AdDelegatedGroup
+} #end function New-AdDelegatedGroup

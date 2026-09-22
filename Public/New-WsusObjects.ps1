@@ -68,6 +68,7 @@
         .FUNCTIONALITY
             WSUS Object Management
     #>
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Intentional plural: function creates multiple WSUS-related objects')]
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
@@ -86,7 +87,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -102,7 +103,7 @@
         $RegPath = 'HKLM:Software\Microsoft\Windows NT\CurrentVersion'
         $OsInstalationType = Get-ItemProperty -Path $RegPath | Select-Object -ExpandProperty InstallationType
 
-    } # End Begin
+    } # end begin
 
     process {
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Configure WSUS and create related AD objects')) {
@@ -145,7 +146,7 @@
             # Download Microsoft System CLR Types for SQL Server 2012
             $URL = 'http://download.microsoft.com/download/F/E/D/FEDB200F-DE2A-46D8-B661-D019DFE9D470/ENU/x64/SQLSysClrTypes.msi'
             $Splat = @{
-                Source        = $UR
+                Source        = $URL
                 Destination   = $env:TEMP
                 Priority      = 'High'
                 TransferType  = 'Download'
@@ -420,12 +421,12 @@
             $wsus.CreateComputerTargetGroup('Tier1')
             $wsus.CreateComputerTargetGroup('Tier2')
 
-        } #end If ShouldProcess
-    } # End Process
+        } #end if ShouldProcess
+    } # end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating Wsus objects and Delegations.'
         )
-    } # End end
+    } # end end
 } # end function New-WsusObjects

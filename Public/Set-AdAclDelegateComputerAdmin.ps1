@@ -125,11 +125,11 @@ function Set-AdAclDelegateComputerAdmin {
         [String]
         $LDAPpath,
 
-        # PARAM3 SWITCH If present, the access rule will be removed.
+        # PARAM3 SWITCH if present, the access rule will be removed.
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'If present, the access rule will be removed.',
+            HelpMessage = 'if present, the access rule will be removed.',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Switch]
@@ -138,7 +138,7 @@ function Set-AdAclDelegateComputerAdmin {
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'If present, the function will not ask for confirmation when performing actions.',
+            HelpMessage = 'if present, the function will not ask for confirmation when performing actions.',
             Position = 3)]
         [Switch]
         $Force
@@ -158,7 +158,7 @@ function Set-AdAclDelegateComputerAdmin {
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -175,7 +175,7 @@ function Set-AdAclDelegateComputerAdmin {
             LDAPPath = $PSBoundParameters['LDAPpath']
         }
 
-    } #end Begin
+    } #end begin
 
     process {
 
@@ -183,7 +183,7 @@ function Set-AdAclDelegateComputerAdmin {
         if ($PSBoundParameters['RemoveRule']) {
             # Add the parameter to remove the rule
             $Splat.Add('RemoveRule', $true)
-        } #end If
+        } #end if
 
         if ($Force -or $PSCmdlet.ShouldProcess('Proceed with delegations?')) {
 
@@ -192,86 +192,86 @@ function Set-AdAclDelegateComputerAdmin {
                 Set-AdAclCreateDeleteComputer @Splat
             } catch {
                 Write-Error -Message 'Error when delegating Create/Delete computer permission'
-            } #end Try-Catch
+            } #end try-catch
 
             # Reset Computer Password
             try {
                 Set-AdAclResetComputerPassword @Splat
             } catch {
                 Write-Error -Message 'Error when delegating computer password reset permission'
-            } #end Try-Catch
+            } #end try-catch
 
             # Change Computer Password
             try {
                 Set-AdAclChangeComputerPassword @Splat
             } catch {
                 Write-Error -Message 'Error when delegating change computer password permission'
-            } #end Try-Catch
+            } #end try-catch
 
             # Validated write to DNS host name
             try {
                 Set-AdAclValidateWriteDnsHostName @Splat
             } catch {
                 Write-Error -Message 'Error when delegating computer validate write host DNS permission'
-            } #end Try-Catch
+            } #end try-catch
 
             # Validated write to SPN
             try {
                 Set-AdAclValidateWriteSPN @Splat
             } catch {
                 Write-Error -Message 'Error when delegating computer validate write SPN permission'
-            } #end Try-Catch
+            } #end try-catch
 
             # Change Computer Account Restriction
             try {
                 Set-AdAclComputerAccountRestriction @Splat
             } catch {
                 Write-Error -Message 'Error when delegating computer account restriction permission'
-            } #end Try-Catch
+            } #end try-catch
 
             # Change DNS Hostname Info
             try {
                 Set-AdAclDnsInfo @Splat
             } catch {
                 Write-Error -Message 'Error when delegating computer DNS info permission'
-            } #end Try-Catch
+            } #end try-catch
 
             # Change MS TerminalServices info
             try {
                 Set-AdAclMsTsGatewayInfo @Splat
             } catch {
                 Write-Error -Message 'Error when delegating computer MS TS gateway permission'
-            } #end Try-Catch
+            } #end try-catch
 
             # Access to BitLocker & TMP info
             try {
                 Set-AdAclBitLockerTPM @Splat
             } catch {
                 Write-Error -Message 'Error when delegating computer Bitlocker & TPM permission'
-            } #end Try-Catch
+            } #end try-catch
 
             # Grant the right to delete computers from default container. Move Computers
             try {
                 Set-DeleteOnlyComputer @Splat
             } catch {
                 Write-Error -Message 'Error when delegating delete computer permission'
-            } #end Try-Catch
+            } #end try-catch
 
             # Set LAPS
             try {
                 Set-AdAclLaps -ResetGroup $CurrentGroup -ReadGroup $CurrentGroup -LDAPpath $PSBoundParameters['LDAPpath']
             } catch {
                 Write-Error -Message 'Error when delegating LAPS reset group permission'
-            } #end Try-Catch
-        } #end If
+            } #end try-catch
+        } #end if
 
-    } #end Process
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'delegating Computer Admin.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 
-} #end Function
+} #end function

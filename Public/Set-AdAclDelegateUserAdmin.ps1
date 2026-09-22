@@ -115,11 +115,11 @@ function Set-AdAclDelegateUserAdmin {
         [String]
         $LDAPpath,
 
-        # PARAM3 SWITCH If present, the access rule will be removed.
+        # PARAM3 SWITCH if present, the access rule will be removed.
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
-            HelpMessage = 'If present, the access rule will be removed.',
+            HelpMessage = 'if present, the access rule will be removed.',
             Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Switch]
@@ -128,7 +128,7 @@ function Set-AdAclDelegateUserAdmin {
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'If present, the function will not ask for confirmation when performing actions.',
+            HelpMessage = 'if present, the function will not ask for confirmation when performing actions.',
             Position = 3)]
         [Switch]
         $Force
@@ -147,7 +147,7 @@ function Set-AdAclDelegateUserAdmin {
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -164,7 +164,7 @@ function Set-AdAclDelegateUserAdmin {
             LDAPPath = $PSBoundParameters['LDAPpath']
         }
 
-    } #end Begin
+    } #end begin
 
     process {
         try {
@@ -199,13 +199,13 @@ function Set-AdAclDelegateUserAdmin {
         } catch {
             Write-Error -Message 'Error when delegating User permissions'
             throw
-        } #end Try-Catch
-    } #end Process
+        } #end try-catch
+    } #end process
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'delegating User Admin.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 
-} #end Function
+} #end function

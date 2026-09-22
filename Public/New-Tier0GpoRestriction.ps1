@@ -98,7 +98,7 @@
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -153,18 +153,18 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -197,7 +197,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -245,7 +245,7 @@
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
 
         # Load naming conventions from XML
@@ -453,9 +453,9 @@
         }
         #endregion Local groups Variables
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Configure Domain Baseline GPO Restrictions')) {
             try {
                 # Update progress
@@ -604,8 +604,8 @@
 
                 Write-Error -Message ('Error configuring Domain Baseline GPO: {0}' -f $_.Exception.Message)
 
-            } #end Try-Catch
-        } #end If ShouldProcess
+            } #end try-catch
+        } #end if ShouldProcess
 
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Configure DomainControllers Baseline GPO Restrictions')) {
             try {
@@ -807,8 +807,8 @@
 
                 Write-Error -Message ('Error configuring Domain Controllers Baseline GPO: {0}' -f $_.Exception.Message)
 
-            } #end Try-Catch
-        } #end If ShouldProcess
+            } #end try-catch
+        } #end if ShouldProcess
 
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Configure Admin/Tier0 Baseline GPO Restrictions')) {
             try {
@@ -1402,11 +1402,11 @@
 
             # Ensure progress bar is removed on error
             Write-Progress -Activity 'Configuring GPO restrictions' -Completed
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
 
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
@@ -1415,7 +1415,7 @@
                 'Configure Baseline GPO Restrictions.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Stop transcript if it was started
         if ($EnableTranscript) {
@@ -1424,7 +1424,7 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
-    } #end End
-} #end Function New-Tier0GpoRestriction
+            } #end try-catch
+        } #end if
+    } #end end
+} #end function New-Tier0GpoRestriction

@@ -20,9 +20,9 @@
         .PARAMETER ouState
         .PARAMETER ouZIPCode
         .PARAMETER CreateExchange
-            [switch] If present It will create all needed Exchange objects and containers.
+            [switch] if present It will create all needed Exchange objects and containers.
         .PARAMETER CreateLAPS
-            [switch] If present It will create all needed LAPS objects, containers and delegations.
+            [switch] if present It will create all needed LAPS objects, containers and delegations.
         .PARAMETER GpoBackupPath
             [string] Full path to theGPO backup files
         .PARAMETER ConfigXMLFile
@@ -152,7 +152,7 @@
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = 'If present It will create all needed Exchange objects and containers.',
+            HelpMessage = 'if present It will create all needed Exchange objects and containers.',
             Position = 7)]
         [switch]
         $CreateExchange,
@@ -162,7 +162,7 @@
             ValueFromPipeline = $true,
             ValueFromPipelineByPropertyName = $true,
             ValueFromRemainingArguments = $false,
-            HelpMessage = 'If present It will create all needed LAPS objects, containers and delegations.',
+            HelpMessage = 'if present It will create all needed LAPS objects, containers and delegations.',
             Position = 8)]
         [switch]
         $CreateLAPS,
@@ -205,7 +205,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -219,7 +219,7 @@
         # Variables Definition
 
         try {
-            # Check if Config.xml file is loaded. If not, proceed to load it.
+            # Check if Config.xml file is loaded. if not, proceed to load it.
             if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
                 if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
@@ -286,7 +286,7 @@
             $BackupOperators = Get-ADGroup -Filter * | Where-Object { $_.SID -like 'S-1-5-32-551' }
         } catch {
             Write-Error -Message 'One or some of the User/Groups was not able to be retrieved. Please check'
-        } #end Try-Catch
+        } #end try-catch
 
 
 
@@ -359,7 +359,7 @@
         # parameters variable for splatting the CMDlets
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
-    } #end Begin
+    } #end begin
 
     process {
         if ($PSCmdlet.ShouldProcess($PSBoundParameters['ouName'], 'Create Site Organizational Unit structure')) {
@@ -380,11 +380,11 @@
                 ouZIPCode        = $PSBoundParameters['ouZIPCode']
                 strOuDisplayName = $PSBoundParameters['ouName']
             }
-            # If does not exist, create it.
+            # if does not exist, create it.
             New-DelegateAdOU @splat
         } else {
             Write-Warning -Message ('Site {0} already exist. Continue to cleanup.' -f $PSBoundParameters['ouName'])
-            # If OU already exist, clean it.
+            # if OU already exist, clean it.
             Start-AdCleanOU -LDAPpath $ouNameDN -RemoveUnknownSIDs -Confirm:$false -Force
         }
 
@@ -894,15 +894,15 @@
                 LDAPpath   = ('OU={0},{1}' -f $confXML.n.Sites.OUs.OuSiteLaptop.Name, $ouNameDN)
             }
             Set-AdAclLaps @Splat
-        } #end If
-        } #end If ShouldProcess
-    } #end Process
+        } #end if
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating Site OU structure.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 
-} #end Function
+} #end function

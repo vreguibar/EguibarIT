@@ -96,7 +96,7 @@
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -147,18 +147,18 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -191,7 +191,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -244,7 +244,7 @@
         } catch {
             Write-Error -Message "Error reading XML file: $($_.Exception.Message)"
             throw
-        } #end Try-Catch
+        } #end try-catch
 
         # Load naming conventions from XML
         [hashtable]$NC = @{
@@ -423,9 +423,9 @@
         [string]$SitesGlobalAppAccUserOuDn = ('OU={0},{1}' -f $SitesGlobalAppAccUserOu, $SitesGlobalOuDn)
         [string]$SitesGlobalGroupOuDn = ('OU={0},{1}' -f $SitesGlobalGroupOu, $SitesGlobalOuDn)
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         if ($PSCmdlet.ShouldProcess('Create Tier2 Organizational Units')) {
 
@@ -463,7 +463,7 @@
             }
             New-DelegateAdOU @Splat
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
         if ($PSCmdlet.ShouldProcess('Create Tier2 Baseline GPOs')) {
 
@@ -484,7 +484,7 @@
             New-DelegateAdGpo @Splat -gpoScope 'C' -gpoBackupID $confXML.n.Sites.OUs.OuSiteComputer.backupID
             New-DelegateAdGpo @Splat -gpoScope 'U' -gpoBackupID $confXML.n.Sites.OUs.OuSiteUser.backupID
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
         if ($PSCmdlet.ShouldProcess('Create Tier2 GPO Restrictions')) {
 
@@ -565,7 +565,7 @@
             }
             Set-GpoPrivilegeRight @Splat
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
         if ($PSCmdlet.ShouldProcess('Create Tier2 Delegations')) {
 
@@ -617,11 +617,11 @@
             # Change Group Properties
             Set-AdAclChangeGroup -Group $SL_GlobalGroupRight -LDAPpath $SitesGlobalGroupOuDn
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         # Complete the progress bar
         $ProgressParams['Status'] = 'Completed'
         $ProgressParams['PercentComplete'] = 100
@@ -638,8 +638,8 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
+            } #end try-catch
+        } #end if
 
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
@@ -648,6 +648,6 @@
                 'creating Tier2 objects.'
             )
             Write-Verbose -Message $txt
-        } #end If
-    } #end End
-} #end Function New-Tier2
+        } #end if
+    } #end end
+} #end function New-Tier2

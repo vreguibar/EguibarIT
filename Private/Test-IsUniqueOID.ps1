@@ -1,4 +1,4 @@
-﻿Function Test-IsUniqueOID {
+﻿function Test-IsUniqueOID {
     <#
         .SYNOPSIS
             Checks if a given Certificate Template OID is unique within the specified context.
@@ -138,7 +138,7 @@
         $ConfigNC
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         ##############################
@@ -155,9 +155,9 @@
         Write-Debug -Message ('Search base: {0}' -f $SearchBase)
         Write-Debug -Message ('Filter: {0}' -f $Filter)
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         try {
             Write-Debug -Message ('Checking uniqueness for OID {0} on server {1}' -f $TemplateOID, $Server)
 
@@ -171,7 +171,7 @@
             }
             $Search = Get-ADObject @Splat
 
-            # If the Certificate Template is found, it's not unique
+            # if the Certificate Template is found, it's not unique
             if ($Search) {
 
                 Write-Verbose -Message 'Certificate Template with OID {0} already exists.' -f $TemplateOID
@@ -182,7 +182,7 @@
                 Write-Verbose -Message 'Certificate Template with OID {0} is unique.' -f $TemplateOID
                 return $true
 
-            } #end If
+            } #end if
 
         } catch [Microsoft.ActiveDirectory.Management.ADServerDownException] {
 
@@ -199,11 +199,11 @@
             Write-Error -Message ('An unexpected error occurred: {0}' -f $_.Exception.Message)
             throw
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Process
+    } #end process
 
-    End {
-    } #end End
+    end {
+    } #end end
 
-} #end Function Test-IsUniqueOID
+} #end function Test-IsUniqueOID

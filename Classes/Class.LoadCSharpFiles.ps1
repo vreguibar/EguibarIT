@@ -1,15 +1,23 @@
-﻿# Function to check if a class is already loaded
+﻿# function to check if a class is already loaded
 function Test-ClassExist {
+    <#
+        .SYNOPSIS
+            Tests whether a .NET type with the given class name has already been loaded.
+        .PARAMETER ClassName
+            Fully qualified .NET type name to check.
+        .OUTPUTS
+            [System.Boolean]
+    #>
     param(
         [string]$ClassName
     )
 
-    # Try to get the type by its full name
+    # try to get the type by its full name
     $type = [Type]::GetType($ClassName, $false, $false)
 
-    # Return true if the type exists, otherwise false
+    # return true if the type exists, otherwise false
     return [bool]$type
-} #end Function
+} #end function
 
 # Define the class only if it doesn't already exist
 if ((-not (Test-ClassExist 'EventIdInfo')) -or
@@ -22,4 +30,4 @@ if ((-not (Test-ClassExist 'EventIdInfo')) -or
     #$EventsFileCS = Get-Content -Path "$PSScriptRoot\Class.Events.cs" -Raw
     $EventsFileCS = [System.IO.File]::ReadAllText("$PSScriptRoot\Class.Events.cs")
     Add-Type -Language CSharp -TypeDefinition $EventsFileCS
-} #end If
+} #end if

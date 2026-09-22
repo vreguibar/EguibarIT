@@ -5,8 +5,8 @@
 
         .DESCRIPTION
             This function checks if a variable exists in the current or global scope.
-            If it does, it returns its value.
-            If it doesn't, it can create the variable using a provided script block.
+            if it does, it returns its value.
+            if it doesn't, it can create the variable using a provided script block.
 
         .PARAMETER Name
             The name of the variable to retrieve.
@@ -25,12 +25,12 @@
         .EXAMPLE
             $myVar = Get-SafeVariable -Name 'MyVariable' -CreateIfNotExist { 'DefaultValue' }
 
-            This example retrieves the variable 'MyVariable'. If it doesn't exist, it creates it with the value 'DefaultValue'.
+            This example retrieves the variable 'MyVariable'. if it doesn't exist, it creates it with the value 'DefaultValue'.
 
         .EXAMPLE
             $myVar = Get-SafeVariable -Name 'MyVariable'
 
-            This example retrieves the variable 'MyVariable'. If it doesn't exist, it returns $null.
+            This example retrieves the variable 'MyVariable'. if it doesn't exist, it returns $null.
 
         .NOTES
             Used Functions:

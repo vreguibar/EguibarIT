@@ -107,7 +107,7 @@
         $Force
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Display function header if variables exist
@@ -120,7 +120,7 @@
                 (Get-FunctionDisplay -Hashtable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Variables Definition
@@ -128,9 +128,9 @@
         [Boolean]$UninstallResult = $false
         [String]$StartTime = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         try {
             Write-Verbose -Message ('Starting SQL Server uninstallation at {0}' -f $StartTime)
@@ -154,7 +154,7 @@
 
             if ($PSCmdlet.ShouldProcess("SQL Server ($InstanceName)", 'Uninstall SQL Server')) {
 
-                # Method 1: Try using SQL Server setup.exe for clean uninstall
+                # Method 1: try using SQL Server setup.exe for clean uninstall
                 Write-Verbose -Message 'Attempting clean uninstall using SQL Server setup...'
 
                 $SetupPath = $null
@@ -212,7 +212,7 @@
                                 Write-Verbose -Message ('Successfully uninstalled {0}' -f $Product.Name)
                                 $UninstallResult = $true
                             } else {
-                                Write-Warning -Message ('Failed to uninstall {0}. Return code: {1}' -f $Product.Name, $Result.ReturnValue)
+                                Write-Warning -Message ('Failed to uninstall {0}. return code: {1}' -f $Product.Name, $Result.ReturnValue)
                                 if (-not $Force) {
                                     throw ('Failed to uninstall {0}' -f $Product.Name)
                                 } #end if
@@ -271,9 +271,9 @@
             $UninstallResult = $false
         } #end try-catch
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         Write-Verbose -Message ('SQL Server uninstallation completed. Result: {0}' -f $UninstallResult)
 
         if ($UninstallResult) {
@@ -292,8 +292,8 @@
                 'uninstalling SQL Server components.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         return $UninstallResult
-    } #end End
+    } #end end
 } #end function Uninstall-SqlServer

@@ -102,7 +102,7 @@
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -154,18 +154,18 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -198,7 +198,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If        ##############################
+        } #end if        ##############################
         # Initialize progress tracking variables
 
         # Progress counter and total for percentage calculation
@@ -237,7 +237,7 @@
         } catch {
             Write-Error -Message "Error reading XML file: $($_.Exception.Message)"
             throw
-        } #end Try-Catch
+        } #end try-catch
 
         # Load naming conventions from XML
         [hashtable]$NC = @{
@@ -405,9 +405,9 @@
         [String]$ServersOu = $confXML.n.Servers.OUs.ServersOU.Name
         [string]$ServersOuDn = ('OU={0},{1}' -f $ServersOu, $Variables.AdDn)
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         if ($PSCmdlet.ShouldProcess('Create Tier1 Organizational Units')) {
 
@@ -485,7 +485,7 @@
             $currentSubOU++
             New-DelegateAdOU @Splat @Splat1
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
         if ($PSCmdlet.ShouldProcess('Create Tier1 Baseline GPOs')) {
 
@@ -551,7 +551,7 @@
             }
             New-DelegateAdGpo @Splat @Splat1
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
         if ($PSCmdlet.ShouldProcess('Create Tier1 GPO Restrictions')) {
 
@@ -639,7 +639,7 @@
             }
             Set-GpoPrivilegeRight @Splat
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
         if ($PSCmdlet.ShouldProcess('Create Tier1 Delegations')) {
 
@@ -666,7 +666,7 @@
             $currentSubOU = 0
 
             # Iterate through each sub OU and invoke delegation
-            Foreach ($Item in $AllSubOu) {
+            foreach ($Item in $AllSubOu) {
                 $currentSubOU++
 
                 # Update progress for sub-OU processing
@@ -704,11 +704,11 @@
             # Change OUs within Servers
             Set-AdAclChangeOU -Group $SL_AdRight -LDAPpath $ServersOuDn
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
 
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
@@ -717,7 +717,7 @@
                 'creating Tier1 objects.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Stop transcript if it was started
         if ($EnableTranscript) {
@@ -726,12 +726,12 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
+            } #end try-catch
+        } #end if
 
         # Complete progress tracking
         $script:ProgressParams.Status = 'Completed'
         $script:ProgressParams.PercentComplete = 100
         Write-Progress @script:ProgressParams -Completed
-    } #end End
-} #end Function New-Tier1
+    } #end end
+} #end function New-Tier1

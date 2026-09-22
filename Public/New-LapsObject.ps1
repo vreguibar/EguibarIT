@@ -167,7 +167,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -182,7 +182,7 @@
         [hashtable]$Splat = [hashtable]::New([StringComparer]::OrdinalIgnoreCase)
 
         try {
-            # Check if Config.xml file is loaded. If not, proceed to load it.
+            # Check if Config.xml file is loaded. if not, proceed to load it.
             if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
                 if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
@@ -220,8 +220,8 @@
         foreach ($group in $securityGroups.GetEnumerator()) {
             if (-not (Test-Path -Path variable:$($group.Key))) {
                 New-Variable -Name $group.Key -Value (Get-ADGroup -Identity $group.Value) -ErrorAction Stop
-            } #end If
-        } #end Foreach
+            } #end if
+        } #end foreach
 
 
 
@@ -336,11 +336,11 @@
 
                     } finally {
 
-                        # If Schema extension OK, remove user from Schema Admin
+                        # if Schema extension OK, remove user from Schema Admin
                         if (-not $isSchemaAdmin) {
                             Remove-ADGroupMember -Identity 'Schema Admins' -Members $env:username -Confirm:$false
                         }
-                    } #end Try-Catch-Finally
+                    } #end try-catch-Finally
 
 
                 }#end if
@@ -352,7 +352,7 @@
         } finally {
             Write-Verbose -Message 'Schema was extended successfully for LAPS.'
         }#end finally
-    } #end Begin
+    } #end begin
 
     process {
         # Make Infrastructure Servers modifications
@@ -418,7 +418,7 @@
 
             }
         }#end foreach
-    } #end Process
+    } #end process
 
     end {
         if ($null -ne $Variables -and
@@ -428,7 +428,7 @@
                 'creating LAPS and Delegations.'
             )
             Write-Verbose -Message $txt
-        } #end If
-    } #end End
+        } #end if
+    } #end end
 
-} #end Function New-LapsObject
+} #end function New-LapsObject

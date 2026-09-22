@@ -37,7 +37,7 @@
             Default: None
 
         .PARAMETER Hidden
-            [Switch] If specified, hides the task from Task Scheduler UI.
+            [Switch] if specified, hides the task from Task Scheduler UI.
             Default: Task is visible
 
         .EXAMPLE
@@ -106,7 +106,7 @@
     )]
     [OutputType([void])]
 
-    Param
+    param
     (
         # Param1 help description
         [Parameter(Mandatory = $true,
@@ -173,7 +173,7 @@
         $Hidden
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Initialize logging
@@ -186,7 +186,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -194,9 +194,9 @@
         ##############################
         # Variables Definition
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
         # https://msdn.microsoft.com/en-us/library/windows/desktop/aa383607(v=vs.85).aspx
         try {
 
@@ -240,7 +240,7 @@
                 $action.Path = $Command
                 if ($PSBoundParameters.ContainsKey('CommandArguments')) {
                     $action.Arguments = $CommandArguments
-                } #end If
+                } #end if
 
                 # Register task
                 Write-Debug -Message ('Registering task: {0}' -f $Name)
@@ -255,14 +255,14 @@
 
                 Write-Verbose -Message ('Successfully created task: {0}' -f $Name)
 
-            } #end If
+            } #end if
         } catch {
             Write-Error -Message ('Failed to create logon task {0}: {1}' -f $Name, $_.Exception.Message)
             throw
         }
-    } #end Process
+    } #end process
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
@@ -270,7 +270,7 @@
                 'creating new task.'
             )
             Write-Verbose -Message $txt
-        } #end If
-    } #end End
+        } #end if
+    } #end end
 
-} #end Process New-LocalLogonTask
+} #end process New-LocalLogonTask

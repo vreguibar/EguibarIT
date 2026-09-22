@@ -94,7 +94,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -112,7 +112,7 @@
         #$gpDomain = New-Object -TypeName Microsoft.GroupPolicy.GPDomain
         $gpDomain = [Microsoft.GroupPolicy.GPDomain]::New()
 
-    } #end Begin
+    } #end begin
 
     process {
 
@@ -131,7 +131,7 @@
                         Write-Error -Message 'The WMI filter could not be found.'
                         ###Get-CurrentErrorToDisplay -CurrentError $error[0]
                         throw
-                    } #end Try-Catch
+                    } #end try-catch
 
                     if ($filter) {
                         [Guid]$Guid = $item.Name.Substring(1, $item.Name.Length - 2)
@@ -149,17 +149,17 @@
                         } else {
                             Write-Error -Message 'Max attempts reached. Could not retrieve the WMI filter.'
                             break
-                        } #end If-Else
-                    } #end If-Else
+                        } #end if-Else
+                    } #end if-Else
                 } while ($attempt -lt $maxAttempts)
             } #end ShouldProcess
-        } #end Foreach
-    } #end Process
+        } #end foreach
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'converting the WMI filter.'
         )
         Write-Verbose -Message $txt
-    } #end Function
-} #end Function
+    } #end function
+} #end function

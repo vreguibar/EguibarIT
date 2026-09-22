@@ -97,7 +97,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -109,7 +109,7 @@
         # Variables Definition
 
         try {
-            # Check if Config.xml file is loaded. If not, proceed to load it.
+            # Check if Config.xml file is loaded. if not, proceed to load it.
             if (-not (Test-Path -Path variable:confXML)) {
                 # Check if the Config.xml file exist on the given path
                 if (Test-Path -Path $PSBoundParameters['ConfigXMLFile']) {
@@ -156,7 +156,7 @@
         # It Admin Rights OU Distinguished Name
         $ItRightsOuDn = 'OU={0},{1}' -f $ItRightsOu, $ItAdminOuDn
 
-    } #end Begin
+    } #end begin
 
     process {
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Create DHCP objects and delegations')) {
@@ -215,13 +215,13 @@
             # Dynamic Host Configuration Protocol (DHCP)
             Set-AdAclFullControlDHCP -Group $SL_DHCPRight.SamAccountName
 
-        } #end If ShouldProcess
-    } #end Process
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'creating DHCP objects and Delegations.'
         )
         Write-Verbose -Message $txt
-    } #end End
-} #end Function
+    } #end end
+} #end function

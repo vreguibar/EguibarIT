@@ -106,7 +106,7 @@
 
         } catch {
             Write-Error -Exception $_.Exception -Category $_.CategoryInfo.Category
-        } #end Try-Catch
+        } #end try-catch
 
     } #end process
 
@@ -117,4 +117,4 @@
         Write-Verbose -Message $txt
     } #end end
 
-} #end Function
+} #end function

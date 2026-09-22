@@ -57,7 +57,7 @@
                             http://www.eguibarit.com
 
         .LINK
-            https://pscustomobject.github.io/powershell/howto/identity%20management/PowerShell-Check-If-String-Is-A-DN/
+            https://pscustomobject.github.io/powershell/howto/identity%20management/PowerShell-Check-if-String-Is-A-DN/
 
         .LINK
             https://github.com/vreguibar/EguibarIT/blob/main/Private/Test-IsValidDN.ps1
@@ -90,7 +90,7 @@
         $ObjectDN
     )
 
-    Begin {
+    begin {
 
         Set-StrictMode -Version Latest
 
@@ -103,13 +103,13 @@
         # Initialize a boolean variable to store validation result
         [bool]$isValid = $false
 
-        Write-Debug -Message 'Begin block: Regex pattern for DN validation initialized.'
+        Write-Debug -Message 'begin block: Regex pattern for DN validation initialized.'
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
-        Try {
+        try {
 
             # Perform the actual validation
             $isValid = $ObjectDN -match $Constants.DnRegEx
@@ -117,7 +117,7 @@
             # Provide verbose output
             if ($PSCmdlet.MyInvocation.BoundParameters['Verbose']) {
                 Write-Verbose -Message ('DistinguishedName validation result: {0}' -f $isValid)
-            } #end If
+            } #end if
 
         } catch {
 
@@ -125,11 +125,11 @@
             Write-Error -Message ('Error validating DN: {0}. Error: {1}' -f $ObjectDN, $_.Exception.Message)
             $isValid = $false
 
-        } #end Try-Catch
+        } #end try-catch
 
-    } #end Process
+    } #end process
 
     end {
         return $isValid
-    } #end End
-} #end Function Test-IsValidDN
+    } #end end
+} #end function Test-IsValidDN

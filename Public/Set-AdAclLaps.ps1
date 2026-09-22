@@ -80,6 +80,7 @@ function Set-AdAclLaps {
             LAPS Delegation Management
     #>
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'LAPS is an acronym; the trailing S is not a plural suffix')]
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
@@ -133,7 +134,7 @@ function Set-AdAclLaps {
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -148,7 +149,7 @@ function Set-AdAclLaps {
         $currentResetGroup = Get-AdObjectType -Identity $PSBoundParameters['ResetGroup']
         $currentReadGroup = Get-AdObjectType -Identity $PSBoundParameters['ReadGroup']
 
-    } #end Begin
+    } #end begin
 
     process {
         <#
@@ -161,7 +162,7 @@ function Set-AdAclLaps {
             Set-AdmPwdResetPasswordPermission -Group $currentResetGroup -LDAPpath $PSBoundParameters['LDAPpath']
         } else {
             Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for legacy LAPS.'
-        } #end If-Else
+        } #end if-Else
         #>
 
         if ($PSCmdlet.ShouldProcess($LDAPpath, 'Configure LAPS delegation')) {
@@ -177,16 +178,16 @@ function Set-AdAclLaps {
 
             } else {
                 Write-Error -Message 'Not Implemented. Schema does not contains the required attributes for Windows LAPS.'
-            } #end If-Else
+            } #end if-Else
 
-        } #end If ShouldProcess
-    } #end Process
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'delegating LAPS Admin.'
         )
         Write-Verbose -Message $txt
-    } #end End
+    } #end end
 
-} #end Function
+} #end function

@@ -84,7 +84,7 @@
             Position = 0
         )]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -139,18 +139,18 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -183,7 +183,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -204,7 +204,7 @@
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
         # Load naming conventions from XML
         [hashtable]$NC = @{
@@ -556,9 +556,9 @@
         $ItRightsOu = $ConfXML.n.Admin.OUs.ItRightsOU.name
         $ItRightsOuDn = ('OU={0},OU={1},{2}' -f $ItRightsOu, $ItAdminOu, $Variables.AdDn)
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         # Progress parameters that will be reused
         [hashtable]$ProgressSplat = @{
@@ -589,8 +589,8 @@
                     [void]$ArrayList.Add($Item)
                 } else {
                     Write-Error -Message ('Group not found: {0}' -f $Item)
-                } #end If GroupName
-            } #end ForEach
+                } #end if GroupName
+            } #end foreach
             # Include Enterprise Admins
             [void]$ArrayList.Add($EnterpriseAdmins)
 
@@ -599,8 +599,8 @@
                     [void]$ArrayList.Add($Item)
                 } else {
                     Write-Error -Message ('Group not found: {0}' -f $Item)
-                } #end If GroupName
-            } #end ForEach
+                } #end if GroupName
+            } #end foreach
             # Add groups
             Add-AdGroupNesting -Identity $DeniedRODC -Members $ArrayList
             Write-Verbose -Message 'Successfully added groups to DeniedRODC'
@@ -616,7 +616,7 @@
             Add-AdGroupNesting -Identity $DeniedRODC -Members $ArrayList
             Write-Verbose -Message 'Successfully added admin users to DeniedRODC'
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
         # Nest Groups - Delegate Rights through Builtin groups
         # https://docs.microsoft.com/en-us/windows/security/identity-protection/access-control/active-directory-security-groups
@@ -643,7 +643,7 @@
 
             # Create and configure WinRMRemoteWMIUsers group if it doesn't exist
             $RemoteWMI = Get-ADGroup -Filter { SamAccountName -like 'WinRMRemoteWMIUsers*' } -ErrorAction SilentlyContinue
-            If (-not $RemoteWMI) {
+            if (-not $RemoteWMI) {
                 $Splat = @{
                     GroupScope    = 'DomainLocal'
                     GroupCategory = 'Security'
@@ -673,13 +673,13 @@
                     [void]$ArrayList.Add($Item)
                 } else {
                     Write-Error -Message ('Group not found: {0}' -f $Item)
-                } #end If GroupName
-            } #end ForEach
+                } #end if GroupName
+            } #end foreach
             Add-AdGroupNesting -Identity $ProtectedUsers -Members $ArrayList
 
             Write-Verbose -Message 'Successfully configured builtin group membership'
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
         # Nest Groups - Extend Rights through delegation model groups
         # http://blogs.msmvps.com/acefekay/2012/01/06/using-group-nesting-strategy-ad-best-practices-for-group-strategy/
@@ -872,7 +872,7 @@
 
             Write-Verbose -Message 'Successfully configured ServerAdmins and Operations nesting'
 
-        } #end If ShouldProcess
+        } #end if ShouldProcess
 
         # Complete the progress bar
         $ProgressSplat['Status'] = 'Completed all operations'
@@ -881,9 +881,9 @@
         # Finally, clean up the progress bar
         Write-Progress -Id 1 -Activity 'Configuring Tier 0 Nesting Structure' -Completed
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
 
@@ -891,7 +891,7 @@
                 'Nesting Tier0 Groups.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Stop transcript if it was started
         if ($EnableTranscript) {
@@ -900,7 +900,7 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
-    } #end End
-} #end Function New-Tier0NestingGroup
+            } #end try-catch
+        } #end if
+    } #end end
+} #end function New-Tier0NestingGroup

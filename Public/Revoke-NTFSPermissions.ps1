@@ -83,6 +83,7 @@
         .FUNCTIONALITY
             NTFS Permissions Management
 #>
+    [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'Intentional plural: function operates on multiple permission entries')]
     [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'Medium')]
     [OutputType([void])]
 
@@ -138,7 +139,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -153,7 +154,7 @@
         $Account = New-Object -TypeName System.Security.Principal.NTAccount -ArgumentList ($object)
         $FileSystemAccessRule = New-Object -TypeName System.Security.AccessControl.FileSystemAccessRule -ArgumentList ($Account, $FileSystemRights, $InheritanceFlag, $PropagationFlag, $AccessControlType)
         $DirectorySecurity = Get-Acl -Path $path
-    } #end Begin
+    } #end begin
 
     process {
         if ($PSCmdlet.ShouldProcess($path, 'Revoke NTFS permissions')) {
@@ -163,14 +164,14 @@
             } catch {
                 Write-Error -Message 'Error when revoking NTFS permissions'
                 throw
-            } #end Try-Catch
-        } #end If ShouldProcess
-    } #end Process
+            } #end try-catch
+        } #end if ShouldProcess
+    } #end process
 
     end {
         $txt = ($Variables.Footer -f $MyInvocation.InvocationName,
             'removing User/Group from folder.'
         )
         Write-Verbose -Message $txt
-    } #end End
-} #end Function
+    } #end end
+} #end function

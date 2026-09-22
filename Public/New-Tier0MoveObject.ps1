@@ -91,7 +91,7 @@
             HelpMessage = 'Full path to the configuration.xml file',
             Position = 0)]
         [ValidateScript({
-                if (-Not ($_ | Test-Path -PathType Leaf) ) {
+                if (-not ($_ | Test-Path -PathType Leaf) ) {
                     throw ('File not found: {0}' -f $_)
                 }
                 if ($_.Extension -ne '.xml') {
@@ -143,18 +143,18 @@
 
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
-        If (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
+        if (-not $PSBoundParameters.ContainsKey('ConfigXMLFile')) {
             $PSBoundParameters['ConfigXMLFile'] = 'C:\PsScripts\Config.xml'
-        } #end If
+        } #end if
 
-        If (-not $PSBoundParameters.ContainsKey('DMScripts')) {
+        if (-not $PSBoundParameters.ContainsKey('DMScripts')) {
             $PSBoundParameters['DMScripts'] = 'C:\PsScripts\'
-        } #end If
+        } #end if
 
-        # If EnableTranscript is specified, start a transcript
+        # if EnableTranscript is specified, start a transcript
         if ($EnableTranscript) {
             # Ensure DMScripts directory exists
             if (-not (Test-Path -Path $DMScripts -PathType Container)) {
@@ -187,7 +187,7 @@
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -208,7 +208,7 @@
         } catch {
             Write-Error -Message ('Error reading XML file: {0}' -f $_.Exception.Message)
             throw
-        } #end Try-Catch
+        } #end try-catch
 
         # Get the current domain controller for all operations
         try {
@@ -223,7 +223,7 @@
             Write-Error -Message ('Error discovering domain controller: {0}' -f $_.Exception.Message)
             throw
 
-        } #end Try-Catch
+        } #end try-catch
 
         # Define OU names from XML configuration
         [hashtable]$OuNames = @{
@@ -338,14 +338,14 @@
         }
         #endregion Global groups Variables
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         if ($PSCmdlet.ShouldProcess('Active Directory', 'Moving Tier0 objects')) {
 
             try {
-                
+
                 # Move, and if needed, rename the Admin account
                 if ($null -ne $AdminName -and
                     $null -ne $confXML.n.Admin.users.Admin.Name) {
@@ -367,11 +367,11 @@
                             Server         = $CurrentDC
                         }
                         Set-ADUser @Splat
-                    } #end If
+                    } #end if
 
                     Write-Debug -Message ('Moving admin account to: {0}' -f $ItAdminAccountsOuDn)
                     $AdminName | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
-                } #end If
+                } #end if
 
                 # Move the Guest Account if it exists
                 if ($null -ne $GuestNewName) {
@@ -379,7 +379,7 @@
                     Write-Debug -Message ('Moving guest account to: {0}' -f $ItAdminAccountsOuDn)
                     $GuestNewName | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
 
-                } #end If
+                } #end if
 
                 Get-ADUser -Identity 'krbtgt' | Move-ADObject -TargetPath $ItAdminAccountsOuDn -Server $CurrentDC
 
@@ -415,7 +415,7 @@
 
                 # ToDo: Check for group existence before moving
                 # Following groups only exist on Win 2019
-                If ([System.Environment]::OSVersion.Version.Build -ge 17763) {
+                if ([System.Environment]::OSVersion.Version.Build -ge 17763) {
                     Get-ADGroup -Identity 'Enterprise Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
                     Get-ADGroup -Identity 'Key Admins' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
                     Get-ADGroup -Identity 'External Trust Accounts' | Move-ADObject -TargetPath $ItPrivGroupsOUDn -Server $CurrentDC
@@ -511,11 +511,11 @@
             } catch {
                 Write-Error -Message ('Error moving Tier0 objects: {0}' -f $_.Exception.Message)
                 throw
-            } #end Try-Catch
-        } #end If ShouldProcess
-    } #end Process
+            } #end try-catch
+        } #end if ShouldProcess
+    } #end process
 
-    End {
+    end {
         # Display function footer if variables exist
         if ($null -ne $Variables -and
             $null -ne $Variables.Footer) {
@@ -524,7 +524,7 @@
                 'moving Tier0 objects.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         # Stop transcript if it was started
         if ($EnableTranscript) {
@@ -533,7 +533,7 @@
                 Write-Verbose -Message 'Transcript stopped successfully'
             } catch {
                 Write-Warning -Message ('Failed to stop transcript: {0}' -f $_.Exception.Message)
-            } #end Try-Catch
-        } #end If
-    } #end End
-} #end Function New-Tier0MoveObject
+            } #end try-catch
+        } #end if
+    } #end end
+} #end function New-Tier0MoveObject

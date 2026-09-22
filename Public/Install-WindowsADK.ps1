@@ -13,7 +13,7 @@
             Specifies the action to perform. Valid values are 'Download', 'Install', or 'Help'.
 
         .PARAMETER Version
-            Specifies the Windows ADK version to download or install. If not specified,
+            Specifies the Windows ADK version to download or install. if not specified,
             the function will attempt to detect the OS version and use the appropriate ADK version.
 
         .PARAMETER InstallPath
@@ -169,7 +169,7 @@
         $Features = @('Deployment Tools')
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         # Display function header if variables exist
@@ -182,7 +182,7 @@
                 (Get-FunctionDisplay -Hashtable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Variables Definition
@@ -244,13 +244,13 @@
         # Result variable
         [boolean]$Result = $false
 
-    } #end Begin
+    } #end begin
 
-    Process {
+    process {
 
         try {
 
-            # If no version specified, try to detect from OS
+            # if no version specified, try to detect from OS
             if (-not $Version) {
 
                 $OsBuild = [System.Environment]::OSVersion.Version.Build.ToString()
@@ -471,9 +471,9 @@
 
         } #end try-catch
 
-    } #end Process
+    } #end process
 
-    End {
+    end {
 
         # Display function footer if variables exist
         if ($null -ne $Variables -and
@@ -483,10 +483,10 @@
                 'processing Windows ADK installation.'
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         return $Result
 
-    } #end End
+    } #end end
 
 } #end function Install-WindowsADK

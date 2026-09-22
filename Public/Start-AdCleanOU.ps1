@@ -134,7 +134,7 @@ function Start-AdCleanOU {
         [Parameter(Mandatory = $false,
             ValueFromPipeline = $false,
             ValueFromPipelineByPropertyName = $false,
-            HelpMessage = 'If present, the function will not ask for confirmation when performing actions.',
+            HelpMessage = 'if present, the function will not ask for confirmation when performing actions.',
             Position = 3)]
         [Switch]
         $Force
@@ -153,7 +153,7 @@ function Start-AdCleanOU {
                 (Get-FunctionDisplay -HashTable $PsBoundParameters -Verbose:$False)
             )
             Write-Verbose -Message $txt
-        } #end If
+        } #end if
 
         ##############################
         # Module imports
@@ -183,7 +183,7 @@ function Start-AdCleanOU {
             throw
 
         } #end try-catch
-    } #end Begin
+    } #end begin
 
     process {
 
@@ -199,7 +199,7 @@ function Start-AdCleanOU {
                     Set-AdAclCreateDeleteUser @Splat
                 } catch {
                     Write-Error -Message 'Error when delegating user Create/Delete cleanup permission'
-                } #end Try-Catch
+                } #end try-catch
 
 
                 # Remove the Account Operators group from ACL to Create/Delete Computers
@@ -207,7 +207,7 @@ function Start-AdCleanOU {
                     Set-AdAclCreateDeleteComputer @Splat
                 } catch {
                     Write-Error -Message 'Error when delegating computer cleanup permission'
-                } #end Try-Catch
+                } #end try-catch
 
 
                 # Remove the Account Operators group from ACL to Create/Delete Groups
@@ -215,7 +215,7 @@ function Start-AdCleanOU {
                     Set-AdAclCreateDeleteGroup @Splat
                 } catch {
                     Write-Error -Message 'Error when delegating group cleanup permission'
-                } #end Try-Catch
+                } #end try-catch
 
 
                 # Remove the Account Operators group from ACL to Create/Delete Contacts
@@ -223,7 +223,7 @@ function Start-AdCleanOU {
                     Set-AdAclCreateDeleteContact @Splat
                 } catch {
                     Write-Error -Message 'Error when delegating contact cleanup permission'
-                } #end Try-Catch
+                } #end try-catch
 
 
                 # Remove the Account Operators group from ACL to Create/Delete inetOrgPerson
@@ -231,7 +231,7 @@ function Start-AdCleanOU {
                     Set-CreateDeleteInetOrgPerson @Splat
                 } catch {
                     Write-Error -Message 'Error when delegating InetOrg cleanup permission'
-                } #end Try-Catch
+                } #end try-catch
 
 
                 # Remove the Print Operators group from ACL to Create/Delete PrintQueues
@@ -239,7 +239,7 @@ function Start-AdCleanOU {
                     Set-AdAclCreateDeletePrintQueue @Splat
                 } catch {
                     Write-Error -Message 'Error when delegating PrintQueue Create/Delete cleanup permission'
-                } #end Try-Catch
+                } #end try-catch
 
 
                 # Remove Pre-Windows 2000 Compatible Access group from Admin-User
@@ -247,7 +247,7 @@ function Start-AdCleanOU {
                     Remove-PreWin2000 -LDAPPath $PSBoundParameters['LDAPPath']
                 } catch {
                     Write-Error -Message 'Error when delegating Pre-Win2000 cleanup permission'
-                } #end Try-Catch
+                } #end try-catch
 
 
                 # Remove Pre-Windows 2000 Access group from OU
@@ -255,7 +255,7 @@ function Start-AdCleanOU {
                     Remove-PreWin2000FromOU -LDAPPath $PSBoundParameters['LDAPPath']
                 } catch {
                     Write-Error -Message 'Error when delegating Pre-Win2000 cleanup from OU permission'
-                } #end Try-Catch
+                } #end try-catch
 
 
                 # Remove ACCOUNT OPERATORS 2000 Access group from OU
@@ -263,7 +263,7 @@ function Start-AdCleanOU {
                     Remove-AccountOperator -LDAPPath $PSBoundParameters['LDAPPath']
                 } catch {
                     Write-Error -Message 'Error when delegating AccountOperators cleanup permission'
-                } #end Try-Catch
+                } #end try-catch
 
 
                 # Remove PRINT OPERATORS 2000 Access group from OU
@@ -271,34 +271,34 @@ function Start-AdCleanOU {
                     Remove-PrintOperator -LDAPPath $PSBoundParameters['LDAPPath']
                 } catch {
                     Write-Error -Message 'Error when delegating PrintOperators cleanup permission'
-                } #end Try-Catch
+                } #end try-catch
 
 
-                If ($PsBoundParameters['RemoveAuthenticatedUsers']) {
+                if ($PsBoundParameters['RemoveAuthenticatedUsers']) {
                     # Remove AUTHENTICATED USERS group from OU
                     try {
                         Remove-AuthUser -LDAPPath $PSBoundParameters['LDAPPath']
                     } catch {
                         Write-Error -Message 'Error when delegating Authenticated Users cleanup permission'
-                    } #end Try-Catch
+                    } #end try-catch
 
                     Write-VerboseDebug -Message 'Removing Authenticated Users'
-                }  #end If
+                }  #end if
 
-                If ($PsBoundParameters['$RemoveUnknownSIDs']) {
+                if ($PsBoundParameters['$RemoveUnknownSIDs']) {
                     # Remove Un-Resolvable SID from a given object
                     try {
                         Remove-UnknownSID -LDAPPath $PSBoundParameters['LDAPPath'] -RemoveSID
                     } catch {
                         Write-Error -Message 'Error when removing Unknown SIDs'
-                    } #end Try-Catch
+                    } #end try-catch
 
                     Write-Debug -Message 'Remove Un-Resolvable / Unknown SIDs'
-                } #end If
+                } #end if
             } #end if ShouldContinue
-        } #end If
+        } #end if
 
-    } #end Process
+    } #end process
 
     end {
         if ($null -ne $Variables -and
@@ -308,7 +308,7 @@ function Start-AdCleanOU {
                 'removing Builtin groups.'
             )
             Write-Verbose -Message $txt
-        } #end If
-    } #end End
+        } #end if
+    } #end end
 
-} #end Function Start-ADCleanOU
+} #end function Start-ADCleanOU
