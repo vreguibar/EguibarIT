@@ -82,7 +82,7 @@
             OID Generation
     #>
     [CmdletBinding(
-        SupportsShouldProcess = $true,
+        SupportsShouldProcess = $false,
         ConfirmImpact = 'Low'
     )]
     [OutputType([System.Collections.Hashtable])]

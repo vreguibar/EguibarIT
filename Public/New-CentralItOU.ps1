@@ -332,6 +332,9 @@
             throw
         } #end Try-Catch
 
+        # Convert DefaultPassword from XML to SecureString exactly once; child functions receive SecureString only
+        [System.Security.SecureString]$DefaultPassword = ConvertTo-SecureString -String $ConfXML.n.DefaultPassword -AsPlainText -Force
+
         # Load naming conventions from XML
         [hashtable]$NC = @{
             'sl'    = $confXML.n.NC.LocalDomainGroupPreffix
@@ -380,7 +383,7 @@
 
             Write-Verbose -Message ($Variables.NewRegionMessage -f 'Creating and securing Admin accounts...')
 
-            New-Tier0AdminAccount @Splat -EnableTranscript
+            New-Tier0AdminAccount @Splat -AccountPassword $DefaultPassword -EnableTranscript
 
 
             ###############################################################################
@@ -550,12 +553,13 @@
 
                     # Create parameter hashtable for AGPM
                     [hashtable]$AgpmParams = @{
-                        ConfigXMLFile = $PSBoundParameters['ConfigXMLFile']
-                        Verbose       = $VerbosePreference -eq 'Continue'
+                        ConfigXMLFile   = $PSBoundParameters['ConfigXMLFile']
+                        AccountPassword = $DefaultPassword
+                        Verbose         = $VerbosePreference -eq 'Continue'
                     }
 
                     # Execute AGPM configuration
-                    New-AGPMObject $AgpmParams
+                    New-AGPMObject @AgpmParams
 
                 } catch {
 

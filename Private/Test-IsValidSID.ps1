@@ -61,7 +61,7 @@
         .FUNCTIONALITY
             SID Validation
     #>
-    [CmdletBinding(ConfirmImpact = 'Low', SupportsShouldProcess = $false)]
+    [CmdletBinding(ConfirmImpact = 'Low', SupportsShouldProcess = $true)]
     [OutputType([bool])]
 
     param
@@ -78,7 +78,7 @@
         $ObjectSID
     )
 
-    Begin {
+    begin {
         Set-StrictMode -Version Latest
 
         ##############################
@@ -90,28 +90,28 @@
 
     } #end Begin
 
-    Process {
+    process {
         # Handle pipeline input correctly
         $SIDToValidate = $ObjectSID
 
         # Ensure only account is used (remove anything before \ if exists)
-        If ($SIDToValidate -match '\\') {
+        if ($SIDToValidate -match '\\') {
             $SIDToValidate = $SIDToValidate.Split('\')[1]
             Write-Verbose -Message ('Domain format detected. Extracted SID: {0}' -f $SIDToValidate)
         } #end If
 
         if ($PSCmdlet.ShouldProcess($SIDToValidate, 'Validate SID format and existence')) {
             # Try RegEx validation
-            Try {
+            try {
                 # Check if it's a well-known SID first
-                If ($null -ne $Variables -and
+                if ($null -ne $Variables -and
                     $null -ne $Variables.WellKnownSIDs -and
                     $Variables.WellKnownSIDs.ContainsKey($SIDToValidate)) {
                     Write-Verbose -Message ('The SID {0} is a WellKnownSid.' -f $SIDToValidate)
                     $isValid = $true
                 }
                 # Then check against regex pattern
-                elseIf ($null -ne $Constants -and
+                elseif ($null -ne $Constants -and
                     $null -ne $Constants.SidRegEx -and
                     $SIDToValidate -match $Constants.SidRegEx) {
                     Write-Verbose -Message ('The SID {0} is valid.' -f $SIDToValidate)
@@ -134,7 +134,7 @@
         } #end If ShouldProcess
     } #end Process
 
-    End {
+    end {
         # No action needed here since we return within Process
     } #end End
 

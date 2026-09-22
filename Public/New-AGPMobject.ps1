@@ -18,6 +18,10 @@
             [String] Path to all supporting scripts and files needed by this function.
             Default: C:\PsScripts\
 
+        .PARAMETER AccountPassword
+            [System.Security.SecureString] Secure password used when creating the AGPM temporary service account.
+            Must be passed as a SecureString; never pass a plaintext string.
+
         .EXAMPLE
             New-AGPMObject -ConfigXMLFile 'C:\PsScripts\Config.xml'
             Creates AGPM objects using the specified configuration file.
@@ -88,7 +92,17 @@
             Position = 1)]
         [PSDefaultValue(Help = 'Default Value is "C:\PsScripts\"')]
         [string]
-        $DMScripts = 'C:\PsScripts\'
+        $DMScripts = 'C:\PsScripts\',
+
+        # Param3 SecureString password for the AGPM temporary service account
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'SecureString password for the AGPM temporary service account',
+            Position = 2)]
+        [System.Security.SecureString]
+        $AccountPassword
     )
 
     begin {
@@ -177,7 +191,7 @@
             $Splat = @{
                 Path                  = $ItServiceAccountsOuDn
                 Name                  = 'SA_AGPM_Temp'
-                AccountPassword       = (ConvertTo-SecureString -String $confXML.n.DefaultPassword -AsPlainText -Force)
+                AccountPassword       = $AccountPassword
                 ChangePasswordAtLogon = $false
                 Enabled               = $true
                 UserPrincipalName     = ('AGPM@{0}' -f $env:USERDNSDOMAIN)

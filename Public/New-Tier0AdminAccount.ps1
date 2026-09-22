@@ -21,6 +21,10 @@
             Must contain a SecTmpl subfolder and may contain a Pic subfolder for user pictures.
             Default: C:\PsScripts\
 
+        .PARAMETER AccountPassword
+            [System.Security.SecureString] Secure password used when creating the new Tier0 admin account.
+            Must be passed as a SecureString; never pass a plaintext string.
+
         .EXAMPLE
             New-Tier0AdminAccount -ConfigXMLFile C:\PsScripts\Config.xml
             Creates or updates Tier0 admin accounts using the specified configuration file.
@@ -102,10 +106,9 @@
                         $null -eq $xml.n.Admin.Users -or
                         $null -eq $xml.n.Admin.OUs -or
                         $null -eq $xml.n.RegisteredOrg -or
-                        $null -eq $xml.n.DefaultPassword -or
                         $null -eq $xml.n.NC) {
                         throw 'XML file is missing required elements
-                        (Admin, Users, OUs, RegisteredOwner, DefaultPassword or NC section)'
+                        (Admin, Users, OUs, RegisteredOwner or NC section)'
                     }
                     return $true
                 } catch {
@@ -138,10 +141,19 @@
             ValueFromPipelineByPropertyName = $false,
             ValueFromRemainingArguments = $false,
             HelpMessage = 'Start transcript logging to DMScripts path with function name',
-            Position = 2)]
+            Position = 3)]
         [Alias('Transcript', 'Log')]
         [switch]
-        $EnableTranscript
+        $EnableTranscript,
+
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $false,
+            ValueFromPipelineByPropertyName = $false,
+            ValueFromRemainingArguments = $false,
+            HelpMessage = 'SecureString password for the new Tier0 admin account',
+            Position = 2)]
+        [System.Security.SecureString]
+        $AccountPassword
 
     )
 
@@ -343,7 +355,7 @@
                 $Splat = @{
                     Path                  = $ItAdminAccountsOuDn
                     Name                  = $NewAdminName
-                    AccountPassword       = (ConvertTo-SecureString -String $ConfXML.n.DefaultPassword -AsPlainText -Force)
+                    AccountPassword       = $AccountPassword
                     ChangePasswordAtLogon = $false
                     Enabled               = $true
                     UserPrincipalName     = ('{0}@{1}' -f $NewAdminName, $env:USERDNSDOMAIN)

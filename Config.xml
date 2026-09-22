@@ -216,7 +216,7 @@
       <DomainLevel>10</DomainLevel>
       <ForestLevel>10</ForestLevel>
       <!--
-            The functional level of the forest and root domain. This defaults to 7.
+            The functional level of the forest and root domain. This defaults to 10.
 
             Windows Server 2003    : 2
             Windows Server 2008    : 3
